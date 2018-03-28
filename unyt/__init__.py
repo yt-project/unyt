@@ -15,7 +15,7 @@ The unyt package. See the unyt documentation for full details.
 from unyt import unit_symbols
 from unyt import physical_constants
 
-from unyt.yt_array import unyt_quantity
+from unyt.unyt_array import unyt_quantity
 
 
 # function to only import quantities into this namespace

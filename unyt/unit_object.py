@@ -752,7 +752,7 @@ def _get_system_unit_string(dimensions, base_units):
 
 def _define_unit(registry, symbol, value, tex_repr=None, offset=None,
                  prefixable=False):
-    from unyt.yt_array import unyt_quantity, iterable
+    from unyt.unyt_array import unyt_quantity, iterable
     if symbol in registry:
         raise RuntimeError("The symbol \"%s\" is already in the unit registry!"
                            % symbol)
@@ -777,7 +777,7 @@ def define_unit(symbol, value, tex_repr=None, offset=None, prefixable=False):
     ----------
     symbol : string
         The symbol for the new unit.
-    value : tuple or ~unyt.yt_array.unyt_quantity
+    value : tuple or ~unyt.unyt_array.unyt_quantity
         The definition of the new unit in terms of some other units. For
         example, one would define a new "mph" unit with (1.0, "mile/hr")
     tex_repr : string, optional
