@@ -4,43 +4,62 @@ A class that represents a unit symbol.
 
 """
 
-#-----------------------------------------------------------------------------
-# Copyright (c) 2013, yt Development Team.
+# -----------------------------------------------------------------------------
+# Copyright (c) 2018, yt Development Team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
-# The full license is in the file COPYING.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# The full license is in the LICENSE file, distributed with this software.
+# -----------------------------------------------------------------------------
 
-from yt.extern.six import text_type
-from sympy import \
-    Expr, Mul, Add, Number, \
-    Pow, Symbol, Integer, \
-    Float, Basic, Rational, sqrt
+
+from six import text_type
+from sympy import (
+    Expr,
+    Mul,
+    Add,
+    Number,
+    Pow,
+    Symbol,
+    Integer,
+    Float,
+    Basic,
+    Rational,
+    sqrt
+)
 from sympy.core.numbers import One
-from sympy import sympify, latex
-from sympy.parsing.sympy_parser import \
-    parse_expr, auto_number, rationalize
+from sympy import (
+    sympify,
+    latex
+)
+from sympy.parsing.sympy_parser import (
+    parse_expr,
+    auto_number,
+    rationalize
+)
 from keyword import iskeyword
-from yt.units.dimensions import \
-    base_dimensions, temperature, \
-    dimensionless, current_mks, \
+from unyt.dimensions import (
+    base_dimensions,
+    temperature,
+    dimensionless,
+    current_mks,
     angle
-from yt.units.equivalencies import \
-    equivalence_registry
-from yt.units.unit_lookup_table import \
-    unit_prefixes, prefixable_units, latex_prefixes, \
+)
+from unyt.equivalencies import equivalence_registry
+from unyt.unit_lookup_table import (
+    unit_prefixes,
+    prefixable_units,
+    latex_prefixes,
     default_base_units
-from yt.units.unit_registry import \
-    UnitRegistry, \
+)
+from unyt.unit_registry import (
+    UnitRegistry,
     UnitParseError
-from yt.utilities.exceptions import YTUnitsNotReducible
+)
+from unyt.exceptions import UnytUnitsNotReducible
 
 import copy
 import token
-
-class InvalidUnitOperation(Exception):
-    pass
 
 default_unit_registry = UnitRegistry()
 
@@ -55,6 +74,11 @@ global_dict = {
 }
 
 unit_system_registry = {}
+
+
+class InvalidUnitOperation(Exception):
+    pass
+
 
 def auto_positive_symbol(tokens, local_dict, global_dict):
     """
@@ -105,12 +129,13 @@ def auto_positive_symbol(tokens, local_dict, global_dict):
 
     return result
 
+
 def get_latex_representation(expr, registry):
     symbol_table = {}
     for ex in expr.free_symbols:
         try:
             symbol_table[ex] = registry.lut[str(ex)][3]
-        except:
+        except KeyError:
             symbol_table[ex] = r"\rm{" + str(ex).replace('_', '\ ') + "}"
 
     # invert the symbol table dict to look for keys with identical values
@@ -146,7 +171,9 @@ def get_latex_representation(expr, registry):
     else:
         return latex_repr
 
+
 unit_text_transform = (auto_positive_symbol, rationalize, auto_number)
+
 
 class Unit(Expr):
     """
@@ -159,13 +186,15 @@ class Unit(Expr):
     is_positive = True    # make sqrt(m**2) --> m
     is_commutative = True
     is_number = False
+    _latex_repr = None
 
     # Extra attributes
-    __slots__ = ["expr", "is_atomic", "base_value", "base_offset", "dimensions",
-                 "registry", "_latex_repr"]
+    __slots__ = ["expr", "is_atomic", "base_value", "base_offset",
+                 "dimensions", "registry", "_latex_repr"]
 
     def __new__(cls, unit_expr=sympy_one, base_value=None, base_offset=0.0,
-                dimensions=None, registry=None, latex_repr=None, **assumptions):
+                dimensions=None, registry=None, latex_repr=None,
+                **assumptions):
         """
         Create a new unit. May be an atomic unit (like a gram) or combinations
         of atomic units (like g / cm**3).
@@ -188,8 +217,8 @@ class Unit(Expr):
         latex_repr : string
             A string to render the unit as LaTeX
 
-        Additional keyword arguments are passed as assumptions to the Sympy Expr
-        initializer
+        Additional keyword arguments are passed as assumptions to the Sympy
+        Expr initializer
 
         """
         # Simplest case. If user passes a Unit object, just use the expr.
@@ -217,11 +246,11 @@ class Unit(Expr):
             # grab the unit object's sympy expression.
             unit_expr = unit_expr.expr
         elif hasattr(unit_expr, 'units') and hasattr(unit_expr, 'value'):
-            # something that looks like a YTArray, grab the unit and value
+            # something that looks like a unyt_array, grab the unit and value
             if unit_expr.shape != ():
                 raise UnitParseError(
-                    'Cannot create a unit from a non-scalar YTArray, received: '
-                    '%s' % (unit_expr, ))
+                    'Cannot create a unit from a non-scalar unyt_array, '
+                    'received: %s' % (unit_expr, ))
             value = unit_expr.value
             if value == 1:
                 unit_expr = unit_expr.units.expr
@@ -229,8 +258,8 @@ class Unit(Expr):
                 unit_expr = unit_expr.value*unit_expr.units.expr
         # Make sure we have an Expr at this point.
         if not isinstance(unit_expr, Expr):
-            raise UnitParseError("Unit representation must be a string or " \
-                                 "sympy Expr. %s has type %s." \
+            raise UnitParseError("Unit representation must be a string or "
+                                 "sympy Expr. %s has type %s."
                                  % (unit_expr, type(unit_expr)))
 
         if unit_expr == sympy_one and dimensions is None:
@@ -256,9 +285,9 @@ class Unit(Expr):
             try:
                 base_value = float(base_value)
             except ValueError:
-                raise UnitParseError("Could not use base_value as a float. " \
-                                     "base_value is '%s' (type %s)." \
-                                     % (base_value, type(base_value)) )
+                raise UnitParseError("Could not use base_value as a float. "
+                                     "base_value is '%s' (type %s)."
+                                     % (base_value, type(base_value)))
 
             # check that dimensions is valid
             if dimensions is not None:
@@ -293,7 +322,6 @@ class Unit(Expr):
 
         return obj
 
-    _latex_expr = None
     @property
     def latex_repr(self):
         if self._latex_repr is not None:
@@ -305,7 +333,7 @@ class Unit(Expr):
         self._latex_repr = get_latex_representation(expr, self.registry)
         return self._latex_repr
 
-    ### Some sympy conventions
+    # Some sympy conventions
     def __getnewargs__(self):
         return (self.expr, self.is_atomic, self.base_value, self.dimensions,
                 self.registry)
@@ -316,7 +344,8 @@ class Unit(Expr):
     def _hashable_content(self):
         return (self.expr, self.is_atomic, self.base_value, self.dimensions,
                 self.registry)
-    ### end sympy conventions
+
+    # end sympy conventions
 
     def __repr__(self):
         if self.expr == sympy_one:
@@ -349,11 +378,13 @@ class Unit(Expr):
         if self.base_offset or u.base_offset:
             if u.dimensions in (temperature, angle) and self.is_dimensionless:
                 base_offset = u.base_offset
-            elif self.dimensions in (temperature, angle) and u.is_dimensionless:
+            elif (self.dimensions in (temperature, angle) and
+                  u.is_dimensionless):
                 base_offset = self.base_offset
             else:
-                raise InvalidUnitOperation("Quantities with units of Fahrenheit "
-                                           "and Celsius or angles cannot be multiplied.")
+                raise InvalidUnitOperation(
+                    "Quantities with units of Fahrenheit "
+                    "and Celsius or angles cannot be multiplied.")
 
         return Unit(self.expr * u.expr,
                     base_value=(self.base_value * u.base_value),
@@ -372,11 +403,13 @@ class Unit(Expr):
         if self.base_offset or u.base_offset:
             if u.dimensions in (temperature, angle) and self.is_dimensionless:
                 base_offset = u.base_offset
-            elif self.dimensions in (temperature, angle) and u.is_dimensionless:
+            elif (self.dimensions in (temperature, angle) and
+                  u.is_dimensionless):
                 base_offset = self.base_offset
             else:
-                raise InvalidUnitOperation("Quantities with units of Farhenheit "
-                                           "and Celsius cannot be multiplied.")
+                raise InvalidUnitOperation(
+                    "Quantities with units of Farhenheit "
+                    "and Celsius cannot be multiplied.")
 
         return Unit(self.expr / u.expr,
                     base_value=(self.base_value / u.base_value),
@@ -391,9 +424,9 @@ class Unit(Expr):
         try:
             p = Rational(str(p)).limit_denominator()
         except ValueError:
-            raise InvalidUnitOperation("Tried to take a Unit object to the " \
-                                       "power '%s' (type %s). Failed to cast " \
-                                       "it to a float." % (p, type(p)) )
+            raise InvalidUnitOperation("Tried to take a Unit object to the "
+                                       "power '%s' (type %s). Failed to cast "
+                                       "it to a float." % (p, type(p)))
 
         return Unit(self.expr**p, base_value=(self.base_value**p),
                     dimensions=(self.dimensions**p),
@@ -403,8 +436,8 @@ class Unit(Expr):
         """ Test unit equality. """
         if not isinstance(u, Unit):
             return False
-        return \
-          (self.base_value == u.base_value and self.dimensions == u.dimensions)
+        return (self.base_value == u.base_value and
+                self.dimensions == u.dimensions)
 
     def __ne__(self, u):
         """ Test unit inequality. """
@@ -478,12 +511,13 @@ class Unit(Expr):
         """
         Create and return dimensionally-equivalent units in a specified base.
         """
-        yt_base_unit_string = _get_system_unit_string(self.dimensions, default_base_units)
+        yt_base_unit_string = _get_system_unit_string(
+            self.dimensions, default_base_units)
         yt_base_unit = Unit(yt_base_unit_string, base_value=1.0,
                             dimensions=self.dimensions, registry=self.registry)
         if unit_system == "cgs":
             if current_mks in self.dimensions.free_symbols:
-                raise YTUnitsNotReducible(self, "cgs")
+                raise UnytUnitsNotReducible(self, "cgs")
             return yt_base_unit
         else:
             if hasattr(unit_system, "unit_registry"):
@@ -491,7 +525,8 @@ class Unit(Expr):
             elif unit_system == "code":
                 unit_system = self.registry.unit_system_id
             unit_system = unit_system_registry[str(unit_system)]
-            units_string = _get_system_unit_string(self.dimensions, unit_system.base_units)
+            units_string = _get_system_unit_string(
+                self.dimensions, unit_system.base_units)
             u = Unit(units_string, registry=self.registry)
             base_value = get_conversion_factor(self, yt_base_unit)[0]
             base_value /= get_conversion_factor(self, u)[0]
@@ -519,6 +554,7 @@ class Unit(Expr):
 #
 # Unit manipulation functions
 #
+
 
 def get_conversion_factor(old_units, new_units):
     """
@@ -556,6 +592,7 @@ def get_conversion_factor(old_units, new_units):
 # Helper functions
 #
 
+
 def _get_unit_data_from_expr(unit_expr, unit_symbol_lut):
     """
     Grabs the total base_value and dimensions from a valid unit expression.
@@ -580,7 +617,8 @@ def _get_unit_data_from_expr(unit_expr, unit_symbol_lut):
         return (float(unit_expr), sympy_one)
 
     if isinstance(unit_expr, Pow):
-        unit_data = _get_unit_data_from_expr(unit_expr.args[0], unit_symbol_lut)
+        unit_data = _get_unit_data_from_expr(
+            unit_expr.args[0], unit_symbol_lut)
         power = unit_expr.args[1]
         if isinstance(power, Symbol):
             raise UnitParseError("Invalid unit expression '%s'." % unit_expr)
@@ -598,8 +636,8 @@ def _get_unit_data_from_expr(unit_expr, unit_symbol_lut):
 
         return (float(base_value), dimensions)
 
-    raise UnitParseError("Cannot parse for unit data from '%s'. Please supply" \
-                         " an expression of only Unit, Symbol, Pow, and Mul" \
+    raise UnitParseError("Cannot parse for unit data from '%s'. Please supply"
+                         " an expression of only Unit, Symbol, Pow, and Mul"
                          "objects." % str(unit_expr))
 
 
@@ -623,14 +661,14 @@ def _lookup_unit_symbol(symbol_str, unit_symbol_lut):
     possible_prefix = symbol_str[0]
     if possible_prefix in unit_prefixes:
         # the first character could be a prefix, check the rest of the symbol
-        symbol_wo_prefix = symbol_str[1:]
+        symbol_wo_pref = symbol_str[1:]
 
-        unit_is_si_prefixable = (symbol_wo_prefix in unit_symbol_lut and
-                                 symbol_wo_prefix in prefixable_units)
+        unit_is_si_prefixable = (symbol_wo_pref in unit_symbol_lut and
+                                 symbol_wo_pref in prefixable_units)
 
         if unit_is_si_prefixable is True:
             # lookup successful, it's a symbol with a prefix
-            unit_data = unit_symbol_lut[symbol_wo_prefix]
+            unit_data = unit_symbol_lut[symbol_wo_pref]
             prefix_value = unit_prefixes[possible_prefix]
 
             if possible_prefix in latex_prefixes:
@@ -640,14 +678,15 @@ def _lookup_unit_symbol(symbol_str, unit_symbol_lut):
                 # Need to add some special handling for comoving units
                 # this is fine for now, but it wouldn't work for a general
                 # unit that has an arbitrary LaTeX representation
-                if symbol_wo_prefix != 'cm' and symbol_wo_prefix.endswith('cm'):
-                    sub_symbol_wo_prefix = symbol_wo_prefix[:-2]
+                if symbol_wo_pref != 'cm' and symbol_wo_pref.endswith('cm'):
+                    sub_symbol_wo_prefix = symbol_wo_pref[:-2]
                     sub_symbol_str = symbol_str[:-2]
                 else:
-                    sub_symbol_wo_prefix = symbol_wo_prefix
+                    sub_symbol_wo_prefix = symbol_wo_pref
                     sub_symbol_str = symbol_str
                 latex_repr = unit_data[3].replace(
-                    '{' + sub_symbol_wo_prefix + '}', '{' + sub_symbol_str + '}')
+                    '{' + sub_symbol_wo_prefix + '}',
+                    '{' + sub_symbol_str + '}')
 
             # Leave offset and dimensions the same, but adjust scale factor and
             # LaTeX representation
@@ -662,10 +701,12 @@ def _lookup_unit_symbol(symbol_str, unit_symbol_lut):
     if symbol_str.startswith('code_'):
         raise UnitParseError(
             "Code units have not been defined. \n"
-            "Try creating the array or quantity using ds.arr or ds.quan instead.")
+            "Try creating the array or quantity using ds.arr or ds.quan "
+            "instead.")
     else:
-        raise UnitParseError("Could not find unit symbol '%s' in the provided " \
+        raise UnitParseError("Could not find unit symbol '%s' in the provided "
                              "symbols." % symbol_str)
+
 
 def validate_dimensions(dimensions):
     if isinstance(dimensions, Mul):
@@ -685,7 +726,9 @@ def validate_dimensions(dimensions):
                                  "Mul, or symbols in the base dimensions are "
                                  "allowed.  Got dimensions '%s'" % dimensions)
     elif not isinstance(dimensions, Basic):
-        raise UnitParseError("Bad dimensionality expression '%s'." % dimensions)
+        raise UnitParseError("Bad dimensionality expression '%s'." %
+                             dimensions)
+
 
 def _get_system_unit_string(dimensions, base_units):
     # The dimensions of a unit object is the product of the base dimensions.
@@ -706,20 +749,25 @@ def _get_system_unit_string(dimensions, base_units):
         units.append("(%s)%s" % (unit_string, power_string))
     return " * ".join(units)
 
-def _define_unit(registry, symbol, value, tex_repr=None, offset=None, prefixable=False):
-    from yt.units.yt_array import YTQuantity, iterable
+
+def _define_unit(registry, symbol, value, tex_repr=None, offset=None,
+                 prefixable=False):
+    from unyt.yt_array import unyt_quantity, iterable
     if symbol in registry:
-        raise RuntimeError("The symbol \"%s\" is already in the unit registry!" % symbol)
-    if not isinstance(value, YTQuantity):
+        raise RuntimeError("The symbol \"%s\" is already in the unit registry!"
+                           % symbol)
+    if not isinstance(value, unyt_quantity):
         if iterable(value) and len(value) == 2:
-            value = YTQuantity(value[0], value[1])
+            value = unyt_quantity(value[0], value[1])
         else:
             raise RuntimeError("\"value\" needs to be a (value, unit) tuple!")
     base_value = float(value.in_base(unit_system='cgs-ampere'))
     dimensions = value.units.dimensions
-    registry.add(symbol, base_value, dimensions, tex_repr=tex_repr, offset=offset)
+    registry.add(symbol, base_value, dimensions, tex_repr=tex_repr,
+                 offset=offset)
     if prefixable:
         prefixable_units.append(symbol)
+
 
 def define_unit(symbol, value, tex_repr=None, offset=None, prefixable=False):
     """
@@ -729,12 +777,12 @@ def define_unit(symbol, value, tex_repr=None, offset=None, prefixable=False):
     ----------
     symbol : string
         The symbol for the new unit.
-    value : tuple or ~yt.units.yt_array.YTQuantity
-        The definition of the new unit in terms of some other units. For example,
-        one would define a new "mph" unit with (1.0, "mile/hr") 
+    value : tuple or ~unyt.yt_array.unyt_quantity
+        The definition of the new unit in terms of some other units. For
+        example, one would define a new "mph" unit with (1.0, "mile/hr")
     tex_repr : string, optional
-        The LaTeX representation of the new unit. If one is not supplied, it will
-        be generated automatically based on the symbol string.
+        The LaTeX representation of the new unit. If one is not supplied, it
+        will be generated automatically based on the symbol string.
     offset : float, optional
         The default offset for the unit. If not set, an offset of 0 is assumed.
     prefixable : boolean, optional
@@ -743,8 +791,8 @@ def define_unit(symbol, value, tex_repr=None, offset=None, prefixable=False):
     Examples
     --------
     >>> yt.define_unit("mph", (1.0, "mile/hr"))
-    >>> two_weeks = YTQuantity(14.0, "days")
+    >>> two_weeks = unyt_quantity(14.0, "days")
     >>> yt.define_unit("fortnight", two_weeks)
     """
-    _define_unit(default_unit_registry, symbol, value, tex_repr=tex_repr, 
+    _define_unit(default_unit_registry, symbol, value, tex_repr=tex_repr,
                  offset=offset, prefixable=prefixable)

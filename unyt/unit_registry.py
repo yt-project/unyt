@@ -4,13 +4,14 @@ A registry for units that can be added to and modified.
 
 """
 
-#-----------------------------------------------------------------------------
-# Copyright (c) 2013, yt Development Team.
+# -----------------------------------------------------------------------------
+# Copyright (c) 2018, yt Development Team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
-# The full license is in the file COPYING.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# The full license is in the LICENSE file, distributed with this software.
+# -----------------------------------------------------------------------------
+
 
 import json
 import re
@@ -27,17 +28,23 @@ from sympy import \
 
 SYMPY_VERSION = LooseVersion(sympy_version)
 
+
 def positive_symbol_replacer(match):
     return match.group().replace(')\')', ')\', positive=True)')
+
 
 class SymbolNotFoundError(Exception):
     pass
 
+
 class UnitParseError(Exception):
     pass
 
+
 class UnitRegistry:
     """A registry for unit symbols"""
+    _unit_system_id = None
+
     def __init__(self, add_default_symbols=True, lut=None):
         if lut:
             self.lut = lut
@@ -54,11 +61,10 @@ class UnitRegistry:
     def __contains__(self, item):
         return item in self.lut
 
-    _unit_system_id = None
     @property
     def unit_system_id(self):
         """
-        This is a unique identifier for the unit registry created 
+        This is a unique identifier for the unit registry created
         from a FNV hash. It is needed to register a dataset's code
         unit system in the unit system registry.
         """
@@ -75,7 +81,7 @@ class UnitRegistry:
         Add a symbol to this registry.
 
         """
-        from yt.units.unit_object import validate_dimensions
+        from unyt.unit_object import validate_dimensions
 
         # Validate
         if not isinstance(base_value, float):
@@ -106,7 +112,7 @@ class UnitRegistry:
         """
         if symbol not in self.lut:
             raise SymbolNotFoundError(
-                "Tried to remove the symbol '%s', but it does not exist" \
+                "Tried to remove the symbol '%s', but it does not exist"
                 "in this registry." % symbol)
 
         del self.lut[symbol]
@@ -115,13 +121,13 @@ class UnitRegistry:
 
     def modify(self, symbol, base_value):
         """
-        Change the base value of a unit symbol.  Useful for adjusting code units
-        after parsing parameters.
+        Change the base value of a unit symbol.  Useful for adjusting code
+        units after parsing parameters.
 
         """
         if symbol not in self.lut:
             raise SymbolNotFoundError(
-                "Tried to modify the symbol '%s', but it does not exist" \
+                "Tried to modify the symbol '%s', but it does not exist"
                 "in this registry." % symbol)
 
         if hasattr(base_value, "in_base"):
@@ -183,6 +189,6 @@ class UnitRegistry:
         equiv = [k for k, v in self.lut.items()
                  if v[1] is unit_object.dimensions]
         equiv += [n for n, u in self.unit_objs.items()
-                 if u.dimensions is unit_object.dimensions]
+                  if u.dimensions is unit_object.dimensions]
         equiv = list(sorted(set(equiv)))
         return equiv

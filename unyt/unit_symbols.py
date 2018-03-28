@@ -4,34 +4,35 @@ A place to statically create unit quantities.
 
 """
 
-#-----------------------------------------------------------------------------
-# Copyright (c) 2013, yt Development Team.
+# -----------------------------------------------------------------------------
+# Copyright (c) 2018, yt Development Team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
-# The full license is in the file COPYING.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-from yt.units.yt_array import YTQuantity as quan
+# The full license is in the LICENSE file, distributed with this software.
+# -----------------------------------------------------------------------------
+
+from unyt.yt_array import unyt_quantity as quan
 
 #
 # meter
 #
 
 fm = femtometer = quan(1.0, "fm")
-pm = picometer  = quan(1.0, "pm")
-nm = nanometer  = quan(1.0, "nm")
+pm = picometer = quan(1.0, "pm")
+nm = nanometer = quan(1.0, "nm")
 um = micrometer = quan(1.0, "um")
 mm = millimeter = quan(1.0, "mm")
 cm = centimeter = quan(1.0, "cm")
-m  = meter      = quan(1.0, "m")
-km = kilometer  = quan(1.0, "km")
-Mm = Megameter  = megameter = quan(1.0, "Mm")
+m = meter = quan(1.0, "m")
+km = kilometer = quan(1.0, "km")
+Mm = Megameter = megameter = quan(1.0, "Mm")
 
 #
 # parsec
 #
 
-pc  = parsec = quan(1.0, "pc")
+pc = parsec = quan(1.0, "pc")
 kpc = kiloparsec = quan(1.0, "kpc")
 Mpc = mpc = megaparsec = quan(1.0, "Mpc")
 Gpc = gpc = Gigaparsec = quan(1.0, "Gpc")
@@ -40,19 +41,19 @@ Gpc = gpc = Gigaparsec = quan(1.0, "Gpc")
 # gram
 #
 
-mg = milligram  = quan(1.0, "mg")
-g  = gram       = quan(1.0, "g")
-kg = kilogram   = quan(1.0, "kg")
+mg = milligram = quan(1.0, "mg")
+g = gram = quan(1.0, "g")
+kg = kilogram = quan(1.0, "kg")
 
 #
 # second
 #
 
-fs   = femtoseconds = quan(1.0, "fs")
-ps   = picosecond   = quan(1.0, "ps")
-ns   = nanosecond   = quan(1.0, "ns")
-ms   = millisecond  = quan(1.0, "ms")
-s    = second       = quan(1.0, "s")
+fs = femtoseconds = quan(1.0, "fs")
+ps = picosecond = quan(1.0, "ps")
+ns = nanosecond = quan(1.0, "ns")
+ms = millisecond = quan(1.0, "ms")
+s = second = quan(1.0, "s")
 
 #
 # minute
@@ -76,10 +77,10 @@ day = quan(1.0, "day")
 # year
 #
 
-yr   = year                = quan(1.0, "yr")
-kyr  = kiloyear            = quan(1.0, "kyr")
-Myr  = Megayear = megayear = quan(1.0, "Myr")
-Gyr  = Gigayear = gigayear = quan(1.0, "Gyr")
+yr = year = quan(1.0, "yr")
+kyr = kiloyear = quan(1.0, "kyr")
+Myr = Megayear = megayear = quan(1.0, "Myr")
+Gyr = Gigayear = gigayear = quan(1.0, "Gyr")
 
 #
 # Kelvin
@@ -98,10 +99,10 @@ erg = ergs = quan(1.0, "erg")
 # Misc SI
 #
 
-N  = Newton = newton = quan(1.0, "N")
-J  = Joule = joule = quan(1.0, "J")
-W  = Watt  = watt = quan(1.0, "W")
-Hz = Hertz = hertz = quan(1.0, "Hz") 
+N = Newton = newton = quan(1.0, "N")
+J = Joule = joule = quan(1.0, "J")
+W = Watt = watt = quan(1.0, "W")
+Hz = Hertz = hertz = quan(1.0, "Hz")
 
 #
 # Imperial units
@@ -138,24 +139,24 @@ rjup = r_jup = quan(1.0, 'r_jup')
 # Physical units
 #
 
-eV  = electron_volt = quan(1.0, "eV")
+eV = electron_volt = quan(1.0, "eV")
 keV = kilo_electron_volt = quan(1.0, "keV")
 MeV = mega_electron_volt = quan(1.0, "MeV")
 GeV = giga_electron_volt = quan(1.0, "GeV")
 amu = atomic_mass_unit = quan(1.0, "amu")
 angstrom = quan(1.0, "angstrom")
-me  = electron_mass = quan(1.0, "me")
+me = electron_mass = quan(1.0, "me")
 
 #
 # Angle units
 #
 
-deg    = degree = quan(1.0, "degree")
-rad    = radian = quan(1.0, "radian")
+deg = degree = quan(1.0, "degree")
+rad = radian = quan(1.0, "radian")
 arcsec = arcsecond = quan(1.0, "arcsec")
 arcmin = arcminute = quan(1.0, "arcmin")
-mas    = milliarcsecond = quan(1.0, "mas")
-sr     = steradian = quan(1.0, "steradian")
+mas = milliarcsecond = quan(1.0, "mas")
+sr = steradian = quan(1.0, "steradian")
 
 #
 # CGS electromagnetic units

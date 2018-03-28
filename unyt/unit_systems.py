@@ -3,18 +3,24 @@ Unit system class.
 
 """
 
-#-----------------------------------------------------------------------------
-# Copyright (c) 2013, yt Development Team.
+# -----------------------------------------------------------------------------
+# Copyright (c) 2018, yt Development Team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
-# The full license is in the file COPYING.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# The full license is in the LICENSE file, distributed with this software.
+# -----------------------------------------------------------------------------
 
-from yt.extern.six import string_types
-from yt.units import dimensions
-from yt.units.unit_object import Unit, unit_system_registry, _get_system_unit_string
-from yt.utilities import physical_constants as pc
+
+from six import string_types
+from unyt import dimensions
+from unyt.unit_object import (
+    Unit,
+    unit_system_registry,
+    _get_system_unit_string
+)
+from unyt import physical_constants as pc
+
 
 class UnitSystemConstants(object):
     """
@@ -33,6 +39,7 @@ class UnitSystemConstants(object):
     def __getattr__(self, item):
         return getattr(pc, item).in_base(self.name)
 
+
 class UnitSystem(object):
     """
     Create a UnitSystem for facilitating conversions to a default set of units.
@@ -40,7 +47,7 @@ class UnitSystem(object):
     Parameters
     ----------
     name : string
-        The name of the unit system. Will be used as the key in the 
+        The name of the unit system. Will be used as the key in the
         *unit_system_registry* dict to reference the unit system by.
     length_unit : string
         The base length unit of this unit system.
@@ -53,24 +60,27 @@ class UnitSystem(object):
     angle_unit : string, optional
         The base angle unit of this unit system. Defaults to "rad".
     current_mks_unit : string, optional
-        The base current unit of this unit system. Only used in MKS 
+        The base current unit of this unit system. Only used in MKS
         or MKS-based unit systems.
     registry : :class:`yt.units.unit_registry.UnitRegistry` object
-        The unit registry associated with this unit system. Only 
+        The unit registry associated with this unit system. Only
         useful for defining unit systems based on code units.
     """
     def __init__(self, name, length_unit, mass_unit, time_unit,
                  temperature_unit="K", angle_unit="rad", current_mks_unit=None,
                  registry=None):
         self.registry = registry
-        self.units_map = {dimensions.length: Unit(length_unit, registry=self.registry),
-                          dimensions.mass: Unit(mass_unit, registry=self.registry),
-                          dimensions.time: Unit(time_unit, registry=self.registry),
-                          dimensions.temperature: Unit(temperature_unit, registry=self.registry),
-                          dimensions.angle: Unit(angle_unit, registry=self.registry)}
-        self._dims = ["length","mass","time","temperature","angle"]
+        self.units_map = {
+            dimensions.length: Unit(length_unit, registry=self.registry),
+            dimensions.mass: Unit(mass_unit, registry=self.registry),
+            dimensions.time: Unit(time_unit, registry=self.registry),
+            dimensions.temperature: Unit(
+                temperature_unit, registry=self.registry),
+            dimensions.angle: Unit(angle_unit, registry=self.registry)}
+        self._dims = ["length", "mass", "time", "temperature", "angle"]
         if current_mks_unit is not None:
-            self.units_map[dimensions.current_mks] = Unit(current_mks_unit, registry=self.registry)
+            self.units_map[dimensions.current_mks] = Unit(
+                current_mks_unit, registry=self.registry)
             self._dims.append("current_mks")
         self.registry = registry
         self.base_units = self.units_map.copy()
@@ -109,10 +119,11 @@ class UnitSystem(object):
                 repr += "  %s: %s\n" % (key, self.units_map[dim])
         return repr
 
+
 def create_code_unit_system(unit_registry, current_mks_unit=None):
-    code_unit_system = UnitSystem(unit_registry.unit_system_id, "code_length", 
+    code_unit_system = UnitSystem(unit_registry.unit_system_id, "code_length",
                                   "code_mass", "code_time", "code_temperature",
-                                  current_mks_unit=current_mks_unit, 
+                                  current_mks_unit=current_mks_unit,
                                   registry=unit_registry)
     code_unit_system["velocity"] = "code_velocity"
     if current_mks_unit:
@@ -120,6 +131,7 @@ def create_code_unit_system(unit_registry, current_mks_unit=None):
     else:
         code_unit_system["magnetic_field_cgs"] = "code_magnetic"
     code_unit_system["pressure"] = "code_pressure"
+
 
 cgs_unit_system = UnitSystem("cgs", "cm", "g", "s")
 cgs_unit_system["energy"] = "erg"
@@ -138,7 +150,7 @@ mks_unit_system["force"] = "N"
 mks_unit_system["magnetic_field_mks"] = "T"
 mks_unit_system["charge_mks"] = "C"
 
-imperial_unit_system = UnitSystem("imperial", "ft", "lbm", "s", 
+imperial_unit_system = UnitSystem("imperial", "ft", "lbm", "s",
                                   temperature_unit="R")
 imperial_unit_system["force"] = "lbf"
 imperial_unit_system["energy"] = "ft*lbf"
@@ -150,10 +162,10 @@ galactic_unit_system["magnetic_field_cgs"] = "uG"
 
 solar_unit_system = UnitSystem("solar", "AU", "Mearth", "yr")
 
-geometrized_unit_system = UnitSystem("geometrized", "l_geom", 
+geometrized_unit_system = UnitSystem("geometrized", "l_geom",
                                      "m_geom", "t_geom")
 
-planck_unit_system = UnitSystem("planck", "l_pl", "m_pl", "t_pl", 
+planck_unit_system = UnitSystem("planck", "l_pl", "m_pl", "t_pl",
                                 temperature_unit="T_pl")
 planck_unit_system["energy"] = "E_pl"
 planck_unit_system["charge_cgs"] = "q_pl"

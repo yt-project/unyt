@@ -5,15 +5,15 @@ Test symbolic unit handling.
 
 
 """
-from __future__ import print_function
 
-#-----------------------------------------------------------------------------
-# Copyright (c) 2013, yt Development Team.
+# -----------------------------------------------------------------------------
+# Copyright (c) 2018, yt Development Team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
-# The full license is in the file COPYING.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# The full license is in the LICENSE file, distributed with this software.
+# -----------------------------------------------------------------------------
+
 
 import numpy as np
 from numpy.testing import \
@@ -22,28 +22,43 @@ from numpy.testing import \
 from nose.tools import assert_true
 import operator
 from sympy import Symbol
-from yt.testing import \
-    fake_random_ds, assert_allclose_units, \
+from unyt.testing import (
+    assert_allclose_units,
     assert_almost_equal
-from yt.units.unit_registry import UnitRegistry
-from yt.units import electrostatic_unit, elementary_charge
-from yt.units.unit_object import default_unit_registry
-
-# dimensions
-from yt.units.dimensions import \
-    mass, length, time, temperature, energy, magnetic_field, power, rate
-# functions
-from yt.units.unit_object import get_conversion_factor
-# classes
-from yt.units.unit_object import Unit, UnitParseError, InvalidUnitOperation
-# objects
-from yt.units.unit_lookup_table import \
-    default_unit_symbol_lut, unit_prefixes, prefixable_units
+)
+from unyt.unit_registry import UnitRegistry
+from unyt import electrostatic_unit, elementary_charge
+from unyt.dimensions import (
+    mass,
+    length,
+    time,
+    temperature,
+    energy,
+    magnetic_field,
+    power,
+    rate
+)
+from unyt.unit_object import (
+    default_unit_registry,
+    get_conversion_factor,
+    Unit,
+    UnitParseError,
+    InvalidUnitOperation
+)
+from yt.units.unit_lookup_table import (
+    default_unit_symbol_lut,
+    unit_prefixes,
+    prefixable_units
+)
 import yt.units.unit_symbols as unit_symbols
-# unit definitions
-from yt.utilities.physical_ratios import \
-    cm_per_pc, sec_per_year, cm_per_km, cm_per_mpc, \
+from unyt.physical_ratios import (
+    cm_per_pc,
+    sec_per_year,
+    cm_per_km,
+    cm_per_mpc,
     mass_sun_grams
+)
+
 
 def test_no_conflicting_symbols():
     """
@@ -68,6 +83,7 @@ def test_no_conflicting_symbols():
 
             full_set.add(new_symbol)
 
+
 def test_dimensionless():
     """
     Create dimensionless unit and check attributes.
@@ -90,9 +106,6 @@ def test_dimensionless():
     assert_equal(u1.latex_repr, '')
     assert_equal(u2.latex_repr, '')
 
-#
-# Start init tests
-#
 
 def test_create_from_string():
     """
@@ -127,7 +140,8 @@ def test_create_from_string():
     # nonzero CGS conversion factor
     u6 = Unit("Msun/pc**3")
     assert_true(u6.dimensions == mass/length**3)
-    assert_array_almost_equal_nulp(np.array([u6.base_value]), np.array([mass_sun_grams/cm_per_pc**3]))
+    assert_array_almost_equal_nulp(np.array([u6.base_value]),
+                                   np.array([mass_sun_grams/cm_per_pc**3]))
 
     assert_raises(UnitParseError, Unit, 'm**m')
     assert_raises(UnitParseError, Unit, 'm**g')
@@ -149,7 +163,7 @@ def test_create_from_expr():
     # Mul expr
     s3 = s1 * s2
     # Pow expr
-    s4  = s1**2 * s2**(-1)
+    s4 = s1**2 * s2**(-1)
 
     u1 = Unit(s1)
     u2 = Unit(s2)
@@ -189,6 +203,7 @@ def test_create_with_duplicate_dimensions():
     assert_allclose_units(u2.base_value, km_cgs / Mpc_cgs, 1e-12)
     assert_true(u2.dimensions == rate)
 
+
 def test_create_new_symbol():
     """
     Create unit with unknown symbol.
@@ -210,7 +225,7 @@ def test_create_new_symbol():
 
     assert_true(u1.expr == Symbol("abc", positive=True))
     assert_true(u1.base_value == 42)
-    assert_true( u1.dimensions == length**2*mass)
+    assert_true(u1.dimensions == length**2*mass)
 
     assert_raises(UnitParseError, Unit, 'abc', base_value=42,
                   dimensions=length**length)
@@ -220,6 +235,7 @@ def test_create_new_symbol():
                   dimensions=length-mass)
     assert_raises(UnitParseError, Unit, 'abc', base_value=42,
                   dimensions=length+mass)
+
 
 def test_create_fail_on_unknown_symbol():
     """
@@ -233,6 +249,7 @@ def test_create_fail_on_unknown_symbol():
     else:
         assert_true(False)
 
+
 def test_create_fail_on_bad_symbol_type():
     """
     Fail to create unit with bad symbol type.
@@ -244,6 +261,7 @@ def test_create_fail_on_bad_symbol_type():
         assert_true(True)
     else:
         assert_true(False)
+
 
 def test_create_fail_on_bad_dimensions_type():
     """
@@ -285,9 +303,6 @@ def test_create_fail_on_base_value_type():
     else:
         assert_true(False)
 
-#
-# End init tests
-#
 
 def test_string_representation():
     """
@@ -305,9 +320,6 @@ def test_string_representation():
     assert_true(repr(speed) == "pc/Myr")
     assert_true(str(dimensionless) == "dimensionless")
 
-#
-# Start operation tests
-#
 
 def test_multiplication():
     """
@@ -388,12 +400,14 @@ def test_power():
     u3 = u1**(-1.0/3)
 
     assert_true(u3.dimensions == nsimplify(u1_dims**(-1.0/3)))
-    assert_allclose_units(u3.base_value, (pc_cgs**2 * mK_cgs**4)**(-1.0/3), 1e-12)
+    assert_allclose_units(u3.base_value, (pc_cgs**2 * mK_cgs**4)**(-1.0/3),
+                          1e-12)
 
 
 def test_equality():
     """
-    Check unit equality with different symbols, but same dimensions and base_value.
+    Check unit equality with different symbols, but same dimensions and
+    base_value.
 
     """
     u1 = Unit("km * s**-1")
@@ -401,9 +415,6 @@ def test_equality():
 
     assert_true(u1 == u2)
 
-#
-# End operation tests.
-#
 
 def test_base_equivalent():
     """
@@ -430,23 +441,9 @@ def test_base_equivalent():
     assert_true(u2.dimensions == mass_density)
     assert_true(u3.dimensions == mass_density)
 
-    assert_allclose_units(get_conversion_factor(u1, u3)[0], Msun_cgs / Mpc_cgs**3, 1e-12)
+    assert_allclose_units(get_conversion_factor(u1, u3)[0],
+                          Msun_cgs / Mpc_cgs**3, 1e-12)
 
-def test_is_code_unit():
-    ds = fake_random_ds(64, nprocs=1)
-    u1 = Unit('code_mass', registry=ds.unit_registry)
-    u2 = Unit('code_mass/code_length', registry=ds.unit_registry)
-    u3 = Unit('code_velocity*code_mass**2', registry=ds.unit_registry)
-    u4 = Unit('code_time*code_mass**0.5', registry=ds.unit_registry)
-    u5 = Unit('code_mass*g', registry=ds.unit_registry)
-    u6 = Unit('g/cm**3')
-
-    assert_true(u1.is_code_unit)
-    assert_true(u2.is_code_unit)
-    assert_true(u3.is_code_unit)
-    assert_true(u4.is_code_unit)
-    assert_true(not u5.is_code_unit)
-    assert_true(not u6.is_code_unit)
 
 def test_temperature_offsets():
     u1 = Unit('degC')
@@ -455,25 +452,19 @@ def test_temperature_offsets():
     assert_raises(InvalidUnitOperation, operator.mul, u1, u2)
     assert_raises(InvalidUnitOperation, operator.truediv, u1, u2)
 
+
 def test_latex_repr():
-    ds = fake_random_ds(64, nprocs=1)
+    registry = UnitRegistry()
 
     # create a fake comoving unit
-    ds.unit_registry.add('pccm', ds.unit_registry.lut['pc'][0]/(1+2), length,
-                         "\\rm{pc}/(1+z)")
+    registry.add('pccm', registry.lut['pc'][0]/(1+2), length,
+                 "\\rm{pc}/(1+z)")
 
-    test_unit = Unit('Mpccm', registry=ds.unit_registry)
+    test_unit = Unit('Mpccm', registry=registry)
     assert_almost_equal(test_unit.base_value, cm_per_mpc/3)
     assert_equal(test_unit.latex_repr, r'\rm{Mpc}/(1+z)')
 
-    test_unit = Unit('code_mass', registry=ds.unit_registry)
-    assert_equal(test_unit.latex_repr, '\\rm{code\\ mass}')
-
-    test_unit = Unit('code_mass/code_length**3', registry=ds.unit_registry)
-    assert_equal(test_unit.latex_repr,
-                 '\\frac{\\rm{code\\ mass}}{\\rm{code\\ length}^{3}}')
-
-    test_unit = Unit('cm**-3', base_value=1.0, registry=ds.unit_registry)
+    test_unit = Unit('cm**-3', base_value=1.0, registry=registry)
     assert_equal(test_unit.latex_repr, '\\frac{1}{\\rm{cm}^{3}}')
 
     test_unit = Unit('m_geom/l_geom**3')
@@ -481,6 +472,7 @@ def test_latex_repr():
 
     test_unit = Unit('1e9*cm')
     assert_equal(test_unit.latex_repr, '1.0 \\times 10^{9}\\ \\rm{cm}')
+
 
 def test_latitude_longitude():
     lat = unit_symbols.lat
@@ -503,12 +495,14 @@ def test_latitude_longitude():
     assert_equal((lon*0.0).in_units("deg"), deg*180.0)
     assert_equal((lon*180.0).in_units("deg"), deg*360)
 
+
 def test_registry_json():
     reg = UnitRegistry()
     json_reg = reg.to_json()
     unserialized_reg = UnitRegistry.from_json(json_reg)
 
     assert_equal(reg.lut, unserialized_reg.lut)
+
 
 def test_creation_from_ytarray():
     u1 = Unit(electrostatic_unit)
@@ -525,11 +519,13 @@ def test_creation_from_ytarray():
 
     assert_raises(UnitParseError, Unit, [1, 2, 3]*elementary_charge)
 
+
 def test_list_same_dimensions():
     reg = default_unit_registry
     for name1, u1 in reg.unit_objs.items():
         for name2 in reg.list_same_dimensions(u1):
-            if name2 == name1: continue
+            if name2 == name1:
+                continue
             if name2 in reg.unit_objs:
                 dim2 = reg.unit_objs[name2].dimensions
             else:

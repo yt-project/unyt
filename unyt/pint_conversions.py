@@ -2,13 +2,15 @@
 Stuff for pint conversions
 
 """
-#-----------------------------------------------------------------------------
-# Copyright (c) 2015, yt Development Team.
+
+# -----------------------------------------------------------------------------
+# Copyright (c) 2018, yt Development Team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
-# The full license is in the file COPYING.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# The full license is in the LICENSE file, distributed with this software.
+# -----------------------------------------------------------------------------
+
 
 pint_aliases = {
     "meter": "m",
@@ -45,25 +47,26 @@ pint_aliases = {
 }
 
 pint_prefixes = {
-    'yotta':'Y',
-    'zetta':'Z',
-    'exa':'E',
-    'peta':'P',
-    'tera':'T',
-    'giga':'G',
-    'mega':'M',
-    'kilo':'k',
-    'deci':'d',
-    'centi':'c',
-    'milli':'m',
-    'micro':'u',
-    'nano':'n',
-    'pico':'p',
-    'femto':'f',
-    'atto':'a',
-    'zepto':'z',
-    'yocto':'y',
+    'yotta': 'Y',
+    'zetta': 'Z',
+    'exa': 'E',
+    'peta': 'P',
+    'tera': 'T',
+    'giga': 'G',
+    'mega': 'M',
+    'kilo': 'k',
+    'deci': 'd',
+    'centi': 'c',
+    'milli': 'm',
+    'micro': 'u',
+    'nano': 'n',
+    'pico': 'p',
+    'femto': 'f',
+    'atto': 'a',
+    'zepto': 'z',
+    'yocto': 'y',
 }
+
 
 def convert_pint_units(unit_expr):
     uexpr = unit_expr
@@ -79,6 +82,6 @@ def convert_pint_units(unit_expr):
             return uexpr
         else:
             return pfx+uexpr
-    # If we can't figure it out just pass it and see 
+    # If we can't figure it out just pass it and see
     # what happens
     return unit_expr

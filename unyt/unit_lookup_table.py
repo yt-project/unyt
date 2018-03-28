@@ -4,26 +4,52 @@ The default unit symbol lookup table.
 
 """
 
-#-----------------------------------------------------------------------------
-# Copyright (c) 2013, yt Development Team.
+# -----------------------------------------------------------------------------
+# Copyright (c) 2018, yt Development Team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
-# The full license is in the file COPYING.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# The full license is in the LICENSE file, distributed with this software.
+# -----------------------------------------------------------------------------
 
-from yt.units import dimensions
-from yt.utilities.physical_ratios import \
-    cm_per_pc, cm_per_ly, cm_per_au, cm_per_rsun, cm_per_m, \
-    mass_sun_grams, sec_per_year, sec_per_day, sec_per_hr, \
-    sec_per_min, temp_sun_kelvin, luminosity_sun_ergs_per_sec, \
-    metallicity_sun, erg_per_eV, amu_grams, mass_electron_grams, \
-    cm_per_ang, jansky_cgs, mass_jupiter_grams, mass_earth_grams, \
-    kelvin_per_rankine, speed_of_light_cm_per_s, planck_length_cm, \
-    planck_charge_esu, planck_energy_erg, planck_mass_grams, \
-    planck_temperature_K, planck_time_s, mass_hydrogen_grams, \
-    grams_per_pound, standard_gravity_cm_per_s2, pascal_per_atm, \
-    newton_cgs, cm_per_rearth, cm_per_rjup
+from unyt.units import dimensions
+from unyt.physical_ratios import (
+    cm_per_pc,
+    cm_per_ly,
+    cm_per_au,
+    cm_per_rsun,
+    cm_per_m,
+    mass_sun_grams,
+    sec_per_year,
+    sec_per_day,
+    sec_per_hr,
+    sec_per_min,
+    temp_sun_kelvin,
+    luminosity_sun_ergs_per_sec,
+    metallicity_sun,
+    erg_per_eV,
+    amu_grams,
+    mass_electron_grams,
+    cm_per_ang,
+    jansky_cgs,
+    mass_jupiter_grams,
+    mass_earth_grams,
+    kelvin_per_rankine,
+    speed_of_light_cm_per_s,
+    planck_length_cm,
+    planck_charge_esu,
+    planck_energy_erg,
+    planck_mass_grams,
+    planck_temperature_K,
+    planck_time_s,
+    mass_hydrogen_grams,
+    grams_per_pound,
+    standard_gravity_cm_per_s2,
+    pascal_per_atm,
+    newton_cgs,
+    cm_per_rearth,
+    cm_per_rjup
+)
 import numpy as np
 
 # Lookup a unit symbol with the symbol string, and provide a tuple with the
@@ -65,12 +91,13 @@ default_unit_symbol_lut = {
     "degF": (kelvin_per_rankine, dimensions.temperature, -459.67,
              "^\circ\rm{F}"),
     "R": (kelvin_per_rankine, dimensions.temperature, 0.0, r"^\circ\rm{R}"),
-    "lbf": (grams_per_pound*standard_gravity_cm_per_s2, dimensions.force, 0.0, r"\rm{lbf}"),
+    "lbf": (grams_per_pound*standard_gravity_cm_per_s2, dimensions.force, 0.0,
+            r"\rm{lbf}"),
     "lbm": (grams_per_pound, dimensions.mass, 0.0, r"\rm{lbm}"),
     "atm": (pascal_per_atm*10., dimensions.pressure, 0.0, r"\rm{atm}"),
 
     # dimensionless stuff
-    "h": (1.0, dimensions.dimensionless, 0.0, r"h"),  # needs to be added for rho_crit_now
+    "h": (1.0, dimensions.dimensionless, 0.0, r"h"),
     "dimensionless": (1.0, dimensions.dimensionless, 0.0, r""),
 
     # times
@@ -151,8 +178,10 @@ default_unit_symbol_lut = {
 
     # Geometrized units
     "m_geom": (mass_sun_grams, dimensions.mass, 0.0, r"M_\odot"),
-    "l_geom": (newton_cgs*mass_sun_grams/speed_of_light_cm_per_s**2, dimensions.length, 0.0, r"M_\odot"),
-    "t_geom": (newton_cgs*mass_sun_grams/speed_of_light_cm_per_s**3, dimensions.time, 0.0, r"M_\odot"),
+    "l_geom": (newton_cgs*mass_sun_grams/speed_of_light_cm_per_s**2,
+               dimensions.length, 0.0, r"M_\odot"),
+    "t_geom": (newton_cgs*mass_sun_grams/speed_of_light_cm_per_s**3,
+               dimensions.time, 0.0, r"M_\odot"),
 
     # Some Solar System units
     "R_earth": (cm_per_rearth, dimensions.length, 0.0, r"R_\oplus"),
