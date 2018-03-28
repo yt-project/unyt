@@ -123,12 +123,12 @@ from unyt.dimensions import (
     em_dimensions
 )
 from unyt.exceptions import (
-    YTUnitOperationError,
-    YTUnitConversionError,
-    YTUfuncUnitError,
-    YTIterableUnitCoercionError,
-    YTInvalidUnitEquivalence,
-    YTEquivalentDimsError
+    UnitOperationError,
+    UnitConversionError,
+    UfuncUnitError,
+    IterableUnitCoercionError,
+    InvalidUnitEquivalence,
+    EquivalentDimsError
 )
 try:
     from functools import lru_cache
@@ -254,7 +254,7 @@ def get_inp_u_binary(ufunc, inputs):
                 if unit2.units.is_dimensionless:
                     pass
                 else:
-                    raise YTUnitOperationError(ufunc, unit1, unit2)
+                    raise UnitOperationError(ufunc, unit1, unit2)
             unit2 = 1.0
     return (inp1, inp2), (unit1, unit2), ret_class
 
@@ -268,7 +268,7 @@ def handle_preserve_units(inps, units, ufunc, ret_class):
             units = (units[0], units[0])
         else:
             if not units[0].same_dimensions_as(units[1]):
-                raise YTUnitOperationError(ufunc, *units)
+                raise UnitOperationError(ufunc, *units)
             inps = (inps[0], ret_class(inps[1]).to(
                 ret_class(inps[0]).units))
     return inps, units
@@ -285,10 +285,10 @@ def handle_comparison_units(inps, units, ufunc, ret_class, raise_error=False):
             units = (units[0], units[0])
         elif not any([u1d, u2d]):
             if not units[0].same_dimensions_as(units[1]):
-                raise YTUnitOperationError(ufunc, *units)
+                raise UnitOperationError(ufunc, *units)
             else:
                 if raise_error:
-                    raise YTUfuncUnitError(ufunc, *units)
+                    raise UfuncUnitError(ufunc, *units)
                 inps = (inps[0], ret_class(inps[1]).to(
                     ret_class(inps[0]).units))
     return inps, units
@@ -312,7 +312,7 @@ def coerce_iterable_units(input_object):
             ff = getattr(input_object[0], 'units', NULL_UNIT, )
             if any([ff != getattr(_, 'units', NULL_UNIT)
                     for _ in input_object]):
-                raise YTIterableUnitCoercionError(input_object)
+                raise IterableUnitCoercionError(input_object)
             # This will create a copy of the data in the iterable.
             return unyt_array(input_object)
         return input_object
@@ -345,13 +345,13 @@ def sanitize_units_add(this_object, other_object, op_string):
                 return ret.view(np.ndarray)
             elif not np.any(this_object):
                 return ret
-            raise YTUnitOperationError(op_string, inp.units, ret.units)
+            raise UnitOperationError(op_string, inp.units, ret.units)
         ret = ret.in_units(inp.units)
     else:
-        # If the other object is not a unyt_array, then one of the arrays must be
-        # dimensionless or filled with zeros
+        # If the other object is not a unyt_array, then one of the arrays
+        # must be dimensionless or filled with zeros
         if not inp.units.is_dimensionless and np.any(ret):
-            raise YTUnitOperationError(op_string, inp.units, dimensionless)
+            raise UnitOperationError(op_string, inp.units, dimensionless)
     return ret
 
 
@@ -362,7 +362,7 @@ def validate_comparison_units(this, other, op_string):
             if this.units.base_value == other.units.base_value:
                 return other
         if not this.units.same_dimensions_as(other.units):
-            raise YTUnitOperationError(op_string, this.units, other.units)
+            raise UnitOperationError(op_string, this.units, other.units)
         return other.in_units(this.units)
 
     return other
@@ -385,10 +385,10 @@ def _unit_repr_check_same(my_units, other_units):
             base = "SI"
         else:
             base = "CGS"
-        raise YTEquivalentDimsError(my_units, other_units, base)
+        raise EquivalentDimsError(my_units, other_units, base)
 
     if not my_units.same_dimensions_as(other_units):
-        raise YTUnitConversionError(
+        raise UnitConversionError(
             my_units, my_units.dimensions, other_units, other_units.dimensions)
 
     return other_units
@@ -665,7 +665,7 @@ class unyt_array(np.ndarray):
         elif iterable(input_array) and input_array:
             if isinstance(input_array[0], unyt_array):
                 return unyt_array(np.array(input_array, dtype=dtype),
-                               input_array[0].units, registry=registry)
+                                  input_array[0].units, registry=registry)
 
         # Input array is an already formed ndarray instance
         # We first cast to be our class type
@@ -898,8 +898,9 @@ class unyt_array(np.ndarray):
 
     def to_equivalent(self, unit, equiv, **kwargs):
         """
-        Convert a unyt_array or unyt_quantity to an equivalent, e.g., something that
-        is related by only a constant factor but not in the same units.
+        Convert a unyt_array or unyt_quantity to an equivalent, e.g.,
+        something that is related by only a constant factor but not in the
+        same units.
 
         Parameters
         ----------
@@ -927,12 +928,12 @@ class unyt_array(np.ndarray):
             if isinstance(new_arr, tuple):
                 try:
                     return type(self)(new_arr[0], new_arr[1]).in_units(unit)
-                except YTUnitConversionError:
-                    raise YTInvalidUnitEquivalence(equiv, self.units, unit)
+                except UnitConversionError:
+                    raise InvalidUnitEquivalence(equiv, self.units, unit)
             else:
                 return new_arr.in_units(unit)
         else:
-            raise YTInvalidUnitEquivalence(equiv, self.units, unit)
+            raise InvalidUnitEquivalence(equiv, self.units, unit)
 
     def list_equivalencies(self):
         """
@@ -943,8 +944,8 @@ class unyt_array(np.ndarray):
 
     def has_equivalent(self, equiv):
         """
-        Check to see if this unyt_array or unyt_quantity has an equivalent unit in
-        *equiv*.
+        Check to see if this unyt_array or unyt_quantity has an equivalent
+        unit in *equiv*.
         """
         return self.units.has_equivalent(equiv)
 
@@ -1034,7 +1035,8 @@ class unyt_array(np.ndarray):
         if isinstance(arr.magnitude, np.ndarray):
             return unyt_array(arr.magnitude, p_units, registry=unit_registry)
         else:
-            return unyt_quantity(arr.magnitude, p_units, registry=unit_registry)
+            return unyt_quantity(arr.magnitude, p_units,
+                                 registry=unit_registry)
 
     def to_pint(self, unit_registry=None):
         """
@@ -1291,7 +1293,8 @@ class unyt_array(np.ndarray):
 
         def __div__(self, right_object):
             """
-            Divide this unyt_array by the object on the right of the `/` operator.
+            Divide this unyt_array by the object on the right of the `/`
+            operator.
 
             """
             ro = sanitize_units_mul(self, right_object)
@@ -1380,7 +1383,7 @@ class unyt_array(np.ndarray):
             """
             if isinstance(power, unyt_array):
                 if not power.units.is_dimensionless:
-                    raise YTUnitOperationError('power', power.unit)
+                    raise UnitOperationError('power', power.unit)
 
             # Work around a sympy issue (I think?)
             #
@@ -1469,7 +1472,8 @@ class unyt_array(np.ndarray):
 
         @return_arr
         def std(self, axis=None, dtype=None, out=None, ddof=0):
-            return super(unyt_array, self).std(axis, dtype, out, ddof), self.units
+            return (super(unyt_array, self).std(axis, dtype, out, ddof),
+                    self.units)
 
         def __array_wrap__(self, out_arr, context=None):
             ret = super(unyt_array, self).__array_wrap__(out_arr, context)
@@ -1509,9 +1513,9 @@ class unyt_array(np.ndarray):
                 return unyt_quantity(np.array(out_arr), unit)
             else:
                 if ret_class is unyt_quantity:
-                    # This happens if you do ndarray * unyt_quantity. Explicitly
-                    # casting to unyt_array avoids creating a unyt_quantity with
-                    # size > 1
+                    # This happens if you do ndarray * unyt_quantity.
+                    # Explicitly casting to unyt_array avoids creating a
+                    # unyt_quantity with size > 1
                     return unyt_array(np.array(out_arr), unit)
                 return ret_class(np.array(out_arr, copy=False), unit)
 
@@ -1563,9 +1567,9 @@ class unyt_array(np.ndarray):
                 out_arr = unyt_quantity(np.asarray(out_arr), unit)
             else:
                 if ret_class is unyt_quantity:
-                    # This happens if you do ndarray * unyt_quantity. Explicitly
-                    # casting to unyt_array avoids creating a unyt_quantity with
-                    # size > 1
+                    # This happens if you do ndarray * unyt_quantity.
+                    # Explicitly casting to unyt_array avoids creating a
+                    # unyt_quantity with size > 1
                     out_arr = unyt_array(np.asarray(out_arr), unit)
                 else:
                     out_arr = ret_class(np.asarray(out_arr), unit)
@@ -1687,27 +1691,14 @@ class unyt_quantity(unyt_array):
     >>> print(np.log10(a))
     1.07918124605
 
-    unyt_quantity is tightly integrated with yt datasets:
-
-    >>> import yt
-    >>> ds = yt.load('IsolatedGalaxy/galaxy0030/galaxy0030')
-    >>> a = ds.quan(5, 'code_length')
-    >>> a.in_cgs()
-    1.543e+25 cm
-
-    This is equivalent to:
-
-    >>> b = unyt_quantity(5, 'code_length', registry=ds.unit_registry)
-    >>> np.all(a == b)
-    True
-
     """
     def __new__(cls, input_scalar, input_units=None, registry=None,
                 dtype=np.float64, bypass_validation=False):
         if not isinstance(input_scalar, (numeric_type, np.number, np.ndarray)):
             raise RuntimeError("unyt_quantity values must be numeric")
-        ret = unyt_array.__new__(cls, input_scalar, input_units, registry,
-                              dtype=dtype, bypass_validation=bypass_validation)
+        ret = unyt_array.__new__(
+            cls, input_scalar, input_units, registry,
+            dtype=dtype, bypass_validation=bypass_validation)
         if ret.size > 1:
             raise RuntimeError("unyt_quantity instances must be scalars")
         return ret

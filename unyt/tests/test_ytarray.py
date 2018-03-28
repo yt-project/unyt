@@ -45,8 +45,8 @@ from unyt.yt_array import (
     savetxt
 )
 from unyt.exceptions import (
-    YTUnitOperationError,
-    YTUfuncUnitError
+    UnitOperationError,
+    UfuncUnitError
 )
 from unyt.testing import (
     requires_module,
@@ -112,8 +112,8 @@ def test_addition():
     operate_and_compare(a1, a3, operator.add, answer1)
     if LooseVersion(np.__version__) < LooseVersion('1.13.0'):
         operate_and_compare(a3, a1, operator.add, answer1)
-        assert_raises(YTUfuncUnitError, np.add, a1, a2)
-        assert_raises(YTUfuncUnitError, np.add, a1, a3)
+        assert_raises(UfuncUnitError, np.add, a1, a2)
+        assert_raises(UfuncUnitError, np.add, a1, a3)
     else:
         operate_and_compare(a3, a1, operator.add, answer2)
         operate_and_compare(a1, a2, np.add, answer1)
@@ -142,16 +142,16 @@ def test_addition():
     a3 = [7, 8, 9]
     a4 = unyt_array([10, 11, 12], '')
 
-    assert_raises(YTUnitOperationError, operator.add, a1, a2)
-    assert_raises(YTUnitOperationError, operator.iadd, a1, a2)
-    assert_raises(YTUnitOperationError, operator.add, a1, a3)
-    assert_raises(YTUnitOperationError, operator.iadd, a1, a3)
-    assert_raises(YTUnitOperationError, operator.add, a3, a1)
-    assert_raises(YTUnitOperationError, operator.iadd, a3, a1)
-    assert_raises(YTUnitOperationError, operator.add, a1, a4)
-    assert_raises(YTUnitOperationError, operator.iadd, a1, a4)
-    assert_raises(YTUnitOperationError, operator.add, a4, a1)
-    assert_raises(YTUnitOperationError, operator.iadd, a4, a1)
+    assert_raises(UnitOperationError, operator.add, a1, a2)
+    assert_raises(UnitOperationError, operator.iadd, a1, a2)
+    assert_raises(UnitOperationError, operator.add, a1, a3)
+    assert_raises(UnitOperationError, operator.iadd, a1, a3)
+    assert_raises(UnitOperationError, operator.add, a3, a1)
+    assert_raises(UnitOperationError, operator.iadd, a3, a1)
+    assert_raises(UnitOperationError, operator.add, a1, a4)
+    assert_raises(UnitOperationError, operator.iadd, a1, a4)
+    assert_raises(UnitOperationError, operator.add, a4, a1)
+    assert_raises(UnitOperationError, operator.iadd, a4, a1)
 
     # adding with zero is allowed irrespective of the units
     zeros = np.zeros(3)
@@ -204,8 +204,8 @@ def test_subtraction():
     operate_and_compare(a1, a3, operator.sub, answer1)
     operate_and_compare(a3, a1, operator.sub, answer3)
     if LooseVersion(np.__version__) < LooseVersion('1.13.0'):
-        assert_raises(YTUfuncUnitError, np.subtract, a1, a2)
-        assert_raises(YTUfuncUnitError, np.subtract, a1, a3)
+        assert_raises(UfuncUnitError, np.subtract, a1, a2)
+        assert_raises(UfuncUnitError, np.subtract, a1, a3)
     else:
         operate_and_compare(a1, a2, np.subtract, answer1)
         operate_and_compare(a2, a1, np.subtract, answer2)
@@ -234,16 +234,16 @@ def test_subtraction():
     a3 = [7, 8, 9]
     a4 = unyt_array([10, 11, 12], '')
 
-    assert_raises(YTUnitOperationError, operator.sub, a1, a2)
-    assert_raises(YTUnitOperationError, operator.isub, a1, a2)
-    assert_raises(YTUnitOperationError, operator.sub, a1, a3)
-    assert_raises(YTUnitOperationError, operator.isub, a1, a3)
-    assert_raises(YTUnitOperationError, operator.sub, a3, a1)
-    assert_raises(YTUnitOperationError, operator.isub, a3, a1)
-    assert_raises(YTUnitOperationError, operator.sub, a1, a4)
-    assert_raises(YTUnitOperationError, operator.isub, a1, a4)
-    assert_raises(YTUnitOperationError, operator.sub, a4, a1)
-    assert_raises(YTUnitOperationError, operator.isub, a4, a1)
+    assert_raises(UnitOperationError, operator.sub, a1, a2)
+    assert_raises(UnitOperationError, operator.isub, a1, a2)
+    assert_raises(UnitOperationError, operator.sub, a1, a3)
+    assert_raises(UnitOperationError, operator.isub, a1, a3)
+    assert_raises(UnitOperationError, operator.sub, a3, a1)
+    assert_raises(UnitOperationError, operator.isub, a3, a1)
+    assert_raises(UnitOperationError, operator.sub, a1, a4)
+    assert_raises(UnitOperationError, operator.isub, a1, a4)
+    assert_raises(UnitOperationError, operator.sub, a4, a1)
+    assert_raises(UnitOperationError, operator.isub, a4, a1)
 
     # subtracting with zero is allowed irrespective of the units
     zeros = np.zeros(3)
@@ -454,15 +454,16 @@ def test_power():
 
     cm_arr = np.array([1.0, 1.0]) * cm
 
-    assert_equal, cm**3, unyt_quantity(1, 'cm**3')
-    assert_equal, np.power(cm, 3), unyt_quantity(1, 'cm**3')
-    assert_equal, cm**unyt_quantity(3), unyt_quantity(1, 'cm**3')
-    assert_raises, YTUnitOperationError, np.power, cm, unyt_quantity(3, 'g')
+    assert_equal(cm**3, unyt_quantity(1, 'cm**3'))
+    assert_equal(np.power(cm, 3), unyt_quantity(1, 'cm**3'))
+    assert_equal(cm**unyt_quantity(3), unyt_quantity(1, 'cm**3'))
+    assert_raises(UnitOperationError, np.power, cm, unyt_quantity(3, 'g'))
 
-    assert_equal, cm_arr**3, unyt_array([1, 1], 'cm**3')
-    assert_equal, np.power(cm_arr, 3), unyt_array([1, 1], 'cm**3')
-    assert_equal, cm_arr**unyt_quantity(3), unyt_array([1, 1], 'cm**3')
-    assert_raises, YTUnitOperationError, np.power, cm_arr, unyt_quantity(3, 'g')
+    assert_equal(cm_arr**3, unyt_array([1, 1], 'cm**3'))
+    assert_equal(np.power(cm_arr, 3), unyt_array([1, 1], 'cm**3'))
+    assert_equal(cm_arr**unyt_quantity(3), unyt_array([1, 1], 'cm**3'))
+    assert_raises(UnitOperationError, np.power, cm_arr,
+                  unyt_quantity(3, 'g'))
 
 
 def test_comparisons():
@@ -502,7 +503,7 @@ def test_comparisons():
 
     for op, answer in zip(ops, answers):
         if LooseVersion(np.__version__) < LooseVersion('1.13.0'):
-            assert_raises(YTUfuncUnitError, op, a1, a3)
+            assert_raises(UfuncUnitError, op, a1, a3)
         else:
             operate_and_compare(a1, a3, op, answer)
 
@@ -670,7 +671,8 @@ def test_selecting():
     assert_equal(a_slice.units, a.units)
     assert_array_equal(a_fancy_index, unyt_array([1, 1, 3, 5], 'cm'))
     assert_equal(a_fancy_index.units, a.units)
-    assert_array_equal(a_array_fancy_index, unyt_array([[1, 1, ], [3, 5]], 'cm'))
+    assert_array_equal(a_array_fancy_index,
+                       unyt_array([[1, 1, ], [3, 5]], 'cm'))
     assert_equal(a_array_fancy_index.units, a.units)
     assert_array_equal(a_boolean_index, unyt_array([6, 7, 8, 9], 'cm'))
     assert_equal(a_boolean_index.units, a.units)
@@ -758,7 +760,7 @@ def unary_ufunc_comparison(ufunc, a):
         with np.errstate(invalid='ignore'):
             try:
                 ret = ufunc(a, out=out)
-            except YTUnitOperationError:
+            except UnitOperationError:
                 assert_true(ufunc in (np.deg2rad, np.rad2deg))
                 ret = ufunc(unyt_array(a, '1'))
 
@@ -827,10 +829,10 @@ def binary_ufunc_comparison(ufunc, a, b):
             'minimum', 'fmax', 'fmin', 'nextafter', 'heaviside']):
         if a.units != b.units and a.units.dimensions == b.units.dimensions:
             if LooseVersion(np.__version__) < LooseVersion('1.13.0'):
-                assert_raises(YTUfuncUnitError, ufunc, a, b)
+                assert_raises(UfuncUnitError, ufunc, a, b)
                 return
         elif a.units != b.units:
-            assert_raises(YTUnitOperationError, ufunc, a, b)
+            assert_raises(UnitOperationError, ufunc, a, b)
             return
     if ufunc in yield_np_ufuncs(
             ['bitwise_and', 'bitwise_or', 'bitwise_xor', 'left_shift',
@@ -855,7 +857,7 @@ def binary_ufunc_comparison(ufunc, a, b):
     else:
         assert_array_equal(ret, out)
     if ((ufunc in (np.divide, np.true_divide, np.arctan2) and
-        (a.units.dimensions == b.units.dimensions))):
+         (a.units.dimensions == b.units.dimensions))):
         assert_array_almost_equal(
             np.array(ret), ufunc(np.array(a.in_cgs()), np.array(b.in_cgs())))
     elif LooseVersion(np.__version__) < LooseVersion('1.13.0'):
@@ -883,7 +885,7 @@ def test_ufuncs():
             d = unyt_array([1., 2., 3.], 'g')
             binary_ufunc_comparison(ufunc, a, b)
             binary_ufunc_comparison(ufunc, a, c)
-            assert_raises(YTUnitOperationError, ufunc, a, d)
+            assert_raises(UnitOperationError, ufunc, a, d)
             continue
 
         a = unyt_array([.3, .4, .5], 'cm')
@@ -1062,7 +1064,8 @@ def test_subclass():
     nu = unyt_a_subclass([10, 11, 12], '')
     nda = np.array([3, 4, 5])
     yta = unyt_array([6, 7, 8], 'mg')
-    loq = [unyt_quantity(6, 'mg'), unyt_quantity(7, 'mg'), unyt_quantity(8, 'mg')]
+    loq = [unyt_quantity(6, 'mg'), unyt_quantity(7, 'mg'),
+           unyt_quantity(8, 'mg')]
     ytq = unyt_quantity(4, 'cm')
     ndf = np.float64(3)
 
@@ -1102,7 +1105,8 @@ def test_h5_io():
 
     reg.add('code_length', 10.0, dimensions.length)
 
-    warr = unyt_array(np.random.random((256, 256)), 'code_length', registry=reg)
+    warr = unyt_array(np.random.random((256, 256)), 'code_length',
+                      registry=reg)
 
     warr.write_hdf5('test.h5')
 
@@ -1116,7 +1120,7 @@ def test_h5_io():
                     group_name='/arrays/test_group')
 
     giarr = unyt_array.from_hdf5('test.h5', dataset_name="test_dset",
-                              group_name='/arrays/test_group')
+                                 group_name='/arrays/test_group')
 
     assert_equal(warr, giarr)
 
@@ -1178,7 +1182,7 @@ def test_equivalencies():
 
     # Schwarzschild
 
-    R = u.mass_sun_cgs.in_units("kpc","schwarzschild")
+    R = u.mass_sun_cgs.in_units("kpc", "schwarzschild")
     assert_equal(R.in_cgs(), 2*u.G*u.mass_sun_cgs/(u.clight**2))
     assert_allclose_units(u.mass_sun_cgs, R.in_units("g", "schwarzschild"))
 
@@ -1289,10 +1293,12 @@ def test_numpy_wrappers():
     intersect_answer = [2, 3]
     union_answer = [1, 2, 3, 4, 5, 6]
 
-    assert_array_equal(unyt_array(catenate_answer, 'cm'), uconcatenate((a1, a2)))
+    assert_array_equal(unyt_array(catenate_answer, 'cm'),
+                       uconcatenate((a1, a2)))
     assert_array_equal(catenate_answer, np.concatenate((a1, a2)))
 
-    assert_array_equal(unyt_array(intersect_answer, 'cm'), uintersect1d(a1, a2))
+    assert_array_equal(unyt_array(intersect_answer, 'cm'),
+                       uintersect1d(a1, a2))
     assert_array_equal(intersect_answer, np.intersect1d(a1, a2))
 
     assert_array_equal(unyt_array(union_answer, 'cm'), uunion1d(a1, a2))
