@@ -24,7 +24,7 @@ class UnitOperationError(ValueError):
         ValueError.__init__(self)
 
     def __str__(self):
-        err = ("The %s operator for YTArrays with units (%s) " %
+        err = ("The %s operator for unyt_arrays with units (%s) " %
                (self.operation, self.unit1, ))
         if self.unit2 is not None:
             err += "and (%s) " % self.unit2
