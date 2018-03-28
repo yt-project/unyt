@@ -56,7 +56,7 @@ from unyt.unit_registry import (
     UnitRegistry,
     UnitParseError
 )
-from unyt.exceptions import UnytUnitsNotReducible
+from unyt.exceptions import UnitsNotReducible
 
 import copy
 import token
@@ -517,7 +517,7 @@ class Unit(Expr):
                             dimensions=self.dimensions, registry=self.registry)
         if unit_system == "cgs":
             if current_mks in self.dimensions.free_symbols:
-                raise UnytUnitsNotReducible(self, "cgs")
+                raise UnitsNotReducible(self, "cgs")
             return yt_base_unit
         else:
             if hasattr(unit_system, "unit_registry"):
