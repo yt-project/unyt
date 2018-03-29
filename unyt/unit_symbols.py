@@ -12,7 +12,7 @@ A place to statically create unit quantities.
 # The full license is in the LICENSE file, distributed with this software.
 # -----------------------------------------------------------------------------
 
-from unyt.unyt_array import unyt_quantity as quan
+from unyt.array import unyt_quantity as quan
 
 #
 # meter

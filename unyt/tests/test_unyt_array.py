@@ -33,7 +33,7 @@ from numpy.testing import (
     assert_almost_equal
 )
 from numpy import array
-from unyt.unyt_array import (
+from unyt.array import (
     unyt_array,
     unyt_quantity,
     unary_operators,
@@ -468,7 +468,7 @@ def test_comparisons():
     Test numpy ufunc comparison operators for unit consistency.
 
     """
-    from unyt.unyt_array import unyt_array
+    from unyt.array import unyt_array
 
     a1 = unyt_array([1, 2, 3], 'cm')
     a2 = unyt_array([2, 1, 3], 'cm')
@@ -522,7 +522,7 @@ def test_unit_conversions():
     Test operations that convert to different units or cast to ndarray
 
     """
-    from unyt.unyt_array import unyt_quantity
+    from unyt.array import unyt_quantity
     from unyt.unit_object import Unit
 
     km = unyt_quantity(1, 'km')

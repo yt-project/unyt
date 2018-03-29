@@ -13,7 +13,7 @@ Utilities for writing tests
 
 from numpy.testing import assert_allclose
 
-from unyt.unyt_array import (
+from unyt.array import (
     unyt_array,
     unyt_quantity
 )

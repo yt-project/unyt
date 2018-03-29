@@ -1846,22 +1846,6 @@ def uhstack(arrs):
     return v
 
 
-def array_like_field(data, x, field):
-    field = data._determine_fields(field)[0]
-    if isinstance(field, tuple):
-        units = data.ds._get_field_info(field[0], field[1]).output_units
-    else:
-        units = data.ds._get_field_info(field).output_units
-    if isinstance(x, unyt_array):
-        arr = copy.deepcopy(x)
-        arr.convert_to_units(units)
-        return arr
-    if isinstance(x, np.ndarray):
-        return data.ds.arr(x, units)
-    else:
-        return data.ds.quan(x, units)
-
-
 def get_binary_op_return_class(cls1, cls2):
     if cls1 is cls2:
         return cls1

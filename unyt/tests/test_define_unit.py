@@ -1,5 +1,5 @@
 from unyt.unit_object import define_unit
-from unyt.unyt_array import unyt_quantity
+from unyt.array import unyt_quantity
 
 
 def test_define_unit():

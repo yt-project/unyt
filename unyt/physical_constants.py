@@ -25,7 +25,7 @@ from unyt.physical_ratios import (
     newton_cgs,
     planck_cgs
 )
-from unyt.unyt_array import unyt_quantity
+from unyt.array import unyt_quantity
 
 mass_electron_cgs = unyt_quantity(mass_electron_grams, 'g')
 mass_electron = mass_electron_cgs

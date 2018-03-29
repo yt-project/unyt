@@ -15,7 +15,20 @@ The unyt package. See the unyt documentation for full details.
 from unyt import unit_symbols
 from unyt import physical_constants
 
-from unyt.unyt_array import unyt_quantity
+from unyt.array import (  # NOQA
+    loadtxt,
+    savetxt,
+    uconcatenate,
+    ucross,
+    udot,
+    uhstack,
+    uintersect1d,
+    unorm,
+    uunion1d,
+    uvstack,
+    unyt_array,
+    unyt_quantity
+)
 
 
 # function to only import quantities into this namespace
