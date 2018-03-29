@@ -48,10 +48,7 @@ from unyt.exceptions import (
     UnitOperationError,
     UfuncUnitError
 )
-from unyt.testing import (
-    requires_module,
-    assert_allclose_units
-)
+from unyt.testing import assert_allclose_units
 from unyt.unit_symbols import (
     cm,
     m,
@@ -1006,7 +1003,6 @@ def test_to_value():
     assert_equal(b.to_value("g"), b.in_units("g").value)
 
 
-@requires_module("astropy")
 def test_astropy():
     ap_arr = np.arange(10)*_astropy.units.km/_astropy.units.hr
     yt_arr = unyt_array(np.arange(10), "km/hr")
@@ -1028,7 +1024,6 @@ def test_astropy():
     assert_equal(yt_quan, unyt_quantity.from_astropy(yt_quan.to_astropy()))
 
 
-@requires_module("pint")
 def test_pint():
     ureg = _pint.UnitRegistry()
 
@@ -1095,7 +1090,6 @@ def test_subclass():
     assert_isinstance(unyt_a_subclass(yta), unyt_a_subclass)
 
 
-@requires_module('h5py')
 def test_h5_io():
     tmpdir = tempfile.mkdtemp()
     curdir = os.getcwd()

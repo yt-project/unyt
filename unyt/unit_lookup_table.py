@@ -12,7 +12,7 @@ The default unit symbol lookup table.
 # The full license is in the LICENSE file, distributed with this software.
 # -----------------------------------------------------------------------------
 
-from unyt.units import dimensions
+from unyt import dimensions
 from unyt.physical_ratios import (
     cm_per_pc,
     cm_per_ly,

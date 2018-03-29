@@ -138,7 +138,6 @@ from numbers import Number as numeric_type
 from unyt.on_demand_imports import _astropy
 from sympy import Rational
 from unyt.unit_lookup_table import default_unit_symbol_lut
-from unyt.equivalencies import equivalence_registry
 from unyt.pint_conversions import convert_pint_units
 
 NULL_UNIT = Unit()
@@ -916,6 +915,7 @@ class unyt_array(np.ndarray):
         >>> a = unyt_array(1.0e7,"K")
         >>> a.to_equivalent("keV", "thermal")
         """
+        from unyt.equivalencies import equivalence_registry
         conv_unit = Unit(unit, registry=self.units.registry)
         if self.units.same_dimensions_as(conv_unit):
             return self.in_units(conv_unit)

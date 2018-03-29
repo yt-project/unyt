@@ -45,7 +45,6 @@ from unyt.dimensions import (
     current_mks,
     angle
 )
-from unyt.equivalencies import equivalence_registry
 from unyt.unit_lookup_table import (
     unit_prefixes,
     prefixable_units,
@@ -186,7 +185,6 @@ class Unit(Expr):
     is_positive = True    # make sqrt(m**2) --> m
     is_commutative = True
     is_number = False
-    _latex_repr = None
 
     # Extra attributes
     __slots__ = ["expr", "is_atomic", "base_value", "base_offset",
@@ -492,6 +490,7 @@ class Unit(Expr):
         """
         Lists the possible equivalencies associated with this unit object
         """
+        from unyt.equivalencies import equivalence_registry
         for k, v in equivalence_registry.items():
             if self.has_equivalent(k):
                 print(v())
@@ -500,6 +499,7 @@ class Unit(Expr):
         """
         Check to see if this unit object as an equivalent unit in *equiv*.
         """
+        from unyt.equivalencies import equivalence_registry
         try:
             this_equiv = equivalence_registry[equiv]()
         except KeyError:

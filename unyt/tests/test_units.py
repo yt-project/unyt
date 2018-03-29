@@ -16,16 +16,16 @@ Test symbolic unit handling.
 
 
 import numpy as np
-from numpy.testing import \
-    assert_array_almost_equal_nulp, \
-    assert_raises, assert_equal
+from numpy.testing import (
+    assert_almost_equal,
+    assert_array_almost_equal_nulp,
+    assert_raises,
+    assert_equal
+)
 from nose.tools import assert_true
 import operator
 from sympy import Symbol
-from unyt.testing import (
-    assert_allclose_units,
-    assert_almost_equal
-)
+from unyt.testing import assert_allclose_units
 from unyt.unit_registry import UnitRegistry
 from unyt import electrostatic_unit, elementary_charge
 from unyt.dimensions import (

@@ -4,10 +4,7 @@ import os
 import sys
 import tempfile
 
-from unyt.testing import requires_module
 
-
-@requires_module('flake8')
 def test_flake8():
     unyt_dir = os.path.dirname(os.path.abspath(unyt.__file__))
     output_file = os.path.join(tempfile.mkdtemp(), 'flake8.out')
