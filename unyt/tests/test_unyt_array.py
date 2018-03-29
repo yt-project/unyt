@@ -24,7 +24,6 @@ import shutil
 import tempfile
 
 from distutils.version import LooseVersion
-from nose.tools import assert_true
 from numpy.testing import (
     assert_array_equal,
     assert_equal, assert_raises,
@@ -537,7 +536,7 @@ def test_unit_conversions():
 
     km_view = km.ndarray_view()
     km.convert_to_units('cm')
-    assert_true(km_view.base is km.base)
+    assert km_view.base is km.base
 
     assert_equal(km, unyt_quantity(1, 'km'))
     assert_equal(km.in_cgs(), 1e5)
@@ -545,7 +544,7 @@ def test_unit_conversions():
     assert_equal(km.units, cm_unit)
 
     km.convert_to_units('kpc')
-    assert_true(km_view.base is km.base)
+    assert km_view.base is km.base
 
     assert_array_almost_equal_nulp(km, unyt_quantity(1, 'km'))
     assert_array_almost_equal_nulp(km.in_cgs(), unyt_quantity(1e5, 'cm'))
@@ -611,19 +610,19 @@ def test_temperature_conversions():
     balmy_view = balmy.ndarray_view()
 
     balmy.convert_to_units('degF')
-    assert_true(balmy_view.base is balmy.base)
+    assert balmy_view.base is balmy.base
     assert_array_almost_equal(np.array(balmy), np.array(balmy_F))
 
     balmy.convert_to_units('degC')
-    assert_true(balmy_view.base is balmy.base)
+    assert balmy_view.base is balmy.base
     assert_array_almost_equal(np.array(balmy), np.array(balmy_C))
 
     balmy.convert_to_units('R')
-    assert_true(balmy_view.base is balmy.base)
+    assert balmy_view.base is balmy.base
     assert_array_almost_equal(np.array(balmy), np.array(balmy_R))
 
     balmy.convert_to_units('degF')
-    assert_true(balmy_view.base is balmy.base)
+    assert balmy_view.base is balmy.base
     assert_array_almost_equal(np.array(balmy), np.array(balmy_F))
 
     assert_raises(InvalidUnitOperation, np.multiply, balmy, km)
@@ -678,7 +677,7 @@ def test_selecting():
 
     # .base points to the original array for a numpy view.  If it is not a
     # view, .base is None.
-    assert_true(a_slice.base is a)
+    assert a_slice.base is a
 
 
 def test_iteration():
@@ -746,7 +745,7 @@ def unary_ufunc_comparison(ufunc, a):
         # According to the numpy docs, these two explicitly do not do
         # in-place copies.
         ret = ufunc(a)
-        assert_true(not hasattr(ret, 'units'))
+        assert not hasattr(ret, 'units')
         assert_array_equal(ret, ufunc(a))
     elif ufunc in yield_np_ufuncs([
             'exp', 'exp2', 'log', 'log2', 'log10', 'expm1', 'log1p', 'sin',
@@ -758,14 +757,14 @@ def unary_ufunc_comparison(ufunc, a):
             try:
                 ret = ufunc(a, out=out)
             except UnitOperationError:
-                assert_true(ufunc in (np.deg2rad, np.rad2deg))
+                assert ufunc in (np.deg2rad, np.rad2deg)
                 ret = ufunc(unyt_array(a, '1'))
 
             assert_array_equal(ret, out)
             assert_array_equal(ret, ufunc(a_array))
             # In-place copies do not drop units.
-            assert_true(hasattr(out, 'units'))
-            assert_true(not hasattr(ret, 'units'))
+            assert hasattr(out, 'units')
+            assert not hasattr(ret, 'units')
     elif ufunc in yield_np_ufuncs(
             ['absolute', 'fabs', 'conjugate', 'floor', 'ceil', 'trunc',
              'negative', 'spacing', 'positive']):
@@ -774,7 +773,7 @@ def unary_ufunc_comparison(ufunc, a):
 
         assert_array_equal(ret, out)
         assert_array_equal(ret.to_ndarray(), ufunc(a_array))
-        assert_true(ret.units == out.units)
+        assert ret.units == out.units
     elif ufunc in yield_np_ufuncs(
             ['ones_like', 'square', 'sqrt', 'reciprocal']):
         if ufunc is np.ones_like:
@@ -787,14 +786,14 @@ def unary_ufunc_comparison(ufunc, a):
         with np.errstate(invalid='ignore'):
             assert_array_equal(ret.to_ndarray(), ufunc(a_array))
         if ufunc is np.square:
-            assert_true(out.units == a.units**2)
-            assert_true(ret.units == a.units**2)
+            assert out.units == a.units**2
+            assert ret.units == a.units**2
         elif ufunc is np.sqrt:
-            assert_true(out.units == a.units**0.5)
-            assert_true(ret.units == a.units**0.5)
+            assert out.units == a.units**0.5
+            assert ret.units == a.units**0.5
         elif ufunc is np.reciprocal:
-            assert_true(out.units == a.units**-1)
-            assert_true(ret.units == a.units**-1)
+            assert out.units == a.units**-1
+            assert ret.units == a.units**-1
     elif ufunc is np.modf:
         ret1, ret2 = ufunc(a)
         npret1, npret2 = ufunc(a_array)
@@ -814,7 +813,7 @@ def unary_ufunc_comparison(ufunc, a):
         assert_raises((TypeError, ValueError), ufunc, a)
     else:
         # There shouldn't be any untested ufuncs.
-        assert_true(False)
+        assert False
 
 
 def binary_ufunc_comparison(ufunc, a, b):
@@ -841,14 +840,13 @@ def binary_ufunc_comparison(ufunc, a, b):
     ret = ufunc(a, b)
 
     if ufunc is np.multiply:
-        assert_true(ret.units == a.units*b.units)
+        assert ret.units == a.units*b.units
     elif ufunc in (np.divide, np.true_divide, np.arctan2):
-        assert_true(ret.units.dimensions == (a.units/b.units).dimensions)
+        assert ret.units.dimensions == (a.units/b.units).dimensions
     elif ufunc in (np.greater, np.greater_equal, np.less, np.less_equal,
                    np.not_equal, np.equal, np.logical_and, np.logical_or,
                    np.logical_xor):
-        assert_true(not isinstance(ret, unyt_array) and
-                    isinstance(ret, np.ndarray))
+        assert not isinstance(ret, unyt_array) and isinstance(ret, np.ndarray)
     if isinstance(ret, tuple):
         assert_array_equal(ret[0], out)
     else:
@@ -946,8 +944,8 @@ def test_convenience():
 
     assert_array_equal(arr.ndview, arr.view(np.ndarray))
     assert_array_equal(arr.d, arr.view(np.ndarray))
-    assert_true(arr.ndview.base is arr.base)
-    assert_true(arr.d.base is arr.base)
+    assert arr.ndview.base is arr.base
+    assert arr.d.base is arr.base
 
     assert_array_equal(arr.value, np.array(arr))
     assert_array_equal(arr.v, np.array(arr))
@@ -1303,8 +1301,8 @@ def test_dimensionless_conversion():
     a = unyt_quantity(1, 'Zsun')
     b = a.in_units('Zsun')
     a.convert_to_units('Zsun')
-    assert_true(a.units.base_value == metallicity_sun)
-    assert_true(b.units.base_value == metallicity_sun)
+    assert a.units.base_value == metallicity_sun
+    assert b.units.base_value == metallicity_sun
 
 
 def test_modified_unit_division():
@@ -1319,9 +1317,9 @@ def test_modified_unit_division():
     b = unyt_quantity(3, 'm', registry=reg2)
 
     ret = a/b
-    assert_true(ret == 0.5)
-    assert_true(ret.units.is_dimensionless)
-    assert_true(ret.units.base_value == 1.0)
+    assert ret == 0.5
+    assert ret.units.is_dimensionless
+    assert ret.units.base_value == 1.0
 
 
 def test_load_and_save():

@@ -22,7 +22,6 @@ from numpy.testing import (
     assert_raises,
     assert_equal
 )
-from nose.tools import assert_true
 import operator
 from sympy import Symbol
 from unyt.testing import assert_allclose_units
@@ -91,17 +90,17 @@ def test_dimensionless():
     """
     u1 = Unit()
 
-    assert_true(u1.is_dimensionless)
-    assert_true(u1.expr == 1)
-    assert_true(u1.base_value == 1)
-    assert_true(u1.dimensions == 1)
+    assert u1.is_dimensionless
+    assert u1.expr == 1
+    assert u1.base_value == 1
+    assert u1.dimensions == 1
 
     u2 = Unit("")
 
-    assert_true(u2.is_dimensionless)
-    assert_true(u2.expr == 1)
-    assert_true(u2.base_value == 1)
-    assert_true(u2.dimensions == 1)
+    assert u2.is_dimensionless
+    assert u2.expr == 1
+    assert u2.base_value == 1
+    assert u2.dimensions == 1
 
     assert_equal(u1.latex_repr, '')
     assert_equal(u2.latex_repr, '')
@@ -114,32 +113,32 @@ def test_create_from_string():
     """
 
     u1 = Unit("g * cm**2 * s**-2")
-    assert_true(u1.dimensions == energy)
-    assert_true(u1.base_value == 1.0)
+    assert u1.dimensions == energy
+    assert u1.base_value == 1.0
 
     # make sure order doesn't matter
     u2 = Unit("cm**2 * s**-2 * g")
-    assert_true(u2.dimensions == energy)
-    assert_true(u2.base_value == 1.0)
+    assert u2.dimensions == energy
+    assert u2.base_value == 1.0
 
     # Test rationals
     u3 = Unit("g**0.5 * cm**-0.5 * s**-1")
-    assert_true(u3.dimensions == magnetic_field)
-    assert_true(u3.base_value == 1.0)
+    assert u3.dimensions == magnetic_field
+    assert u3.base_value == 1.0
 
     # sqrt functions
     u4 = Unit("sqrt(g)/sqrt(cm)/s")
-    assert_true(u4.dimensions == magnetic_field)
-    assert_true(u4.base_value == 1.0)
+    assert u4.dimensions == magnetic_field
+    assert u4.base_value == 1.0
 
     # commutative sqrt function
     u5 = Unit("sqrt(g/cm)/s")
-    assert_true(u5.dimensions == magnetic_field)
-    assert_true(u5.base_value == 1.0)
+    assert u5.dimensions == magnetic_field
+    assert u5.base_value == 1.0
 
     # nonzero CGS conversion factor
     u6 = Unit("Msun/pc**3")
-    assert_true(u6.dimensions == mass/length**3)
+    assert u6.dimensions == mass/length**3
     assert_array_almost_equal_nulp(np.array([u6.base_value]),
                                    np.array([mass_sun_grams/cm_per_pc**3]))
 
@@ -170,20 +169,20 @@ def test_create_from_expr():
     u3 = Unit(s3)
     u4 = Unit(s4)
 
-    assert_true(u1.expr == s1)
-    assert_true(u2.expr == s2)
-    assert_true(u3.expr == s3)
-    assert_true(u4.expr == s4)
+    assert u1.expr == s1
+    assert u2.expr == s2
+    assert u3.expr == s3
+    assert u4.expr == s4
 
     assert_allclose_units(u1.base_value, pc_cgs, 1e-12)
     assert_allclose_units(u2.base_value, yr_cgs, 1e-12)
     assert_allclose_units(u3.base_value, pc_cgs * yr_cgs, 1e-12)
     assert_allclose_units(u4.base_value, pc_cgs**2 / yr_cgs, 1e-12)
 
-    assert_true(u1.dimensions == length)
-    assert_true(u2.dimensions == time)
-    assert_true(u3.dimensions == length * time)
-    assert_true(u4.dimensions == length**2 / time)
+    assert u1.dimensions == length
+    assert u2.dimensions == time
+    assert u3.dimensions == length * time
+    assert u4.dimensions == length**2 / time
 
 
 def test_create_with_duplicate_dimensions():
@@ -197,11 +196,11 @@ def test_create_with_duplicate_dimensions():
     km_cgs = cm_per_km
     Mpc_cgs = cm_per_mpc
 
-    assert_true(u1.base_value == 1)
-    assert_true(u1.dimensions == power)
+    assert u1.base_value == 1
+    assert u1.dimensions == power
 
     assert_allclose_units(u2.base_value, km_cgs / Mpc_cgs, 1e-12)
-    assert_true(u2.dimensions == rate)
+    assert u2.dimensions == rate
 
 
 def test_create_new_symbol():
@@ -211,21 +210,21 @@ def test_create_new_symbol():
     """
     u1 = Unit("abc", base_value=42, dimensions=(mass/time))
 
-    assert_true(u1.expr == Symbol("abc", positive=True))
-    assert_true(u1.base_value == 42)
-    assert_true(u1.dimensions == mass / time)
+    assert u1.expr == Symbol("abc", positive=True)
+    assert u1.base_value == 42
+    assert u1.dimensions == mass / time
 
     u1 = Unit("abc", base_value=42, dimensions=length**3)
 
-    assert_true(u1.expr == Symbol("abc", positive=True))
-    assert_true(u1.base_value == 42)
-    assert_true(u1.dimensions == length**3)
+    assert u1.expr == Symbol("abc", positive=True)
+    assert u1.base_value == 42
+    assert u1.dimensions == length**3
 
     u1 = Unit("abc", base_value=42, dimensions=length*(mass*length))
 
-    assert_true(u1.expr == Symbol("abc", positive=True))
-    assert_true(u1.base_value == 42)
-    assert_true(u1.dimensions == length**2*mass)
+    assert u1.expr == Symbol("abc", positive=True)
+    assert u1.base_value == 42
+    assert u1.dimensions == length**2*mass
 
     assert_raises(UnitParseError, Unit, 'abc', base_value=42,
                   dimensions=length**length)
@@ -245,9 +244,9 @@ def test_create_fail_on_unknown_symbol():
     try:
         Unit(Symbol("jigawatts"))
     except UnitParseError:
-        assert_true(True)
+        assert True
     else:
-        assert_true(False)
+        assert False
 
 
 def test_create_fail_on_bad_symbol_type():
@@ -258,9 +257,9 @@ def test_create_fail_on_bad_symbol_type():
     try:
         Unit([1])  # something other than Expr and str
     except UnitParseError:
-        assert_true(True)
+        assert True
     else:
-        assert_true(False)
+        assert False
 
 
 def test_create_fail_on_bad_dimensions_type():
@@ -271,9 +270,9 @@ def test_create_fail_on_bad_dimensions_type():
     try:
         Unit("a", base_value=1, dimensions="(mass)")
     except UnitParseError:
-        assert_true(True)
+        assert True
     else:
-        assert_true(False)
+        assert False
 
 
 def test_create_fail_on_dimensions_content():
@@ -288,7 +287,7 @@ def test_create_fail_on_dimensions_content():
     except UnitParseError:
         pass
     else:
-        assert_true(False)
+        assert False
 
 
 def test_create_fail_on_base_value_type():
@@ -299,9 +298,9 @@ def test_create_fail_on_base_value_type():
     try:
         Unit("a", base_value="a", dimensions=(mass/time))
     except UnitParseError:
-        assert_true(True)
+        assert True
     else:
-        assert_true(False)
+        assert False
 
 
 def test_string_representation():
@@ -314,11 +313,11 @@ def test_string_representation():
     speed = pc / Myr
     dimensionless = Unit()
 
-    assert_true(str(pc) == "pc")
-    assert_true(str(Myr) == "Myr")
-    assert_true(str(speed) == "pc/Myr")
-    assert_true(repr(speed) == "pc/Myr")
-    assert_true(str(dimensionless) == "dimensionless")
+    assert str(pc) == "pc"
+    assert str(Myr) == "Myr"
+    assert str(speed) == "pc/Myr"
+    assert repr(speed) == "pc/Myr"
+    assert str(dimensionless) == "dimensionless"
 
 
 def test_multiplication():
@@ -341,9 +340,9 @@ def test_multiplication():
     # Mul operation
     u3 = u1 * u2
 
-    assert_true(u3.expr == msun_sym * pc_sym)
+    assert u3.expr == msun_sym * pc_sym
     assert_allclose_units(u3.base_value, msun_cgs * pc_cgs, 1e-12)
-    assert_true(u3.dimensions == mass * length)
+    assert u3.dimensions == mass * length
 
     # Pow and Mul operations
     u4 = Unit("pc**2")
@@ -351,9 +350,9 @@ def test_multiplication():
 
     u6 = u4 * u5
 
-    assert_true(u6.expr == pc_sym**2 * msun_sym * s_sym)
+    assert u6.expr == pc_sym**2 * msun_sym * s_sym
     assert_allclose_units(u6.base_value, pc_cgs**2 * msun_cgs, 1e-12)
-    assert_true(u6.dimensions == length**2 * mass * time)
+    assert u6.dimensions == length**2 * mass * time
 
 
 def test_division():
@@ -375,9 +374,9 @@ def test_division():
 
     u3 = u1 / u2
 
-    assert_true(u3.expr == pc_sym / (km_sym * s_sym))
+    assert u3.expr == pc_sym / (km_sym * s_sym)
     assert_allclose_units(u3.base_value, pc_cgs / km_cgs, 1e-12)
-    assert_true(u3.dimensions == 1 / time)
+    assert u3.dimensions == 1 / time
 
 
 def test_power():
@@ -394,12 +393,12 @@ def test_power():
 
     u2 = u1**2
 
-    assert_true(u2.dimensions == u1_dims**2)
+    assert u2.dimensions == u1_dims**2
     assert_allclose_units(u2.base_value, (pc_cgs**2 * mK_cgs**4)**2, 1e-12)
 
     u3 = u1**(-1.0/3)
 
-    assert_true(u3.dimensions == nsimplify(u1_dims**(-1.0/3)))
+    assert u3.dimensions == nsimplify(u1_dims**(-1.0/3))
     assert_allclose_units(u3.base_value, (pc_cgs**2 * mK_cgs**4)**(-1.0/3),
                           1e-12)
 
@@ -413,7 +412,7 @@ def test_equality():
     u1 = Unit("km * s**-1")
     u2 = Unit("m * ms**-1")
 
-    assert_true(u1 == u2)
+    assert u1 == u2
 
 
 def test_base_equivalent():
@@ -428,18 +427,18 @@ def test_base_equivalent():
     u2 = Unit("g * cm**-3")
     u3 = u1.get_base_equivalent()
 
-    assert_true(u2.expr == u3.expr)
-    assert_true(u2 == u3)
+    assert u2.expr == u3.expr
+    assert u2 == u3
 
     assert_allclose_units(u1.base_value, Msun_cgs / Mpc_cgs**3, 1e-12)
-    assert_true(u2.base_value == 1)
-    assert_true(u3.base_value == 1)
+    assert u2.base_value == 1
+    assert u3.base_value == 1
 
     mass_density = mass / length**3
 
-    assert_true(u1.dimensions == mass_density)
-    assert_true(u2.dimensions == mass_density)
-    assert_true(u3.dimensions == mass_density)
+    assert u1.dimensions == mass_density
+    assert u2.dimensions == mass_density
+    assert u3.dimensions == mass_density
 
     assert_allclose_units(get_conversion_factor(u1, u3)[0],
                           Msun_cgs / Mpc_cgs**3, 1e-12)
@@ -530,4 +529,4 @@ def test_list_same_dimensions():
                 dim2 = reg.unit_objs[name2].dimensions
             else:
                 _, dim2, _, _ = reg.lut[name2]
-            assert_true(u1.dimensions is dim2)
+            assert u1.dimensions is dim2
