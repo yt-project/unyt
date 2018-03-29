@@ -24,6 +24,7 @@ from unyt.array import (  # NOQA
     uhstack,
     uintersect1d,
     unorm,
+    ustack,
     uunion1d,
     uvstack,
     unyt_array,
