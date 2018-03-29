@@ -17,14 +17,14 @@ import json
 import re
 
 from distutils.version import LooseVersion
-from yt.units.unit_lookup_table import \
-    default_unit_symbol_lut
-from yt.utilities.lib.fnv_hash import fnv_hash
-from yt.extern import six
-from sympy import \
-    sympify, \
-    srepr, \
+from unyt.unit_lookup_table import default_unit_symbol_lut
+from hashlib import md5
+import six
+from sympy import (
+    sympify,
+    srepr,
     __version__ as sympy_version
+)
 
 SYMPY_VERSION = LooseVersion(sympy_version)
 
@@ -73,7 +73,9 @@ class UnitRegistry:
             for k, v in self.lut.items():
                 hash_data.extend(k.encode('ascii'))
                 hash_data.extend(repr(v).encode('ascii'))
-            self._unit_system_id = "code_%d" % fnv_hash(hash_data)
+            m = md5()
+            m.update(hash_data)
+            self._unit_system_id = "code_%d" % m.hexdigest()
         return self._unit_system_id
 
     def add(self, symbol, base_value, dimensions, tex_repr=None, offset=None):
