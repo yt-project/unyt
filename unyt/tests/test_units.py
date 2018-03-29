@@ -19,10 +19,10 @@ import numpy as np
 from numpy.testing import (
     assert_almost_equal,
     assert_array_almost_equal_nulp,
-    assert_raises,
     assert_equal
 )
 import operator
+import pytest
 from sympy import Symbol
 from unyt.testing import assert_allclose_units
 from unyt.unit_registry import UnitRegistry
@@ -142,10 +142,14 @@ def test_create_from_string():
     assert_array_almost_equal_nulp(np.array([u6.base_value]),
                                    np.array([mass_sun_grams/cm_per_pc**3]))
 
-    assert_raises(UnitParseError, Unit, 'm**m')
-    assert_raises(UnitParseError, Unit, 'm**g')
-    assert_raises(UnitParseError, Unit, 'm+g')
-    assert_raises(UnitParseError, Unit, 'm-g')
+    with pytest.raises(UnitParseError):
+        Unit('m**m')
+    with pytest.raises(UnitParseError):
+        Unit('m**g')
+    with pytest.raises(UnitParseError):
+        Unit('m+g')
+    with pytest.raises(UnitParseError):
+        Unit('m-g')
 
 
 def test_create_from_expr():
@@ -226,14 +230,14 @@ def test_create_new_symbol():
     assert u1.base_value == 42
     assert u1.dimensions == length**2*mass
 
-    assert_raises(UnitParseError, Unit, 'abc', base_value=42,
-                  dimensions=length**length)
-    assert_raises(UnitParseError, Unit, 'abc', base_value=42,
-                  dimensions=length**(length*length))
-    assert_raises(UnitParseError, Unit, 'abc', base_value=42,
-                  dimensions=length-mass)
-    assert_raises(UnitParseError, Unit, 'abc', base_value=42,
-                  dimensions=length+mass)
+    with pytest.raises(UnitParseError):
+        Unit('abc', base_value=42, dimensions=length**length)
+    with pytest.raises(UnitParseError):
+        Unit('abc', base_value=42, dimensions=length**(length*length))
+    with pytest.raises(UnitParseError):
+        Unit('abc', base_value=42, dimensions=length-mass)
+    with pytest.raises(UnitParseError):
+        Unit('abc', base_value=42, dimensions=length+mass)
 
 
 def test_create_fail_on_unknown_symbol():
@@ -448,8 +452,10 @@ def test_temperature_offsets():
     u1 = Unit('degC')
     u2 = Unit('degF')
 
-    assert_raises(InvalidUnitOperation, operator.mul, u1, u2)
-    assert_raises(InvalidUnitOperation, operator.truediv, u1, u2)
+    with pytest.raises(InvalidUnitOperation):
+        operator.mul(u1, u2)
+    with pytest.raises(InvalidUnitOperation):
+        operator.truediv(u1, u2)
 
 
 def test_latex_repr():
@@ -516,7 +522,8 @@ def test_creation_from_ytarray():
 
     assert_equal((u1/u2).base_value, electrostatic_unit/elementary_charge)
 
-    assert_raises(UnitParseError, Unit, [1, 2, 3]*elementary_charge)
+    with pytest.raises(UnitParseError):
+        Unit([1, 2, 3]*elementary_charge)
 
 
 def test_list_same_dimensions():

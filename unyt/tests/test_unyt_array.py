@@ -20,13 +20,14 @@ import itertools
 import numpy as np
 import operator
 import os
+import pytest
 import shutil
 import tempfile
 
 from distutils.version import LooseVersion
 from numpy.testing import (
     assert_array_equal,
-    assert_equal, assert_raises,
+    assert_equal,
     assert_array_almost_equal_nulp,
     assert_array_almost_equal,
     assert_almost_equal
@@ -108,8 +109,10 @@ def test_addition():
     operate_and_compare(a1, a3, operator.add, answer1)
     if LooseVersion(np.__version__) < LooseVersion('1.13.0'):
         operate_and_compare(a3, a1, operator.add, answer1)
-        assert_raises(UfuncUnitError, np.add, a1, a2)
-        assert_raises(UfuncUnitError, np.add, a1, a3)
+        with pytest.raises(UfuncUnitError):
+            np.add(a1, a2)
+        with pytest.raises(UfuncUnitError):
+            np.add(a1, a3)
     else:
         operate_and_compare(a3, a1, operator.add, answer2)
         operate_and_compare(a1, a2, np.add, answer1)
@@ -138,16 +141,26 @@ def test_addition():
     a3 = [7, 8, 9]
     a4 = unyt_array([10, 11, 12], '')
 
-    assert_raises(UnitOperationError, operator.add, a1, a2)
-    assert_raises(UnitOperationError, operator.iadd, a1, a2)
-    assert_raises(UnitOperationError, operator.add, a1, a3)
-    assert_raises(UnitOperationError, operator.iadd, a1, a3)
-    assert_raises(UnitOperationError, operator.add, a3, a1)
-    assert_raises(UnitOperationError, operator.iadd, a3, a1)
-    assert_raises(UnitOperationError, operator.add, a1, a4)
-    assert_raises(UnitOperationError, operator.iadd, a1, a4)
-    assert_raises(UnitOperationError, operator.add, a4, a1)
-    assert_raises(UnitOperationError, operator.iadd, a4, a1)
+    with pytest.raises(UnitOperationError):
+        operator.add(a1, a2)
+    with pytest.raises(UnitOperationError):
+        operator.iadd(a1, a2)
+    with pytest.raises(UnitOperationError):
+        operator.add(a1, a3)
+    with pytest.raises(UnitOperationError):
+        operator.iadd(a1, a3)
+    with pytest.raises(UnitOperationError):
+        operator.add(a3, a1)
+    with pytest.raises(UnitOperationError):
+        operator.iadd(a3, a1)
+    with pytest.raises(UnitOperationError):
+        operator.add(a1, a4)
+    with pytest.raises(UnitOperationError):
+        operator.iadd(a1, a4)
+    with pytest.raises(UnitOperationError):
+        operator.add(a4, a1)
+    with pytest.raises(UnitOperationError):
+        operator.iadd(a4, a1)
 
     # adding with zero is allowed irrespective of the units
     zeros = np.zeros(3)
@@ -200,8 +213,10 @@ def test_subtraction():
     operate_and_compare(a1, a3, operator.sub, answer1)
     operate_and_compare(a3, a1, operator.sub, answer3)
     if LooseVersion(np.__version__) < LooseVersion('1.13.0'):
-        assert_raises(UfuncUnitError, np.subtract, a1, a2)
-        assert_raises(UfuncUnitError, np.subtract, a1, a3)
+        with pytest.raises(UfuncUnitError):
+            np.subtract(a1, a2)
+        with pytest.raises(UfuncUnitError):
+            np.subtract(a1, a3)
     else:
         operate_and_compare(a1, a2, np.subtract, answer1)
         operate_and_compare(a2, a1, np.subtract, answer2)
@@ -230,16 +245,26 @@ def test_subtraction():
     a3 = [7, 8, 9]
     a4 = unyt_array([10, 11, 12], '')
 
-    assert_raises(UnitOperationError, operator.sub, a1, a2)
-    assert_raises(UnitOperationError, operator.isub, a1, a2)
-    assert_raises(UnitOperationError, operator.sub, a1, a3)
-    assert_raises(UnitOperationError, operator.isub, a1, a3)
-    assert_raises(UnitOperationError, operator.sub, a3, a1)
-    assert_raises(UnitOperationError, operator.isub, a3, a1)
-    assert_raises(UnitOperationError, operator.sub, a1, a4)
-    assert_raises(UnitOperationError, operator.isub, a1, a4)
-    assert_raises(UnitOperationError, operator.sub, a4, a1)
-    assert_raises(UnitOperationError, operator.isub, a4, a1)
+    with pytest.raises(UnitOperationError):
+        operator.sub(a1, a2)
+    with pytest.raises(UnitOperationError):
+        operator.isub(a1, a2)
+    with pytest.raises(UnitOperationError):
+        operator.sub(a1, a3)
+    with pytest.raises(UnitOperationError):
+        operator.isub(a1, a3)
+    with pytest.raises(UnitOperationError):
+        operator.sub(a3, a1)
+    with pytest.raises(UnitOperationError):
+        operator.isub(a3, a1)
+    with pytest.raises(UnitOperationError):
+        operator.sub(a1, a4)
+    with pytest.raises(UnitOperationError):
+        operator.isub(a1, a4)
+    with pytest.raises(UnitOperationError):
+        operator.sub(a4, a1)
+    with pytest.raises(UnitOperationError):
+        operator.isub(a4, a1)
 
     # subtracting with zero is allowed irrespective of the units
     zeros = np.zeros(3)
@@ -453,13 +478,14 @@ def test_power():
     assert_equal(cm**3, unyt_quantity(1, 'cm**3'))
     assert_equal(np.power(cm, 3), unyt_quantity(1, 'cm**3'))
     assert_equal(cm**unyt_quantity(3), unyt_quantity(1, 'cm**3'))
-    assert_raises(UnitOperationError, np.power, cm, unyt_quantity(3, 'g'))
+    with pytest.raises(UnitOperationError):
+        np.power(cm, unyt_quantity(3, 'g'))
 
     assert_equal(cm_arr**3, unyt_array([1, 1], 'cm**3'))
     assert_equal(np.power(cm_arr, 3), unyt_array([1, 1], 'cm**3'))
     assert_equal(cm_arr**unyt_quantity(3), unyt_array([1, 1], 'cm**3'))
-    assert_raises(UnitOperationError, np.power, cm_arr,
-                  unyt_quantity(3, 'g'))
+    with pytest.raises(UnitOperationError):
+        np.power(cm_arr, unyt_quantity(3, 'g'))
 
 
 def test_comparisons():
@@ -499,7 +525,8 @@ def test_comparisons():
 
     for op, answer in zip(ops, answers):
         if LooseVersion(np.__version__) < LooseVersion('1.13.0'):
-            assert_raises(UfuncUnitError, op, a1, a3)
+            with pytest.raises(UfuncUnitError):
+                op(a1, a3)
         else:
             operate_and_compare(a1, a3, op, answer)
 
@@ -625,7 +652,8 @@ def test_temperature_conversions():
     assert balmy_view.base is balmy.base
     assert_array_almost_equal(np.array(balmy), np.array(balmy_F))
 
-    assert_raises(InvalidUnitOperation, np.multiply, balmy, km)
+    with pytest.raises(InvalidUnitOperation):
+        np.multiply(balmy, km)
 
     # Does CGS conversion from F to K work?
     assert_array_almost_equal(balmy.in_cgs(), unyt_quantity(300, 'K'))
@@ -807,10 +835,12 @@ def unary_ufunc_comparison(ufunc, a):
         assert_array_equal(ret1, npret1)
         assert_array_equal(ret2, npret2)
     elif ufunc is np.invert:
-        assert_raises(TypeError, ufunc, a)
+        with pytest.raises(TypeError):
+            ufunc(a)
     elif hasattr(np, 'isnat') and ufunc is np.isnat:
         # numpy 1.13 raises ValueError, numpy 1.14 and newer raise TypeError
-        assert_raises((TypeError, ValueError), ufunc, a)
+        with pytest.raises((TypeError, ValueError)):
+            ufunc(a)
     else:
         # There shouldn't be any untested ufuncs.
         assert False
@@ -825,15 +855,18 @@ def binary_ufunc_comparison(ufunc, a, b):
             'minimum', 'fmax', 'fmin', 'nextafter', 'heaviside']):
         if a.units != b.units and a.units.dimensions == b.units.dimensions:
             if LooseVersion(np.__version__) < LooseVersion('1.13.0'):
-                assert_raises(UfuncUnitError, ufunc, a, b)
+                with pytest.raises(UfuncUnitError):
+                    ufunc(a, b)
                 return
         elif a.units != b.units:
-            assert_raises(UnitOperationError, ufunc, a, b)
+            with pytest.raises(UnitOperationError):
+                ufunc(a, b)
             return
     if ufunc in yield_np_ufuncs(
             ['bitwise_and', 'bitwise_or', 'bitwise_xor', 'left_shift',
              'right_shift', 'ldexp']):
-        assert_raises(TypeError, ufunc, a, b)
+        with pytest.raises(TypeError):
+            ufunc(a, b)
         return
 
     ret = ufunc(a, b, out=out)
@@ -878,9 +911,12 @@ def test_ufuncs():
             b = unyt_array([.1, .2, .3], 'dimensionless')
             c = np.array(b)
             d = unyt_array([1., 2., 3.], 'g')
-            assert_raises(UnitOperationError, ufunc, a, b)
-            assert_raises(UnitOperationError, ufunc, a, c)
-            assert_raises(UnitOperationError, ufunc, a, d)
+            with pytest.raises(UnitOperationError):
+                ufunc(a, b)
+            with pytest.raises(UnitOperationError):
+                ufunc(a, c)
+            with pytest.raises(UnitOperationError):
+                ufunc(a, d)
             continue
 
         a = unyt_array([.3, .4, .5], 'cm')
