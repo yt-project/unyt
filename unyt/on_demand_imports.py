@@ -111,11 +111,11 @@ class pint_imports(object):
     def UnitRegistry(self):
         if self._UnitRegistry is None:
             try:
-                from Pint import UnitRegistry
+                from pint import UnitRegistry
             except ImportError:
                 UnitRegistry = NotAModule(self._name)
             self._UnitRegistry = UnitRegistry
-        return self._UnitRegsitry
+        return self._UnitRegistry
 
 
 _pint = pint_imports()

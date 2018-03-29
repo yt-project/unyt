@@ -880,8 +880,8 @@ def test_ufuncs():
             b = unyt_array([.1, .2, .3], 'dimensionless')
             c = np.array(b)
             d = unyt_array([1., 2., 3.], 'g')
-            binary_ufunc_comparison(ufunc, a, b)
-            binary_ufunc_comparison(ufunc, a, c)
+            assert_raises(UnitOperationError, ufunc, a, b)
+            assert_raises(UnitOperationError, ufunc, a, c)
             assert_raises(UnitOperationError, ufunc, a, d)
             continue
 
@@ -1367,7 +1367,7 @@ def test_initialization_different_registries():
     reg2.add('code_length', 3.0, dimensions.length)
 
     l1 = unyt_quantity(1.0, 'code_length', registry=reg1)
-    l2 = unyt_quantity(1.0, 'code_length')
+    l2 = unyt_quantity(1.0, 'code_length', registry=reg2)
 
     assert_almost_equal(float(l1.in_cgs()), 1.0)
     assert_almost_equal(float(l2.in_cgs()), 3.0)

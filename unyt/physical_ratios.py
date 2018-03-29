@@ -43,8 +43,8 @@ km_per_cm = 1e-5
 m_per_cm = 1e-2
 ly_per_cm = 1.05702341e-18
 rsun_per_cm = 1.4378145e-11
-rearth_per_cm = 1.56961033e-9 # Mean (volumetric) radius
-rjup_per_cm = 1.43039006737e-10 # Mean (volumetric) radius
+rearth_per_cm = 1.56961033e-9  # Mean (volumetric) radius
+rjup_per_cm = 1.43039006737e-10  # Mean (volumetric) radius
 au_per_cm = 6.68458712e-14
 ang_per_cm = 1.0e8
 

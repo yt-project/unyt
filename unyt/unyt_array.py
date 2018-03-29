@@ -254,7 +254,10 @@ def get_inp_u_binary(ufunc, inputs):
                     pass
                 else:
                     raise UnitOperationError(ufunc, unit1, unit2)
-            unit2 = 1.0
+            try:
+                unit2 = float(unit2)
+            except TypeError:
+                raise UnitOperationError(ufunc, unit1, unit2)
     return (inp1, inp2), (unit1, unit2), ret_class
 
 
