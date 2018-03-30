@@ -18,7 +18,8 @@ matrix:
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install python@2.7 ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install python ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install python@2 ; fi
 
 # Command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install: pip install -U tox-travis
