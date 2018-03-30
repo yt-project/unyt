@@ -2,8 +2,6 @@ build: false  # Not a C# project
 environment:
   matrix:
     - TOXENV: py27
-    - TOXENV: py34
-    - TOXENV: py35
     - TOXENV: py36
 
 matrix:
@@ -17,4 +15,4 @@ test_script:
 
 cache:
   - '%LOCALAPPDATA%\pip\cache'
-- '%USERPROFILE%\.cache\pre-commit'
+  - '%USERPROFILE%\.cache\pre-commit'
