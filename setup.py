@@ -27,8 +27,8 @@ test_requirements = [
 ]
 
 setup(
-    author="Nathan Goldbaum",
-    author_email='ngoldbau@illinois.edu',
+    author="The yt project",
+    author_email='yt-dev@python.org',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
@@ -52,7 +52,7 @@ setup(
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,
-    url='https://github.com/ngoldbaum/unyt',
+    url='https://github.com/yt-project/unyt',
     version='0.1.0',
     zip_safe=False,
 )
