@@ -11,7 +11,7 @@ install:
   - C:\Python36\python -m pip install --pre -U tox
 
 test_script:
-  - C:\Python36\scripts\tox
+  - C:\Python36\scripts\tox -vvv
 
 cache:
   - '%LOCALAPPDATA%\pip\cache'
