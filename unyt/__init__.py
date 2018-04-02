@@ -1,6 +1,12 @@
 """
-The unyt package. See the unyt documentation for full details.
+The unyt package.
 
+Note that the symbols defined in :mod:`unyt.physical_constants` and
+:mod:`unyt.unit_symbols` are importable from this module. For example::
+
+    >>> from unyt import km, clight
+    >>> print((km/clight).to('ns'))
+    3335.64095198152 ns
 
 """
 
@@ -46,6 +52,8 @@ def import_quantities(module, global_namespace):
 
 import_quantities(unit_symbols, globals())
 import_quantities(physical_constants, globals())
+
+del import_quantities
 
 __version__ = get_versions()['version']
 del get_versions

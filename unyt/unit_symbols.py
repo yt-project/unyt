@@ -1,6 +1,13 @@
 """
-A place to statically create unit quantities.
+Predefined useful aliases to physical units
 
+Note that all of these names can be imported from the top-level unyt namespace.
+For example::
+
+    >>> from unyt import cm, g, s
+    >>> data = [3, 4, 5]*g*cm/s
+    >>> print(data)
+    [3. 4. 5.] cm*g/s
 
 """
 
@@ -18,169 +25,249 @@ from unyt.array import unyt_quantity as quan
 # meter
 #
 
+#: femtometer
 fm = femtometer = quan(1.0, "fm")
+#: picometer
 pm = picometer = quan(1.0, "pm")
+#: nanometer
 nm = nanometer = quan(1.0, "nm")
+#: micrometer
 um = micrometer = quan(1.0, "um")
+#: millimeter
 mm = millimeter = quan(1.0, "mm")
+#: centimeter
 cm = centimeter = quan(1.0, "cm")
+#: meter
 m = meter = quan(1.0, "m")
+#: kilometer
 km = kilometer = quan(1.0, "km")
+#: Megameter
 Mm = Megameter = megameter = quan(1.0, "Mm")
 
 #
 # parsec
 #
 
+#: parsec
 pc = parsec = quan(1.0, "pc")
+#: kiloparsec
 kpc = kiloparsec = quan(1.0, "kpc")
+#: megaparsec
 Mpc = mpc = megaparsec = quan(1.0, "Mpc")
+#: gigaparsec
 Gpc = gpc = Gigaparsec = quan(1.0, "Gpc")
 
 #
 # gram
 #
 
+#: milligram
 mg = milligram = quan(1.0, "mg")
+#: gram
 g = gram = quan(1.0, "g")
+#: kilogram
 kg = kilogram = quan(1.0, "kg")
 
 #
 # second
 #
 
+#: femtosecond
 fs = femtoseconds = quan(1.0, "fs")
+#: picosecond
 ps = picosecond = quan(1.0, "ps")
+#: nanosecond
 ns = nanosecond = quan(1.0, "ns")
+#: millisecond
 ms = millisecond = quan(1.0, "ms")
+#: second
 s = second = quan(1.0, "s")
 
 #
 # minute
 #
 
+#: minute
 min = minute = quan(1.0, "min")
 
 #
 # hr
 #
 
+#: hour
 hr = hour = quan(1.0, "hr")
 
 #
 # day
 #
 
+#: day
 day = quan(1.0, "day")
 
 #
 # year
 #
 
+#: year
 yr = year = quan(1.0, "yr")
+#: kiloyear
 kyr = kiloyear = quan(1.0, "kyr")
+#: Megayear
 Myr = Megayear = megayear = quan(1.0, "Myr")
+#: Gigayear
 Gyr = Gigayear = gigayear = quan(1.0, "Gyr")
 
 #
 # Kelvin
 #
 
+#: Degree kelvin
 degree_kelvin = Kelvin = K = quan(1.0, "K")
 
 #
 # Misc CGS
 #
 
+#: dyne (CGS force)
 dyne = dyn = quan(1.0, "dyne")
+#: erg (CGS energy)
 erg = ergs = quan(1.0, "erg")
 
 #
 # Misc SI
 #
 
+#: Newton (SI force)
 N = Newton = newton = quan(1.0, "N")
+#: Joule (SI energy)
 J = Joule = joule = quan(1.0, "J")
+#: Watt (SI power)
 W = Watt = watt = quan(1.0, "W")
+#: Hertz
 Hz = Hertz = hertz = quan(1.0, "Hz")
 
 #
 # Imperial units
 #
 
+#: foot
 ft = foot = quan(1.0, "ft")
+#: mile
 mile = quan(1.0, "mile")
+#: furlong
+furlong = quan(660, "ft")
+#: yard
+yard = quan(3, "ft")
 
 #
 # Solar units
 #
 
-Msun = solar_mass = quan(1.0, "Msun")
-msun = quan(1.0, "msun")
+#: Mass of the sun
+Msun = quan(1.0, "Msun")
+#: Radius of the sun
 Rsun = R_sun = solar_radius = quan(1.0, "Rsun")
+#: Radius of the sun
 rsun = r_sun = quan(1.0, "rsun")
+#: Luminosity of the sun
 Lsun = lsun = l_sun = solar_luminosity = quan(1.0, "Lsun")
+#: Temperature of the sun
 Tsun = T_sun = solar_temperature = quan(1.0, "Tsun")
+#: Metallicity of the sun
 Zsun = Z_sun = solar_metallicity = quan(1.0, "Zsun")
 
 #
 # Misc Astronomical units
 #
 
+#: Astronomical unit
 AU = astronomical_unit = quan(1.0, "AU")
+#: Astronomical unit
 au = quan(1.0, "au")
+#: Light year
 ly = light_year = quan(1.0, "ly")
+#: Radius of the Earth
 Rearth = R_earth = earth_radius = quan(1.0, 'R_earth')
+#: Radius of the Earth
 rearth = r_earth = quan(1.0, 'r_earth')
+#: Radius of Jupiter
 Rjup = R_jup = jupiter_radius = quan(1.0, 'R_jup')
+#: Radius of Jupiter
 rjup = r_jup = quan(1.0, 'r_jup')
 
 #
 # Physical units
 #
 
-eV = electron_volt = quan(1.0, "eV")
-keV = kilo_electron_volt = quan(1.0, "keV")
-MeV = mega_electron_volt = quan(1.0, "MeV")
-GeV = giga_electron_volt = quan(1.0, "GeV")
+#: electronvolt
+eV = electron_volt = electronvolt = quan(1.0, "eV")
+#: kiloelectronvolt
+keV = kilo_electron_volt = kiloelectronvolt = quan(1.0, "keV")
+#: Megaelectronvolt
+MeV = mega_electron_volt = Megaelectronvolt = megaelectronvolt = quan(
+    1.0, "MeV")
+#: Gigaelectronvolt
+GeV = giga_electron_volt = Gigaelectronvolt = gigaelectronvolt = quan(
+    1.0, "GeV")
+#: Atomic mass unit
 amu = atomic_mass_unit = quan(1.0, "amu")
+#: Angstrom
 angstrom = quan(1.0, "angstrom")
+#: Electron mass
 me = electron_mass = quan(1.0, "me")
 
 #
 # Angle units
 #
 
+#: Degree (angle)
 deg = degree = quan(1.0, "degree")
+#: Radian
 rad = radian = quan(1.0, "radian")
+#: Arcsecond
 arcsec = arcsecond = quan(1.0, "arcsec")
+#: Arcminute
 arcmin = arcminute = quan(1.0, "arcmin")
+#: milliarcsecond
 mas = milliarcsecond = quan(1.0, "mas")
+#: steradian
 sr = steradian = quan(1.0, "steradian")
 
 #
 # CGS electromagnetic units
 #
 
+#: electrostatic unit
 electrostatic_unit = esu = quan(1.0, "esu")
+#: Gauss
 gauss = G = quan(1.0, "gauss")
+#: Statampere
 statampere = statA = quan(1.0, "statA")
+#: Statvolt
 statvolt = statV = quan(1.0, "statV")
+#: Statohm
 statohm = quan(1.0, "statohm")
 
 #
 # SI electromagnetic units
 #
 
+#: Coulomb
 C = coulomb = Coulomb = quan(1.0, "C")
+#: Tesla
 T = tesla = Tesla = quan(1.0, "T")
+#: Ampere
 A = ampere = Ampere = quan(1.0, "A")
+#: Volt
 V = volt = Volt = quan(1.0, "V")
+#: Ohm
 ohm = Ohm = quan(1.0, "ohm")
 
 #
 # Geographic units
 #
 
+#: Degree latitude
 latitude = lat = quan(1.0, "lat")
+#: Degree longitude
 longitude = lon = quan(1.0, "lon")

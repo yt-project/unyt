@@ -166,3 +166,5 @@ texinfo_documents = [
      'One line description of project.',
      'Miscellaneous'),
 ]
+
+autodoc_member_order = 'bysource'

@@ -39,7 +39,7 @@ from unyt.dimensions import (
 )
 from unyt.unit_object import (
     default_unit_registry,
-    get_conversion_factor,
+    _get_conversion_factor,
     Unit,
     UnitParseError,
     InvalidUnitOperation
@@ -444,7 +444,7 @@ def test_base_equivalent():
     assert u2.dimensions == mass_density
     assert u3.dimensions == mass_density
 
-    assert_allclose_units(get_conversion_factor(u1, u3)[0],
+    assert_allclose_units(_get_conversion_factor(u1, u3)[0],
                           Msun_cgs / Mpc_cgs**3, 1e-12)
 
 

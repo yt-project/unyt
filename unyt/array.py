@@ -144,7 +144,7 @@ NULL_UNIT = Unit()
 POWER_SIGN_MAPPING = {multiply: 1, divide: -1}
 
 
-def iterable(obj):
+def _iterable(obj):
     try:
         len(obj)
     except Exception as e:
@@ -152,7 +152,7 @@ def iterable(obj):
     return True
 
 
-def return_arr(func):
+def _return_arr(func):
     @wraps(func)
     def wrapped(*args, **kwargs):
         ret, units = func(*args, **kwargs)
@@ -165,66 +165,66 @@ def return_arr(func):
 
 
 @lru_cache(maxsize=128, typed=False)
-def sqrt_unit(unit):
+def _sqrt_unit(unit):
     return unit**0.5
 
 
 @lru_cache(maxsize=128, typed=False)
-def multiply_units(unit1, unit2):
+def _multiply_units(unit1, unit2):
     return unit1 * unit2
 
 
-def preserve_units(unit1, unit2=None):
+def _preserve_units(unit1, unit2=None):
     return unit1
 
 
 @lru_cache(maxsize=128, typed=False)
-def power_unit(unit, power):
+def _power_unit(unit, power):
     return unit**power
 
 
 @lru_cache(maxsize=128, typed=False)
-def square_unit(unit):
+def _square_unit(unit):
     return unit*unit
 
 
 @lru_cache(maxsize=128, typed=False)
-def divide_units(unit1, unit2):
+def _divide_units(unit1, unit2):
     return unit1/unit2
 
 
 @lru_cache(maxsize=128, typed=False)
-def reciprocal_unit(unit):
+def _reciprocal_unit(unit):
     return unit**-1
 
 
-def passthrough_unit(unit, unit2=None):
+def _passthrough_unit(unit, unit2=None):
     return unit
 
 
-def return_without_unit(unit, unit2=None):
+def _return_without_unit(unit, unit2=None):
     return None
 
 
-def arctan2_unit(unit1, unit2):
+def _arctan2_unit(unit1, unit2):
     return NULL_UNIT
 
 
-def comparison_unit(unit1, unit2=None):
+def _comparison_unit(unit1, unit2=None):
     return None
 
 
-def invert_units(unit):
+def _invert_units(unit):
     raise TypeError(
         "Bit-twiddling operators are not defined for unyt_array instances")
 
 
-def bitop_units(unit1, unit2):
+def _bitop_units(unit1, unit2):
     raise TypeError(
         "Bit-twiddling operators are not defined for unyt_array instances")
 
 
-def get_inp_u_unary(ufunc, inputs, out_arr=None):
+def _get_inp_u_unary(ufunc, inputs, out_arr=None):
     inp = inputs[0]
     u = getattr(inp, 'units', None)
     if u is None:
@@ -236,12 +236,12 @@ def get_inp_u_unary(ufunc, inputs, out_arr=None):
     return out_arr, inp, u
 
 
-def get_inp_u_binary(ufunc, inputs):
-    inp1 = coerce_iterable_units(inputs[0])
-    inp2 = coerce_iterable_units(inputs[1])
+def _get_inp_u_binary(ufunc, inputs):
+    inp1 = _coerce_iterable_units(inputs[0])
+    inp2 = _coerce_iterable_units(inputs[1])
     unit1 = getattr(inp1, 'units', None)
     unit2 = getattr(inp2, 'units', None)
-    ret_class = get_binary_op_return_class(type(inp1), type(inp2))
+    ret_class = _get_binary_op_return_class(type(inp1), type(inp2))
     if unit1 is None:
         unit1 = Unit(registry=getattr(unit2, 'registry', None))
     if unit2 is None and ufunc is not power:
@@ -261,7 +261,7 @@ def get_inp_u_binary(ufunc, inputs):
     return (inp1, inp2), (unit1, unit2), ret_class
 
 
-def handle_preserve_units(inps, units, ufunc, ret_class):
+def _handle_preserve_units(inps, units, ufunc, ret_class):
     if units[0] != units[1]:
         any_nonzero = [np.any(inps[0]), np.any(inps[1])]
         if any_nonzero[0] == np.bool_(False):
@@ -276,7 +276,7 @@ def handle_preserve_units(inps, units, ufunc, ret_class):
     return inps, units
 
 
-def handle_comparison_units(inps, units, ufunc, ret_class, raise_error=False):
+def _handle_comparison_units(inps, units, ufunc, ret_class, raise_error=False):
     if units[0] != units[1]:
         u1d = units[0].is_dimensionless
         u2d = units[1].is_dimensionless
@@ -296,7 +296,7 @@ def handle_comparison_units(inps, units, ufunc, ret_class, raise_error=False):
     return inps, units
 
 
-def handle_multiply_divide_units(unit, units, out, out_arr):
+def _handle_multiply_divide_units(unit, units, out, out_arr):
     if unit.is_dimensionless and unit.base_value != 1.0:
         if not units[0].is_dimensionless:
             if units[0].dimensions == units[1].dimensions:
@@ -306,10 +306,10 @@ def handle_multiply_divide_units(unit, units, out, out_arr):
     return out, out_arr, unit
 
 
-def coerce_iterable_units(input_object):
+def _coerce_iterable_units(input_object):
     if isinstance(input_object, np.ndarray):
         return input_object
-    if iterable(input_object):
+    if _iterable(input_object):
         if any([isinstance(o, unyt_array) for o in input_object]):
             ff = getattr(input_object[0], 'units', NULL_UNIT, )
             if any([ff != getattr(_, 'units', NULL_UNIT)
@@ -322,9 +322,9 @@ def coerce_iterable_units(input_object):
         return input_object
 
 
-def sanitize_units_mul(this_object, other_object):
-    inp = coerce_iterable_units(this_object)
-    ret = coerce_iterable_units(other_object)
+def _sanitize_units_mul(this_object, other_object):
+    inp = _coerce_iterable_units(this_object)
+    ret = _coerce_iterable_units(other_object)
     # If the other object is a unyt_array and has the same dimensions as the
     # object under consideration, convert so we don't mix units with the same
     # dimensions.
@@ -334,9 +334,9 @@ def sanitize_units_mul(this_object, other_object):
     return ret
 
 
-def sanitize_units_add(this_object, other_object, op_string):
-    inp = coerce_iterable_units(this_object)
-    ret = coerce_iterable_units(other_object)
+def _sanitize_units_add(this_object, other_object, op_string):
+    inp = _coerce_iterable_units(this_object)
+    ret = _coerce_iterable_units(other_object)
     # Make sure the other object is a unyt_array before we use the `units`
     # attribute.
     if isinstance(ret, unyt_array):
@@ -357,7 +357,7 @@ def sanitize_units_add(this_object, other_object, op_string):
     return ret
 
 
-def validate_comparison_units(this, other, op_string):
+def _validate_comparison_units(this, other, op_string):
     # Check that other is a unyt_array.
     if hasattr(other, 'units'):
         if this.units.expr is other.units.expr:
@@ -543,89 +543,89 @@ class unyt_array(np.ndarray):
 
     """
     _ufunc_registry = {
-        add: preserve_units,
-        subtract: preserve_units,
-        multiply: multiply_units,
-        divide: divide_units,
-        logaddexp: return_without_unit,
-        logaddexp2: return_without_unit,
-        true_divide: divide_units,
-        floor_divide: divide_units,
-        negative: passthrough_unit,
-        power: power_unit,
-        remainder: preserve_units,
-        mod: preserve_units,
-        fmod: preserve_units,
-        absolute: passthrough_unit,
-        fabs: passthrough_unit,
-        rint: return_without_unit,
-        sign: return_without_unit,
-        conj: passthrough_unit,
-        exp: return_without_unit,
-        exp2: return_without_unit,
-        log: return_without_unit,
-        log2: return_without_unit,
-        log10: return_without_unit,
-        expm1: return_without_unit,
-        log1p: return_without_unit,
-        sqrt: sqrt_unit,
-        square: square_unit,
-        reciprocal: reciprocal_unit,
-        sin: return_without_unit,
-        cos: return_without_unit,
-        tan: return_without_unit,
-        sinh: return_without_unit,
-        cosh: return_without_unit,
-        tanh: return_without_unit,
-        arcsin: return_without_unit,
-        arccos: return_without_unit,
-        arctan: return_without_unit,
-        arctan2: arctan2_unit,
-        arcsinh: return_without_unit,
-        arccosh: return_without_unit,
-        arctanh: return_without_unit,
-        hypot: preserve_units,
-        deg2rad: return_without_unit,
-        rad2deg: return_without_unit,
-        bitwise_and: bitop_units,
-        bitwise_or: bitop_units,
-        bitwise_xor: bitop_units,
-        invert: invert_units,
-        left_shift: bitop_units,
-        right_shift: bitop_units,
-        greater: comparison_unit,
-        greater_equal: comparison_unit,
-        less: comparison_unit,
-        less_equal: comparison_unit,
-        not_equal: comparison_unit,
-        equal: comparison_unit,
-        logical_and: comparison_unit,
-        logical_or: comparison_unit,
-        logical_xor: comparison_unit,
-        logical_not: return_without_unit,
-        maximum: preserve_units,
-        minimum: preserve_units,
-        fmax: preserve_units,
-        fmin: preserve_units,
-        isreal: return_without_unit,
-        iscomplex: return_without_unit,
-        isfinite: return_without_unit,
-        isinf: return_without_unit,
-        isnan: return_without_unit,
-        signbit: return_without_unit,
-        copysign: passthrough_unit,
-        nextafter: preserve_units,
-        modf: passthrough_unit,
-        ldexp: bitop_units,
-        frexp: return_without_unit,
-        floor: passthrough_unit,
-        ceil: passthrough_unit,
-        trunc: passthrough_unit,
-        spacing: passthrough_unit,
-        positive: passthrough_unit,
-        divmod_: passthrough_unit,
-        isnat: return_without_unit,
-        heaviside: preserve_units,
+        add: _preserve_units,
+        subtract: _preserve_units,
+        multiply: _multiply_units,
+        divide: _divide_units,
+        logaddexp: _return_without_unit,
+        logaddexp2: _return_without_unit,
+        true_divide: _divide_units,
+        floor_divide: _divide_units,
+        negative: _passthrough_unit,
+        power: _power_unit,
+        remainder: _preserve_units,
+        mod: _preserve_units,
+        fmod: _preserve_units,
+        absolute: _passthrough_unit,
+        fabs: _passthrough_unit,
+        rint: _return_without_unit,
+        sign: _return_without_unit,
+        conj: _passthrough_unit,
+        exp: _return_without_unit,
+        exp2: _return_without_unit,
+        log: _return_without_unit,
+        log2: _return_without_unit,
+        log10: _return_without_unit,
+        expm1: _return_without_unit,
+        log1p: _return_without_unit,
+        sqrt: _sqrt_unit,
+        square: _square_unit,
+        reciprocal: _reciprocal_unit,
+        sin: _return_without_unit,
+        cos: _return_without_unit,
+        tan: _return_without_unit,
+        sinh: _return_without_unit,
+        cosh: _return_without_unit,
+        tanh: _return_without_unit,
+        arcsin: _return_without_unit,
+        arccos: _return_without_unit,
+        arctan: _return_without_unit,
+        arctan2: _arctan2_unit,
+        arcsinh: _return_without_unit,
+        arccosh: _return_without_unit,
+        arctanh: _return_without_unit,
+        hypot: _preserve_units,
+        deg2rad: _return_without_unit,
+        rad2deg: _return_without_unit,
+        bitwise_and: _bitop_units,
+        bitwise_or: _bitop_units,
+        bitwise_xor: _bitop_units,
+        invert: _invert_units,
+        left_shift: _bitop_units,
+        right_shift: _bitop_units,
+        greater: _comparison_unit,
+        greater_equal: _comparison_unit,
+        less: _comparison_unit,
+        less_equal: _comparison_unit,
+        not_equal: _comparison_unit,
+        equal: _comparison_unit,
+        logical_and: _comparison_unit,
+        logical_or: _comparison_unit,
+        logical_xor: _comparison_unit,
+        logical_not: _return_without_unit,
+        maximum: _preserve_units,
+        minimum: _preserve_units,
+        fmax: _preserve_units,
+        fmin: _preserve_units,
+        isreal: _return_without_unit,
+        iscomplex: _return_without_unit,
+        isfinite: _return_without_unit,
+        isinf: _return_without_unit,
+        isnan: _return_without_unit,
+        signbit: _return_without_unit,
+        copysign: _passthrough_unit,
+        nextafter: _preserve_units,
+        modf: _passthrough_unit,
+        ldexp: _bitop_units,
+        frexp: _return_without_unit,
+        floor: _passthrough_unit,
+        ceil: _passthrough_unit,
+        trunc: _passthrough_unit,
+        spacing: _passthrough_unit,
+        positive: _passthrough_unit,
+        divmod_: _passthrough_unit,
+        isnat: _return_without_unit,
+        heaviside: _preserve_units,
     }
 
     __array_priority__ = 2.0
@@ -664,7 +664,7 @@ class unyt_array(np.ndarray):
             return ret
         elif isinstance(input_array, np.ndarray):
             pass
-        elif iterable(input_array) and input_array:
+        elif _iterable(input_array) and input_array:
             if isinstance(input_array[0], unyt_array):
                 return unyt_array(np.array(input_array, dtype=dtype),
                                   input_array[0].units, registry=registry)
@@ -1236,17 +1236,17 @@ class unyt_array(np.ndarray):
             Must check for the correct (same dimension) units.
 
             """
-            ro = sanitize_units_add(self, right_object, "addition")
+            ro = _sanitize_units_add(self, right_object, "addition")
             return super(unyt_array, self).__add__(ro)
 
         def __radd__(self, left_object):
             """ See __add__. """
-            lo = sanitize_units_add(self, left_object, "addition")
+            lo = _sanitize_units_add(self, left_object, "addition")
             return super(unyt_array, self).__radd__(lo)
 
         def __iadd__(self, other):
             """ See __add__. """
-            oth = sanitize_units_add(self, other, "addition")
+            oth = _sanitize_units_add(self, other, "addition")
             np.add(self, oth, out=self)
             return self
 
@@ -1256,17 +1256,17 @@ class unyt_array(np.ndarray):
             check for the correct (same dimension) units.
 
             """
-            ro = sanitize_units_add(self, right_object, "subtraction")
+            ro = _sanitize_units_add(self, right_object, "subtraction")
             return super(unyt_array, self).__sub__(ro)
 
         def __rsub__(self, left_object):
             """ See __sub__. """
-            lo = sanitize_units_add(self, left_object, "subtraction")
+            lo = _sanitize_units_add(self, left_object, "subtraction")
             return super(unyt_array, self).__rsub__(lo)
 
         def __isub__(self, other):
             """ See __sub__. """
-            oth = sanitize_units_add(self, other, "subtraction")
+            oth = _sanitize_units_add(self, other, "subtraction")
             np.subtract(self, oth, out=self)
             return self
 
@@ -1280,17 +1280,17 @@ class unyt_array(np.ndarray):
             operator. The unit objects handle being multiplied.
 
             """
-            ro = sanitize_units_mul(self, right_object)
+            ro = _sanitize_units_mul(self, right_object)
             return super(unyt_array, self).__mul__(ro)
 
         def __rmul__(self, left_object):
             """ See __mul__. """
-            lo = sanitize_units_mul(self, left_object)
+            lo = _sanitize_units_mul(self, left_object)
             return super(unyt_array, self).__rmul__(lo)
 
         def __imul__(self, other):
             """ See __mul__. """
-            oth = sanitize_units_mul(self, other)
+            oth = _sanitize_units_mul(self, other)
             np.multiply(self, oth, out=self)
             return self
 
@@ -1300,47 +1300,47 @@ class unyt_array(np.ndarray):
             operator.
 
             """
-            ro = sanitize_units_mul(self, right_object)
+            ro = _sanitize_units_mul(self, right_object)
             return super(unyt_array, self).__div__(ro)
 
         def __rdiv__(self, left_object):
             """ See __div__. """
-            lo = sanitize_units_mul(self, left_object)
+            lo = _sanitize_units_mul(self, left_object)
             return super(unyt_array, self).__rdiv__(lo)
 
         def __idiv__(self, other):
             """ See __div__. """
-            oth = sanitize_units_mul(self, other)
+            oth = _sanitize_units_mul(self, other)
             np.divide(self, oth, out=self)
             return self
 
         def __truediv__(self, right_object):
-            ro = sanitize_units_mul(self, right_object)
+            ro = _sanitize_units_mul(self, right_object)
             return super(unyt_array, self).__truediv__(ro)
 
         def __rtruediv__(self, left_object):
             """ See __div__. """
-            lo = sanitize_units_mul(self, left_object)
+            lo = _sanitize_units_mul(self, left_object)
             return super(unyt_array, self).__rtruediv__(lo)
 
         def __itruediv__(self, other):
             """ See __div__. """
-            oth = sanitize_units_mul(self, other)
+            oth = _sanitize_units_mul(self, other)
             np.true_divide(self, oth, out=self)
             return self
 
         def __floordiv__(self, right_object):
-            ro = sanitize_units_mul(self, right_object)
+            ro = _sanitize_units_mul(self, right_object)
             return super(unyt_array, self).__floordiv__(ro)
 
         def __rfloordiv__(self, left_object):
             """ See __div__. """
-            lo = sanitize_units_mul(self, left_object)
+            lo = _sanitize_units_mul(self, left_object)
             return super(unyt_array, self).__rfloordiv__(lo)
 
         def __ifloordiv__(self, other):
             """ See __div__. """
-            oth = sanitize_units_mul(self, other)
+            oth = _sanitize_units_mul(self, other)
             np.floor_divide(self, oth, out=self)
             return self
 
@@ -1410,13 +1410,13 @@ class unyt_array(np.ndarray):
         def __lt__(self, other):
             """ Test if this is less than the object on the right. """
             # converts if possible
-            oth = validate_comparison_units(self, other, 'less_than')
+            oth = _validate_comparison_units(self, other, 'less_than')
             return super(unyt_array, self).__lt__(oth)
 
         def __le__(self, other):
             """Test if this is less than or equal to the object on the right.
             """
-            oth = validate_comparison_units(self, other, 'less_than or equal')
+            oth = _validate_comparison_units(self, other, 'less_than or equal')
             return super(unyt_array, self).__le__(oth)
 
         def __eq__(self, other):
@@ -1425,7 +1425,7 @@ class unyt_array(np.ndarray):
             if other is None:
                 # self is a unyt_array, so it can't be None.
                 return False
-            oth = validate_comparison_units(self, other, 'equal')
+            oth = _validate_comparison_units(self, other, 'equal')
             return super(unyt_array, self).__eq__(oth)
 
         def __ne__(self, other):
@@ -1433,20 +1433,20 @@ class unyt_array(np.ndarray):
             # Check that the other is a unyt_array.
             if other is None:
                 return True
-            oth = validate_comparison_units(self, other, 'not equal')
+            oth = _validate_comparison_units(self, other, 'not equal')
             return super(unyt_array, self).__ne__(oth)
 
         def __ge__(self, other):
             """ Test if this is greater than or equal to other. """
             # Check that the other is a unyt_array.
-            oth = validate_comparison_units(
+            oth = _validate_comparison_units(
                 self, other, 'greater than or equal')
             return super(unyt_array, self).__ge__(oth)
 
         def __gt__(self, other):
             """ Test if this is greater than the object on the right. """
             # Check that the other is a unyt_array.
-            oth = validate_comparison_units(self, other, 'greater than')
+            oth = _validate_comparison_units(self, other, 'greater than')
             return super(unyt_array, self).__gt__(oth)
 
         #
@@ -1457,7 +1457,7 @@ class unyt_array(np.ndarray):
         # Begin reduction operators
         #
 
-        @return_arr
+        @_return_arr
         def prod(self, axis=None, dtype=None, out=None):
             if axis is not None:
                 units = self.units**self.shape[axis]
@@ -1465,15 +1465,15 @@ class unyt_array(np.ndarray):
                 units = self.units**self.size
             return super(unyt_array, self).prod(axis, dtype, out), units
 
-        @return_arr
+        @_return_arr
         def mean(self, axis=None, dtype=None, out=None):
             return super(unyt_array, self).mean(axis, dtype, out), self.units
 
-        @return_arr
+        @_return_arr
         def sum(self, axis=None, dtype=None, out=None):
             return super(unyt_array, self).sum(axis, dtype, out), self.units
 
-        @return_arr
+        @_return_arr
         def std(self, axis=None, dtype=None, out=None, ddof=0):
             return (super(unyt_array, self).std(axis, dtype, out, ddof),
                     self.units)
@@ -1490,19 +1490,19 @@ class unyt_array(np.ndarray):
             ufunc = context[0]
             inputs = context[1]
             if ufunc in unary_operators:
-                out_arr, inp, u = get_inp_u_unary(ufunc, inputs, out_arr)
+                out_arr, inp, u = _get_inp_u_unary(ufunc, inputs, out_arr)
                 unit = self._ufunc_registry[context[0]](u)
                 ret_class = type(self)
             elif ufunc in binary_operators:
                 unit_operator = self._ufunc_registry[context[0]]
-                inps, units, ret_class = get_inp_u_binary(ufunc, inputs)
-                if unit_operator in (preserve_units, comparison_unit,
-                                     arctan2_unit):
-                    inps, units = handle_comparison_units(
+                inps, units, ret_class = _get_inp_u_binary(ufunc, inputs)
+                if unit_operator in (_preserve_units, _comparison_unit,
+                                     _arctan2_unit):
+                    inps, units = _handle_comparison_units(
                         inps, units, ufunc, ret_class, raise_error=True)
                 unit = unit_operator(*units)
-                if unit_operator in (multiply_units, divide_units):
-                    out_arr, out_arr, unit = handle_multiply_divide_units(
+                if unit_operator in (_multiply_units, _divide_units):
+                    out_arr, out_arr, unit = _handle_multiply_divide_units(
                         unit, units, out_arr, out_arr)
             else:
                 raise RuntimeError(
@@ -1532,7 +1532,7 @@ class unyt_array(np.ndarray):
             else:
                 out = None
             if len(inputs) == 1:
-                _, inp, u = get_inp_u_unary(ufunc, inputs)
+                _, inp, u = _get_inp_u_unary(ufunc, inputs)
                 out_arr = func(np.asarray(inp), out=out, **kwargs)
                 if ufunc in (multiply, divide) and method == 'reduce':
                     power_sign = POWER_SIGN_MAPPING[ufunc]
@@ -1545,18 +1545,18 @@ class unyt_array(np.ndarray):
                 ret_class = type(self)
             elif len(inputs) == 2:
                 unit_operator = self._ufunc_registry[ufunc]
-                inps, units, ret_class = get_inp_u_binary(ufunc, inputs)
-                if unit_operator in (comparison_unit, arctan2_unit):
-                    inps, units = handle_comparison_units(
+                inps, units, ret_class = _get_inp_u_binary(ufunc, inputs)
+                if unit_operator in (_comparison_unit, _arctan2_unit):
+                    inps, units = _handle_comparison_units(
                         inps, units, ufunc, ret_class)
-                elif unit_operator is preserve_units:
-                    inps, units = handle_preserve_units(
+                elif unit_operator is _preserve_units:
+                    inps, units = _handle_preserve_units(
                          inps, units, ufunc, ret_class)
                 unit = unit_operator(*units)
                 out_arr = func(np.asarray(inps[0]), np.asarray(inps[1]),
                                out=out, **kwargs)
-                if unit_operator in (multiply_units, divide_units):
-                    out, out_arr, unit = handle_multiply_divide_units(
+                if unit_operator in (_multiply_units, _divide_units):
+                    out, out_arr, unit = _handle_multiply_divide_units(
                         unit, units, out, out_arr)
             else:
                 raise RuntimeError(
@@ -1596,7 +1596,7 @@ class unyt_array(np.ndarray):
         # numpy issue #9081
         return type(self)(super(unyt_array, self).__pos__(), self.units)
 
-    @return_arr
+    @_return_arr
     def dot(self, b, out=None):
         return super(unyt_array, self).dot(b), self.units*b.units
 
@@ -1710,7 +1710,7 @@ class unyt_quantity(unyt_array):
         return str(self)
 
 
-def validate_numpy_wrapper_units(v, arrs):
+def _validate_numpy_wrapper_units(v, arrs):
     if not any(isinstance(a, unyt_array) for a in arrs):
         return v
     if not all(isinstance(a, unyt_array) for a in arrs):
@@ -1738,7 +1738,7 @@ def uconcatenate(arrs, axis=0):
 
     """
     v = np.concatenate(arrs, axis=axis)
-    v = validate_numpy_wrapper_units(v, arrs)
+    v = _validate_numpy_wrapper_units(v, arrs)
     return v
 
 
@@ -1771,7 +1771,7 @@ def uintersect1d(arr1, arr2, assume_unique=False):
 
     """
     v = np.intersect1d(arr1, arr2, assume_unique=assume_unique)
-    v = validate_numpy_wrapper_units(v, [arr1, arr2])
+    v = _validate_numpy_wrapper_units(v, [arr1, arr2])
     return v
 
 
@@ -1791,7 +1791,7 @@ def uunion1d(arr1, arr2):
 
     """
     v = np.union1d(arr1, arr2)
-    v = validate_numpy_wrapper_units(v, [arr1, arr2])
+    v = _validate_numpy_wrapper_units(v, [arr1, arr2])
     return v
 
 
@@ -1832,7 +1832,7 @@ def uvstack(arrs):
     This is a wrapper around np.vstack that preserves units.
     """
     v = np.vstack(arrs)
-    v = validate_numpy_wrapper_units(v, arrs)
+    v = _validate_numpy_wrapper_units(v, arrs)
     return v
 
 
@@ -1842,7 +1842,7 @@ def uhstack(arrs):
     This is a wrapper around np.hstack that preserves units.
     """
     v = np.hstack(arrs)
-    v = validate_numpy_wrapper_units(v, arrs)
+    v = _validate_numpy_wrapper_units(v, arrs)
     return v
 
 
@@ -1857,11 +1857,11 @@ def ustack(arrs, axis=0):
 
     """
     v = np.stack(arrs)
-    v = validate_numpy_wrapper_units(v, arrs)
+    v = _validate_numpy_wrapper_units(v, arrs)
     return v
 
 
-def get_binary_op_return_class(cls1, cls2):
+def _get_binary_op_return_class(cls1, cls2):
     if cls1 is cls2:
         return cls1
     if ((cls1 in (np.ndarray, np.matrix, np.ma.masked_array) or

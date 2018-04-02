@@ -17,6 +17,10 @@ import json
 import re
 
 from distutils.version import LooseVersion
+from unyt.exceptions import (
+    SymbolNotFoundError,
+    UnitParseError,
+)
 from unyt.unit_lookup_table import default_unit_symbol_lut
 from hashlib import md5
 import six
@@ -29,16 +33,8 @@ from sympy import (
 SYMPY_VERSION = LooseVersion(sympy_version)
 
 
-def positive_symbol_replacer(match):
+def _positive_symbol_replacer(match):
     return match.group().replace(')\')', ')\', positive=True)')
-
-
-class SymbolNotFoundError(Exception):
-    pass
-
-
-class UnitParseError(Exception):
-    pass
 
 
 class UnitRegistry:
@@ -83,7 +79,7 @@ class UnitRegistry:
         Add a symbol to this registry.
 
         """
-        from unyt.unit_object import validate_dimensions
+        from unyt.unit_object import _validate_dimensions
 
         # Validate
         if not isinstance(base_value, float):
@@ -98,7 +94,7 @@ class UnitRegistry:
         else:
             offset = 0.0
 
-        validate_dimensions(dimensions)
+        _validate_dimensions(dimensions)
 
         if tex_repr is None:
             # make educated guess that will look nice in most cases
@@ -163,7 +159,7 @@ class UnitRegistry:
             if SYMPY_VERSION < LooseVersion("1.0.0"):
                 # see https://github.com/sympy/sympy/issues/6131
                 repr_dims = re.sub("Symbol\('\([a-z_]*\)'\)",
-                                   positive_symbol_replacer, repr_dims)
+                                   _positive_symbol_replacer, repr_dims)
             san_v[1] = repr_dims
             sanitized_lut[k] = tuple(san_v)
 
@@ -194,3 +190,7 @@ class UnitRegistry:
                   if u.dimensions is unit_object.dimensions]
         equiv = list(sorted(set(equiv)))
         return equiv
+
+
+#: The default unit registry
+default_unit_registry = UnitRegistry()

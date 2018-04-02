@@ -106,3 +106,15 @@ class InvalidUnitEquivalence(Exception):
     def __str__(self):
         return ("The unit equivalence '%s' does not exist for the units '%s' "
                 "and '%s'." % (self.equiv, self.unit1, self.unit2))
+
+
+class InvalidUnitOperation(Exception):
+    pass
+
+
+class SymbolNotFoundError(Exception):
+    pass
+
+
+class UnitParseError(Exception):
+    pass

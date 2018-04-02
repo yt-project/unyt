@@ -37,7 +37,7 @@ from sympy.parsing.sympy_parser import (
     auto_number,
     rationalize
 )
-from keyword import iskeyword
+from keyword import iskeyword as _iskeyword
 from unyt.dimensions import (
     base_dimensions,
     temperature,
@@ -52,15 +52,18 @@ from unyt.unit_lookup_table import (
     default_base_units
 )
 from unyt.unit_registry import (
+    default_unit_registry,
     UnitRegistry,
     UnitParseError
 )
-from unyt.exceptions import UnitsNotReducible
+from unyt.exceptions import (
+    InvalidUnitOperation,
+    UnitsNotReducible
+)
 
 import copy
 import token
 
-default_unit_registry = UnitRegistry()
 
 sympy_one = sympify(1)
 
@@ -75,11 +78,7 @@ global_dict = {
 unit_system_registry = {}
 
 
-class InvalidUnitOperation(Exception):
-    pass
-
-
-def auto_positive_symbol(tokens, local_dict, global_dict):
+def _auto_positive_symbol(tokens, local_dict, global_dict):
     """
     Inserts calls to ``Symbol`` for undefined variables.
     Passes in positive=True as a keyword argument.
@@ -96,7 +95,7 @@ def auto_positive_symbol(tokens, local_dict, global_dict):
             name = tokVal
 
             if (name in ['True', 'False', 'None']
-                or iskeyword(name)
+                or _iskeyword(name)
                 or name in local_dict
                 # Don't convert attribute access
                 or (prevTok[0] == token.OP and prevTok[1] == '.')
@@ -129,7 +128,7 @@ def auto_positive_symbol(tokens, local_dict, global_dict):
     return result
 
 
-def get_latex_representation(expr, registry):
+def _get_latex_representation(expr, registry):
     symbol_table = {}
     for ex in expr.free_symbols:
         try:
@@ -171,7 +170,7 @@ def get_latex_representation(expr, registry):
         return latex_repr
 
 
-unit_text_transform = (auto_positive_symbol, rationalize, auto_number)
+unit_text_transform = (_auto_positive_symbol, rationalize, auto_number)
 
 
 class Unit(Expr):
@@ -289,7 +288,7 @@ class Unit(Expr):
 
             # check that dimensions is valid
             if dimensions is not None:
-                validate_dimensions(dimensions)
+                _validate_dimensions(dimensions)
         else:
             # lookup the unit symbols
             unit_data = _get_unit_data_from_expr(unit_expr, registry.lut)
@@ -328,7 +327,7 @@ class Unit(Expr):
             expr = self.expr
         else:
             expr = self.expr.copy()
-        self._latex_repr = get_latex_representation(expr, self.registry)
+        self._latex_repr = _get_latex_representation(expr, self.registry)
         return self._latex_repr
 
     # Some sympy conventions
@@ -528,8 +527,8 @@ class Unit(Expr):
             units_string = _get_system_unit_string(
                 self.dimensions, unit_system.base_units)
             u = Unit(units_string, registry=self.registry)
-            base_value = get_conversion_factor(self, yt_base_unit)[0]
-            base_value /= get_conversion_factor(self, u)[0]
+            base_value = _get_conversion_factor(self, yt_base_unit)[0]
+            base_value /= _get_conversion_factor(self, u)[0]
             return Unit(units_string, base_value=base_value,
                         dimensions=self.dimensions, registry=self.registry)
 
@@ -546,7 +545,7 @@ class Unit(Expr):
         return self.get_base_equivalent(unit_system="mks")
 
     def get_conversion_factor(self, other_units):
-        return get_conversion_factor(self, other_units)
+        return _get_conversion_factor(self, other_units)
 
     def latex_representation(self):
         return self.latex_repr
@@ -556,7 +555,7 @@ class Unit(Expr):
 #
 
 
-def get_conversion_factor(old_units, new_units):
+def _get_conversion_factor(old_units, new_units):
     """
     Get the conversion factor between two units of equivalent dimensions. This
     is the number you multiply data by to convert from values in `old_units` to
@@ -708,10 +707,10 @@ def _lookup_unit_symbol(symbol_str, unit_symbol_lut):
                              "symbols." % symbol_str)
 
 
-def validate_dimensions(dimensions):
+def _validate_dimensions(dimensions):
     if isinstance(dimensions, Mul):
         for dim in dimensions.args:
-            validate_dimensions(dim)
+            _validate_dimensions(dim)
     elif isinstance(dimensions, Symbol):
         if dimensions not in base_dimensions:
             raise UnitParseError("Dimensionality expression contains an "
@@ -752,12 +751,12 @@ def _get_system_unit_string(dimensions, base_units):
 
 def _define_unit(registry, symbol, value, tex_repr=None, offset=None,
                  prefixable=False):
-    from unyt.array import unyt_quantity, iterable
+    from unyt.array import unyt_quantity, _iterable
     if symbol in registry:
         raise RuntimeError("The symbol \"%s\" is already in the unit registry!"
                            % symbol)
     if not isinstance(value, unyt_quantity):
-        if iterable(value) and len(value) == 2:
+        if _iterable(value) and len(value) == 2:
             value = unyt_quantity(value[0], value[1])
         else:
             raise RuntimeError("\"value\" needs to be a (value, unit) tuple!")
