@@ -12,6 +12,8 @@ The unyt package. See the unyt documentation for full details.
 # The full license is in the LICENSE file, distributed with this software.
 # -----------------------------------------------------------------------------
 
+from ._version import get_versions
+
 from unyt import unit_symbols
 from unyt import physical_constants
 
@@ -44,3 +46,6 @@ def import_quantities(module, global_namespace):
 
 import_quantities(unit_symbols, globals())
 import_quantities(physical_constants, globals())
+
+__version__ = get_versions()['version']
+del get_versions
