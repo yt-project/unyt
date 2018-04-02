@@ -48,7 +48,7 @@ from unyt.exceptions import (
     UnitOperationError,
     UfuncUnitError
 )
-from unyt.testing import assert_allclose_units
+from unyt._testing import assert_allclose_units
 from unyt.unit_symbols import (
     cm,
     m,
@@ -56,11 +56,11 @@ from unyt.unit_symbols import (
     degree
 )
 from unyt.unit_registry import UnitRegistry
-from unyt.on_demand_imports import (
+from unyt._on_demand_imports import (
     _astropy,
     _pint
 )
-from unyt.physical_ratios import (
+from unyt._physical_ratios import (
     metallicity_sun,
     speed_of_light_cm_per_s
 )

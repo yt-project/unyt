@@ -21,7 +21,7 @@ from unyt.exceptions import (
     SymbolNotFoundError,
     UnitParseError,
 )
-from unyt.unit_lookup_table import default_unit_symbol_lut
+from unyt._unit_lookup_table import default_unit_symbol_lut
 from hashlib import md5
 import six
 from sympy import (

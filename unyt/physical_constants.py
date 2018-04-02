@@ -19,7 +19,7 @@ For example::
 
 from math import pi as _pi
 
-from unyt.physical_ratios import (
+from unyt._physical_ratios import (
     mass_electron_grams as _mass_electron_grams,
     amu_grams as _amu_grams,
     mass_hydrogen_grams as _mass_hydrogen_grams,

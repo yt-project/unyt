@@ -37,7 +37,7 @@ from unyt.dimensions import (
     resistance_mks
 )
 
-from unyt.physical_ratios import speed_of_light_cm_per_s
+from unyt._physical_ratios import speed_of_light_cm_per_s
 from unyt import physical_constants as pc
 from six import add_metaclass
 import numpy as np

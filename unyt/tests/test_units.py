@@ -24,7 +24,7 @@ from numpy.testing import (
 import operator
 import pytest
 from sympy import Symbol
-from unyt.testing import assert_allclose_units
+from unyt._testing import assert_allclose_units
 from unyt.unit_registry import UnitRegistry
 from unyt import electrostatic_unit, elementary_charge
 from unyt.dimensions import (
@@ -44,13 +44,13 @@ from unyt.unit_object import (
     UnitParseError,
     InvalidUnitOperation
 )
-from unyt.unit_lookup_table import (
+from unyt._unit_lookup_table import (
     default_unit_symbol_lut,
     unit_prefixes,
     prefixable_units
 )
 import unyt.unit_symbols as unit_symbols
-from unyt.physical_ratios import (
+from unyt._physical_ratios import (
     cm_per_pc,
     sec_per_year,
     cm_per_km,

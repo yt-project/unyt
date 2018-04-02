@@ -13,7 +13,7 @@ The default unit symbol lookup table.
 # -----------------------------------------------------------------------------
 
 from unyt import dimensions
-from unyt.physical_ratios import (
+from unyt._physical_ratios import (
     cm_per_pc,
     cm_per_ly,
     cm_per_au,

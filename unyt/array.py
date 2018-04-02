@@ -135,10 +135,10 @@ try:
 except ImportError:
     from backports.functools_lru_cache import lru_cache
 from numbers import Number as numeric_type
-from unyt.on_demand_imports import _astropy
+from unyt._on_demand_imports import _astropy
 from sympy import Rational
-from unyt.unit_lookup_table import default_unit_symbol_lut
-from unyt.pint_conversions import convert_pint_units
+from unyt._unit_lookup_table import default_unit_symbol_lut
+from unyt._pint_conversions import convert_pint_units
 
 NULL_UNIT = Unit()
 POWER_SIGN_MAPPING = {multiply: 1, divide: -1}
@@ -1104,7 +1104,7 @@ class unyt_array(np.ndarray):
         >>> a.write_hdf5('test_array_data.h5', dataset_name='dinosaurs',
         ...              info=myinfo)
         """
-        from unyt.on_demand_imports import _h5py as h5py
+        from unyt._on_demand_imports import _h5py as h5py
         from six.moves import cPickle as pickle
         if info is None:
             info = {}
@@ -1159,7 +1159,7 @@ class unyt_array(np.ndarray):
             arrays are datasets at the top level by default.
 
         """
-        from unyt.on_demand_imports import _h5py as h5py
+        from unyt._on_demand_imports import _h5py as h5py
         from six.moves import cPickle as pickle
 
         if dataset_name is None:

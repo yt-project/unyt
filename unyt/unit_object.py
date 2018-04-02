@@ -45,7 +45,7 @@ from unyt.dimensions import (
     current_mks,
     angle
 )
-from unyt.unit_lookup_table import (
+from unyt._unit_lookup_table import (
     unit_prefixes,
     prefixable_units,
     latex_prefixes,
