@@ -2,7 +2,7 @@
 #
 
 # You can set these variables from the command line.
-SPHINXOPTS    =
+SPHINXOPTS    = -W
 SPHINXBUILD   = python -msphinx
 SPHINXPROJ    = unyt
 SOURCEDIR     = .
@@ -16,5 +16,10 @@ help:
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
-%: Makefile
+html:
+	SPHINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance sphinx-apidoc -o modules ../unyt
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+clean:
+	-rm -rf $(BUILDDIR)/*
+	-rm -rf modules/

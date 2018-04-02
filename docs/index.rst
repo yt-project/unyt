@@ -8,7 +8,7 @@ Welcome to unyt's documentation!
    readme
    installation
    usage
-   modules
+   modules/modules
    contributing
    authors
    history
