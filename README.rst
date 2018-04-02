@@ -22,15 +22,20 @@ Features
 
 Often writing code that deals with data that has units can be confusing. A function might return an array but at least with plain NumPy arrays, there is no way to easily tell what the units of the data are without somehow knowing a prioi.
 
-The ``unyt`` package provides a subclass of NumPy's ``ndarray`` class that knows about units. For example, one could do::
+The ``unyt`` package provides a subclass of NumPy's ``ndarray`` class that knows about units. For example, one could do:
 
-  import unyt
+.. testcode::
 
-  cars = ['toyota', 'volkswagen', 'honda']
-  distance_traveled = [3.4, 5.8, 7.2] * unyt.kilometer
+    import unyt
 
-  print(distance_traveled)
+    cars = ['toyota', 'volkswagen', 'honda']
+    distance_traveled = [3.4, 5.8, 7.2] * unyt.mile
 
+    print(distance_traveled.to('km'))
+
+.. testoutput::
+
+    [ 5.471756  9.334172 11.587248] km
 
 License
 -------

@@ -32,7 +32,11 @@ import unyt
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.viewcode',
+    'sphinx.ext.doctest'
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -48,8 +52,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'unyt'
-copyright = u"2018, Nathan Goldbaum"
-author = u"Nathan Goldbaum"
+copyright = u"2018, The yt Project"
+author = u"The yt Project"
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
@@ -130,7 +134,7 @@ latex_elements = {
 latex_documents = [
     (master_doc, 'unyt.tex',
      u'unyt Documentation',
-     u'Nathan Goldbaum', 'manual'),
+     u'The yt Project', 'manual'),
 ]
 
 
@@ -158,6 +162,3 @@ texinfo_documents = [
      'One line description of project.',
      'Miscellaneous'),
 ]
-
-
-
