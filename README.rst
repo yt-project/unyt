@@ -32,7 +32,7 @@ The ``unyt`` package provides a subclass of NumPy's ``ndarray`` class that knows
     >>> print(distance_traveled.to('km'))
     [ 5.471756  9.334172 11.587248] km
 
-And a whole lot more! See [the documentation]() for more examples as well as full API docs.
+And a whole lot more! See `the documentation <http://unyt.readthedocs.io>`_ for more examples as well as full API docs.
 
 License
 -------

@@ -74,7 +74,7 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'modules/modules.rst']
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
@@ -179,7 +179,7 @@ def run_apidoc(_):
     ignore = os.path.join(cur_dir, "..", "unyt", "tests")
     os.environ['SPHINX_APIDOC_OPTIONS'] = (
         'members,undoc-members,show-inheritance')
-    main(['-M', '-e', '-d 0', '-o', api_doc_dir, module, ignore, '--force'])
+    main(['-M', '-f', '-e', '-T', '-d 0', '-o', api_doc_dir, module, ignore])
 
 
 def setup(app):
