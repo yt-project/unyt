@@ -24,18 +24,15 @@ Often writing code that deals with data that has units can be confusing. A funct
 
 The ``unyt`` package provides a subclass of NumPy's ``ndarray`` class that knows about units. For example, one could do:
 
-.. testcode::
-
-    import unyt
-
-    cars = ['toyota', 'volkswagen', 'honda']
-    distance_traveled = [3.4, 5.8, 7.2] * unyt.mile
-
-    print(distance_traveled.to('km'))
-
-.. testoutput::
-
+    >>> import unyt
+    ...
+    >>> cars = ['toyota', 'volkswagen', 'honda']
+    >>> distance_traveled = [3.4, 5.8, 7.2] * unyt.mile
+    ...
+    >>> print(distance_traveled.to('km'))
     [ 5.471756  9.334172 11.587248] km
+
+And a whole lot more! See [the documentation]() for more examples as well as full API docs.
 
 License
 -------
