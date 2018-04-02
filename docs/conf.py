@@ -169,19 +169,18 @@ texinfo_documents = [
 
 autodoc_member_order = 'bysource'
 
+
 def run_apidoc(_):
     from sphinx.apidoc import main
-    import os
-    import sys
     sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
     cur_dir = os.path.abspath(os.path.dirname(__file__))
+    api_doc_dir = os.path.join(cur_dir, 'modules')
     module = os.path.join(cur_dir, "..", "unyt")
-    ignores =['tests']
+    ignore = os.path.join(cur_dir, "..", "unyt", "tests")
     os.environ['SPHINX_APIDOC_OPTIONS'] = (
         'members,undoc-members,show-inheritance')
-    main(['-M', '-e', '-o', cur_dir, module] + ignores + ['--force'])
+    main(['-M', '-e', '-o', api_doc_dir, module, ignore, '--force'])
+
 
 def setup(app):
     app.connect('builder-inited', run_apidoc)
-
-    	sphinx-apidoc -M -e -d 0 -o modules ../unyt ../unyt/tests ../unyt/testing.py ../unyt/on_demand_imports.py ../unyt/physical_ratios.py ../unyt/pint_conversions.py ../unyt/unit_lookup_table.py
