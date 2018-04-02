@@ -17,7 +17,7 @@ help:
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 html:
-	SPHINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance sphinx-apidoc -o modules ../unyt
+	SPHINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance sphinx-apidoc -M -e -o modules ../unyt
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 clean:
