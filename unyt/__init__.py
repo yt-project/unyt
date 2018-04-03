@@ -22,6 +22,7 @@ from ._version import get_versions
 
 from unyt import unit_symbols
 from unyt import physical_constants
+from unyt.unit_object import define_unit  # NOQA
 
 from unyt.array import (  # NOQA
     loadtxt,

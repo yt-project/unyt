@@ -102,11 +102,11 @@ CMD_temperature = Tcmb = unyt_quantity(2.726, 'K')
 
 # Solar System
 #: Mass of the sun
-msun = solar_mass = mass_sun = mass_sun_cgs = unyt_quantity(
+Msun = msun = solar_mass = mass_sun = mass_sun_cgs = unyt_quantity(
     _mass_sun_grams, 'g')
 
 #: Mass of Jupiter
-mjup = jupiter_mass = mass_jupiter = mass_jupiter_cgs = unyt_quantity(
+Mjup = mjup = jupiter_mass = mass_jupiter = mass_jupiter_cgs = unyt_quantity(
     _mass_jupiter_grams, 'g')
 
 #: Mass of Mercury
@@ -118,7 +118,7 @@ venus_mass = mass_venus = mass_venus_cgs = unyt_quantity(
     _mass_venus_grams, 'g')
 
 #: Mass of Earth
-mearth = earth_mass = mass_earth = mass_earth_cgs = unyt_quantity(
+Mearth = mearth = earth_mass = mass_earth = mass_earth_cgs = unyt_quantity(
     _mass_earth_grams, 'g')
 
 #: Mass of Mars

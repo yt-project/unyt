@@ -789,9 +789,9 @@ def define_unit(symbol, value, tex_repr=None, offset=None, prefixable=False):
 
     Examples
     --------
-    >>> yt.define_unit("mph", (1.0, "mile/hr"))
-    >>> two_weeks = unyt_quantity(14.0, "days")
-    >>> yt.define_unit("fortnight", two_weeks)
+    >>> from unyt import day
+    >>> two_weeks = 14.0*day
+    >>> define_unit("fortnight", two_weeks)
     """
     _define_unit(default_unit_registry, symbol, value, tex_repr=tex_repr,
                  offset=offset, prefixable=prefixable)

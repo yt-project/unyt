@@ -520,26 +520,27 @@ class unyt_array(np.ndarray):
     Examples
     --------
 
-    >>> from yt import unyt_array
+    >>> from unyt import unyt_array
     >>> a = unyt_array([1, 2, 3], 'cm')
     >>> b = unyt_array([4, 5, 6], 'm')
     >>> a + b
-    unyt_array([ 401.,  502.,  603.]) cm
+    unyt_array([401., 502., 603.]) cm
     >>> b + a
-    unyt_array([ 4.01,  5.02,  6.03]) m
+    unyt_array([4.01, 5.02, 6.03]) m
 
     NumPy ufuncs will pass through units where appropriate.
 
+    >>> from unyt import g, cm
     >>> import numpy as np
-    >>> a = unyt_array(np.arange(8) - 4, 'g/cm**3')
+    >>> a = (np.arange(8) - 4)*g/cm**3
     >>> np.abs(a)
-    unyt_array([4, 3, 2, 1, 0, 1, 2, 3]) g/cm**3
+    unyt_array([4., 3., 2., 1., 0., 1., 2., 3.]) g/cm**3
 
     and strip them when it would be annoying to deal with them.
 
-    >>> np.log10(a)
-    array([       -inf,  0.        ,  0.30103   ,  0.47712125,  0.60205999,
-            0.69897   ,  0.77815125,  0.84509804])
+    >>> np.log10(np.arange(8)+1)
+    array([0.        , 0.30103   , 0.47712125, 0.60205999, 0.69897   ,
+           0.77815125, 0.84509804, 0.90308999])
 
     """
     _ufunc_registry = {
@@ -746,8 +747,10 @@ class unyt_array(np.ndarray):
 
         Examples
         --------
-        >>> E = unyt_quantity(2.5, "erg/s")
-        >>> E.convert_to_base(unit_system="galactic")
+        >>> from unyt import erg, s
+        >>> E = 2.5*erg/s
+        >>> E.convert_to_base(unit_system="mks")
+        2.5e-07 kg*m**2/s**3
         """
         return self.convert_to_units(self.units.get_base_equivalent(
             unit_system))
@@ -915,8 +918,10 @@ class unyt_array(np.ndarray):
 
         Examples
         --------
-        >>> a = unyt_array(1.0e7,"K")
+        >>> from unyt import K
+        >>> a = 1.0e7*K
         >>> a.to_equivalent("keV", "thermal")
+        0.8617332401096502 keV
         """
         from unyt.equivalencies import equivalence_registry
         conv_unit = Unit(unit, registry=self.units.registry)
@@ -1674,25 +1679,26 @@ class unyt_quantity(unyt_array):
     Examples
     --------
 
-    >>> from yt import unyt_quantity
-    >>> a = unyt_quantity(1, 'cm')
-    >>> b = unyt_quantity(2, 'm')
+    >>> from unyt import m, cm
+    >>> a = 3*cm
+    >>> b = 2*m
     >>> a + b
-    201.0 cm
+    203.0 cm
     >>> b + a
-    2.01 m
+    2.03 m
 
     NumPy ufuncs will pass through units where appropriate.
 
     >>> import numpy as np
-    >>> a = unyt_quantity(12, 'g/cm**3')
+    >>> from unyt import g, cm
+    >>> a = 12*g/cm**3
     >>> np.abs(a)
-    12 g/cm**3
+    12.0 g/cm**3
 
     and strip them when it would be annoying to deal with them.
 
     >>> print(np.log10(a))
-    1.07918124605
+    1.0791812460476249
 
     """
     def __new__(cls, input_scalar, input_units=None, registry=None,
@@ -1731,10 +1737,11 @@ def uconcatenate(arrs, axis=0):
 
     Examples
     --------
-    >>> A = yt.unyt_array([1, 2, 3], 'cm')
-    >>> B = yt.unyt_array([2, 3, 4], 'cm')
+    >>> from unyt import cm
+    >>> A = [1, 2, 3]*cm
+    >>> B = [2, 3, 4]*cm
     >>> uconcatenate((A, B))
-    unyt_array([ 1., 2., 3., 2., 3., 4.]) cm
+    unyt_array([1., 2., 3., 2., 3., 4.]) cm
 
     """
     v = np.concatenate(arrs, axis=axis)
@@ -1764,10 +1771,11 @@ def uintersect1d(arr1, arr2, assume_unique=False):
 
     Examples
     --------
-    >>> A = yt.unyt_array([1, 2, 3], 'cm')
-    >>> B = yt.unyt_array([2, 3, 4], 'cm')
+    >>> from unyt import cm
+    >>> A = [1, 2, 3]*cm
+    >>> B = [2, 3, 4]*cm
     >>> uintersect1d(A, B)
-    unyt_array([ 2., 3.]) cm
+    unyt_array([2., 3.]) cm
 
     """
     v = np.intersect1d(arr1, arr2, assume_unique=assume_unique)
@@ -1784,10 +1792,11 @@ def uunion1d(arr1, arr2):
 
     Examples
     --------
-    >>> A = yt.unyt_array([1, 2, 3], 'cm')
-    >>> B = yt.unyt_array([2, 3, 4], 'cm')
+    >>> import unyt
+    >>> A = unyt.unyt_array([1, 2, 3], 'cm')
+    >>> B = unyt.unyt_array([2, 3, 4], 'cm')
     >>> uunion1d(A, B)
-    unyt_array([ 1., 2., 3., 4.]) cm
+    unyt_array([1., 2., 3., 4.]) cm
 
     """
     v = np.union1d(arr1, arr2)
@@ -1908,7 +1917,8 @@ def loadtxt(fname, dtype='float', delimiter='\t', usecols=None, comments='#'):
 
     Examples
     --------
-    >>> temp, velx = yt.loadtxt("sphere.dat", usecols=(1,2), delimiter="\t")
+    >>> import unyt
+    >>> temp, velx = unyt.loadtxt("sphere.dat", usecols=(1,2), delimiter="\t")
     """
     f = open(fname, 'r')
     next_one = False
@@ -1967,16 +1977,16 @@ def savetxt(fname, arrays, fmt='%.18e', delimiter='\t', header='',
     comments : str, optional
         String that will be prepended to the ``header`` and ``footer`` strings,
         to mark them as comments. Default: '# ', as expected by e.g.
-        ``yt.loadtxt``.
+        ``unyt.loadtxt``.
 
     Examples
     --------
-    >>> sp = ds.sphere("c", (100,"kpc"))
-    >>> a = sp["density"]
-    >>> b = sp["temperature"]
-    >>> c = sp["velocity_x"]
-    >>> yt.savetxt("sphere.dat", [a,b,c], header='My sphere stuff',
-    ...            delimiter="\t")
+    >>> import unyt as u
+    >>> a = [1, 2, 3]*u.cm
+    >>> b = [8, 10, 12]*u.cm/u.s
+    >>> c = [2, 85, 9]*u.g
+    >>> savetxt("sphere.dat", [a,b,c], header='My sphere stuff',
+    ...          delimiter="\t")
     """
     if not isinstance(arrays, list):
         arrays = [arrays]
