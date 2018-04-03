@@ -1028,7 +1028,12 @@ class unyt_array(np.ndarray):
             supplied, the default one will be used.
         """
         # Converting from AstroPy Quantity
-        u = arr.unit
+        try:
+            u = arr.unit
+            _arr = arr
+        except AttributeError:
+            u = arr
+            _arr = 1.0*u
         ap_units = []
         for base, exponent in zip(u.bases, u.powers):
             unit_str = base.to_string()
@@ -1038,10 +1043,10 @@ class unyt_array(np.ndarray):
                 unit_str = "hr"
             ap_units.append("%s**(%s)" % (unit_str, Rational(exponent)))
         ap_units = "*".join(ap_units)
-        if isinstance(arr.value, np.ndarray):
-            return unyt_array(arr.value, ap_units, registry=unit_registry)
+        if isinstance(_arr.value, np.ndarray) and _arr.shape != ():
+            return unyt_array(_arr.value, ap_units, registry=unit_registry)
         else:
-            return unyt_quantity(arr.value, ap_units, registry=unit_registry)
+            return unyt_quantity(_arr.value, ap_units, registry=unit_registry)
 
     def to_astropy(self, **kwargs):
         """
