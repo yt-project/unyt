@@ -872,8 +872,10 @@ class unyt_array(np.ndarray):
 
         Examples
         --------
-        >>> E = unyt_quantity(2.5, "erg/s")
-        >>> E_new = E.in_base(unit_system="galactic")
+        >>> from unyt import erg, s
+        >>> E = 2.5*erg/s
+        >>> E.in_base(unit_system="mks")
+        2.5e-07 kg*m**2/s**3
         """
         return self.in_units(self.units.get_base_equivalent(unit_system))
 
@@ -886,6 +888,11 @@ class unyt_array(np.ndarray):
         -------
         Quantity object with data converted to cgs units.
 
+        Example
+        -------
+        >>> from unyt import Newton, km
+        >>> (Newton/km).in_cgs()
+        1.0 g/s**2
         """
         return self.in_units(self.units.get_cgs_equivalent())
 
@@ -898,6 +905,11 @@ class unyt_array(np.ndarray):
         -------
         Quantity object with data converted to mks units.
 
+        Example
+        -------
+        >>> from unyt import mile
+        >>> mile.in_mks()
+        1609.34 m
         """
         return self.in_units(self.units.get_mks_equivalent())
 
@@ -964,6 +976,28 @@ class unyt_array(np.ndarray):
         Returns
         -------
         View of this array's data.
+
+        Example
+        -------
+
+        >>> from unyt import km
+        >>> a = [3, 4, 5]*km
+        >>> a
+        unyt_array([3., 4., 5.]) km
+        >>> a.ndarray_view()
+        array([3., 4., 5.])
+
+        This function returns a view that shares the same underlying memory
+        as the original array.
+
+        >>> b = a.ndarray_view()
+        >>> b.base is a.base
+        True
+        >>> b[2] = 4
+        >>> b
+        array([3., 4., 4.])
+        >>> a
+        unyt_array([3., 4., 4.]) km
         """
         return self.view(np.ndarray)
 
@@ -1104,7 +1138,8 @@ class unyt_array(np.ndarray):
 
         Examples
         --------
-        >>> a = unyt_array([1,2,3], 'cm')
+        >>> from unyt import cm
+        >>> a = [1,2,3]*cm
         >>> myinfo = {'field':'dinosaurs', 'type':'field_data'}
         >>> a.write_hdf5('test_array_data.h5', dataset_name='dinosaurs',
         ...              info=myinfo)
