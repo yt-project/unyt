@@ -524,9 +524,9 @@ class unyt_array(np.ndarray):
     >>> a = unyt_array([1, 2, 3], 'cm')
     >>> b = unyt_array([4, 5, 6], 'm')
     >>> a + b
-    unyt_array([401., 502., 603.]) cm
+    unyt_array([401., 502., 603.], 'cm')
     >>> b + a
-    unyt_array([4.01, 5.02, 6.03]) m
+    unyt_array([4.01, 5.02, 6.03], 'm')
 
     NumPy ufuncs will pass through units where appropriate.
 
@@ -534,7 +534,7 @@ class unyt_array(np.ndarray):
     >>> import numpy as np
     >>> a = (np.arange(8) - 4)*g/cm**3
     >>> np.abs(a)
-    unyt_array([4., 3., 2., 1., 0., 1., 2., 3.]) g/cm**3
+    unyt_array([4., 3., 2., 1., 0., 1., 2., 3.], 'g/cm**3')
 
     and strip them when it would be annoying to deal with them.
 
@@ -696,15 +696,11 @@ class unyt_array(np.ndarray):
         return obj
 
     def __repr__(self):
-        """
-
-        """
-        return super(unyt_array, self).__repr__()+' '+self.units.__repr__()
+        rep = super(unyt_array, self).__repr__()
+        units_repr = self.units.__repr__()
+        return rep[:-1] + ', \'' + units_repr + '\')'
 
     def __str__(self):
-        """
-
-        """
         return str(self.view(np.ndarray)) + ' ' + str(self.units)
 
     #
@@ -713,13 +709,22 @@ class unyt_array(np.ndarray):
 
     def convert_to_units(self, units):
         """
-        Convert the array and units to the given units.
+        Convert the array to the given units in-place.
 
         Parameters
         ----------
         units : Unit object or str
             The units you want to convert to.
 
+        Examples
+        --------
+
+        >>> from unyt import cm, km
+        >>> length = [3000, 2000, 1000]*cm
+        >>> length.convert_to_units('m')
+        unyt_array([30., 20., 10.], 'm')
+        >>> print(length)
+        [30. 20. 10.] m
         """
         new_units = _unit_repr_check_same(self.units, units)
         (conversion_factor, offset) = self.units.get_conversion_factor(
@@ -750,7 +755,7 @@ class unyt_array(np.ndarray):
         >>> from unyt import erg, s
         >>> E = 2.5*erg/s
         >>> E.convert_to_base(unit_system="mks")
-        2.5e-07 kg*m**2/s**3
+        unyt_quantity(2.5e-07, 'kg*m**2/s**3')
         """
         return self.convert_to_units(self.units.get_base_equivalent(
             unit_system))
@@ -874,7 +879,7 @@ class unyt_array(np.ndarray):
         --------
         >>> from unyt import erg, s
         >>> E = 2.5*erg/s
-        >>> E.in_base(unit_system="mks")
+        >>> print(E.in_base("mks"))
         2.5e-07 kg*m**2/s**3
         """
         return self.in_units(self.units.get_base_equivalent(unit_system))
@@ -891,7 +896,7 @@ class unyt_array(np.ndarray):
         Example
         -------
         >>> from unyt import Newton, km
-        >>> (Newton/km).in_cgs()
+        >>> print((Newton/km).in_cgs())
         1.0 g/s**2
         """
         return self.in_units(self.units.get_cgs_equivalent())
@@ -908,16 +913,17 @@ class unyt_array(np.ndarray):
         Example
         -------
         >>> from unyt import mile
-        >>> mile.in_mks()
+        >>> print(mile.in_mks())
         1609.34 m
         """
         return self.in_units(self.units.get_mks_equivalent())
 
     def to_equivalent(self, unit, equiv, **kwargs):
         """
-        Convert a unyt_array or unyt_quantity to an equivalent, e.g.,
-        something that is related by only a constant factor but not in the
-        same units.
+        Return a copy of the unyt_array in the units specified units, assuming
+        the given equivalency. The dimensions of the specified units and the
+        dimensions of the original array need not match so long as there is an
+        appropriate conversion in the specified equivalency.
 
         Parameters
         ----------
@@ -932,7 +938,7 @@ class unyt_array(np.ndarray):
         --------
         >>> from unyt import K
         >>> a = 1.0e7*K
-        >>> a.to_equivalent("keV", "thermal")
+        >>> print(a.to_equivalent("keV", "thermal"))
         0.8617332401096502 keV
         """
         from unyt.equivalencies import equivalence_registry
@@ -983,7 +989,7 @@ class unyt_array(np.ndarray):
         >>> from unyt import km
         >>> a = [3, 4, 5]*km
         >>> a
-        unyt_array([3., 4., 5.]) km
+        unyt_array([3., 4., 5.], 'km')
         >>> a.ndarray_view()
         array([3., 4., 5.])
 
@@ -997,7 +1003,7 @@ class unyt_array(np.ndarray):
         >>> b
         array([3., 4., 4.])
         >>> a
-        unyt_array([3., 4., 4.]) km
+        unyt_array([3., 4., 4.], 'km')
         """
         return self.view(np.ndarray)
 
@@ -1714,12 +1720,11 @@ class unyt_quantity(unyt_array):
     Examples
     --------
 
-    >>> from unyt import m, cm
-    >>> a = 3*cm
-    >>> b = 2*m
-    >>> a + b
+    >>> a = unyt_quantity(3, 'cm')
+    >>> b = unyt_quantity(2, 'm')
+    >>> print(a + b)
     203.0 cm
-    >>> b + a
+    >>> print(b + a)
     2.03 m
 
     NumPy ufuncs will pass through units where appropriate.
@@ -1727,7 +1732,7 @@ class unyt_quantity(unyt_array):
     >>> import numpy as np
     >>> from unyt import g, cm
     >>> a = 12*g/cm**3
-    >>> np.abs(a)
+    >>> print(np.abs(a))
     12.0 g/cm**3
 
     and strip them when it would be annoying to deal with them.
@@ -1746,9 +1751,6 @@ class unyt_quantity(unyt_array):
         if ret.size > 1:
             raise RuntimeError("unyt_quantity instances must be scalars")
         return ret
-
-    def __repr__(self):
-        return str(self)
 
 
 def _validate_numpy_wrapper_units(v, arrs):
@@ -1776,7 +1778,7 @@ def uconcatenate(arrs, axis=0):
     >>> A = [1, 2, 3]*cm
     >>> B = [2, 3, 4]*cm
     >>> uconcatenate((A, B))
-    unyt_array([1., 2., 3., 2., 3., 4.]) cm
+    unyt_array([1., 2., 3., 2., 3., 4.], 'cm')
 
     """
     v = np.concatenate(arrs, axis=axis)
@@ -1810,7 +1812,7 @@ def uintersect1d(arr1, arr2, assume_unique=False):
     >>> A = [1, 2, 3]*cm
     >>> B = [2, 3, 4]*cm
     >>> uintersect1d(A, B)
-    unyt_array([2., 3.]) cm
+    unyt_array([2., 3.], 'cm')
 
     """
     v = np.intersect1d(arr1, arr2, assume_unique=assume_unique)
@@ -1831,7 +1833,7 @@ def uunion1d(arr1, arr2):
     >>> A = unyt.unyt_array([1, 2, 3], 'cm')
     >>> B = unyt.unyt_array([2, 3, 4], 'cm')
     >>> uunion1d(A, B)
-    unyt_array([1., 2., 3., 4.]) cm
+    unyt_array([1., 2., 3., 4.], 'cm')
 
     """
     v = np.union1d(arr1, arr2)
@@ -1845,9 +1847,6 @@ def unorm(data, ord=None, axis=None, keepdims=False):
     This is a wrapper around np.linalg.norm that preserves units. See
     the documentation for that function for descriptions of the keyword
     arguments.
-
-    The keepdims argument is ignored if the version of numpy installed is
-    older than numpy 1.10.0.
     """
     if LooseVersion(np.__version__) < LooseVersion('1.10.0'):
         norm = np.linalg.norm(data, ord=ord, axis=axis)
