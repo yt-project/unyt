@@ -1135,7 +1135,7 @@ class unyt_array(np.ndarray):
         unyt_quantity(1., 'km')
         >>> a = [1, 2, 3]*km
         >>> a
-        <Quantity [1.,2.,3.] km>
+        <Quantity [1., 2., 3.] km>
         >>> unyt_array.from_astropy(a)
         unyt_array([1., 2., 3.], 'km')
         """
@@ -1169,7 +1169,7 @@ class unyt_array(np.ndarray):
         >>> from unyt import g, cm
         >>> data = [3, 4, 5]*g/cm**3
         >>> data.to_astropy()
-        <Quantity [3.,4.,5.] g / cm3>
+        <Quantity [3., 4., 5.] g / cm3>
         """
         if _astropy.units is None:
             raise ImportError(
@@ -1280,7 +1280,7 @@ class unyt_array(np.ndarray):
         >>> a = [1,2,3]*cm
         >>> myinfo = {'field':'dinosaurs', 'type':'field_data'}
         >>> a.write_hdf5('test_array_data.h5', dataset_name='dinosaurs',
-        ...              info=myinfo)
+        ...              info=myinfo)  # doctest: +SKIP
         """
         from unyt._on_demand_imports import _h5py as h5py
         from six.moves import cPickle as pickle
@@ -2328,7 +2328,8 @@ def loadtxt(fname, dtype='float', delimiter='\t', usecols=None, comments='#'):
 
     Examples
     --------
-    >>> temp, velx = loadtxt("sphere.dat", usecols=(1,2), delimiter="\t")
+    >>> temp, velx = loadtxt(
+    ...    "sphere.dat", usecols=(1,2), delimiter="\t")  # doctest: +SKIP
     """
     f = open(fname, 'r')
     next_one = False
@@ -2396,7 +2397,7 @@ def savetxt(fname, arrays, fmt='%.18e', delimiter='\t', header='',
     >>> b = [8, 10, 12]*u.cm/u.s
     >>> c = [2, 85, 9]*u.g
     >>> savetxt("sphere.dat", [a,b,c], header='My sphere stuff',
-    ...          delimiter="\t")
+    ...          delimiter="\t")  # doctest: +SKIP
     """
     if not isinstance(arrays, list):
         arrays = [arrays]
