@@ -11,6 +11,7 @@ Equivalencies between different kinds of units
 # The full license is in the LICENSE file, distributed with this software.
 # -----------------------------------------------------------------------------
 
+from collections import OrderedDict
 
 from unyt.dimensions import (
     temperature,
@@ -42,7 +43,7 @@ from unyt import physical_constants as pc
 from six import add_metaclass
 import numpy as np
 
-equivalence_registry = {}
+equivalence_registry = OrderedDict()
 
 
 class RegisteredEquivalence(type):
