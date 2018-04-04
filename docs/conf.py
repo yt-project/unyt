@@ -171,7 +171,10 @@ autodoc_member_order = 'bysource'
 
 
 def run_apidoc(_):
-    from sphinx.ext.apidoc import main
+    try:
+        from sphinx.ext.apidoc import main
+    except ImportError:
+        from sphinx.apidoc import main
     sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
     cur_dir = os.path.abspath(os.path.dirname(__file__))
     api_doc_dir = os.path.join(cur_dir, 'modules')
