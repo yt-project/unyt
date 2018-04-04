@@ -321,6 +321,14 @@ class Unit(Expr):
 
     @property
     def latex_repr(self):
+        """A LaTeX representation for the unit
+
+        Examples
+        --------
+        >>> from yt.units import g, cm
+        >>> (g/cm**3).units.latex_repr
+        '\\\\frac{\\\\rm{g}}{\\\\rm{cm}^{3}}'
+        """
         if self._latex_repr is not None:
             return self._latex_repr
         if self.expr.is_Atom:
@@ -466,7 +474,16 @@ class Unit(Expr):
     #
 
     def same_dimensions_as(self, other_unit):
-        """ Test if dimensions are the same. """
+        """Test if the dimensions of *other_unit* are the same as this unit
+
+        Examples
+        --------
+        >>> from unyt import Msun, kg, mile
+        >>> Msun.units.same_dimensions_as(kg.units)
+        True
+        >>> Msun.units.same_dimensions_as(mile.units)
+        False
+        """
         # test first for 'is' equality to avoid expensive sympy operation
         if self.dimensions is other_unit.dimensions:
             return True
@@ -474,10 +491,31 @@ class Unit(Expr):
 
     @property
     def is_dimensionless(self):
+        """Is this a dimensionless unit?
+
+        Returns
+        -------
+        True for a dimensionless unit, False otherwise
+
+        Examples
+        --------
+        >>> from unyt import count, kg
+        >>> count.units.is_dimensionless
+        True
+        >>> kg.units.is_dimensionless
+        False
+        """
         return self.dimensions is sympy_one
 
     @property
     def is_code_unit(self):
+        """Is this a "code" unit?
+
+        Returns
+        -------
+        True if the unit name begins with "code" False otherwise
+
+        """
         for atom in self.expr.atoms():
             if str(atom).startswith("code") or atom.is_Number:
                 pass
@@ -486,8 +524,15 @@ class Unit(Expr):
         return True
 
     def list_equivalencies(self):
-        """
-        Lists the possible equivalencies associated with this unit object
+        """Lists the possible equivalencies associated with this unit object
+
+        Examples
+        --------
+        >>> from unyt import km
+        >>> km.units.list_equivalencies()
+        spectral: length <-> rate <-> energy
+        schwarzschild: mass <-> length
+        compton: mass <-> length
         """
         from unyt.equivalencies import equivalence_registry
         for k, v in equivalence_registry.items():
@@ -497,6 +542,12 @@ class Unit(Expr):
     def has_equivalent(self, equiv):
         """
         Check to see if this unit object as an equivalent unit in *equiv*.
+
+        Example
+        -------
+        >>> from unyt import km
+        >>> km.units.has_equivalent('spectral')
+        True
         """
         from unyt.equivalencies import equivalence_registry
         try:
@@ -507,8 +558,13 @@ class Unit(Expr):
         return old_dims in this_equiv.dims
 
     def get_base_equivalent(self, unit_system="cgs"):
-        """
-        Create and return dimensionally-equivalent units in a specified base.
+        """Create and return dimensionally-equivalent units in a specified base.
+
+        >>> from unyt import g, cm
+        >>> (g/cm**3).units.get_base_equivalent('mks')
+        kg/m**3
+        >>> (g/cm**3).units.get_base_equivalent('solar')
+        Mearth/AU**3
         """
         yt_base_unit_string = _get_system_unit_string(
             self.dimensions, default_base_units)
@@ -533,21 +589,62 @@ class Unit(Expr):
                         dimensions=self.dimensions, registry=self.registry)
 
     def get_cgs_equivalent(self):
-        """
-        Create and return dimensionally-equivalent cgs units.
+        """Create and return dimensionally-equivalent cgs units.
+
+        Example
+        -------
+        >>> from unyt import kg, m
+        >>> (kg/m**3).units.get_cgs_equivalent()
+        g/cm**3
         """
         return self.get_base_equivalent(unit_system="cgs")
 
     def get_mks_equivalent(self):
-        """
-        Create and return dimensionally-equivalent mks units.
+        """Create and return dimensionally-equivalent mks units.
+
+        Example
+        -------
+        >>> from unyt import g, cm
+        >>> (g/cm**3).units.get_mks_equivalent()
+        kg/m**3
         """
         return self.get_base_equivalent(unit_system="mks")
 
     def get_conversion_factor(self, other_units):
+        """Get the conversion factor and offset (if any) from one unit to another
+
+        Parameters
+        ----------
+        other_units: unit object
+           The units we want the conversion factor for
+
+        Returns
+        -------
+        conversion_factor : float
+            old_units / new_units
+        offset : float or None
+            Offset between this unit and the other unit. None if there is
+            no offset.
+
+        Examples
+        --------
+        >>> from unyt import km, cm, degree_fahrenheit, degree_celsius
+        >>> km.units.get_conversion_factor(cm.units)
+        (100000.0, None)
+        >>> degree_celsius.units.get_conversion_factor(degree_fahrenheit.units)
+        (1.7999999999999998, -31.999999999999886)
+        """
         return _get_conversion_factor(self, other_units)
 
     def latex_representation(self):
+        """A LaTeX representation for the unit
+
+        Examples
+        --------
+        >>> from yt.units import g, cm
+        >>> (g/cm**3).units.latex_representation()
+        '\\\\frac{\\\\rm{g}}{\\\\rm{cm}^{3}}'
+        """
         return self.latex_repr
 
 #

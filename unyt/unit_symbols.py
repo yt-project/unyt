@@ -118,11 +118,15 @@ Myr = Megayear = megayear = quan(1.0, "Myr")
 Gyr = Gigayear = gigayear = quan(1.0, "Gyr")
 
 #
-# Kelvin
+# Temperatures
 #
 
 #: Degree kelvin
 degree_kelvin = Kelvin = K = quan(1.0, "K")
+#: Degree fahrenheit
+degree_fahrenheit = degF = quan(1.0, "degF")
+#: Degree Celsius
+degree_celsius = degC = quan(1.0, "degC")
 
 #
 # Misc CGS
@@ -211,6 +215,7 @@ GeV = giga_electron_volt = Gigaelectronvolt = gigaelectronvolt = quan(
     1.0, "GeV")
 #: Atomic mass unit
 amu = atomic_mass_unit = quan(1.0, "amu")
+mol = quan(1.0, "mol")
 #: Angstrom
 angstrom = quan(1.0, "angstrom")
 #: Electron mass
@@ -271,3 +276,12 @@ ohm = Ohm = quan(1.0, "ohm")
 latitude = lat = quan(1.0, "lat")
 #: Degree longitude
 longitude = lon = quan(1.0, "lon")
+
+#
+# Misc dimensionless units
+#
+
+#: Count of something
+counts = count = quan(1.0, 'counts')
+#: Number of photons
+photons = photon = quan(1.0, 'photons')
