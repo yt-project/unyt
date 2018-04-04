@@ -9,9 +9,16 @@ unyt
 .. image:: https://img.shields.io/travis/yt-project/unyt.svg
         :target: https://travis-ci.org/yt-project/unyt
 
+.. image:: https://ci.appveyor.com/api/projects/status/4j1nxunkj759pgo0?svg=true
+        :target: https://ci.appveyor.com/project/ngoldbaum/unyt
+
 .. image:: https://readthedocs.org/projects/unyt/badge/?version=latest
         :target: https://unyt.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
+
+.. image:: https://codecov.io/gh/yt-project/unyt/branch/master/graph/badge.svg
+        :target: https://codecov.io/gh/yt-project/unyt
+        :alt: Test Coverage
 
 
 A package for handling numpy arrays with units
