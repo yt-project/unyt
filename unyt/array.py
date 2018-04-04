@@ -99,7 +99,7 @@ from numpy import (
     fabs,
     spacing
 )
-
+from numpy.core.umath import _ones_like
 try:
     # numpy 1.13 or newer
     from numpy import (
@@ -627,6 +627,7 @@ class unyt_array(np.ndarray):
         divmod_: _passthrough_unit,
         isnat: _return_without_unit,
         heaviside: _preserve_units,
+        _ones_like: _preserve_units,
     }
 
     __array_priority__ = 2.0
