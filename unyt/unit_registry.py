@@ -66,7 +66,7 @@ class UnitRegistry:
         """
         if self._unit_system_id is None:
             hash_data = bytearray()
-            for k, v in self.lut.items():
+            for k, v in sorted(self.lut.items()):
                 hash_data.extend(k.encode('ascii'))
                 hash_data.extend(repr(v).encode('ascii'))
             m = md5()
