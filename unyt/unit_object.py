@@ -325,7 +325,7 @@ class Unit(Expr):
 
         Examples
         --------
-        >>> from yt.units import g, cm
+        >>> from unyt import g, cm
         >>> (g/cm**3).units.latex_repr
         '\\\\frac{\\\\rm{g}}{\\\\rm{cm}^{3}}'
         """
@@ -641,7 +641,7 @@ class Unit(Expr):
 
         Examples
         --------
-        >>> from yt.units import g, cm
+        >>> from unyt import g, cm
         >>> (g/cm**3).units.latex_representation()
         '\\\\frac{\\\\rm{g}}{\\\\rm{cm}^{3}}'
         """
