@@ -63,6 +63,7 @@ from unyt.unit_object import (  # NOQA
 )
 from unyt.unit_registry import UnitRegistry  # NOQA
 
+
 # function to only import quantities into this namespace
 # we go through the trouble of doing this instead of "import *"
 # to avoid including extraneous variables (e.g. floating point
