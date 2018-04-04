@@ -1917,12 +1917,12 @@ class unyt_array(np.ndarray):
             Parameters
             ----------
             order : {'C', 'F', 'A', 'K'}, optional
-            Controls the memory layout of the copy. 'C' means C-order,
-            'F' means F-order, 'A' means 'F' if `a` is Fortran contiguous,
-            'C' otherwise. 'K' means match the layout of `a` as closely
-            as possible. (Note that this function and :func:`numpy.copy` are
-            very similar, but have different default values for their order=
-            arguments.)
+                Controls the memory layout of the copy. 'C' means C-order,
+                'F' means F-order, 'A' means 'F' if `a` is Fortran contiguous,
+                'C' otherwise. 'K' means match the layout of `a` as closely
+                as possible. (Note that this function and :func:`numpy.copy`
+                are very similar, but have different default values for their
+                order= arguments.)
 
             See also
             --------
