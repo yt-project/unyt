@@ -71,7 +71,7 @@ class UnitRegistry:
                 hash_data.extend(repr(v).encode('ascii'))
             m = md5()
             m.update(hash_data)
-            self._unit_system_id = "code_%d" % m.hexdigest()
+            self._unit_system_id = str(m.hexdigest())
         return self._unit_system_id
 
     def add(self, symbol, base_value, dimensions, tex_repr=None, offset=None):
@@ -80,6 +80,8 @@ class UnitRegistry:
 
         """
         from unyt.unit_object import _validate_dimensions
+
+        self._unit_system_id = None
 
         # Validate
         if not isinstance(base_value, float):
@@ -108,9 +110,11 @@ class UnitRegistry:
         Remove the entry for the unit matching `symbol`.
 
         """
+        self._unit_system_id = None
+
         if symbol not in self.lut:
             raise SymbolNotFoundError(
-                "Tried to remove the symbol '%s', but it does not exist"
+                "Tried to remove the symbol '%s', but it does not exist "
                 "in this registry." % symbol)
 
         del self.lut[symbol]
@@ -123,9 +127,11 @@ class UnitRegistry:
         units after parsing parameters.
 
         """
+        self._unit_system_id = None
+
         if symbol not in self.lut:
             raise SymbolNotFoundError(
-                "Tried to modify the symbol '%s', but it does not exist"
+                "Tried to modify the symbol '%s', but it does not exist "
                 "in this registry." % symbol)
 
         if hasattr(base_value, "in_base"):

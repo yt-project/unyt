@@ -13,6 +13,7 @@ Test unit systems.
 
 from unyt.unit_object import Unit, unit_system_registry
 from unyt.unit_systems import UnitSystem
+from unyt.unit_registry import UnitRegistry
 from unyt import dimensions
 
 
@@ -27,3 +28,15 @@ def test_unit_systems():
     assert goofy_unit_system["energy"] == Unit("eV")
     assert goofy_unit_system["magnetic_field_mks"] == Unit("lbm/(hr**2*mA)")
     assert "goofy" in unit_system_registry
+
+
+def test_unit_system_id():
+    reg1 = UnitRegistry()
+    reg2 = UnitRegistry()
+    assert reg1.unit_system_id == reg2.unit_system_id
+    reg1.modify('m', 2.0)
+    assert reg1.unit_system_id != reg2.unit_system_id
+    reg1 = UnitRegistry()
+    reg2 = UnitRegistry()
+    reg1.add('dinosaurs', 12.0, dimensions.length)
+    assert reg1.unit_system_id != reg2.unit_system_id
