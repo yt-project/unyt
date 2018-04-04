@@ -28,7 +28,7 @@ that can be directly imported from from the ``unyt`` namespace:
 
    installation
    usage
-   api
+   API Documentation <modules/unyt>
    contributing
    authors
    history
