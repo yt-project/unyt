@@ -741,7 +741,7 @@ class unyt_array(np.ndarray):
 
     def convert_to_base(self, unit_system="cgs"):
         """
-        Convert the array and units to the equivalent base units in
+        Convert the array in-place to the equivalent base units in
         the specified unit system.
 
         Parameters
@@ -762,7 +762,13 @@ class unyt_array(np.ndarray):
 
     def convert_to_cgs(self):
         """
-        Convert the array and units to the equivalent cgs units.
+        Convert the array and in-place to the equivalent cgs units.
+
+        Examples
+        --------
+        >>> from unyt import Newton
+        >>> print(Newton.convert_to_cgs())
+        100000.0 cm*g/s**2
 
         """
         return self.convert_to_units(self.units.get_cgs_equivalent())
@@ -771,13 +777,21 @@ class unyt_array(np.ndarray):
         """
         Convert the array and units to the equivalent mks units.
 
+        Examples
+        --------
+        >>> from unyt import dyne, erg
+        >>> print(erg.convert_to_mks())
+        1e-07 kg*m**2/s**2
+        >>> print(dyne.convert_to_mks())
+        1e-05 kg*m/s**2
+
         """
         return self.convert_to_units(self.units.get_mks_equivalent())
 
     def in_units(self, units, equivalence=None, **kwargs):
         """
-        Creates a copy of this array with the data in the supplied
-        units, and returns it.
+        Creates a copy of this array with the data converted to the
+        supplied units, and returns it.
 
         Optionally, an equivalence can be specified to convert to an
         equivalent quantity which is not in the same dimensions.
@@ -797,10 +811,24 @@ class unyt_array(np.ndarray):
             equivalencies are supported for this unitful
             quantity, try the :meth:`list_equivalencies`
             method. Default: None
+        kwargs: optional
+            Any additional keywoard arguments are supplied to the
+            equivalence
 
-        Returns
-        -------
-        unyt_array
+        Raises
+        ------
+        If the provided unit does not have the same dimensions as the array
+        this will raise a UnitConversionError
+
+        Examples
+        --------
+        >>> from unyt import c, gram
+        >>> m = 10*gram
+        >>> E = m*c**2
+        >>> print(E.in_units('erg'))
+        8.987551787368176e+21 erg
+        >>> print(E.in_units('J'))
+        898755178736817.6 J
         """
         if equivalence is None:
             new_units = _unit_repr_check_same(self.units, units)
@@ -818,9 +846,45 @@ class unyt_array(np.ndarray):
 
     def to(self, units, equivalence=None, **kwargs):
         """
-        An alias for unyt_array.in_units().
+        Creates a copy of this array with the data converted to the
+        supplied units, and returns it.
 
-        See the docstrings of that function for details.
+        Optionally, an equivalence can be specified to convert to an
+        equivalent quantity which is not in the same dimensions.
+
+        .. note::
+
+            All additional keyword arguments are passed to the
+            equivalency, which should be used if that particular
+            equivalency requires them.
+
+        Parameters
+        ----------
+        units : Unit object or string
+            The units you want to get a new quantity in.
+        equivalence : string, optional
+            The equivalence you wish to use. To see which
+            equivalencies are supported for this unitful
+            quantity, try the :meth:`list_equivalencies`
+            method. Default: None
+        kwargs: optional
+            Any additional keywoard arguments are supplied to the
+            equivalence
+
+        Raises
+        ------
+        If the provided unit does not have the same dimensions as the array
+        this will raise a UnitConversionError
+
+        Examples
+        --------
+        >>> from unyt import c, gram
+        >>> m = 10*gram
+        >>> E = m*c**2
+        >>> print(E.to('erg'))
+        8.987551787368176e+21 erg
+        >>> print(E.to('J'))
+        898755178736817.6 J
         """
         return self.in_units(units, equivalence=equivalence, **kwargs)
 
@@ -851,9 +915,12 @@ class unyt_array(np.ndarray):
             quantity, try the :meth:`list_equivalencies`
             method. Default: None
 
-        Returns
-        -------
-        NumPy array
+        Examples
+        --------
+        >>> from unyt import km
+        >>> a = [3, 4, 5]*km
+        >>> print(a.to_value('cm'))
+        [300000. 400000. 500000.]
         """
         if units is None:
             v = self.value
@@ -891,7 +958,7 @@ class unyt_array(np.ndarray):
 
         Returns
         -------
-        Quantity object with data converted to cgs units.
+        unyt_array object with data in this array converted to cgs units.
 
         Example
         -------
@@ -908,7 +975,7 @@ class unyt_array(np.ndarray):
 
         Returns
         -------
-        Quantity object with data converted to mks units.
+        unyt_array object with data in this array converted to mks units.
 
         Example
         -------
@@ -965,6 +1032,14 @@ class unyt_array(np.ndarray):
         """
         Lists the possible equivalencies associated with this unyt_array or
         unyt_quantity.
+
+        Example
+        -------
+        >>> from unyt import km
+        >>> km.list_equivalencies()
+        spectral: length <-> rate <-> energy
+        schwarzschild: mass <-> length
+        compton: mass <-> length
         """
         self.units.list_equivalencies()
 
@@ -972,12 +1047,22 @@ class unyt_array(np.ndarray):
         """
         Check to see if this unyt_array or unyt_quantity has an equivalent
         unit in *equiv*.
+
+        Example
+        -------
+        >>> from unyt import km, keV
+        >>> km.has_equivalent('spectral')
+        True
+        >>> print(km.to_equivalent('MHz', equiv='spectral'))
+        0.29979245800000004 MHz
+        >>> print(keV.to_equivalent('angstrom', equiv='spectral'))
+        12.398419315219659 angstrom
         """
         return self.units.has_equivalent(equiv)
 
     def ndarray_view(self):
         """
-        Returns a view into the array, but as an ndarray rather than ytarray.
+        Returns a view into the array as a numpy array
 
         Returns
         -------
@@ -1011,6 +1096,22 @@ class unyt_array(np.ndarray):
         """
         Creates a copy of this array with the unit information stripped
 
+        Example
+        -------
+        >>> from unyt import km
+        >>> a = [3, 4, 5]*km
+        >>> a
+        unyt_array([3., 4., 5.], 'km')
+        >>> b = a.to_ndarray()
+        >>> b
+        array([3., 4., 5.])
+
+        The returned array will contain a copy of the data contained in
+        the original array.
+
+        >>> a.base is not b.base
+        True
+
         """
         return np.array(self)
 
@@ -1026,6 +1127,17 @@ class unyt_array(np.ndarray):
         unit_registry : yt UnitRegistry, optional
             A yt unit registry to use in the conversion. If one is not
             supplied, the default one will be used.
+
+        Example
+        -------
+        >>> from astropy.units import km
+        >>> unyt_quantity.from_astropy(km)
+        unyt_quantity(1., 'km')
+        >>> a = [1, 2, 3]*km
+        >>> a
+        <Quantity [1.,2.,3.] km>
+        >>> unyt_array.from_astropy(a)
+        unyt_array([1., 2., 3.], 'km')
         """
         # Converting from AstroPy Quantity
         try:
@@ -1051,6 +1163,13 @@ class unyt_array(np.ndarray):
     def to_astropy(self, **kwargs):
         """
         Creates a new AstroPy quantity with the same unit information.
+
+        Example
+        -------
+        >>> from unyt import g, cm
+        >>> data = [3, 4, 5]*g/cm**3
+        >>> data.to_astropy()
+        <Quantity [3.,4.,5.] g / cm3>
         """
         if _astropy.units is None:
             raise ImportError(
@@ -1076,9 +1195,13 @@ class unyt_array(np.ndarray):
         >>> from pint import UnitRegistry
         >>> import numpy as np
         >>> ureg = UnitRegistry()
-        >>> a = np.random.random(10)
+        >>> a = np.arange(4)
         >>> b = ureg.Quantity(a, "erg/cm**3")
+        >>> b
+        <Quantity([0 1 2 3], 'erg / centimeter ** 3')>
         >>> c = unyt_array.from_pint(b)
+        >>> c
+        unyt_array([0, 1, 2, 3], 'erg/cm**3')
         """
         p_units = []
         for base, exponent in arr._units.items():
@@ -1106,8 +1229,12 @@ class unyt_array(np.ndarray):
 
         Examples
         --------
-        >>> a = unyt_quantity(4.0, "cm**2/s")
-        >>> b = a.to_pint()
+        >>> from unyt import cm, s
+        >>> a = 4*cm**2/s
+        >>> print(a)
+        4.0 cm**2/s
+        >>> a.to_pint()
+        <Quantity(4.0, 'centimeter ** 2 / second')>
         """
         from pint import UnitRegistry
         if unit_registry is None:
@@ -1238,33 +1365,182 @@ class unyt_array(np.ndarray):
 
     @property
     def value(self):
-        """Get a copy of the array data as a numpy ndarray"""
+        """
+        Creates a copy of this array with the unit information stripped
+
+        Example
+        -------
+        >>> from unyt import km
+        >>> a = [3, 4, 5]*km
+        >>> a
+        unyt_array([3., 4., 5.], 'km')
+        >>> b = a.value
+        >>> b
+        array([3., 4., 5.])
+
+        The returned array will contain a copy of the data contained in
+        the original array.
+
+        >>> a.base is not b.base
+        True
+
+        """
         return np.array(self)
 
-    v = value
+    @property
+    def v(self):
+        """
+        Creates a copy of this array with the unit information stripped
+
+        Example
+        -------
+        >>> from unyt import km
+        >>> a = [3, 4, 5]*km
+        >>> a
+        unyt_array([3., 4., 5.], 'km')
+        >>> b = a.v
+        >>> b
+        array([3., 4., 5.])
+
+        The returned array will contain a copy of the data contained in
+        the original array.
+
+        >>> a.base is not b.base
+        True
+
+        """
+        return np.array(self)
 
     @property
     def ndview(self):
-        """Get a view of the array data."""
-        return self.ndarray_view()
+        """
+        Returns a view into the array as a numpy array
 
-    d = ndview
+        Returns
+        -------
+        View of this array's data.
+
+        Example
+        -------
+
+        >>> from unyt import km
+        >>> a = [3, 4, 5]*km
+        >>> a
+        unyt_array([3., 4., 5.], 'km')
+        >>> a.ndview
+        array([3., 4., 5.])
+
+        This function returns a view that shares the same underlying memory
+        as the original array.
+
+        >>> b = a.ndview
+        >>> b.base is a.base
+        True
+        >>> b[2] = 4
+        >>> b
+        array([3., 4., 4.])
+        >>> a
+        unyt_array([3., 4., 4.], 'km')
+
+        """
+        return self.view(np.ndarray)
+
+    @property
+    def d(self):
+        """
+        Returns a view into the array as a numpy array
+
+        Returns
+        -------
+        View of this array's data.
+
+        Example
+        -------
+
+        >>> from unyt import km
+        >>> a = [3, 4, 5]*km
+        >>> a
+        unyt_array([3., 4., 5.], 'km')
+        >>> a.d
+        array([3., 4., 5.])
+
+        This function returns a view that shares the same underlying memory
+        as the original array.
+
+        >>> b = a.d
+        >>> b.base is a.base
+        True
+        >>> b[2] = 4
+        >>> b
+        array([3., 4., 4.])
+        >>> a
+        unyt_array([3., 4., 4.], 'km')
+        """
+        return self.view(np.ndarray)
 
     @property
     def unit_quantity(self):
-        """Get a unyt_quantity with the same unit as this array and a value of
-        1.0"""
+        """
+        Return a quantity with a value of 1 and the same units as this array
+
+        Example
+        -------
+        >>> from unyt import km
+        >>> a = [4, 5, 6]*km
+        >>> a.unit_quantity
+        unyt_quantity(1., 'km')
+        >>> print(a + 7*a.unit_quantity)
+        [11. 12. 13.] km
+        """
         return unyt_quantity(1.0, self.units)
 
-    uq = unit_quantity
+    @property
+    def uq(self):
+        """
+        Return a quantity with a value of 1 and the same units as this array
+
+        Example
+        -------
+        >>> from unyt import km
+        >>> a = [4, 5, 6]*km
+        >>> a.uq
+        unyt_quantity(1., 'km')
+        >>> print(a + 7*a.uq)
+        [11. 12. 13.] km
+        """
+        return unyt_quantity(1.0, self.units)
 
     @property
     def unit_array(self):
-        """Get a unyt_array filled with ones with the same unit and shape as this
-        array"""
+        """
+        Return an array filled with ones with the same units as this array
+
+        Example
+        -------
+        >>> from unyt import km
+        >>> a = [4, 5, 6]*km
+        >>> a.unit_array
+        unyt_array([1., 1., 1.], 'km')
+        >>> print(a + 7*a.unit_array)
+        [11. 12. 13.] km
+        """
         return np.ones_like(self)
 
-    ua = unit_array
+    @property
+    def ua(self):
+        """
+        Return an array filled with ones with the same units as this array
+
+        Example
+        -------
+        >>> from unyt import km
+        >>> a = [4, 5, 6]*km
+        >>> a.unit_array
+        unyt_array([1., 1., 1.], 'km')
+        >>> print(a + 7*a.unit_array)
+        [11. 12. 13.] km
+        """
+        return np.ones_like(self)
 
     def __getitem__(self, item):
         ret = super(unyt_array, self).__getitem__(item)
@@ -1283,7 +1559,7 @@ class unyt_array(np.ndarray):
 
         def __add__(self, right_object):
             """
-            Add this ytarray to the object on the right of the `+` operator.
+            Add this unyt_array to the object on the right of the `+` operator.
             Must check for the correct (same dimension) units.
 
             """
@@ -1303,8 +1579,8 @@ class unyt_array(np.ndarray):
 
         def __sub__(self, right_object):
             """
-            Subtract the object on the right of the `-` from this ytarray. Must
-            check for the correct (same dimension) units.
+            Subtract the object on the right of the `-` from this unyt_array.
+            Must check for the correct (same dimension) units.
 
             """
             ro = _sanitize_units_add(self, right_object, "subtraction")
@@ -1634,6 +1910,39 @@ class unyt_array(np.ndarray):
             return out_arr
 
         def copy(self, order='C'):
+            """
+            Return a copy of the array.
+
+            Parameters
+            ----------
+            order : {'C', 'F', 'A', 'K'}, optional
+            Controls the memory layout of the copy. 'C' means C-order,
+            'F' means F-order, 'A' means 'F' if `a` is Fortran contiguous,
+            'C' otherwise. 'K' means match the layout of `a` as closely
+            as possible. (Note that this function and :func:`numpy.copy` are
+            very similar, but have different default values for their order=
+            arguments.)
+
+            See also
+            --------
+            numpy.copy
+            numpy.copyto
+
+            Examples
+            --------
+            >>> from unyt import km
+            >>> x = [[1,2,3],[4,5,6]] * km
+            >>> y = x.copy()
+            >>> x.fill(0)
+            >>> print(x)
+            [[0. 0. 0.]
+             [0. 0. 0.]] km
+
+            >>> print(y)
+            [[1. 2. 3.]
+             [4. 5. 6.]] km
+
+            """
             return type(self)(np.copy(np.asarray(self)), self.units)
 
     def __array_finalize__(self, obj):
@@ -1649,6 +1958,29 @@ class unyt_array(np.ndarray):
 
     @_return_arr
     def dot(self, b, out=None):
+        """dot product of two arrays.
+
+        Refer to `numpy.dot` for full documentation.
+
+        See Also
+        --------
+        numpy.dot : equivalent function
+
+        Examples
+        --------
+        >>> from unyt import km, s
+        >>> a = np.eye(2)*km
+        >>> b = (np.ones((2, 2)) * 2)*s
+        >>> print(a.dot(b))
+        [[2. 2.]
+         [2. 2.]] km*s
+
+        This array method can be conveniently chained:
+
+        >>> print(a.dot(b).dot(b))
+        [[8. 8.]
+         [8. 8.]] km*s**2
+        """
         return super(unyt_array, self).dot(b), self.units*b.units
 
     def __reduce__(self):
@@ -1834,9 +2166,9 @@ def uunion1d(arr1, arr2):
 
     Examples
     --------
-    >>> import unyt
-    >>> A = unyt.unyt_array([1, 2, 3], 'cm')
-    >>> B = unyt.unyt_array([2, 3, 4], 'cm')
+    >>> from unyt import cm
+    >>> A = [1, 2, 3]*cm
+    >>> B = [2, 3, 4]*cm
     >>> uunion1d(A, B)
     unyt_array([1., 2., 3., 4.], 'cm')
 
@@ -1852,6 +2184,13 @@ def unorm(data, ord=None, axis=None, keepdims=False):
     This is a wrapper around np.linalg.norm that preserves units. See
     the documentation for that function for descriptions of the keyword
     arguments.
+
+    Examples
+    --------
+    >>> from unyt import km
+    >>> data = [1, 2, 3]*km
+    >>> print(unorm(data))
+    3.7416573867739413 km
     """
     if LooseVersion(np.__version__) < LooseVersion('1.10.0'):
         norm = np.linalg.norm(data, ord=ord, axis=axis)
@@ -1866,6 +2205,15 @@ def udot(op1, op2):
     """Matrix or vector dot product that preserves units
 
     This is a wrapper around np.dot that preserves units.
+
+    Examples
+    --------
+    >>> from unyt import km, s
+    >>> a = np.eye(2)*km
+    >>> b = (np.ones((2, 2)) * 2)*s
+    >>> print(udot(a, b))
+    [[2. 2.]
+     [2. 2.]] km*s
     """
     dot = np.dot(op1.d, op2.d)
     units = op1.units*op2.units
@@ -1878,6 +2226,15 @@ def uvstack(arrs):
     """Stack arrays in sequence vertically (row wise) while preserving units
 
     This is a wrapper around np.vstack that preserves units.
+
+    Examples
+    --------
+    >>> from unyt import km
+    >>> a = [1, 2, 3]*km
+    >>> b = [2, 3, 4]*km
+    >>> print(uvstack([a, b]))
+    [[1. 2. 3.]
+     [2. 3. 4.]] km
     """
     v = np.vstack(arrs)
     v = _validate_numpy_wrapper_units(v, arrs)
@@ -1885,9 +2242,23 @@ def uvstack(arrs):
 
 
 def uhstack(arrs):
-    """Stack arrays in sequence horizontally (column wise) while preserving units
+    """Stack arrays in sequence horizontally while preserving units
 
     This is a wrapper around np.hstack that preserves units.
+
+    Examples
+    --------
+    >>> from unyt import km
+    >>> a = [1, 2, 3]*km
+    >>> b = [2, 3, 4]*km
+    >>> print(uhstack([a, b]))
+    [1. 2. 3. 2. 3. 4.] km
+    >>> a = [[1],[2],[3]]*km
+    >>> b = [[2],[3],[4]]*km
+    >>> print(uhstack([a, b]))
+    [[1. 2.]
+     [2. 3.]
+     [3. 4.]] km
     """
     v = np.hstack(arrs)
     v = _validate_numpy_wrapper_units(v, arrs)
@@ -1901,7 +2272,8 @@ def ustack(arrs, axis=0):
     dimensions of the result. For example, if ``axis=0`` it will be the
     first dimension and if ``axis=-1`` it will be the last dimension.
 
-    This is a wrapper around np.stack that preserves units.
+    This is a wrapper around np.stack that preserves units. See the
+    documentation for np.stack for full details.
 
     """
     v = np.stack(arrs)
@@ -1956,8 +2328,7 @@ def loadtxt(fname, dtype='float', delimiter='\t', usecols=None, comments='#'):
 
     Examples
     --------
-    >>> import unyt
-    >>> temp, velx = unyt.loadtxt("sphere.dat", usecols=(1,2), delimiter="\t")
+    >>> temp, velx = loadtxt("sphere.dat", usecols=(1,2), delimiter="\t")
     """
     f = open(fname, 'r')
     next_one = False
