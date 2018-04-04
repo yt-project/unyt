@@ -8,6 +8,25 @@ Note that the symbols defined in :mod:`unyt.physical_constants` and
     >>> print((km/clight).to('ns'))
     3335.64095198152 ns
 
+In addition, the following functions and classes are importable from the
+top-level ``unyt`` namespace:
+
+* :func:`unyt.array.loadtxt`
+* :func:`unyt.array.savetxt`
+* :func:`unyt.array.uconcatenate`
+* :func:`unyt.array.ucross`
+* :func:`unyt.array.udot`
+* :func:`unyt.array.uhstack`
+* :func:`unyt.array.uintersect1d`
+* :func:`unyt.array.unorm`
+* :func:`unyt.array.ustack`
+* :func:`unyt.array.uunion1d`
+* :func:`unyt.array.uvstack`
+* :class:`unyt.array.unyt_array`
+* :class:`unyt.array.unyt_quantity`
+* :func:`unyt.unit_object.define_unit`
+* :class:`unyt.unit_object.Unit`
+* :class:`unyt.unit_registry.UnitRegistry`
 """
 
 # -----------------------------------------------------------------------------
@@ -22,7 +41,6 @@ from ._version import get_versions
 
 from unyt import unit_symbols
 from unyt import physical_constants
-from unyt.unit_object import define_unit  # NOQA
 
 from unyt.array import (  # NOQA
     loadtxt,
@@ -39,7 +57,11 @@ from unyt.array import (  # NOQA
     unyt_array,
     unyt_quantity
 )
-
+from unyt.unit_object import (  # NOQA
+    Unit,
+    define_unit
+)
+from unyt.unit_registry import UnitRegistry  # NOQA
 
 # function to only import quantities into this namespace
 # we go through the trouble of doing this instead of "import *"
