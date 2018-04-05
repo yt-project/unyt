@@ -613,6 +613,12 @@ def test_unit_conversions():
     assert_equal(dimless.in_mks(), 1.0)
     assert_equal(str(dimless.in_cgs().units), "dimensionless")
 
+    one_kilogram = unyt_quantity(1.0, 'kg')
+    assert one_kilogram.to(g).v == 1000
+    assert one_kilogram.in_units(g).v == 1000
+    one_kilogram.convert_to_units(g)
+    assert one_kilogram.v == 1000
+
 
 def test_temperature_conversions():
     """
