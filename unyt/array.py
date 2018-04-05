@@ -392,15 +392,12 @@ def _unit_repr_check_same(my_units, other_units):
     return other_units
 
 
-def _sanitize_units(possible_units, registry):
+def _sanitize_units_convert(possible_units, registry):
     if isinstance(possible_units, Unit):
         return possible_units
 
-    try:
-        unit = possible_units.units
-    except AttributeError:
-        # let Unit() handle units arg if it's not already a Unit obj.
-        unit = Unit(possible_units, registry=registry)
+    # let Unit() try to parse this if it's not already a Unit
+    unit = Unit(possible_units, registry=registry)
 
     return unit
 
@@ -735,7 +732,7 @@ class unyt_array(np.ndarray):
         >>> print(length)
         [30. 20. 10.] m
         """
-        units = _sanitize_units(units, self.units.registry)
+        units = _sanitize_units_convert(units, self.units.registry)
         new_units = _unit_repr_check_same(self.units, units)
         (conversion_factor, offset) = self.units.get_conversion_factor(
             new_units)
@@ -840,7 +837,7 @@ class unyt_array(np.ndarray):
         >>> print(E.in_units('J'))
         898755178736817.6 J
         """
-        units = _sanitize_units(units, self.units.registry)
+        units = _sanitize_units_convert(units, self.units.registry)
         if equivalence is None:
             new_units = _unit_repr_check_same(self.units, units)
             (conversion_factor, offset) = self.units.get_conversion_factor(

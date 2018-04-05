@@ -46,7 +46,8 @@ from unyt.array import (
 )
 from unyt.exceptions import (
     UnitOperationError,
-    UfuncUnitError
+    UnitParseError,
+    UfuncUnitError,
 )
 from unyt._testing import assert_allclose_units
 from unyt.unit_symbols import (
@@ -613,11 +614,26 @@ def test_unit_conversions():
     assert_equal(dimless.in_mks(), 1.0)
     assert_equal(str(dimless.in_cgs().units), "dimensionless")
 
-    one_kilogram = unyt_quantity(1.0, 'kg')
-    assert one_kilogram.to(g).v == 1000
-    assert one_kilogram.in_units(g).v == 1000
-    one_kilogram.convert_to_units(g)
-    assert one_kilogram.v == 1000
+    kg = unyt_quantity(1.0, 'kg')
+    assert kg.to(g).v == 1000
+    assert kg.in_units(g).v == 1000
+    kg.convert_to_units(g)
+    assert kg.v == 1000
+
+    ten_grams = 10*g
+    assert kg.to(ten_grams).v == 100
+    assert kg.in_units(ten_grams).v == 100
+    kg.convert_to_units(ten_grams)
+    assert kg.v == 100
+
+    with pytest.raises(UnitParseError):
+        kg.to([1, 2]*g)
+
+    with pytest.raises(UnitParseError):
+        kg.in_units([1, 2]*g)
+
+    with pytest.raises(UnitParseError):
+        kg.convert_to_units([1, 2]*g)
 
 
 def test_temperature_conversions():
