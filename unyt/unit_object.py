@@ -755,9 +755,18 @@ def _lookup_unit_symbol(symbol_str, unit_symbol_lut):
 
     # could still be a known symbol with a prefix
     possible_prefix = symbol_str[0]
+
+    if symbol_str[:2] == 'da':
+        possible_prefix = 'da'
+
     if possible_prefix in unit_prefixes:
         # the first character could be a prefix, check the rest of the symbol
         symbol_wo_pref = symbol_str[1:]
+
+        # deca is the only prefix with length 2
+        if symbol_str[:2] == 'da':
+            symbol_wo_pref = symbol_str[2:]
+            possible_prefix = 'da'
 
         unit_is_si_prefixable = (symbol_wo_pref in unit_symbol_lut and
                                  symbol_wo_pref in prefixable_units)

@@ -537,3 +537,9 @@ def test_list_same_dimensions():
             else:
                 _, dim2, _, _ = reg.lut[name2]
             assert u1.dimensions is dim2
+
+
+def test_decagram():
+    dag = Unit('dag')
+    g = Unit('g')
+    assert dag.get_conversion_factor(g) == (10.0, None)

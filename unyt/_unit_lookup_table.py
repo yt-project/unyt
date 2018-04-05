@@ -200,7 +200,9 @@ unit_prefixes = {
     'G': 1e9,    # giga
     'M': 1e6,    # mega
     'k': 1e3,    # kilo
-    'd': 1e1,    # deci
+    'h': 1e2,    # hecto
+    'da': 1e1,   # deca
+    'd': 1e-1,   # deci
     'c': 1e-2,   # centi
     'm': 1e-3,   # mili
     'u': 1e-6,   # micro
