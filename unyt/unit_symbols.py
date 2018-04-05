@@ -61,12 +61,20 @@ Gpc = gpc = Gigaparsec = quan(1.0, "Gpc")
 # gram
 #
 
+#: picogram
+pg = picogram = quan(1.0, "pg")
+#: nanogram
+ng = nanogram = quan(1.0, "ng")
+#: micogram
+ug = microgram = quan(1.0, "ug")
 #: milligram
 mg = milligram = quan(1.0, "mg")
 #: gram
 g = gram = quan(1.0, "g")
 #: kilogram
 kg = kilogram = quan(1.0, "kg")
+#: megagram
+Mg = megagramme = tonne = metric_ton = quan(1.0, "kg")
 
 #
 # second
@@ -82,6 +90,12 @@ ns = nanosecond = quan(1.0, "ns")
 ms = millisecond = quan(1.0, "ms")
 #: second
 s = second = quan(1.0, "s")
+#: kilosecond
+ks = kilosecond = quan(1.0, "ks")
+#: megasecond
+Ms = megasecond = quan(1.0, "Ms")
+#: gigasecond
+Gs = gigasecond = quan(1.0, "Gs")
 
 #
 # minute
@@ -127,6 +141,8 @@ degree_kelvin = Kelvin = K = quan(1.0, "K")
 degree_fahrenheit = degF = quan(1.0, "degF")
 #: Degree Celsius
 degree_celsius = degC = quan(1.0, "degC")
+#:
+degree_rankine = R = quan(1.0, "R")
 
 #
 # Misc CGS
@@ -136,6 +152,8 @@ degree_celsius = degC = quan(1.0, "degC")
 dyne = dyn = quan(1.0, "dyne")
 #: erg (CGS energy)
 erg = ergs = quan(1.0, "erg")
+#:
+barye = Ba = quan(1.0, "Ba")
 
 #
 # Misc SI
@@ -149,6 +167,10 @@ J = Joule = joule = quan(1.0, "J")
 W = Watt = watt = quan(1.0, "W")
 #: Hertz
 Hz = Hertz = hertz = quan(1.0, "Hz")
+#: Pascal
+Pa = pascal = quan(1.0, "Pa")
+#: sievert
+Sv = sievert = quan(1.0, "Sv")
 
 #
 # Imperial units
@@ -162,6 +184,12 @@ mile = quan(1.0, "mile")
 furlong = quan(660, "ft")
 #: yard
 yard = quan(3, "ft")
+#: pound
+lb = pound = quan(1.0, "lb")
+#: pound-foot
+lfb = pound_foot = quan(1.0, "lbf")
+#: atmosphere
+atm = atmosphere = quan(1.0, "atm")
 
 #
 # Solar units
@@ -198,6 +226,8 @@ rearth = r_earth = quan(1.0, 'r_earth')
 Rjup = R_jup = jupiter_radius = quan(1.0, 'R_jup')
 #: Radius of Jupiter
 rjup = r_jup = quan(1.0, 'r_jup')
+#: Jansky
+Jy = jansky = quan(1.0, "Jy")
 
 #
 # Physical units
@@ -237,6 +267,9 @@ arcmin = arcminute = quan(1.0, "arcmin")
 mas = milliarcsecond = quan(1.0, "mas")
 #: steradian
 sr = steradian = quan(1.0, "steradian")
+#: hourangle
+HA = hourangle = quan(1.0, "hourangle")
+
 
 #
 # CGS electromagnetic units

@@ -65,6 +65,7 @@ default_unit_symbol_lut = {
     # other cgs
     "dyne": (1.0, dimensions.force, 0.0, r"\rm{dyn}"),
     "erg":  (1.0, dimensions.energy, 0.0, r"\rm{erg}"),
+    "Ba": (1.0, dimensions.pressure, 0.0, r"\rm{Ba}"),
     "esu":  (1.0, dimensions.charge_cgs, 0.0, r"\rm{esu}"),
     "gauss": (1.0, dimensions.magnetic_field_cgs, 0.0, r"\rm{G}"),
     "degC": (1.0, dimensions.temperature, -273.15, r"^\circ\rm{C}"),
@@ -93,6 +94,7 @@ default_unit_symbol_lut = {
     "R": (kelvin_per_rankine, dimensions.temperature, 0.0, r"^\circ\rm{R}"),
     "lbf": (grams_per_pound*standard_gravity_cm_per_s2, dimensions.force, 0.0,
             r"\rm{lbf}"),
+    "lb": (grams_per_pound, dimensions.mass, 0.0, r"\rm{lb}"),
     "lbm": (grams_per_pound, dimensions.mass, 0.0, r"\rm{lbm}"),
     "atm": (pascal_per_atm*10., dimensions.pressure, 0.0, r"\rm{atm}"),
 
