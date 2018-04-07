@@ -153,7 +153,7 @@ where :math:`\rho` is the average density of the Earth.
 If you make a mistake by adding two things that have different dimensions, ``unyt`` will raise an error to let you know that you have a bug in your code::
 
   >>> from unyt import kg, m
-  >>> kg + m
+  >>> kg + m  # doctest: +IGNORE_EXCEPTION_DETAIL
   Traceback (most recent call last):
   ...
   unyt.exceptions.UnitOperationError: The <ufunc 'add'> operator for unyt_arrays with units (kg) and (m) is not well defined.
@@ -169,7 +169,7 @@ attribute of the :class:`unyt.array.unyt_array` class to quickly apply units::
 
   >>> from unyt import cm, s
   >>> velocities = [10, 20, 30] * cm/s
-  >>> velocities + 12
+  >>> velocities + 12  # doctest: +IGNORE_EXCEPTION_DETAIL
   Traceback (most recent call last):
   ...
   unyt.exceptions.UnitOperationError: The <ufunc 'add'> operator for unyt_arrays with units (cm/s) and (dimensionless) is not well defined.
