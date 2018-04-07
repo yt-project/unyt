@@ -131,7 +131,7 @@ Similarly one can multiply two units together to create new compound units::
   120000000.0 erg
 
 In general, one can multiple or divide by an arbitrary rational power of a unit symbol. Most commonly this shows up in mathematical formulas in terms of square roots. For example, let's calculate the gravitational free-fall time for a person
-to fall from the surface of the Earth through to a hole dug all the way to the center of the Earth. It turns out that this time `is given by <https://en.wikipedia.org/wiki/Free-fall_time>`_::
+to fall from the surface of the Earth through to a hole dug all the way to the center of the Earth. It turns out that this time `is given by <https://en.wikipedia.org/wiki/Free-fall_time>`_:
 
 .. math::
 
@@ -150,13 +150,13 @@ where :math:`\rho` is the average density of the Earth.
   >>> print(tff.to('min'))
   14.8202885145703 min
 
-If you make a mistake by adding two things that have different dimensions, ``unyt`` will raise an error to let you know that you have a bug in your code::
+If you make a mistake by adding two things that have different dimensions, ``unyt`` will raise an error to let you know that you have a bug in your code:
 
   >>> from unyt import kg, m
   >>> kg + m  # doctest: +IGNORE_EXCEPTION_DETAIL
   Traceback (most recent call last):
-  ...
-  unyt.exceptions.UnitOperationError: The <ufunc 'add'> operator for unyt_arrays with units (kg) and (m) is not well defined.
+  UnitOperationError: The <ufunc 'add'> operator for unyt_arrays
+  with units (kg) and (m) is not well defined.
 
 while this example is trivial when one writes more complicated formulae it can
 be easy to accidentally write expressions that are not dimensionally sound.
@@ -165,14 +165,14 @@ Sometimes this can be annoying to deal with, particularly if one is mixing data
 that has units attached with data from some outside source with no units. To
 quickly patch over this lack of unit metadata (which could be applied by
 explicitly attaching units at I/O time), one can use the ``unit_quantity``
-attribute of the :class:`unyt.array.unyt_array` class to quickly apply units::
+attribute of the :class:`unyt.array.unyt_array` class to quickly apply units:
 
   >>> from unyt import cm, s
   >>> velocities = [10, 20, 30] * cm/s
   >>> velocities + 12  # doctest: +IGNORE_EXCEPTION_DETAIL
   Traceback (most recent call last):
-  ...
-  unyt.exceptions.UnitOperationError: The <ufunc 'add'> operator for unyt_arrays with units (cm/s) and (dimensionless) is not well defined.
+  UnitOperationError: The <ufunc 'add'> operator for unyt_arrays
+  with units (cm/s) and (dimensionless) is not well defined.
   >>> velocities + 12*velocities.units
   unyt_array([22., 32., 42.], 'cm/s')
 
