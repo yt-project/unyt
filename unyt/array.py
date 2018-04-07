@@ -709,6 +709,10 @@ class unyt_array(np.ndarray):
     def __str__(self):
         return str(self.view(np.ndarray)) + ' ' + str(self.units)
 
+    def __format__(self, format_spec):
+        ret = super(unyt_array, self).__format__(format_spec)
+        return ret + ' {}'.format(self.units)
+
     #
     # Start unit conversion methods
     #
