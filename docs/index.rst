@@ -23,7 +23,7 @@ that can be directly imported from from the ``unyt`` namespace:
 
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Contents:
 
    installation

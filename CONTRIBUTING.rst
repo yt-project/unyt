@@ -79,11 +79,12 @@ Ready to contribute? Here's how to set up `unyt` for local development.
 5. When you're done making changes, check that your changes pass flake8 and the
    tests, including testing other Python versions with tox::
 
-    $ flake8 unyt tests
-    $ python setup.py test or py.test
+    $ flake8 unyt
+    $ pytest --doctest-modules --doctest-glob='*.rst' --doctest-plus
     $ tox
 
-   To get flake8 and tox, just pip install them into your virtualenv.
+   To get flake8, pytest, pytest-doctestplus, and tox, just pip install them
+   into your virtualenv.
 
 6. Commit your changes and push your branch to GitHub::
 

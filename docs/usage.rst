@@ -1,6 +1,9 @@
-=====
-Usage
-=====
+=====================
+Working with ``unyt``
+=====================
+
+Basic Usage
++++++++++++
 
 To use unyt in a project::
 
@@ -10,8 +13,8 @@ The top-level :mod:`unyt` namespace defines both a number of useful functions as
 well as a number of unit symbols you can use to attach units to numpy arrays or
 python lists.
 
-A Basic Example from High School Physics
-----------------------------------------
+An Example from High School Physics
+-----------------------------------
 
 To see how you might use these symbols to solve a problem where units might be a
 headache, let's estimate the orbital periods of Jupiter's Galilean moons,
@@ -89,6 +92,12 @@ that's all handled internally by ``unyt``. Also note how the intermediate result
 ended up with complicated, ugly units, but the :meth:`unyt.array.unyt_array.to`
 method was able to automagically handle the conversion to days.
 
+It's also worth emphasizing that ``unyt`` represents powers using standard python syntax. This means you must use `**` and not `^`, even when writing a unit as a string:
+
+  >>> from unyt import kg, m
+  >>> print((kg/m**3).to('g/cm**3'))
+  0.001 g/cm**3
+
 Arithmetic and units
 --------------------
 
@@ -164,8 +173,8 @@ be easy to accidentally write expressions that are not dimensionally sound.
 Sometimes this can be annoying to deal with, particularly if one is mixing data
 that has units attached with data from some outside source with no units. To
 quickly patch over this lack of unit metadata (which could be applied by
-explicitly attaching units at I/O time), one can use the ``unit_quantity``
-attribute of the :class:`unyt.array.unyt_array` class to quickly apply units:
+explicitly attaching units at I/O time), one can use the ``units`` attribute of
+the :class:`unyt.array.unyt_array` class to quickly apply units to a scalar, list, or array:
 
   >>> from unyt import cm, s
   >>> velocities = [10, 20, 30] * cm/s
@@ -176,5 +185,35 @@ attribute of the :class:`unyt.array.unyt_array` class to quickly apply units:
   >>> velocities + 12*velocities.units
   unyt_array([22., 32., 42.], 'cm/s')
 
-Transcendental functions
-------------------------
+Logarithms, Exponentials, and Trigonometric Functions
+-----------------------------------------------------
+
+Formally it does not make sense to exponentiate, take the logarithm of, or apply a transcendental function to a quantity with units. However, the ``unyt`` library makes the practical affordance to allow this, simply ignoring the units present and returning a result without units. This makes it easy to work with
+data that has units both in linear space and in log space:
+
+  >>> from unyt import g, cm
+  >>> import numpy as np
+  >>> print(np.log10(1e-23*g/cm**3))
+  -23.0
+
+The one exception to this rule is for trigonometric functions applied to data with ungular units:
+
+  >>> from unyt import degree, radian
+  >>> import numpy as np
+  >>> print(np.sin(np.pi/4*radian))
+  0.7071067811865475
+  >>> print(np.sin(45*degree))
+  0.7071067811865475
+
+
+Unit Conversions and Unit Systems
++++++++++++++++++++++++++++++++++
+
+Equivalencies
++++++++++++++
+
+Converting between ``unyt_array`` and numpy.ndarray
++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Performance Considerations
+++++++++++++++++++++++++++
