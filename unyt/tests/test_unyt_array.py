@@ -988,12 +988,12 @@ def test_reductions():
 
 def test_convenience():
 
-    for orig in [[1, 2, 3], (1, 2, 3), np.array([1, 2, 3]),
-                 [[1], [2], [3]], np.array([[1], [2], [3]]),
-                 [[1, 2, 3]], np.array([[1, 2, 3]])]:
+    for orig in [[1., 2., 3.], (1., 2., 3.), np.array([1., 2., 3.]),
+                 [[1.], [2.], [3.]], np.array([[1.], [2.], [3.]]),
+                 [[1., 2., 3.]], np.array([[1., 2., 3.]])]:
         arr = unyt_array(orig, 'cm')
         arrou = unyt_array(orig, '1/cm')
-        uoarr = unyt_array(1/np.array(orig), 'cm')
+        uoarr = unyt_array(1./np.array(orig), 'cm')
 
         assert_equal(arr.unit_quantity, unyt_quantity(1, 'cm'))
         assert_equal(arr.uq, unyt_quantity(1, 'cm'))
