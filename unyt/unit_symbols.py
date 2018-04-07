@@ -183,7 +183,7 @@ mile = quan(1.0, "mile")
 #: furlong
 furlong = quan(660, "ft")
 #: yard
-yard = quan(3, "ft")
+yard = yd = quan(1, "yd")
 #: pound
 lb = pound = quan(1.0, "lb")
 #: pound-foot

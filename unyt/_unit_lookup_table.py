@@ -88,6 +88,7 @@ default_unit_symbol_lut = {
 
     # Imperial and other non-metric units
     "ft": (30.48, dimensions.length, 0.0, r"\rm{ft}"),
+    "yd": (91.44, dimensions.length, 0.0, r"\rm{yd}"),
     "mile": (160934, dimensions.length, 0.0, r"\rm{mile}"),
     "degF": (kelvin_per_rankine, dimensions.temperature, -459.67,
              "^\circ\rm{F}"),
