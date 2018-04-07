@@ -63,7 +63,8 @@ from unyt.exceptions import (
 
 import copy
 import token
-
+import numpy as np
+from numbers import Number as numeric_type
 
 sympy_one = sympify(1)
 
@@ -372,12 +373,53 @@ class Unit(Expr):
     # Start unit operations
     #
 
+    def __add__(self, u):
+        raise InvalidUnitOperation("addition with unit objects is not allowed")
+
+    def __radd__(self, u):
+        raise InvalidUnitOperation("addition with unit objects is not allowed")
+
+    def __sub__(self, u):
+        raise InvalidUnitOperation(
+            "subtraction with unit objects is not allowed")
+
+    def __rsub__(self, u):
+        raise InvalidUnitOperation(
+            "subtraction with unit objects is not allowed")
+
+    def __iadd__(self, u):
+        raise InvalidUnitOperation(
+            "in-place operations with unit objects are not allowed")
+
+    def __isub__(self, u):
+        raise InvalidUnitOperation(
+            "in-place operations with unit objects are not allowed")
+
+    def __imul__(self, u):
+        raise InvalidUnitOperation(
+            "in-place operations with unit objects are not allowed")
+
+    def __idiv__(self, u):
+        raise InvalidUnitOperation(
+            "in-place operations with unit objects are not allowed")
+
+    def __itruediv__(self, u):
+        raise InvalidUnitOperation(
+            "in-place operations with unit objects are not allowed")
+
+    def __rmul__(self, u):
+        return self.__mul__(u)
+
     def __mul__(self, u):
         """ Multiply Unit with u (Unit object). """
         if not isinstance(u, Unit):
-            raise InvalidUnitOperation("Tried to multiply a Unit object with "
-                                       "'%s' (type %s). This behavior is "
-                                       "undefined." % (u, type(u)))
+            if isinstance(u, (numeric_type, list, tuple, np.ndarray)):
+                from unyt.array import unyt_quantity
+                return u*unyt_quantity(1.0, self)
+            else:
+                raise InvalidUnitOperation(
+                    "Tried to multiply a Unit object with '%s' (type %s). "
+                    "This behavior is undefined." % (u, type(u)))
 
         base_offset = 0.0
         if self.base_offset or u.base_offset:
@@ -400,9 +442,13 @@ class Unit(Expr):
     def __div__(self, u):
         """ Divide Unit by u (Unit object). """
         if not isinstance(u, Unit):
-            raise InvalidUnitOperation("Tried to divide a Unit object by '%s' "
-                                       "(type %s). This behavior is "
-                                       "undefined." % (u, type(u)))
+            if isinstance(u, (numeric_type, list, tuple, np.ndarray)):
+                from unyt.array import unyt_quantity
+                return unyt_quantity(1.0, self)/u
+            else:
+                raise InvalidUnitOperation(
+                    "Tried to divide a Unit object by '%s' (type %s). This "
+                    "behavior is undefined." % (u, type(u)))
 
         base_offset = 0.0
         if self.base_offset or u.base_offset:
@@ -423,6 +469,12 @@ class Unit(Expr):
                     registry=self.registry)
 
     __truediv__ = __div__
+
+    def __rdiv__(self, u):
+        return u * self**-1
+
+    def __rtruediv__(self, u):
+        return u * self**-1
 
     def __pow__(self, p):
         """ Take Unit to power p (float). """

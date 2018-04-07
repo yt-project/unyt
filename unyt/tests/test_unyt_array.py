@@ -977,36 +977,48 @@ def test_reductions():
     for op, (result1, result2, result3) in answers.items():
         ev_result = getattr(arr, op)()
         assert_almost_equal(ev_result, result1)
-        assert_almost_equal(ev_result.units, result1.units)
+        assert_equal(ev_result.units, result1.units)
         assert_isinstance(ev_result, unyt_quantity)
         for axis, result in [(0, result2), (1, result3), (-1, result3)]:
             ev_result = getattr(arr, op)(axis=axis)
             assert_almost_equal(ev_result, result)
-            assert_almost_equal(ev_result.units, result.units)
+            assert_equal(ev_result.units, result.units)
             assert_isinstance(ev_result, unyt_array)
 
 
 def test_convenience():
 
-    arr = unyt_array([1, 2, 3], 'cm')
+    for orig in [[1, 2, 3], (1, 2, 3), np.array([1, 2, 3]),
+                 [[1], [2], [3]], np.array([[1], [2], [3]]),
+                 [[1, 2, 3]], np.array([[1, 2, 3]])]:
+        arr = unyt_array(orig, 'cm')
+        arrou = unyt_array(orig, '1/cm')
+        uoarr = unyt_array(1/np.array(orig), 'cm')
 
-    assert_equal(arr.unit_quantity, unyt_quantity(1, 'cm'))
-    assert_equal(arr.uq, unyt_quantity(1, 'cm'))
-    assert_isinstance(arr.unit_quantity, unyt_quantity)
-    assert_isinstance(arr.uq, unyt_quantity)
+        assert_equal(arr.unit_quantity, unyt_quantity(1, 'cm'))
+        assert_equal(arr.uq, unyt_quantity(1, 'cm'))
+        assert_isinstance(arr.unit_quantity, unyt_quantity)
+        assert_isinstance(arr.uq, unyt_quantity)
 
-    assert_array_equal(arr.unit_array, unyt_array(np.ones_like(arr), 'cm'))
-    assert_array_equal(arr.ua, unyt_array(np.ones_like(arr), 'cm'))
-    assert_isinstance(arr.unit_array, unyt_array)
-    assert_isinstance(arr.ua, unyt_array)
+        assert_array_equal(arr.unit_array, unyt_array(np.ones_like(arr), 'cm'))
+        assert_array_equal(arr.ua, unyt_array(np.ones_like(arr), 'cm'))
+        assert_isinstance(arr.unit_array, unyt_array)
+        assert_isinstance(arr.ua, unyt_array)
 
-    assert_array_equal(arr.ndview, arr.view(np.ndarray))
-    assert_array_equal(arr.d, arr.view(np.ndarray))
-    assert arr.ndview.base is arr.base
-    assert arr.d.base is arr.base
+        for u in [arr.units, arr.unit_quantity, arr.unit_array, arr.uq,
+                  arr.ua]:
+            assert_array_equal(u*orig, arr)
+            assert_array_equal(orig*u, arr)
+            assert_array_equal(orig/u, arrou)
+            assert_array_equal(u/orig, uoarr)
 
-    assert_array_equal(arr.value, np.array(arr))
-    assert_array_equal(arr.v, np.array(arr))
+        assert_array_equal(arr.ndview, arr.view(np.ndarray))
+        assert_array_equal(arr.d, arr.view(np.ndarray))
+        assert arr.ndview.base is arr.base
+        assert arr.d.base is arr.base
+
+        assert_array_equal(arr.value, np.array(arr))
+        assert_array_equal(arr.v, np.array(arr))
 
 
 def test_registry_association():
