@@ -37,7 +37,7 @@ The ``unyt`` package provides a subclass of NumPy's ``ndarray`` class that knows
     >>> distance_traveled = [3.4, 5.8, 7.2] * unyt.mile
     ...
     >>> print(distance_traveled.to('km'))
-    [ 5.471756  9.334172 11.587248] km
+    [ 5.4717696  9.3341952 11.5872768] km
 
 And a whole lot more! See `the documentation <http://unyt.readthedocs.io>`_ for more examples as well as full API docs.
 

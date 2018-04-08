@@ -128,7 +128,7 @@ is how we'd create an array with units of meters per second::
   >>> from unyt import m, s
   >>> velocities = [20, 22, 25]*m/s
   >>> print(velocities.to('mile/hr'))
-  [44.73883704 49.21272074 55.9235463 ] mile/hr
+  [44.73872584 49.21259843 55.9234073 ] mile/hr
 
 Similarly one can multiply two units together to create new compound units::
 

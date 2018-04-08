@@ -993,7 +993,7 @@ class unyt_array(np.ndarray):
         -------
         >>> from unyt import mile
         >>> print(mile.in_mks())
-        1609.34 m
+        1609.344 m
         """
         return self.in_units(self.units.get_mks_equivalent())
 
