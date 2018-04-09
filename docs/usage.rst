@@ -365,8 +365,38 @@ methods:
   >>> data
   unyt_array([ 74569.98715823, 372849.93579114, 521989.91010759], 'W')
 
-Defining New Unit Systems
-*************************
+Defining and Using New Unit Systems
+***********************************
+
+To define a new custom unit system, one need only create a new instance of the
+:class:`unyt.UnitSystem <unyt.unit_systems.UnitSystem>` class. The class
+initializer accepts a set of base units to define the unit system. If you would
+like to additionally customize any derived units in the unit system, you can do
+this using item setting.
+
+As an example, let's define an atomic unit system based on typical scales for
+atoms and molecules:
+
+   >>> from unyt import UnitSystem
+   >>> atomic_unit_system = UnitSystem('atomic', 'nm', 'mp', 'fs', 'nK', 'rad')
+   >>> atomic_unit_system['energy'] = 'eV'
+   >>> atomic_unit_system
+   atomic Unit System
+    Base Units:
+     length: nm
+     mass: mp
+     time: fs
+     temperature: nK
+     angle: rad
+    Other Units:
+     energy: eV
+
+   >>> atomic_unit_system['number_density']
+   nm**(-3)
+   >>> atomic_unit_system['angular_momentum']
+   mp*nm**2/fs
+
+If you would like your unit system to include an MKS current unit (e.g. something that is convertible to the MKS Ampere unit, then specify a ``current_mks_unit`` in the :class:`UnitSystem <unyt.unit_systems.UnitSystem>` initializer.
 
 Equivalencies
 +++++++++++++
