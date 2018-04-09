@@ -11,6 +11,9 @@ Test unit systems.
 # The full license is in the LICENSE file, distributed with this software.
 # -----------------------------------------------------------------------------
 
+import pytest
+
+from unyt.exceptions import EquivalentDimsError
 from unyt.unit_object import Unit
 from unyt.unit_systems import (
     UnitSystem,
@@ -18,6 +21,10 @@ from unyt.unit_systems import (
 )
 from unyt.unit_registry import UnitRegistry
 from unyt import dimensions
+from unyt import (
+    gauss,
+    Tesla,
+)
 
 
 def test_unit_systems():
@@ -47,3 +54,16 @@ def test_unit_system_id():
     assert reg1.unit_system_id != reg2.unit_system_id
     reg1.add('m', 100., dimensions.length)
     assert reg1.unit_system_id == reg2.unit_system_id
+
+
+def test_cgs_mks_unit_conversions():
+    with pytest.raises(EquivalentDimsError):
+        Tesla.to('G')
+    assert Tesla.to_equivalent('G', 'cgs') == 1e4*gauss
+    assert Tesla.to_equivalent('G', 'CGS') == 1e4*gauss
+    with pytest.raises(EquivalentDimsError):
+        gauss.to('T')
+    assert gauss.to_equivalent("T", "mks") == 1e-4*Tesla
+    assert gauss.to_equivalent("T", "MKS") == 1e-4*Tesla
+    assert gauss.to_equivalent("T", "si") == 1e-4*Tesla
+    assert gauss.to_equivalent("T", "SI") == 1e-4*Tesla

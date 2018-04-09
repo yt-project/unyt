@@ -79,8 +79,8 @@ class EquivalentDimsError(UnitOperationError):
         self.base = base
 
     def __str__(self):
-        err = ("It looks like you're trying to convert between '%s' and '%s'. "
-               "Try using \"to_equivalent('%s', '%s')\" instead." %
+        err = ("It looks like you're trying to convert between \"%s\" and "
+               "\"%s\". Try using \"to_equivalent('%s', '%s')\" instead." %
                (self.old_units, self.new_units, self.new_units, self.base))
         return err
 

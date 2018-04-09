@@ -123,14 +123,18 @@ from unyt.dimensions import (
     em_dimensions
 )
 from unyt.exceptions import (
-    UnitOperationError,
-    UnitConversionError,
-    UfuncUnitError,
+    EquivalentDimsError,
     IterableUnitCoercionError,
     InvalidUnitEquivalence,
-    EquivalentDimsError
+    UfuncUnitError,
+    UnitConversionError,
+    UnitOperationError,
+    UnitsNotReducible,
 )
-from unyt.equivalencies import equivalence_registry
+from unyt.equivalencies import (
+    equivalence_registry,
+    em_conversions
+)
 try:
     from functools import lru_cache
 except ImportError:
@@ -963,7 +967,12 @@ class unyt_array(np.ndarray):
         >>> print(E.in_base("mks"))
         2.5e-07 W
         """
-        return self.in_units(self.units.get_base_equivalent(unit_system))
+        try:
+            to_units = self.units.get_base_equivalent(unit_system)
+        except UnitsNotReducible:
+            to_units, _ = em_conversions[self.units.dimensions]
+            raise EquivalentDimsError(self.units, to_units, unit_system)
+        return self.in_units(to_units)
 
     def in_cgs(self):
         """
@@ -980,7 +989,12 @@ class unyt_array(np.ndarray):
         >>> print((Newton/km).in_cgs())
         1.0 g/s**2
         """
-        return self.in_units(self.units.get_cgs_equivalent())
+        try:
+            to_units = self.units.get_cgs_equivalent()
+        except UnitsNotReducible:
+            to_units, _ = em_conversions[self.units.dimensions]
+            raise EquivalentDimsError(self.units, to_units, 'cgs')
+        return self.in_units(to_units)
 
     def in_mks(self):
         """
@@ -997,7 +1011,12 @@ class unyt_array(np.ndarray):
         >>> print(mile.in_mks())
         1609.344 m
         """
-        return self.in_units(self.units.get_mks_equivalent())
+        try:
+            to_units = self.units.get_mks_equivalent()
+        except UnitsNotReducible:
+            to_units, _ = em_conversions[self.units.dimensions]
+            raise EquivalentDimsError(self.units, to_units, 'mks')
+        return self.in_units(to_units)
 
     def to_equivalent(self, unit, equiv, **kwargs):
         """

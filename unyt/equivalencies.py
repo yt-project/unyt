@@ -50,6 +50,9 @@ class RegisteredEquivalence(type):
         type.__init__(cls, name, b, d)
         if hasattr(cls, "_type_name") and not cls._skip_add:
             equivalence_registry[cls._type_name] = cls
+        if hasattr(cls, "_alternate_names") and not cls._skip_add:
+            for name in cls._alternate_names:
+                equivalence_registry[name] = cls
 
 
 @add_metaclass(RegisteredEquivalence)
@@ -227,6 +230,7 @@ em_conversions = {
 
 class ElectromagneticSI(Equivalence):
     _type_name = "SI"
+    _alternate_names = ["si", "MKS", "mks"]
     _one_way = True
     dims = (current_cgs, charge_cgs, magnetic_field_cgs,
             electric_field_cgs, electric_potential_cgs,
@@ -243,6 +247,7 @@ class ElectromagneticSI(Equivalence):
 
 class ElectromagneticCGS(Equivalence):
     _type_name = "CGS"
+    _alternate_names = ["cgs"]
     _one_way = True
     dims = (current_mks, charge_mks, magnetic_field_mks,
             electric_field_mks, electric_potential_mks,
