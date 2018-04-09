@@ -16,10 +16,11 @@ from six import string_types
 from unyt import dimensions
 from unyt.unit_object import (
     Unit,
-    unit_system_registry,
     _get_system_unit_string
 )
 from unyt import physical_constants as pc
+
+unit_system_registry = {}
 
 
 class _UnitSystemConstants(object):

@@ -60,7 +60,7 @@ from unyt.exceptions import (
     InvalidUnitOperation,
     UnitsNotReducible
 )
-
+from unyt.equivalencies import equivalence_registry
 import copy
 import token
 import numpy as np
@@ -75,8 +75,6 @@ global_dict = {
     'Rational': Rational,
     'sqrt': sqrt
 }
-
-unit_system_registry = {}
 
 
 def _auto_positive_symbol(tokens, local_dict, global_dict):

@@ -39,7 +39,6 @@ from unyt.dimensions import (
 )
 
 from unyt._physical_ratios import speed_of_light_cm_per_s
-from unyt import physical_constants as pc
 from six import add_metaclass
 import numpy as np
 
@@ -64,6 +63,7 @@ class NumberDensityEquivalence(Equivalence):
     dims = (density, number_density,)
 
     def convert(self, x, new_dims, mu=0.6):
+        from unyt import physical_constants as pc
         if new_dims == number_density:
             return x/(mu*pc.mh)
         elif new_dims == density:
@@ -78,6 +78,7 @@ class ThermalEquivalence(Equivalence):
     dims = (temperature, energy,)
 
     def convert(self, x, new_dims):
+        from unyt import physical_constants as pc
         if new_dims == energy:
             return pc.kboltz*x
         elif new_dims == temperature:
@@ -92,6 +93,7 @@ class MassEnergyEquivalence(Equivalence):
     dims = (mass, energy,)
 
     def convert(self, x, new_dims):
+        from unyt import physical_constants as pc
         if new_dims == energy:
             return x*pc.clight*pc.clight
         elif new_dims == mass:
@@ -106,6 +108,7 @@ class SpectralEquivalence(Equivalence):
     dims = (length, rate, energy,)
 
     def convert(self, x, new_dims):
+        from unyt import physical_constants as pc
         if new_dims == energy:
             if x.units.dimensions == length:
                 nu = pc.clight/x
@@ -132,6 +135,7 @@ class SoundSpeedEquivalence(Equivalence):
     dims = (velocity, temperature, energy,)
 
     def convert(self, x, new_dims, mu=0.6, gamma=5./3.):
+        from unyt import physical_constants as pc
         if new_dims == velocity:
             if x.units.dimensions == temperature:
                 kT = pc.kboltz*x
@@ -154,6 +158,7 @@ class LorentzEquivalence(Equivalence):
     dims = (dimensionless, velocity,)
 
     def convert(self, x, new_dims):
+        from unyt import physical_constants as pc
         if new_dims == dimensionless:
             beta = x.in_cgs()/pc.clight
             return 1./np.sqrt(1.-beta**2)
@@ -169,6 +174,7 @@ class SchwarzschildEquivalence(Equivalence):
     dims = (mass, length,)
 
     def convert(self, x, new_dims):
+        from unyt import physical_constants as pc
         if new_dims == length:
             return 2.*pc.G*x/(pc.clight*pc.clight)
         elif new_dims == mass:
@@ -183,6 +189,7 @@ class ComptonEquivalence(Equivalence):
     dims = (mass, length,)
 
     def convert(self, x, new_dims):
+        from unyt import physical_constants as pc
         return pc.hcgs/(x*pc.clight)
 
     def __str__(self):
@@ -194,6 +201,7 @@ class EffectiveTemperature(Equivalence):
     dims = (flux, temperature,)
 
     def convert(self, x, new_dims):
+        from unyt import physical_constants as pc
         if new_dims == flux:
             return pc.stefan_boltzmann_constant_cgs*x**4
         elif new_dims == temperature:
