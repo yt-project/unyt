@@ -588,8 +588,8 @@ def test_unit_conversions():
     assert_equal(dyne.in_cgs(), 1.0)
     assert_equal(dyne.in_mks(), dyne)
     assert_equal(dyne.in_mks(), 1e-5)
-    assert_equal(str(dyne.in_mks().units), 'kg*m/s**2')
-    assert_equal(str(dyne.in_cgs().units), 'cm*g/s**2')
+    assert_equal(str(dyne.in_mks().units), 'N')
+    assert_equal(str(dyne.in_cgs().units), 'dyne')
 
     em3 = unyt_quantity(1.0, 'erg/m**3')
 
@@ -597,8 +597,8 @@ def test_unit_conversions():
     assert_equal(em3.in_cgs(), 1e-6)
     assert_equal(em3.in_mks(), em3)
     assert_equal(em3.in_mks(), 1e-7)
-    assert_equal(str(em3.in_mks().units), 'kg/(m*s**2)')
-    assert_equal(str(em3.in_cgs().units), 'g/(cm*s**2)')
+    assert_equal(str(em3.in_mks().units), 'Pa')
+    assert_equal(str(em3.in_cgs().units), 'dyne/cm**2')
 
     em3_converted = unyt_quantity(1545436840.386756, 'Msun/(Myr**2*kpc)')
     assert_equal(em3.in_base(unit_system="galactic"), em3)
