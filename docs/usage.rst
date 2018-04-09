@@ -309,34 +309,37 @@ default unit for that dimension. If no unit is explicitly specified of a
 dimension then the base unit for that dimension is calculated at runtime by
 combining the base units for the unit system into the appropriate dimension.
 
-+--------------+-------------+-----------+-----------+-----------------+------------------------+
-| Unit system  | Length Unit | Mass Unit | Time Unit | Current Unit    | Other Units            |
-+==============+=============+===========+===========+=================+========================+
-| cgs          | cm          | g         | s         |                 | Energy: erg            |
-|              |             |           |           |                 | Specific Energy: erg/g |
-|              |             |           |           |                 | Pressure: dyne/cm**2   |
-|              |             |           |           |                 | Force: dyne            |
-|              |             |           |           |                 | Magnetic Field: G      |
-|              |             |           |           |                 | Charge: esu            |
-|              |             |           |           |                 | Current: statA         |
-+--------------+-------------+-----------+-----------+-----------------+------------------------+
-| mks          | m           | kg        | s         | A               | Energy: J              |
-|              |             |           |           |                 | Specific Energy: J/kg  |
-|              |             |           |           |                 | Pressure: Pa           |
-|              |             |           |           |                 | Force: N               |
-|              |             |           |           |                 | Magnetic Field: T      |
-|              |             |           |           |                 | Charge: C              |
-+--------------+-------------+-----------+-----------+-----------------+------------------------+
-| imperial     | ft          | lb        | s         |                 | Energy: ft*lbf         |
-|              |             |           |           |                 | Temperature: R         |
-|              |             |           |           |                 | Pressure: lbf/ft**2    |
-|              |             |           |           |                 | Force: lbf             |
-+--------------+-------------+-----------+-----------+-----------------+------------------------+
-| galactic     | kpc         | Msun      | Myr       |                 | Energy: kev            |
-|              |             |           |           |                 | Magnetic Field: uG     |
-+--------------+-------------+-----------+-----------+-----------------+------------------------+
-| solar        | AU          | Mearth    | yr        |                 |                        |
-+--------------+-------------+-----------+-----------+-----------------+------------------------+
++--------------+--------------------+--------------------------+
+| Unit system  | Base Units         | Other Units              |
++==============+====================+==========================+
+| cgs          | cm, g, s           | * Energy: erg            |
+|              |                    | * Specific Energy: erg/g |
+|              |                    | * Pressure: dyne/cm**2   |
+|              |                    | * Force: dyne            |
+|              |                    | * Power: erg/s           |
+|              |                    | * Magnetic Field: G      |
+|              |                    | * Charge: esu            |
+|              |                    | * Current: statA         |
++--------------+--------------------+--------------------------+
+| mks          | m, kg, s           | * Energy: J              |
+|              |                    | * Specific Energy: J/kg  |
+|              |                    | * Pressure: Pa           |
+|              |                    | * Force: N               |
+|              |                    | * Power: W               |
+|              |                    | * Magnetic Field: T      |
+|              |                    | * Charge: C              |
++--------------+--------------------+--------------------------+
+| imperial     | ft, lb, s          | * Energy: ft*lbf         |
+|              |                    | * Temperature: R         |
+|              |                    | * Pressure: lbf/ft**2    |
+|              |                    | * Force: lbf             |
+|              |                    | * Power: hp              |
++--------------+--------------------+--------------------------+
+| galactic     | kpc, Msun, kyr     | * Energy: kev            |
+|              |                    | * Magnetic Field: uG     |
++--------------+--------------------+--------------------------+
+| solar        | AU, Mearth, yr     |                          |
++--------------+--------------------+--------------------------+
 
 Note that in MKS units the current unit, Ampere, is a base unit in the unit
 system. In CGS units the electromagnetic units like Gauss and statAmpere are
