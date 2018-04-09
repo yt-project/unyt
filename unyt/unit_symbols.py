@@ -186,8 +186,8 @@ furlong = quan(660, "ft")
 yard = yd = quan(1, "yd")
 #: pound
 lb = pound = quan(1.0, "lb")
-#: pound-foot
-lfb = pound_foot = quan(1.0, "lbf")
+#: pound-force
+lbf = pound_force = quan(1.0, "lbf")
 #: atmosphere
 atm = atmosphere = quan(1.0, "atm")
 
