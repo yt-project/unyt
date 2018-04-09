@@ -42,14 +42,12 @@ from unyt.dimensions import (
     base_dimensions,
     temperature,
     dimensionless,
-    current_mks,
     angle
 )
 from unyt._unit_lookup_table import (
     unit_prefixes,
     prefixable_units,
     latex_prefixes,
-    default_base_units
 )
 from unyt.unit_registry import (
     default_unit_registry,
@@ -58,7 +56,6 @@ from unyt.unit_registry import (
 )
 from unyt.exceptions import (
     InvalidUnitOperation,
-    UnitsNotReducible
 )
 from unyt.equivalencies import equivalence_registry
 import copy
@@ -599,7 +596,6 @@ class Unit(Expr):
         >>> km.units.has_equivalent('spectral')
         True
         """
-        from unyt.equivalencies import equivalence_registry
         try:
             this_equiv = equivalence_registry[equiv]()
         except KeyError:
@@ -616,27 +612,14 @@ class Unit(Expr):
         >>> (g/cm**3).units.get_base_equivalent('solar')
         Mearth/AU**3
         """
-        yt_base_unit_string = _get_system_unit_string(
-            self.dimensions, default_base_units)
-        yt_base_unit = Unit(yt_base_unit_string, base_value=1.0,
-                            dimensions=self.dimensions, registry=self.registry)
-        if unit_system == "cgs":
-            if current_mks in self.dimensions.free_symbols:
-                raise UnitsNotReducible(self, "cgs")
-            return yt_base_unit
-        else:
-            if hasattr(unit_system, "unit_registry"):
-                unit_system = unit_system.unit_registry.unit_system_id
-            elif unit_system == "code":
-                unit_system = self.registry.unit_system_id
-            unit_system = unit_system_registry[str(unit_system)]
-            units_string = _get_system_unit_string(
-                self.dimensions, unit_system.base_units)
-            u = Unit(units_string, registry=self.registry)
-            base_value = _get_conversion_factor(self, yt_base_unit)[0]
-            base_value /= _get_conversion_factor(self, u)[0]
-            return Unit(units_string, base_value=base_value,
-                        dimensions=self.dimensions, registry=self.registry)
+        from unyt.unit_systems import unit_system_registry
+        if hasattr(unit_system, "unit_registry"):
+            unit_system = unit_system.unit_registry.unit_system_id
+        elif unit_system == "code":
+            unit_system = self.registry.unit_system_id
+        unit_system = unit_system_registry[str(unit_system)]
+        units_string = unit_system[self.dimensions]
+        return Unit(units_string, registry=self.registry)
 
     def get_cgs_equivalent(self):
         """Create and return dimensionally-equivalent cgs units.
