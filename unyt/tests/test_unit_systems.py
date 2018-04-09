@@ -13,7 +13,10 @@ Test unit systems.
 
 import pytest
 
-from unyt.exceptions import EquivalentDimsError
+from unyt.exceptions import (
+    EquivalentDimsError,
+    IllDefinedUnitSystem,
+)
 from unyt.unit_object import Unit
 from unyt.unit_systems import (
     UnitSystem,
@@ -67,3 +70,8 @@ def test_cgs_mks_unit_conversions():
     assert gauss.to_equivalent("T", "MKS") == 1e-4*Tesla
     assert gauss.to_equivalent("T", "si") == 1e-4*Tesla
     assert gauss.to_equivalent("T", "SI") == 1e-4*Tesla
+
+
+def test_bad_unit_system():
+    with pytest.raises(IllDefinedUnitSystem):
+        UnitSystem('atomic', 'nm', 'fs', 'nK', 'rad')

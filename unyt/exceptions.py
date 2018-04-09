@@ -14,8 +14,6 @@ Exception classes defined by unyt
 # -----------------------------------------------------------------------------
 
 
-# Data access exceptions:
-
 class UnitOperationError(ValueError):
     def __init__(self, operation, unit1, unit2=None):
         self.operation = operation
@@ -131,3 +129,12 @@ class SymbolNotFoundError(Exception):
 
 class UnitParseError(Exception):
     pass
+
+
+class IllDefinedUnitSystem(Exception):
+    def __init__(self, units_map):
+        self.units_map = units_map
+
+    def __str__(self):
+        return ("Cannot create unit system with inconsistent mapping from "
+                "dimensions to units. Received:\n%s" % self.units_map)

@@ -14,7 +14,10 @@ Unit system class.
 
 from six import string_types
 from unyt import dimensions
-from unyt.exceptions import MissingMKSCurrent
+from unyt.exceptions import (
+    MissingMKSCurrent,
+    IllDefinedUnitSystem
+)
 from unyt.unit_object import (
     Unit,
     _get_system_unit_string
@@ -79,6 +82,9 @@ class UnitSystem(object):
             dimensions.temperature: Unit(
                 temperature_unit, registry=self.registry),
             dimensions.angle: Unit(angle_unit, registry=self.registry)}
+        for dimension, unit in self.units_map.items():
+            if unit.dimensions is not dimension:
+                raise IllDefinedUnitSystem(self.units_map)
         self._dims = ["length", "mass", "time", "temperature", "angle"]
         if current_mks_unit is not None:
             self.units_map[dimensions.current_mks] = Unit(
@@ -122,7 +128,7 @@ class UnitSystem(object):
             dim = getattr(dimensions, key)
             if dim not in self.base_units:
                 repr += "  %s: %s\n" % (key, self.units_map[dim])
-        return repr
+        return repr[:-1]
 
 
 #: The CGS unit system
