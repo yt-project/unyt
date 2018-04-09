@@ -123,8 +123,7 @@ returns data in the units of the leftmost object in an expression::
   >>> print(4*m + 3*cm - 5*ft + 6*yard)  # doctest: +FLOAT_CMP
   7.9924 m
 
-One can also form more complex units out of atomic unit symbols. For example, here
-is how we'd create an array with units of meters per second::
+One can also form more complex units out of atomic unit symbols. For example, here is how we'd create an array with units of meters per second and print out the values in the array in miles per hour::
 
   >>> from unyt import m, s
   >>> velocities = [20, 22, 25]*m/s
@@ -163,10 +162,12 @@ where :math:`\rho` is the average density of the Earth.
 If you make a mistake by adding two things that have different dimensions, ``unyt`` will raise an error to let you know that you have a bug in your code:
 
   >>> from unyt import kg, m
-  >>> kg + m  # doctest: +IGNORE_EXCEPTION_DETAIL
+  >>> kg + m  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   Traceback (most recent call last):
-  UnitOperationError: The <ufunc 'add'> operator for unyt_arrays
-  with units (kg) and (m) is not well defined.
+  ...
+  unyt.exceptions.UnitOperationError: The <ufunc 'add'> operator for
+  unyt_arrays with units "kg" (dimensions "(mass)") and
+  "m" (dimensions "(length)") is not well defined.
 
 while this example is trivial when one writes more complicated formulae it can
 be easy to accidentally write expressions that are not dimensionally sound.
@@ -179,10 +180,12 @@ the :class:`unyt.unyt_array <unyt.array.unyt_array>` class to quickly apply unit
 
   >>> from unyt import cm, s
   >>> velocities = [10, 20, 30] * cm/s
-  >>> velocities + 12  # doctest: +IGNORE_EXCEPTION_DETAIL
+  >>> velocities + 12  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   Traceback (most recent call last):
-  UnitOperationError: The <ufunc 'add'> operator for unyt_arrays
-  with units (cm/s) and (dimensionless) is not well defined.
+  ...
+  unyt.exceptions.UnitOperationError: The <ufunc 'add'> operator for
+  unyt_arrays with units "cm/s" (dimensions "(length)/(time)") and
+  "dimensionless" (dimensions "1") is not well defined.
   >>> velocities + 12*velocities.units
   unyt_array([22., 32., 42.], 'cm/s')
 
@@ -213,7 +216,7 @@ Unit Conversions and Unit Systems
 Equivalencies
 +++++++++++++
 
-Converting between ``unyt_array`` and numpy.ndarray
+Converting Between ``unyt_array`` and numpy.ndarray
 +++++++++++++++++++++++++++++++++++++++++++++++++++
 
 Performance Considerations

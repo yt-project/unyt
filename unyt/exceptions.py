@@ -24,10 +24,12 @@ class UnitOperationError(ValueError):
         ValueError.__init__(self)
 
     def __str__(self):
-        err = ("The %s operator for unyt_arrays with units (%s) " %
-               (self.operation, self.unit1, ))
+        err = ("The %s operator for unyt_arrays with units \"%s\" "
+               "(dimensions \"%s\") " %
+               (self.operation, self.unit1, self.unit1.dimensions))
         if self.unit2 is not None:
-            err += "and (%s) " % self.unit2
+            err += ("and \"%s\" (dimensions \"%s\") " %
+                    (self.unit2, self.unit2.dimensions))
         err += "is not well defined."
         return err
 
