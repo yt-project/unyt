@@ -1069,7 +1069,7 @@ class unyt_array(np.ndarray):
         -------
         >>> from unyt import km
         >>> km.list_equivalencies()
-        spectral: length <-> rate <-> energy
+        spectral: length <-> frequency <-> energy
         schwarzschild: mass <-> length
         compton: mass <-> length
         """

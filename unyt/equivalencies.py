@@ -130,7 +130,7 @@ class SpectralEquivalence(Equivalence):
                 return x/pc.hcgs
 
     def __str__(self):
-        return "spectral: length <-> rate <-> energy"
+        return "spectral: length <-> frequency <-> energy"
 
 
 class SoundSpeedEquivalence(Equivalence):

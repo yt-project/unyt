@@ -579,7 +579,7 @@ class Unit(Expr):
         --------
         >>> from unyt import km
         >>> km.units.list_equivalencies()
-        spectral: length <-> rate <-> energy
+        spectral: length <-> frequency <-> energy
         schwarzschild: mass <-> length
         compton: mass <-> length
         """
