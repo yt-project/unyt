@@ -130,6 +130,7 @@ from unyt.exceptions import (
     InvalidUnitEquivalence,
     EquivalentDimsError
 )
+from unyt.equivalencies import equivalence_registry
 try:
     from functools import lru_cache
 except ImportError:
@@ -779,7 +780,7 @@ class unyt_array(np.ndarray):
         >>> data = [1, 2, 3]*Newton
         >>> data.convert_to_cgs()
         >>> data
-        unyt_array([100000., 200000., 300000.], 'cm*g/s**2')
+        unyt_array([100000., 200000., 300000.], 'dyne')
 
         """
         self.convert_to_units(self.units.get_cgs_equivalent())
@@ -796,7 +797,7 @@ class unyt_array(np.ndarray):
         unyt_array([1., 2., 3.], 'erg')
         >>> data.convert_to_mks()
         >>> data
-        unyt_array([1.e-07, 2.e-07, 3.e-07], 'kg*m**2/s**2')
+        unyt_array([1.e-07, 2.e-07, 3.e-07], 'J')
         """
         self.convert_to_units(self.units.get_mks_equivalent())
 
@@ -1021,7 +1022,6 @@ class unyt_array(np.ndarray):
         >>> print(a.to_equivalent("keV", "thermal"))
         0.8617332401096502 keV
         """
-        from unyt.equivalencies import equivalence_registry
         conv_unit = Unit(unit, registry=self.units.registry)
         if self.units.same_dimensions_as(conv_unit):
             return self.in_units(conv_unit)
