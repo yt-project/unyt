@@ -1046,9 +1046,9 @@ class unyt_array(np.ndarray):
             return self.in_units(conv_unit)
         this_equiv = equivalence_registry[equiv]()
         oneway_or_equivalent = (
-            conv_unit.has_equivalent(equiv) or this_equiv._one_way)
+            conv_unit.has_equivalent(equiv) or this_equiv.one_way)
         if self.has_equivalent(equiv) and oneway_or_equivalent:
-            new_arr = this_equiv.convert(
+            new_arr = this_equiv._convert(
                 self, conv_unit.dimensions, **kwargs)
             if isinstance(new_arr, tuple):
                 try:

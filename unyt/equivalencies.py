@@ -48,24 +48,23 @@ equivalence_registry = OrderedDict()
 class _RegisteredEquivalence(type):
     def __init__(cls, name, b, d):
         type.__init__(cls, name, b, d)
-        if hasattr(cls, "_type_name") and not cls._skip_add:
-            equivalence_registry[cls._type_name] = cls
-        if hasattr(cls, "_alternate_names") and not cls._skip_add:
-            for name in cls._alternate_names:
+        if hasattr(cls, "type_name"):
+            equivalence_registry[cls.type_name] = cls
+        if hasattr(cls, "alternate_names"):
+            for name in cls.alternate_names:
                 equivalence_registry[name] = cls
 
 
 @add_metaclass(_RegisteredEquivalence)
 class Equivalence(object):
-    _skip_add = False
-    _one_way = False
+    one_way = False
 
 
 class NumberDensityEquivalence(Equivalence):
-    _type_name = "number_density"
-    dims = (density, number_density,)
+    type_name = "number_density"
+    _dims = (density, number_density,)
 
-    def convert(self, x, new_dims, mu=0.6):
+    def _convert(self, x, new_dims, mu=0.6):
         from unyt import physical_constants as pc
         if new_dims == number_density:
             return x/(mu*pc.mh)
@@ -77,10 +76,10 @@ class NumberDensityEquivalence(Equivalence):
 
 
 class ThermalEquivalence(Equivalence):
-    _type_name = "thermal"
-    dims = (temperature, energy,)
+    type_name = "thermal"
+    _dims = (temperature, energy,)
 
-    def convert(self, x, new_dims):
+    def _convert(self, x, new_dims):
         from unyt import physical_constants as pc
         if new_dims == energy:
             return pc.kboltz*x
@@ -92,10 +91,10 @@ class ThermalEquivalence(Equivalence):
 
 
 class MassEnergyEquivalence(Equivalence):
-    _type_name = "mass_energy"
-    dims = (mass, energy,)
+    type_name = "mass_energy"
+    _dims = (mass, energy,)
 
-    def convert(self, x, new_dims):
+    def _convert(self, x, new_dims):
         from unyt import physical_constants as pc
         if new_dims == energy:
             return x*pc.clight*pc.clight
@@ -107,10 +106,10 @@ class MassEnergyEquivalence(Equivalence):
 
 
 class SpectralEquivalence(Equivalence):
-    _type_name = "spectral"
-    dims = (length, rate, energy,)
+    type_name = "spectral"
+    _dims = (length, rate, energy,)
 
-    def convert(self, x, new_dims):
+    def _convert(self, x, new_dims):
         from unyt import physical_constants as pc
         if new_dims == energy:
             if x.units.dimensions == length:
@@ -134,10 +133,10 @@ class SpectralEquivalence(Equivalence):
 
 
 class SoundSpeedEquivalence(Equivalence):
-    _type_name = "sound_speed"
-    dims = (velocity, temperature, energy,)
+    type_name = "sound_speed"
+    _dims = (velocity, temperature, energy,)
 
-    def convert(self, x, new_dims, mu=0.6, gamma=5./3.):
+    def _convert(self, x, new_dims, mu=0.6, gamma=5./3.):
         from unyt import physical_constants as pc
         if new_dims == velocity:
             if x.units.dimensions == temperature:
@@ -157,10 +156,10 @@ class SoundSpeedEquivalence(Equivalence):
 
 
 class LorentzEquivalence(Equivalence):
-    _type_name = "lorentz"
-    dims = (dimensionless, velocity,)
+    type_name = "lorentz"
+    _dims = (dimensionless, velocity,)
 
-    def convert(self, x, new_dims):
+    def _convert(self, x, new_dims):
         from unyt import physical_constants as pc
         if new_dims == dimensionless:
             beta = x.in_cgs()/pc.clight
@@ -173,10 +172,10 @@ class LorentzEquivalence(Equivalence):
 
 
 class SchwarzschildEquivalence(Equivalence):
-    _type_name = "schwarzschild"
-    dims = (mass, length,)
+    type_name = "schwarzschild"
+    _dims = (mass, length,)
 
-    def convert(self, x, new_dims):
+    def _convert(self, x, new_dims):
         from unyt import physical_constants as pc
         if new_dims == length:
             return 2.*pc.G*x/(pc.clight*pc.clight)
@@ -188,10 +187,10 @@ class SchwarzschildEquivalence(Equivalence):
 
 
 class ComptonEquivalence(Equivalence):
-    _type_name = "compton"
-    dims = (mass, length,)
+    type_name = "compton"
+    _dims = (mass, length,)
 
-    def convert(self, x, new_dims):
+    def _convert(self, x, new_dims):
         from unyt import physical_constants as pc
         return pc.hcgs/(x*pc.clight)
 
@@ -200,10 +199,10 @@ class ComptonEquivalence(Equivalence):
 
 
 class EffectiveTemperature(Equivalence):
-    _type_name = "effective_temperature"
-    dims = (flux, temperature,)
+    type_name = "effective_temperature"
+    _dims = (flux, temperature,)
 
-    def convert(self, x, new_dims):
+    def _convert(self, x, new_dims):
         from unyt import physical_constants as pc
         if new_dims == flux:
             return pc.stefan_boltzmann_constant_cgs*x**4
@@ -229,14 +228,14 @@ em_conversions = {
 
 
 class ElectromagneticSI(Equivalence):
-    _type_name = "SI"
-    _alternate_names = ["si", "MKS", "mks"]
-    _one_way = True
-    dims = (current_cgs, charge_cgs, magnetic_field_cgs,
-            electric_field_cgs, electric_potential_cgs,
-            resistance_cgs)
+    type_name = "SI"
+    alternate_names = ["si", "MKS", "mks"]
+    one_way = True
+    _dims = (current_cgs, charge_cgs, magnetic_field_cgs,
+             electric_field_cgs, electric_potential_cgs,
+             resistance_cgs)
 
-    def convert(self, x, new_dims):
+    def _convert(self, x, new_dims):
         old_dims = x.units.dimensions
         new_units, convert_factor = em_conversions[old_dims]
         return x.in_cgs().v*convert_factor, new_units
@@ -246,14 +245,14 @@ class ElectromagneticSI(Equivalence):
 
 
 class ElectromagneticCGS(Equivalence):
-    _type_name = "CGS"
-    _alternate_names = ["cgs"]
-    _one_way = True
-    dims = (current_mks, charge_mks, magnetic_field_mks,
-            electric_field_mks, electric_potential_mks,
-            resistance_mks)
+    type_name = "CGS"
+    alternate_names = ["cgs"]
+    one_way = True
+    _dims = (current_mks, charge_mks, magnetic_field_mks,
+             electric_field_mks, electric_potential_mks,
+             resistance_mks)
 
-    def convert(self, x, new_dims):
+    def _convert(self, x, new_dims):
         old_dims = x.units.dimensions
         new_units, convert_factor = em_conversions[old_dims]
         return x.in_mks().v*convert_factor, new_units

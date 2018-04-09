@@ -603,7 +603,7 @@ class Unit(Expr):
         except KeyError:
             raise KeyError("No such equivalence \"%s\"." % equiv)
         old_dims = self.dimensions
-        return old_dims in this_equiv.dims
+        return old_dims in this_equiv._dims
 
     def get_base_equivalent(self, unit_system="cgs"):
         """Create and return dimensionally-equivalent units in a specified base.
