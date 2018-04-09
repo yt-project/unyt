@@ -209,9 +209,159 @@ The one exception to this rule is for trigonometric functions applied to data wi
   >>> print(np.sin(45*degree))
   0.7071067811865475
 
+Printing Units
+--------------
+
+The print formatting of :class:`unyt_array <unyt.array.unyt_array>` can be
+controlled identically to numpy arrays, using ``numpy.setprintoptions``:
+
+  >>> import numpy as np
+  >>> import unyt as u
+  ...
+  >>> np.set_printoptions(precision=4)
+  >>> print([1.123456789]*u.km)
+  [1.1235] km
+  >>> np.set_printoptions(precision=8)
+
+Print a :math:`\rm{\LaTeX}` representation of a set of units using the :meth:`unyt.unit_object.Unit.latex_representation` function or :attr:`unyt.unit_object.Unit.latex_repr` attribute:
+
+  >>> from unyt import g, cm
+  >>> (g/cm**3).units.latex_representation()
+  '\\frac{\\rm{g}}{\\rm{cm}^{3}}'
+  >>> (g/cm**3).units.latex_repr
+  '\\frac{\\rm{g}}{\\rm{cm}^{3}}'
 
 Unit Conversions and Unit Systems
 +++++++++++++++++++++++++++++++++
+
+Converting Data to Arbitrary Units
+----------------------------------
+
+If you have some data that you want to convert to a different set of units and
+you know which units you would like to convert it to, you can make use of the
+:meth:`unyt_array.to <unyt.array.unyt_array.to>` function:
+
+  >>> from unyt import mile
+  >>> mile.to('ft')
+  unyt_quantity(5280., 'ft')
+
+If you try to convert to a unit with different dimensions, ``unyt`` will raise
+an error:
+
+  >>> from unyt import mile
+  >>> mile.to('lb')  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  Traceback (most recent call last):
+  ...
+  unyt.exceptions.UnitConversionError: Unit dimensionalities do not match.
+  Tried to convert between mile (dim (length)) and lb (dim (mass)).
+
+While we recomment using :meth:`unyt_array.to <unyt.array.unyt_array.to>` in
+most cases to convert arrays or quantities to different units, if you would like
+to explicitly emphasize that this operation has to do with units, we also
+provide the more verbose name :meth:`unyt_array.in_units
+<unyt.array.unyt_array.in_units>` which behaves identically to
+:meth:`unyt_array.to <unyt.array.unyt_array.to>`.
+
+Converting Units In-Place
+-------------------------
+
+The :meth:`unyt_array.to <unyt.array.unyt_array.to>` method makes a copy of the
+array data. For most cases this is fine, but when dealing with big arrays, or
+when performance is a concern, it sometimes is preferable to convert the data in
+an array in-place, without copying the data to a new array. This can be
+accomplished with the :meth:`unyt_array.convert_to_units
+<unyt.array.unyt_array.convert_to_units>` function:
+
+  >>> from unyt import mile
+  >>> data = [1, 2, 3]*mile
+  >>> data
+  unyt_array([1., 2., 3.], 'mile')
+  >>> data.convert_to_units('km')
+  >>> data
+  unyt_array([1.609344, 3.218688, 4.828032], 'km')
+
+Converting to MKS and CGS Base Units
+------------------------------------
+
+If you don't necessarily know the units you want to convert data to ahead of
+time, it's often convenient to specify a unit system to convert to. The
+:class:`unyt_array <unyt.array.unyt_array>` has built-in conversion methods for
+the two most popular unit systems, MKS (meter kilogram second) and CGS
+(centimeter gram second). For CGS these are :meth:`unyt_array.in_cgs
+<unyt.array.unyt_array.in_cgs>` and :meth:`unyt_array.convert_to_cgs
+<unyt.array.unyt_array.convert_to_cgs>`. These functions create a new copy of an
+array in CGS units and convert an array in-place to CGS. respectively. For MKS,
+there are the :meth:`unyt_array.in_mks <unyt.array.unyt_array.in_mks>`
+and :meth:`unyt_array.convert_to_mks <unyt.array.unyt_array.convert_to_mks>` methods, which play analogous roles.
+
+See below for details on CGS and MKS electromagnetic units.
+
+Other Unit Systems
+------------------
+
+The ``unyt`` library currently has built-in support for a number of unit
+systems, as detailed in the table below. Note that all unit systems currently
+use "radian" as the base angle unit.
+
+If a unit system in the table below has "Other Units" specified, this is a
+mapping from dimension to a unit name. These units override the unit system's
+default unit for that dimension. If no unit is explicitly specified of a
+dimension then the base unit for that dimension is calculated at runtime by
+combining the base units for the unit system into the appropriate dimension.
+
++--------------+-------------+-----------+-----------+-----------------+------------------------+
+| Unit system  | Length Unit | Mass Unit | Time Unit | Current Unit    | Other Units            |
++==============+=============+===========+===========+=================+========================+
+| cgs          | cm          | g         | s         |                 | Energy: erg            |
+|              |             |           |           |                 | Specific Energy: erg/g |
+|              |             |           |           |                 | Pressure: dyne/cm**2   |
+|              |             |           |           |                 | Force: dyne            |
+|              |             |           |           |                 | Magnetic Field: G      |
+|              |             |           |           |                 | Charge: esu            |
+|              |             |           |           |                 | Current: statA         |
++--------------+-------------+-----------+-----------+-----------------+------------------------+
+| mks          | m           | kg        | s         | A               | Energy: J              |
+|              |             |           |           |                 | Specific Energy: J/kg  |
+|              |             |           |           |                 | Pressure: Pa           |
+|              |             |           |           |                 | Force: N               |
+|              |             |           |           |                 | Magnetic Field: T      |
+|              |             |           |           |                 | Charge: C              |
++--------------+-------------+-----------+-----------+-----------------+------------------------+
+| imperial     | ft          | lb        | s         |                 | Energy: ft*lbf         |
+|              |             |           |           |                 | Temperature: R         |
+|              |             |           |           |                 | Pressure: lbf/ft**2    |
+|              |             |           |           |                 | Force: lbf             |
++--------------+-------------+-----------+-----------+-----------------+------------------------+
+| galactic     | kpc         | Msun      | Myr       |                 | Energy: kev            |
+|              |             |           |           |                 | Magnetic Field: uG     |
++--------------+-------------+-----------+-----------+-----------------+------------------------+
+| solar        | AU          | Mearth    | yr        |                 |                        |
++--------------+-------------+-----------+-----------+-----------------+------------------------+
+
+Note that in MKS units the current unit, Ampere, is a base unit in the unit
+system. In CGS units the electromagnetic units like Gauss and statAmpere are
+decomposible in terms of the base mass, length, and time units in the unit
+system. For this reason quantities defined in E&M units in CGS units are not
+readily convertible to MKS units and vice verse since the units are not
+dimensionally equivalent. To resolve this, ``unyt`` provides a unit equivalency
+system, discussed below, to convert data between semantically equivalent but not
+dimensionally equal units.
+
+You can convert data to a unit system ``unyt`` knows about using the
+:meth:`unyt_array.in_base <unyt.array.unyt_array.in_base>` and
+:meth:`unyt_array.convert_to_base <unyt.array.unyt_array.convert_to_base>`
+methods:
+
+  >>> from unyt import g, cm, Newton
+  >>> (1e-9*g/cm**2).in_base('galactic')
+  unyt_quantity(4.78843804, 'Msun/kpc**2')
+  >>> data = [5, 8, 12]*Newton
+  >>> data.convert_to_base('imperial')
+  >>> data
+  unyt_array([1.12404472, 1.79847154, 2.69770732], 'lbf')
+
+Defining New Unit Systems
+*************************
 
 Equivalencies
 +++++++++++++
