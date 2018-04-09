@@ -11,8 +11,11 @@ Test unit systems.
 # The full license is in the LICENSE file, distributed with this software.
 # -----------------------------------------------------------------------------
 
-from unyt.unit_object import Unit, unit_system_registry
-from unyt.unit_systems import UnitSystem
+from unyt.unit_object import Unit
+from unyt.unit_systems import (
+    UnitSystem,
+    unit_system_registry,
+)
 from unyt.unit_registry import UnitRegistry
 from unyt import dimensions
 
