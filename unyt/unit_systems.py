@@ -11,7 +11,7 @@ Unit system class.
 # The full license is in the LICENSE file, distributed with this software.
 # -----------------------------------------------------------------------------
 
-
+from collections import OrderedDict
 from six import string_types
 from unyt import dimensions
 from unyt.exceptions import (
@@ -75,13 +75,13 @@ class UnitSystem(object):
                  temperature_unit="K", angle_unit="rad", current_mks_unit=None,
                  registry=None):
         self.registry = registry
-        self.units_map = {
-            dimensions.length: Unit(length_unit, registry=self.registry),
-            dimensions.mass: Unit(mass_unit, registry=self.registry),
-            dimensions.time: Unit(time_unit, registry=self.registry),
-            dimensions.temperature: Unit(
-                temperature_unit, registry=self.registry),
-            dimensions.angle: Unit(angle_unit, registry=self.registry)}
+        self.units_map = OrderedDict([
+            (dimensions.length, Unit(length_unit, registry=self.registry)),
+            (dimensions.mass, Unit(mass_unit, registry=self.registry)),
+            (dimensions.time, Unit(time_unit, registry=self.registry)),
+            (dimensions.temperature, Unit(
+                temperature_unit, registry=self.registry)),
+            (dimensions.angle, Unit(angle_unit, registry=self.registry))])
         for dimension, unit in self.units_map.items():
             if unit.dimensions is not dimension:
                 raise IllDefinedUnitSystem(self.units_map)
