@@ -134,6 +134,7 @@ cgs_unit_system["force"] = "dyne"
 cgs_unit_system["magnetic_field_cgs"] = "gauss"
 cgs_unit_system["charge_cgs"] = "esu"
 cgs_unit_system["current_cgs"] = "statA"
+cgs_unit_system["power"] = "erg/s"
 
 #: The MKS unit system
 mks_unit_system = UnitSystem("mks", "m", "kg", "s", current_mks_unit="A")
@@ -143,6 +144,7 @@ mks_unit_system["pressure"] = "Pa"
 mks_unit_system["force"] = "N"
 mks_unit_system["magnetic_field_mks"] = "T"
 mks_unit_system["charge_mks"] = "C"
+mks_unit_system["power"] = "W"
 
 #: The imperial unit system
 imperial_unit_system = UnitSystem("imperial", "ft", "lb", "s",

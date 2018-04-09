@@ -765,7 +765,7 @@ class unyt_array(np.ndarray):
         >>> E = 2.5*erg/s
         >>> E.convert_to_base("mks")
         >>> E
-        unyt_quantity(2.5e-07, 'kg*m**2/s**3')
+        unyt_quantity(2.5e-07, 'W')
         """
         self.convert_to_units(self.units.get_base_equivalent(
             unit_system))
@@ -961,7 +961,7 @@ class unyt_array(np.ndarray):
         >>> from unyt import erg, s
         >>> E = 2.5*erg/s
         >>> print(E.in_base("mks"))
-        2.5e-07 kg*m**2/s**3
+        2.5e-07 W
         """
         return self.in_units(self.units.get_base_equivalent(unit_system))
 
