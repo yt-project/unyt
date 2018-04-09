@@ -49,6 +49,16 @@ class UnitConversionError(Exception):
         return err
 
 
+class MissingMKSCurrent(Exception):
+    def __init__(self, unit_system_name):
+        self.unit_system_name = unit_system_name
+
+    def __str__(self):
+        err = ("The %s unit system does not have a MKS current base unit" %
+               self.unit_system_name)
+        return err
+
+
 class UnitsNotReducible(Exception):
     def __init__(self, unit, units_base):
         self.unit = unit
@@ -56,8 +66,9 @@ class UnitsNotReducible(Exception):
         Exception.__init__(self)
 
     def __str__(self):
-        err = ("The unit '%s' cannot be reduced to a single expression within "
-               "the %s base system of units." % (self.unit, self.units_base))
+        err = ("The unit \"%s\" (dimensions \"%s\" cannot be reduced to an "
+               "expression within the %s system of units." %
+               (self.unit, self.unit.dimensions, self.units_base))
         return err
 
 

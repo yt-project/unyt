@@ -14,6 +14,7 @@ Unit system class.
 
 from six import string_types
 from unyt import dimensions
+from unyt.exceptions import MissingMKSCurrent
 from unyt.unit_object import (
     Unit,
     _get_system_unit_string
@@ -94,6 +95,9 @@ class UnitSystem(object):
             key = getattr(dimensions, key)
         um = self.units_map
         if key not in um or um[key].dimensions is not key:
+            cmks = dimensions.current_mks
+            if cmks in key.free_symbols and cmks not in self.units_map:
+                raise MissingMKSCurrent(self.name)
             units = _get_system_unit_string(key, self.units_map)
             self.units_map[key] = Unit(units, registry=self.registry)
         return self.units_map[key]
