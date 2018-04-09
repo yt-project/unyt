@@ -27,6 +27,7 @@ top-level ``unyt`` namespace:
 * :func:`unyt.unit_object.define_unit`
 * :class:`unyt.unit_object.Unit`
 * :class:`unyt.unit_registry.UnitRegistry`
+* :class:`unyt.unit_systems.UnitSystem`
 """
 
 # -----------------------------------------------------------------------------
@@ -62,6 +63,7 @@ from unyt.unit_object import (  # NOQA
     define_unit
 )
 from unyt.unit_registry import UnitRegistry  # NOQA
+from unyt.unit_systems import UnitSystem  # NOQA
 
 
 # function to only import quantities into this namespace
