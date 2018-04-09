@@ -732,7 +732,6 @@ class unyt_array(np.ndarray):
         >>> from unyt import cm, km
         >>> length = [3000, 2000, 1000]*cm
         >>> length.convert_to_units('m')
-        unyt_array([30., 20., 10.], 'm')
         >>> print(length)
         [30. 20. 10.] m
         """
@@ -747,8 +746,6 @@ class unyt_array(np.ndarray):
 
         if offset:
             np.subtract(self, offset*self.uq, self)
-
-        return self
 
     def convert_to_base(self, unit_system="cgs"):
         """
@@ -765,10 +762,11 @@ class unyt_array(np.ndarray):
         --------
         >>> from unyt import erg, s
         >>> E = 2.5*erg/s
-        >>> E.convert_to_base(unit_system="mks")
+        >>> E.convert_to_base("mks")
+        >>> E
         unyt_quantity(2.5e-07, 'kg*m**2/s**3')
         """
-        return self.convert_to_units(self.units.get_base_equivalent(
+        self.convert_to_units(self.units.get_base_equivalent(
             unit_system))
 
     def convert_to_cgs(self):
@@ -778,11 +776,13 @@ class unyt_array(np.ndarray):
         Examples
         --------
         >>> from unyt import Newton
-        >>> print(Newton.convert_to_cgs())
-        100000.0 cm*g/s**2
+        >>> data = [1, 2, 3]*Newton
+        >>> data.convert_to_cgs()
+        >>> data
+        unyt_array([100000., 200000., 300000.], 'cm*g/s**2')
 
         """
-        return self.convert_to_units(self.units.get_cgs_equivalent())
+        self.convert_to_units(self.units.get_cgs_equivalent())
 
     def convert_to_mks(self):
         """
@@ -791,13 +791,14 @@ class unyt_array(np.ndarray):
         Examples
         --------
         >>> from unyt import dyne, erg
-        >>> print(erg.convert_to_mks())
-        1e-07 kg*m**2/s**2
-        >>> print(dyne.convert_to_mks())
-        1e-05 kg*m/s**2
-
+        >>> data = [1, 2, 3]*erg
+        >>> data
+        unyt_array([1., 2., 3.], 'erg')
+        >>> data.convert_to_mks()
+        >>> data
+        unyt_array([1.e-07, 2.e-07, 3.e-07], 'kg*m**2/s**2')
         """
-        return self.convert_to_units(self.units.get_mks_equivalent())
+        self.convert_to_units(self.units.get_mks_equivalent())
 
     def in_units(self, units, equivalence=None, **kwargs):
         """
