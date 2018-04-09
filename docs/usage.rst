@@ -412,6 +412,39 @@ specify a ``current_mks_unit`` in the :class:`UnitSystem
 Equivalencies
 +++++++++++++
 
+number density: density <-> number density
+------------------------------------------
+
+thermal: temperature <-> energy"
+--------------------------------
+
+mass_energy: mass <-> energy
+----------------------------
+
+spectral: length <-> frequency <-> energy
+-----------------------------------------
+
+sound_speed (ideal gas): velocity <-> temperature <-> energy
+------------------------------------------------------------
+
+lorentz: velocity <-> dimensionless
+-----------------------------------
+
+schwarzschild: mass <-> length
+------------------------------
+
+compton: mass <-> length
+------------------------
+
+effective_temperature: flux <-> temperature
+-------------------------------------------
+
+electromagnetic SI: EM CGS unit -> EM SI unit
+---------------------------------------------
+
+electromagnetic CGS: EM SI unit -> EM CGS unit
+----------------------------------------------
+
 Converting Between ``unyt_array`` and numpy.ndarray
 +++++++++++++++++++++++++++++++++++++++++++++++++++
 
