@@ -396,7 +396,18 @@ atoms and molecules:
    >>> atomic_unit_system['angular_momentum']
    mp*nm**2/fs
 
-If you would like your unit system to include an MKS current unit (e.g. something that is convertible to the MKS Ampere unit, then specify a ``current_mks_unit`` in the :class:`UnitSystem <unyt.unit_systems.UnitSystem>` initializer.
+Once you have defined a new unit system that will register the new system with a
+global registry of unit systems known to the ``unyt`` library. That means you
+will immediately be able to use it just like the built-in unit systems:
+
+  >>> from unyt import W
+  >>> W.in_base('atomic')
+  unyt_quantity(0.59746607, 'mp*nm**2/fs**3')
+
+If you would like your unit system to include an MKS current unit
+(e.g. something that is directly convertible to the MKS Ampere unit), then
+specify a ``current_mks_unit`` in the :class:`UnitSystem
+<unyt.unit_systems.UnitSystem>` initializer.
 
 Equivalencies
 +++++++++++++
