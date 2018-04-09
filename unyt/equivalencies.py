@@ -45,7 +45,7 @@ import numpy as np
 equivalence_registry = OrderedDict()
 
 
-class RegisteredEquivalence(type):
+class _RegisteredEquivalence(type):
     def __init__(cls, name, b, d):
         type.__init__(cls, name, b, d)
         if hasattr(cls, "_type_name") and not cls._skip_add:
@@ -55,7 +55,7 @@ class RegisteredEquivalence(type):
                 equivalence_registry[name] = cls
 
 
-@add_metaclass(RegisteredEquivalence)
+@add_metaclass(_RegisteredEquivalence)
 class Equivalence(object):
     _skip_add = False
     _one_way = False
