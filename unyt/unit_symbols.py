@@ -190,6 +190,8 @@ lb = pound = quan(1.0, "lb")
 lbf = pound_force = quan(1.0, "lbf")
 #: atmosphere
 atm = atmosphere = quan(1.0, "atm")
+#: horsepower
+hp = horsepower = quan(1.0, "hp")
 
 #
 # Solar units

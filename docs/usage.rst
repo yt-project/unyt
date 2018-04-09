@@ -355,13 +355,15 @@ You can convert data to a unit system ``unyt`` knows about using the
 :meth:`unyt_array.convert_to_base <unyt.array.unyt_array.convert_to_base>`
 methods:
 
-  >>> from unyt import g, cm, Newton
+  >>> from unyt import g, cm, horsepower
   >>> (1e-9*g/cm**2).in_base('galactic')
   unyt_quantity(4.78843804, 'Msun/kpc**2')
-  >>> data = [5, 8, 12]*Newton
-  >>> data.convert_to_base('imperial')
+  >>> data = [100, 500, 700]*horsepower
   >>> data
-  unyt_array([1.12404472, 1.79847154, 2.69770732], 'lbf')
+  unyt_array([100., 500., 700.], 'hp')
+  >>> data.convert_to_base('mks')
+  >>> data
+  unyt_array([ 74569.98715823, 372849.93579114, 521989.91010759], 'W')
 
 Defining New Unit Systems
 *************************

@@ -152,6 +152,7 @@ imperial_unit_system = UnitSystem("imperial", "ft", "lb", "s",
 imperial_unit_system["force"] = "lbf"
 imperial_unit_system["energy"] = "ft*lbf"
 imperial_unit_system["pressure"] = "lbf/ft**2"
+imperial_unit_system["power"] = "hp"
 
 #: The galactic unit system
 galactic_unit_system = UnitSystem("galactic", "kpc", "Msun", "Myr")

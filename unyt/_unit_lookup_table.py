@@ -19,6 +19,8 @@ from unyt._physical_ratios import (
     cm_per_au,
     cm_per_rsun,
     cm_per_m,
+    erg_per_s_per_watt,
+    watt_per_horsepower,
     mass_sun_grams,
     sec_per_year,
     sec_per_day,
@@ -98,6 +100,8 @@ default_unit_symbol_lut = {
     "lb": (grams_per_pound, dimensions.mass, 0.0, r"\rm{lb}"),
     "lbm": (grams_per_pound, dimensions.mass, 0.0, r"\rm{lbm}"),
     "atm": (pascal_per_atm*10., dimensions.pressure, 0.0, r"\rm{atm}"),
+    "hp": (watt_per_horsepower*erg_per_s_per_watt, dimensions.power, 0.0,
+           r"\rm{hp}"),
 
     # dimensionless stuff
     "h": (1.0, dimensions.dimensionless, 0.0, r"h"),
