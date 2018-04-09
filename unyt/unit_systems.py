@@ -140,7 +140,7 @@ mks_unit_system["magnetic_field_mks"] = "T"
 mks_unit_system["charge_mks"] = "C"
 
 #: The imperial unit system
-imperial_unit_system = UnitSystem("imperial", "ft", "lbm", "s",
+imperial_unit_system = UnitSystem("imperial", "ft", "lb", "s",
                                   temperature_unit="R")
 imperial_unit_system["force"] = "lbf"
 imperial_unit_system["energy"] = "ft*lbf"
