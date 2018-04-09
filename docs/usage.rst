@@ -66,9 +66,9 @@ in the example::
   unyt_array([ 421700.,  671034., 1070412., 1882709.], 'km')
 
 By multiplying by ``km``, we converted the python list into a
-:class:`unyt.array.unyt_array` instance. This is a class that's built
-into ``unyt``, has units attached to it, and knows how to convert itself
-into different dimensionally equivalent units::
+:class:`unyt.unyt_array <unyt.array.unyt_array>` instance. This is a class
+that's built into ``unyt``, has units attached to it, and knows how to convert
+itself into different dimensionally equivalent units::
 
   >>> semimajor_axis.value
   array([ 421700.,  671034., 1070412., 1882709.])
@@ -89,8 +89,9 @@ end, days::
 
 Note that we haven't added any conversion factors between different units,
 that's all handled internally by ``unyt``. Also note how the intermediate result
-ended up with complicated, ugly units, but the :meth:`unyt.array.unyt_array.to`
-method was able to automagically handle the conversion to days.
+ended up with complicated, ugly units, but the :meth:`unyt_array.to
+<unyt.array.unyt_array.to>` method was able to automagically handle the
+conversion to days.
 
 It's also worth emphasizing that ``unyt`` represents powers using standard python syntax. This means you must use `**` and not `^`, even when writing a unit as a string:
 
@@ -174,7 +175,7 @@ Sometimes this can be annoying to deal with, particularly if one is mixing data
 that has units attached with data from some outside source with no units. To
 quickly patch over this lack of unit metadata (which could be applied by
 explicitly attaching units at I/O time), one can use the ``units`` attribute of
-the :class:`unyt.array.unyt_array` class to quickly apply units to a scalar, list, or array:
+the :class:`unyt.unyt_array <unyt.array.unyt_array>` class to quickly apply units to a scalar, list, or array:
 
   >>> from unyt import cm, s
   >>> velocities = [10, 20, 30] * cm/s
