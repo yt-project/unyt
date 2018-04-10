@@ -61,6 +61,35 @@ class Equivalence(object):
 
 
 class NumberDensityEquivalence(Equivalence):
+    """Equivalence between mass and number density, given a mean molecular weight.
+
+    Given a number density :math:`n`, the mass density :math:`\\rho` is:
+
+    .. math::
+
+      \\rho = \\mu m_{\\rm H} n
+
+    And similarly
+
+    .. math::
+
+      n = \\rho (\\mu m_{\\rm H})^{-1}
+
+    Parameters
+    ----------
+    mu : float
+      The mean molecular weight. Defaults to 0.6 whcih is valid for fully
+      ionized gas with primordial composition.
+
+    Example
+    -------
+    >>> print(NumberDensityEquivalence())
+    number density: density <-> number density
+    >>> from unyt import Msun, pc
+    >>> rho = Msun/pc**3
+    >>> rho.to_equivalent('cm**-3', 'number_density', mu=1.4)
+    unyt_quantity(28.88289965, 'cm**(-3)')
+    """
     type_name = "number_density"
     _dims = (density, number_density,)
 
@@ -76,6 +105,33 @@ class NumberDensityEquivalence(Equivalence):
 
 
 class ThermalEquivalence(Equivalence):
+    """Equivalence between temperature and energy via the Boltzmann constant
+
+    Given a temperature :math:`T` in an absolute scale (e.g. Kelvin or
+    Rankine), the equivalent thermal energy :math:`E` for that temperature is
+    given by:
+
+    .. math::
+
+      E = k_B T
+
+    And
+
+    .. math::
+
+      T = E/k_B
+
+    Where :math:`k_B` is Boltzmann's constant.
+
+    Example
+    -------
+    >>> print(ThermalEquivalence())
+    thermal: temperature <-> energy
+    >>> from unyt import Kelvin
+    >>> temp = 1e6*Kelvin
+    >>> temp.to_equivalent('keV', 'thermal')
+    unyt_quantity(0.08617332, 'keV')
+    """
     type_name = "thermal"
     _dims = (temperature, energy,)
 
@@ -91,6 +147,26 @@ class ThermalEquivalence(Equivalence):
 
 
 class MassEnergyEquivalence(Equivalence):
+    """Equivalence between mass and energy in special relativity
+
+    Given a body with mass :math:`m`, the self-energy :math:`E` of that mass is
+    given by
+
+    .. math::
+
+      E = m c^2
+
+    where :math:`c` is the speed of light.
+
+    Example
+    -------
+    >>> print(MassEnergyEquivalence())
+    mass_energy: mass <-> energy
+    >>> from unyt import g
+    >>> g.to_equivalent('J', 'mass_energy')
+    unyt_quantity(8.98755179e+13, 'J')
+
+    """
     type_name = "mass_energy"
     _dims = (mass, energy,)
 
@@ -106,6 +182,28 @@ class MassEnergyEquivalence(Equivalence):
 
 
 class SpectralEquivalence(Equivalence):
+    """Equivalence between wavelength, frequency, and energy of a photon.
+
+    Given a photon with wavelength :math:`\\lambda`, frequency :math:`\\nu`
+    and Energy :math:`E`, these quantities are related by the following
+    forumlae:
+
+    .. math::
+
+      E = h \\nu = h c / \\lambda
+
+    where :math:`h` is Planck's constant and :math:`c` is the speed of light.
+
+    Example
+    ------
+    >>> print(SpectralEquivalence())
+    spectral: length <-> frequency <-> energy
+    >>> from unyt import angstrom, km
+    >>> angstrom.to_equivalent('keV', 'spectral')
+    unyt_quantity(12.39841932, 'keV')
+    >>> km.to_equivalent('MHz', 'spectral')
+    unyt_quantity(0.29979246, 'MHz')
+    """
     type_name = "spectral"
     _dims = (length, rate, energy,)
 
@@ -172,6 +270,29 @@ class LorentzEquivalence(Equivalence):
 
 
 class SchwarzschildEquivalence(Equivalence):
+    """Equivalence between the mass and radius of a Schwarzschild black hole
+
+    A Schwarzschild black hole of mass :math:`M` has radius :math:`R`
+
+    .. math::
+
+      R = \\frac{2 G M}{c^2}
+
+    and similarly
+
+    .. math::
+
+      M = \\frac{R c^2}{2 G}
+
+    where :math:`G` is Newton's gravitational constant and :math:`c` is the
+    speed of light.
+
+    Example
+    -------
+    >>> from unyt import Msun
+    >>> Msun.to_equivalent('km', 'schwarzschild')
+    unyt_quantity(2.95305543, 'km')
+    """
     type_name = "schwarzschild"
     _dims = (mass, length,)
 
