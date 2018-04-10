@@ -318,6 +318,8 @@ class LorentzEquivalence(Equivalence):
 
     Example
     -------
+    >>> print(LorentzEquivalence())
+    lorentz: velocity <-> dimensionless
     >>> from unyt import c
     >>> v = 0.99*c
     >>> print(v.to_equivalent('', 'lorentz'))
@@ -358,6 +360,8 @@ class SchwarzschildEquivalence(Equivalence):
 
     Example
     -------
+    >>> print(SchwarzschildEquivalence())
+    schwarzschild: mass <-> length
     >>> from unyt import Msun
     >>> Msun.to_equivalent('km', 'schwarzschild')
     unyt_quantity(2.95305543, 'km')
