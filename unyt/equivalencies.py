@@ -239,13 +239,13 @@ class SoundSpeedEquivalence(Equivalence):
 
     .. math::
 
-      c_s = \\sqrt{\\frac{\\gamma k_B T}{\\mu m_{\\rm H}}
+      c_s = \\sqrt{\\frac{\\gamma k_B T}{\\mu m_{\\rm H}}}
 
     and
 
     .. math::
 
-      E = c_s^2 \\mu m_{\\rm H} / \\gammma = k_B T
+      E = c_s^2 \\mu m_{\\rm H} / \\gamma = k_B T
 
     where :math:`k_B` is Boltzmann's constant, :math:`\\mu` is the mean
     molecular weight of the gas, and :math:`\\gamma` is the ratio of specific
@@ -306,7 +306,13 @@ class LorentzEquivalence(Equivalence):
 
     .. math::
 
-      \\gamma = \\frac{1}{\sqrt(1 - v^2/c^2}}
+      \\gamma = \\frac{1}{\\sqrt{1 - v^2/c^2}}
+
+    ans similarly
+
+    .. math::
+
+      v = \\frac{c}{\\sqrt{1 - \\gamma^2}}
 
     where :math:`c` is the speed of light.
 
