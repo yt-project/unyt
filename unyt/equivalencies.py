@@ -231,6 +231,46 @@ class SpectralEquivalence(Equivalence):
 
 
 class SoundSpeedEquivalence(Equivalence):
+    """Equivalence between the sound speed, temperature, and thermal energy of
+    an ideal gas
+
+    For an ideal gas with sound speed :math:`c_s`, temperature :math:`T`, and
+    thermal energy :math:`E`, the following equalities will hold:
+
+    .. math::
+
+      c_s = \\sqrt{\\frac{\\gamma k_B T}{\\mu m_{\\rm H}}
+
+    and
+
+    .. math::
+
+      E = c_s^2 \\mu m_{\\rm H} / \\gammma = k_B T
+
+    where :math:`k_B` is Boltzmann's constant, :math:`\\mu` is the mean
+    molecular weight of the gas, and :math:`\\gamma` is the ratio of specific
+    heats.
+
+    Parameters
+    ----------
+    gamma : float
+       The ratio of specific heats. Defaults to 5/3, which is correct for
+       monatomic species.
+    mu : float
+       The mean molecular weight. Defaults to 0.6, which is valid for fully
+       ionized gas with primordial composition.
+
+    Example
+    -------
+    >>> print(SoundSpeedEquivalence())
+    sound_speed (ideal gas): velocity <-> temperature <-> energy
+    >>> from unyt import Kelvin
+    >>> hot = 1e6*Kelvin
+    >>> hot.to_equivalent('km/s', 'sound_speed')
+    unyt_quantity(151.37249927, 'km/s')
+    >>> hot.to_equivalent('keV', 'sound_speed')
+    unyt_quantity(0.08617332, 'keV')
+    """
     type_name = "sound_speed"
     _dims = (velocity, temperature, energy,)
 
@@ -242,12 +282,17 @@ class SoundSpeedEquivalence(Equivalence):
             elif x.units.dimensions == energy:
                 kT = x
             return np.sqrt(gamma*kT/(mu*pc.mh))
-        else:
-            kT = x*x*mu*pc.mh/gamma
-            if new_dims == temperature:
+        elif new_dims == temperature:
+            if x.units.dimensions == velocity:
+                kT = x*x*mu*pc.mh/gamma
                 return kT/pc.kboltz
             else:
-                return kT
+                return x/pc.kboltz
+        else:
+            if x.units.dimensions == velocity:
+                return np.sqrt(gamma*x/(mu*pc.mh))
+            else:
+                return x*pc.kboltz
 
     def __str__(self):
         return "sound_speed (ideal gas): velocity <-> temperature <-> energy"
