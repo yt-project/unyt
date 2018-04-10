@@ -299,6 +299,24 @@ class SoundSpeedEquivalence(Equivalence):
 
 
 class LorentzEquivalence(Equivalence):
+    """Equivalence between velocity and the Lorentz gamma factor.
+
+    For a body with velocity :math:`v`, the Lorentz gamma factor,
+    :math:`\\gamma` is
+
+    .. math::
+
+      \\gamma = \\frac{1}{\sqrt(1 - v^2/c^2}}
+
+    where :math:`c` is the speed of light.
+
+    Example
+    -------
+    >>> from unyt import c
+    >>> v = 0.99*c
+    >>> print(v.to_equivalent('', 'lorentz'))
+    7.088812050083354 dimensionless
+    """
     type_name = "lorentz"
     _dims = (dimensionless, velocity,)
 
