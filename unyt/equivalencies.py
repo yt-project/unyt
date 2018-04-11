@@ -381,6 +381,15 @@ class SchwarzschildEquivalence(Equivalence):
 
 
 class ComptonEquivalence(Equivalence):
+    """Equivalence between the wavelength change of a compton scattered photon
+    and the mass of the particle it scatters off of.
+
+    Example
+    -------
+    >>> from unyt import me
+    >>> me.to_equivalent('angstrom', 'compton')
+    unyt_quantity(0.0242631, 'angstrom')
+    """
     type_name = "compton"
     _dims = (mass, length,)
 
@@ -393,6 +402,24 @@ class ComptonEquivalence(Equivalence):
 
 
 class EffectiveTemperature(Equivalence):
+    """Equivalence between the emmitted flux accross all wavelengths and
+    temperature of a blackbody
+
+    For a blackbody emitter with Temperature :math:`T` emitting radiation with
+    a flux :math:`F`, the following equality holds:
+
+    .. math::
+
+    F = \\sigma T^4
+
+    where :math:`\\sigma` is the Stefan-Boltzmann constant.
+
+    Example
+    -------
+    >>> from unyt import K
+    >>> (5000*K).to_equivalent('W/m**2', 'effective_temperature')
+    unyt_quantity(35439831.25, 'W/m**2')
+    """
     type_name = "effective_temperature"
     _dims = (flux, temperature,)
 
@@ -422,6 +449,24 @@ em_conversions = {
 
 
 class ElectromagneticSI(Equivalence):
+    """An equivalence between CGS and SI electromagnetic units
+
+    Given data in CGS electromagnetic units (one of esu, gauss, statA, statV,
+    or statohm) this equivelency will convert the data to the appropriate
+    SI electromagnetic unit, using the following mapping:
+
+    * esu -> C
+    * G -> T
+    * statA -> A
+    * statV -> V
+    * statohm -> ohm
+
+    Example
+    -------
+    >>> from unyt import gauss
+    >>> gauss.to_equivalent('T', 'SI')
+    unyt_quantity(0.0001, 'T')
+    """
     type_name = "SI"
     alternate_names = ["si", "MKS", "mks"]
     one_way = True
@@ -439,6 +484,24 @@ class ElectromagneticSI(Equivalence):
 
 
 class ElectromagneticCGS(Equivalence):
+    """An equivalence between SI and CGS electromagnetic units
+
+    Given data in SI electromagnetic units (one of C, T, A, V, or ohm), this
+    equivalency will convert the data to the appropriate CGS electromagnetic
+    unit, using the following mapping:
+
+    * C -> esu
+    * T -> G
+    * A -> statA
+    * V -> statV
+    * ohm -> statohm
+
+    Example
+    -------
+    >>> from unyt import Tesla
+    >>> Tesla.to_equivalent('G', 'CGS')
+    unyt_quantity(10000., 'G')
+    """
     type_name = "CGS"
     alternate_names = ["cgs"]
     one_way = True
