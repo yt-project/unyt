@@ -94,6 +94,8 @@ specific_energy = energy / mass
 count_flux = 1 / (area*time)
 #: count_intensity
 count_intensity = count_flux / solid_angle
+#: luminous_flux
+luminous_flux = luminous_intensity * solid_angle
 
 # Gaussian electromagnetic units
 #: charge_cgs
