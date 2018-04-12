@@ -27,12 +27,16 @@ temperature = Symbol("(temperature)", positive=True)
 angle = Symbol("(angle)", positive=True)
 #: current_mks
 current_mks = Symbol("(current_mks)", positive=True)
+#: amount
+amount = Symbol("(amount)", positive=True)
+#: luminous_intensity
+luminous_intensity = Symbol("(luminous_intensity)", positive=True)
 #: dimensionless
 dimensionless = sympify(1)
 
 #: A list of all of the base dimensions
 base_dimensions = [mass, length, time, temperature, angle, current_mks,
-                   dimensionless]
+                   dimensionless, amount, luminous_intensity]
 
 #
 # Derived dimensions
