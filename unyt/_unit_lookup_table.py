@@ -90,6 +90,7 @@ default_unit_symbol_lut = {
     "cd": (1.0, dimensions.luminous_intensity, 0.0, r"\rm{cd}"),
     "mol": (1.0 / amu_grams, dimensions.amount, 0.0, r"\rm{mol}"),
     "lm": (1.0, dimensions.luminous_flux, 0.0, r"\rm{lm}"),
+    "lx": (1.0, dimensions.luminous_flux/dimensions.area, 0.0, r"\rm{lx}"),
 
     # Imperial and other non-metric units
     "ft": (30.48, dimensions.length, 0.0, r"\rm{ft}"),

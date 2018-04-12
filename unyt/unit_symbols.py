@@ -184,6 +184,8 @@ Sv = sievert = Unit("Sv")
 cd = Candela = candela = Unit("cd")
 #: lumen
 lm = Lumen = lumen = Unit("lm")
+#: lux
+lx = Lux = lux = Unit('lx')
 
 #
 # Imperial units
