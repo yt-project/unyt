@@ -87,6 +87,9 @@ default_unit_symbol_lut = {
     "Pa": (10.0, dimensions.pressure, 0.0, r"\rm{Pa}"),
     "V": (1.0e7, dimensions.electric_potential_mks, 0.0, r"\rm{V}"),
     "ohm": (1.0e7, dimensions.resistance_mks, 0.0, r"\Omega"),
+    "cd": (1.0, dimensions.luminous_intensity, 0.0, r"\rm{cd}"),
+    "mol": (1.0 / amu_grams, dimensions.amount, 0.0, r"\rm{mol}"),
+    "lm": (1.0, dimensions.luminous_flux, 0.0, r"\rm{lm}"),
 
     # Imperial and other non-metric units
     "ft": (30.48, dimensions.length, 0.0, r"\rm{ft}"),
@@ -158,7 +161,6 @@ default_unit_symbol_lut = {
     "photons": (1.0, dimensions.dimensionless, 0.0, r"\rm{photons}"),
     "me": (mass_electron_grams, dimensions.mass, 0.0, r"m_e"),
     "mp": (mass_hydrogen_grams, dimensions.mass, 0.0, r"m_p"),
-    "mol": (1.0/amu_grams, dimensions.dimensionless, 0.0, r"\rm{mol}"),
     'Sv': (cm_per_m**2, dimensions.specific_energy, 0.0, r"\rm{Sv}"),
     "rayleigh": (0.25e6/np.pi, dimensions.count_intensity, 0.0, r"\rm{R}"),
 
@@ -255,6 +257,9 @@ prefixable_units = [
     "ohm",
     "statohm",
     "Sv",
+    "mol",
+    "cd",
+    "lm",
 ]
 
 default_base_units = {
@@ -264,4 +269,6 @@ default_base_units = {
     dimensions.temperature: 'K',
     dimensions.angle: 'radian',
     dimensions.current_mks: 'A',
+    dimensions.amount: 'mol',
+    dimensions.luminous_intensity: 'cd',
 }
