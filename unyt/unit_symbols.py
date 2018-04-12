@@ -180,6 +180,10 @@ THz = thz = terahertz = Unit("THz")
 Pa = pascal = Unit("Pa")
 #: sievert
 Sv = sievert = Unit("Sv")
+#: candela
+cd = Candela = candela = Unit("cd")
+#: lumen
+lm = Lumen = lumen = Unit("lm")
 
 #
 # Imperial units
