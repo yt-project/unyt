@@ -64,16 +64,26 @@ class UnitSystem(object):
         The base temperature unit of this unit system. Defaults to "K".
     angle_unit : string, optional
         The base angle unit of this unit system. Defaults to "rad".
+    si_units: boolean, optional
+        Whether or not this unit system has SI-specific units.
+        Default: False
     current_mks_unit : string, optional
-        The base current unit of this unit system. Only used in MKS
-        or MKS-based unit systems.
+        The base current unit of this unit system. Only used in SI
+        or SI-based unit systems. Default: None
+    amount_unit : string, optional
+        The base amount unit of this unit system. Only used in SI
+        or SI-based unit systems. Default: None
+    luminous_intensity_unit : string, optional
+        The base luminous intensity unit of this unit system. Only
+        used in SI or SI-based unit systems. Default: None
     registry : :class:`yt.units.unit_registry.UnitRegistry` object
         The unit registry associated with this unit system. Only
         useful for defining unit systems based on code units.
     """
     def __init__(self, name, length_unit, mass_unit, time_unit,
-                 temperature_unit="K", angle_unit="rad", current_mks_unit=None,
-                 registry=None):
+                 temperature_unit="K", angle_unit="rad", si_units=False,
+                 current_mks_unit=None, amount_unit=None,
+                 luminous_intensity_unit=None, registry=None):
         self.registry = registry
         self.units_map = OrderedDict([
             (dimensions.length, Unit(length_unit, registry=self.registry)),
@@ -86,10 +96,19 @@ class UnitSystem(object):
             if unit.dimensions is not dimension:
                 raise IllDefinedUnitSystem(self.units_map)
         self._dims = ["length", "mass", "time", "temperature", "angle"]
-        if current_mks_unit is not None:
+        self.si_units = si_units
+        if si_units:
+            if not all([current_mks_unit, amount_unit, luminous_intensity_unit]):
+                raise RuntimeError("Units for 'current_mks', 'amount', "
+                                   "and 'luminous_intensity' must be specified "
+                                   "for unit systems with SI units!")
             self.units_map[dimensions.current_mks] = Unit(
                 current_mks_unit, registry=self.registry)
-            self._dims.append("current_mks")
+            self.units_map[dimensions.amount] = Unit(
+                amount_unit, registry=self.registry)
+            self.units_map[dimensions.luminous_intensity] = Unit(
+                luminous_intensity_unit, registry=self.registry)
+            self._dims += ["current_mks", "amount", "luminous_intensity"]
         self.registry = registry
         self.base_units = self.units_map.copy()
         unit_system_registry[name] = self
@@ -130,7 +149,6 @@ class UnitSystem(object):
                 repr += "  %s: %s\n" % (key, self.units_map[dim])
         return repr[:-1]
 
-
 #: The CGS unit system
 cgs_unit_system = UnitSystem("cgs", "cm", "g", "s")
 cgs_unit_system["energy"] = "erg"
@@ -142,8 +160,22 @@ cgs_unit_system["charge_cgs"] = "esu"
 cgs_unit_system["current_cgs"] = "statA"
 cgs_unit_system["power"] = "erg/s"
 
-#: The MKS unit system
-mks_unit_system = UnitSystem("mks", "m", "kg", "s", current_mks_unit="A")
+#: The SI unit system
+si_unit_system = UnitSystem("si", "m", "kg", "s", si_units=True,
+                            current_mks_unit="A", amount_unit="mol",
+                            luminous_intensity_unit="cd")
+si_unit_system["energy"] = "J"
+si_unit_system["specific_energy"] = "J/kg"
+si_unit_system["pressure"] = "Pa"
+si_unit_system["force"] = "N"
+si_unit_system["magnetic_field_mks"] = "T"
+si_unit_system["charge_mks"] = "C"
+si_unit_system["power"] = "W"
+
+#: A copy of the SI unit system known as MKS for backwards-compatibility
+mks_unit_system = UnitSystem("mks", "m", "kg", "s", si_units=True,
+                             current_mks_unit="A", amount_unit="mol",
+                             luminous_intensity_unit="cd")
 mks_unit_system["energy"] = "J"
 mks_unit_system["specific_energy"] = "J/kg"
 mks_unit_system["pressure"] = "Pa"
@@ -178,13 +210,16 @@ planck_unit_system = UnitSystem("planck", "l_pl", "m_pl", "t_pl",
 planck_unit_system["energy"] = "E_pl"
 planck_unit_system["charge_cgs"] = "q_pl"
 
-#: A CGS unit system with Ampere (SI-like E&M units)
-cgs_ampere_unit_system = UnitSystem('cgs-ampere', 'cm', 'g', 's',
-                                    current_mks_unit='A')
-cgs_ampere_unit_system["energy"] = "erg"
-cgs_ampere_unit_system["specific_energy"] = "erg/g"
-cgs_ampere_unit_system["pressure"] = "dyne/cm**2"
-cgs_ampere_unit_system["force"] = "dyne"
-cgs_ampere_unit_system["magnetic_field_cgs"] = "gauss"
-cgs_ampere_unit_system["charge_cgs"] = "esu"
-cgs_ampere_unit_system["current_cgs"] = "statA"
+#: The internal base unit system: CGS with extra SI units
+base_unit_system = UnitSystem('unyt_base', 'cm', 'g', 's',
+                              si_units=True,
+                              current_mks_unit='A',
+                              amount_unit='mol',
+                              luminous_intensity_unit='cd')
+base_unit_system["energy"] = "erg"
+base_unit_system["specific_energy"] = "erg/g"
+base_unit_system["pressure"] = "dyne/cm**2"
+base_unit_system["force"] = "dyne"
+base_unit_system["magnetic_field_cgs"] = "gauss"
+base_unit_system["charge_cgs"] = "esu"
+base_unit_system["current_cgs"] = "statA"
