@@ -54,7 +54,7 @@ mass_electron_cgs = mass_electron = me = \
 amu_cgs = amu = unyt_quantity(_amu_grams, 'g')
 
 #: Avogadro's number
-Na = avogadros_number = unyt_quantity(6.02214085774*10**23)
+Na = avogadros_number = unyt_quantity(6.02214085774*10**23, 'mol**-1')
 
 #: Mass of hydrogen
 mp = mh = mass_hydrogen = mass_hydrogen_cgs = \
