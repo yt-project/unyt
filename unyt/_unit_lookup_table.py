@@ -264,6 +264,8 @@ prefixable_units = [
     "cd",
     "lm",
     "lx",
+    "Wb",
+    "Mx",
 ]
 
 default_base_units = {
