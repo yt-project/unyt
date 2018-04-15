@@ -722,14 +722,28 @@ class unyt_array(np.ndarray):
     # Start unit conversion methods
     #
 
-    def convert_to_units(self, units):
+    def convert_to_units(self, units, equivalence=None, **kwargs):
         """
         Convert the array to the given units in-place.
 
+        Optionally, an equivalence can be specified to convert to an
+        equivalent quantity which is not in the same dimensions.
+
         Parameters
         ----------
-        units : Unit object or str
+        units : Unit object or string
             The units you want to convert to.
+        equivalence : string, optional
+            The equivalence you wish to use. To see which equivalencies
+            are supported for this object, try the ``list_equivalencies``
+            method. Default: None
+        kwargs: optional
+            Any additional keyword arguments are supplied to the equivalence
+
+        Raises
+        ------
+        If the provided unit does not have the same dimensions as the array
+        this will raise a UnitConversionError
 
         Examples
         --------
@@ -740,28 +754,45 @@ class unyt_array(np.ndarray):
         >>> print(length)
         [30. 20. 10.] m
         """
-        units = _sanitize_units_convert(units, self.units.registry)
-        new_units = _unit_repr_check_same(self.units, units)
-        (conversion_factor, offset) = self.units.get_conversion_factor(
-            new_units)
+        if equivalence is None:
+            units = _sanitize_units_convert(units, self.units.registry)
+            new_units = _unit_repr_check_same(self.units, units)
+            (conversion_factor, offset) = self.units.get_conversion_factor(
+                new_units)
 
-        self.units = new_units
-        values = self.d
-        values *= conversion_factor
+            self.units = new_units
+            values = self.d
+            values *= conversion_factor
 
-        if offset:
-            np.subtract(self, offset*self.uq, self)
+            if offset:
+                np.subtract(self, offset*self.uq, self)
+        else:
+            self.convert_to_equivalent(units, equivalence, **kwargs)
 
-    def convert_to_base(self, unit_system="cgs"):
+    def convert_to_base(self, unit_system="cgs", equivalence=None, **kwargs):
         """
         Convert the array in-place to the equivalent base units in
         the specified unit system.
+
+        Optionally, an equivalence can be specified to convert to an
+        equivalent quantity which is not in the same dimensions.
 
         Parameters
         ----------
         unit_system : string, optional
             The unit system to be used in the conversion. If not specified,
             the default base units of cgs are used.
+        equivalence : string, optional
+            The equivalence you wish to use. To see which equivalencies
+            are supported for this object, try the ``list_equivalencies``
+            method. Default: None
+        kwargs: optional
+            Any additional keyword arguments are supplied to the equivalence
+
+        Raises
+        ------
+        If the provided unit does not have the same dimensions as the array
+        this will raise a UnitConversionError
 
         Examples
         --------
@@ -771,12 +802,29 @@ class unyt_array(np.ndarray):
         >>> E
         unyt_quantity(2.5e-07, 'W')
         """
-        self.convert_to_units(self.units.get_base_equivalent(
-            unit_system))
+        self.convert_to_units(self.units.get_base_equivalent(unit_system),
+                              equivalence=equivalence, **kwargs)
 
-    def convert_to_cgs(self):
+    def convert_to_cgs(self, equivalence=None, **kwargs):
         """
         Convert the array and in-place to the equivalent cgs units.
+
+        Optionally, an equivalence can be specified to convert to an
+        equivalent quantity which is not in the same dimensions.
+
+        Parameters
+        ----------
+        equivalence : string, optional
+            The equivalence you wish to use. To see which equivalencies
+            are supported for this object, try the ``list_equivalencies``
+            method. Default: None
+        kwargs: optional
+            Any additional keyword arguments are supplied to the equivalence
+
+        Raises
+        ------
+        If the provided unit does not have the same dimensions as the array
+        this will raise a UnitConversionError
 
         Examples
         --------
@@ -787,11 +835,29 @@ class unyt_array(np.ndarray):
         unyt_array([100000., 200000., 300000.], 'dyne')
 
         """
-        self.convert_to_units(self.units.get_cgs_equivalent())
+        self.convert_to_units(
+            self.units.get_cgs_equivalent(), equivalence=equivalence, **kwargs)
 
-    def convert_to_mks(self):
+    def convert_to_mks(self, equivalence=None, **kwargs):
         """
         Convert the array and units to the equivalent mks units.
+
+        Optionally, an equivalence can be specified to convert to an
+        equivalent quantity which is not in the same dimensions.
+
+        Parameters
+        ----------
+        equivalence : string, optional
+            The equivalence you wish to use. To see which equivalencies
+            are supported for this object, try the ``list_equivalencies``
+            method. Default: None
+        kwargs: optional
+            Any additional keyword arguments are supplied to the equivalence
+
+        Raises
+        ------
+        If the provided unit does not have the same dimensions as the array
+        this will raise a UnitConversionError
 
         Examples
         --------
@@ -803,7 +869,8 @@ class unyt_array(np.ndarray):
         >>> data
         unyt_array([1.e-07, 2.e-07, 3.e-07], 'J')
         """
-        self.convert_to_units(self.units.get_mks_equivalent())
+        self.convert_to_units(
+            self.units.get_mks_equivalent(), equivalence, **kwargs)
 
     def in_units(self, units, equivalence=None, **kwargs):
         """
@@ -813,23 +880,16 @@ class unyt_array(np.ndarray):
         Optionally, an equivalence can be specified to convert to an
         equivalent quantity which is not in the same dimensions.
 
-        .. note::
-
-            All additional keyword arguments are passed to the
-            equivalency, which should be used if that particular
-            equivalency requires them.
-
         Parameters
         ----------
         units : Unit object or string
             The units you want to get a new quantity in.
         equivalence : string, optional
-            The equivalence you wish to use. To see which
-            equivalencies are supported for this unitful
-            quantity, try the :meth:`list_equivalencies`
+            The equivalence you wish to use. To see which equivalencies
+            are supported for this object, try the ``list_equivalencies``
             method. Default: None
         kwargs: optional
-            Any additional keywoard arguments are supplied to the
+            Any additional keyword arguments are supplied to the
             equivalence
 
         Raises
@@ -949,7 +1009,7 @@ class unyt_array(np.ndarray):
         else:
             return v
 
-    def in_base(self, unit_system="cgs"):
+    def in_base(self, unit_system="cgs", equivalence=None, **kwargs):
         """
         Creates a copy of this array with the data in the specified unit
         system, and returns it in that system's base units.
@@ -972,9 +1032,9 @@ class unyt_array(np.ndarray):
         except UnitsNotReducible:
             to_units, _ = em_conversions[self.units.dimensions]
             raise EquivalentDimsError(self.units, to_units, unit_system)
-        return self.in_units(to_units)
+        return self.in_units(to_units, equivalence=equivalence, **kwargs)
 
-    def in_cgs(self):
+    def in_cgs(self, equivalence=None, **kwargs):
         """
         Creates a copy of this array with the data in the equivalent cgs units,
         and returns it.
@@ -993,10 +1053,11 @@ class unyt_array(np.ndarray):
             to_units = self.units.get_cgs_equivalent()
         except UnitsNotReducible:
             to_units, _ = em_conversions[self.units.dimensions]
-            raise EquivalentDimsError(self.units, to_units, 'cgs')
-        return self.in_units(to_units)
+            if equivalence is not None:
+                raise EquivalentDimsError(self.units, to_units, 'cgs')
+        return self.in_units(to_units, equivalence=equivalence, **kwargs)
 
-    def in_mks(self):
+    def in_mks(self, equivalence=None, **kwargs):
         """
         Creates a copy of this array with the data in the equivalent mks units,
         and returns it.
@@ -1015,10 +1076,11 @@ class unyt_array(np.ndarray):
             to_units = self.units.get_mks_equivalent()
         except UnitsNotReducible:
             to_units, _ = em_conversions[self.units.dimensions]
-            raise EquivalentDimsError(self.units, to_units, 'mks')
-        return self.in_units(to_units)
+            if equivalence is not None:
+                raise EquivalentDimsError(self.units, to_units, 'mks')
+        return self.in_units(to_units, equivalence=equivalence, **kwargs)
 
-    def to_equivalent(self, unit, equiv, **kwargs):
+    def convert_to_equivalent(self, unit, equivalence, **kwargs):
         """
         Return a copy of the unyt_array in the units specified units, assuming
         the given equivalency. The dimensions of the specified units and the
@@ -1029,7 +1091,52 @@ class unyt_array(np.ndarray):
         ----------
         unit : string
             The unit that you wish to convert to.
-        equiv : string
+        equivalence : string
+            The equivalence you wish to use. To see which equivalencies are
+            supported for this unitful quantity, try the
+            :meth:`list_equivalencies` method.
+
+        Examples
+        --------
+        >>> from unyt import K
+        >>> a = [10, 20, 30]*(1e7*K)
+        >>> a.convert_to_equivalent("keV", "thermal")
+        >>> a
+        unyt_array([ 8.6173324, 17.2346648, 25.8519972], 'keV')
+        """
+        conv_unit = Unit(unit, registry=self.units.registry)
+        if self.units.same_dimensions_as(conv_unit):
+            self.convert_to_units(conv_unit)
+        this_equiv = equivalence_registry[equivalence](in_place=True)
+        oneway_or_equivalent = (conv_unit.has_equivalent(equivalence)
+                                or this_equiv.one_way)
+        if self.has_equivalent(equivalence) and oneway_or_equivalent:
+            ret = this_equiv._convert(self, conv_unit.dimensions, **kwargs)
+            if isinstance(ret, tuple):
+                # need to subtract off the current value because index
+                # into an array scalar isn't allowed
+                view = self.d
+                view += (ret[0] - view)
+                self.units = Unit(ret[1], registry=self.units.registry)
+            try:
+                self.convert_to_units(conv_unit)
+            except UnitConversionError:
+                InvalidUnitEquivalence(equivalence, self.units, unit)
+        else:
+            raise InvalidUnitEquivalence(equivalence, self.units, unit)
+
+    def to_equivalent(self, unit, equivalence, **kwargs):
+        """
+        Return a copy of the unyt_array in the units specified units, assuming
+        the given equivalency. The dimensions of the specified units and the
+        dimensions of the original array need not match so long as there is an
+        appropriate conversion in the specified equivalency.
+
+        Parameters
+        ----------
+        unit : string
+            The unit that you wish to convert to.
+        equivalence : string
             The equivalence you wish to use. To see which equivalencies are
             supported for this unitful quantity, try the
             :meth:`list_equivalencies` method.
@@ -1044,21 +1151,22 @@ class unyt_array(np.ndarray):
         conv_unit = Unit(unit, registry=self.units.registry)
         if self.units.same_dimensions_as(conv_unit):
             return self.in_units(conv_unit)
-        this_equiv = equivalence_registry[equiv]()
+        this_equiv = equivalence_registry[equivalence]()
         oneway_or_equivalent = (
-            conv_unit.has_equivalent(equiv) or this_equiv.one_way)
-        if self.has_equivalent(equiv) and oneway_or_equivalent:
+            conv_unit.has_equivalent(equivalence) or this_equiv.one_way)
+        if self.has_equivalent(equivalence) and oneway_or_equivalent:
             new_arr = this_equiv._convert(
                 self, conv_unit.dimensions, **kwargs)
             if isinstance(new_arr, tuple):
                 try:
-                    return type(self)(new_arr[0], new_arr[1]).in_units(unit)
+                    return type(self)(new_arr[0], new_arr[1]).in_units(
+                        conv_unit)
                 except UnitConversionError:
-                    raise InvalidUnitEquivalence(equiv, self.units, unit)
+                    raise InvalidUnitEquivalence(equivalence, self.units, unit)
             else:
-                return new_arr.in_units(unit)
+                return new_arr.in_units(conv_unit)
         else:
-            raise InvalidUnitEquivalence(equiv, self.units, unit)
+            raise InvalidUnitEquivalence(equivalence, self.units, unit)
 
     def list_equivalencies(self):
         """
@@ -1075,7 +1183,7 @@ class unyt_array(np.ndarray):
         """
         self.units.list_equivalencies()
 
-    def has_equivalent(self, equiv):
+    def has_equivalent(self, equivalence):
         """
         Check to see if this unyt_array or unyt_quantity has an equivalent
         unit in *equiv*.
@@ -1085,12 +1193,12 @@ class unyt_array(np.ndarray):
         >>> from unyt import km, keV
         >>> km.has_equivalent('spectral')
         True
-        >>> print(km.to_equivalent('MHz', equiv='spectral'))
+        >>> print(km.to_equivalent('MHz', equivalence='spectral'))
         0.29979245800000004 MHz
-        >>> print(keV.to_equivalent('angstrom', equiv='spectral'))
+        >>> print(keV.to_equivalent('angstrom', equivalence='spectral'))
         12.398419315219659 angstrom
         """
-        return self.units.has_equivalent(equiv)
+        return self.units.has_equivalent(equivalence)
 
     def ndarray_view(self):
         """
