@@ -502,6 +502,7 @@ class Unit(Expr):
         # use 'is' comparison dimensions to avoid expensive sympy operation
         if self.dimensions is u.dimensions:
             return False
+        # fall back to expensive sympy comparison
         return self.dimensions != u.dimensions
 
     def copy(self):
