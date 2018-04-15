@@ -102,7 +102,7 @@ CMD_temperature = Tcmb = unyt_quantity(2.726, 'K')
 
 # Solar System
 #: Mass of the sun
-Msun = msun = solar_mass = mass_sun = mass_sun_cgs = unyt_quantity(
+msun = solar_mass = mass_sun = mass_sun_cgs = unyt_quantity(
     _mass_sun_grams, 'g')
 
 #: Mass of Jupiter
