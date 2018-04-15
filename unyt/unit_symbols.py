@@ -167,6 +167,14 @@ J = Joule = joule = quan(1.0, "J")
 W = Watt = watt = quan(1.0, "W")
 #: Hertz
 Hz = Hertz = hertz = quan(1.0, "Hz")
+#: Kilohertz
+kHz = khz = kilohertz = quan(1.0, "kHz")
+#: Megahertz
+MHz = mhz = megahertz = quan(1.0, "MHz")
+#: Gigahertz
+GHz = ghz = gigahertz = quan(1.0, "GHz")
+#: Terahertz
+THz = thz = terahertz = quan(1.0, "THz")
 #: Pascal
 Pa = pascal = quan(1.0, "Pa")
 #: sievert
@@ -320,3 +328,5 @@ longitude = lon = quan(1.0, "lon")
 counts = count = quan(1.0, 'counts')
 #: Number of photons
 photons = photon = quan(1.0, 'photons')
+#: dimensionless
+_ = dimensionless = quan(1.0, '')
