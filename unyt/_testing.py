@@ -18,7 +18,8 @@ from unyt.array import (
     unyt_quantity
 )
 from unyt.exceptions import (
-    UnitOperationError
+    UnitConversionError,
+    UnitOperationError,
 )
 
 
@@ -54,7 +55,7 @@ def assert_allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
 
     try:
         des = des.in_units(act.units)
-    except UnitOperationError:
+    except (UnitOperationError, UnitConversionError):
         raise AssertionError(
             "Units of actual (%s) and desired (%s) do not have "
             "equivalent dimensions" % (act.units, des.units))
