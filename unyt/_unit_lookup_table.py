@@ -263,6 +263,7 @@ prefixable_units = [
     "mol",
     "cd",
     "lm",
+    "lx",
 ]
 
 default_base_units = {
