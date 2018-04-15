@@ -302,6 +302,8 @@ statampere = statA = Unit("statA")
 statvolt = statV = Unit("statV")
 #: Statohm
 statohm = Unit("statohm")
+#: Maxwell
+Mx = maxwell = Maxwell = Unit("Mx")
 
 #
 # SI electromagnetic units
@@ -317,6 +319,8 @@ A = ampere = Ampere = Unit("A")
 V = volt = Volt = Unit("V")
 #: Ohm
 ohm = Ohm = Unit("ohm")
+#: Weber
+Wb = weber = Weber = Unit("Wb")
 
 #
 # Geographic units

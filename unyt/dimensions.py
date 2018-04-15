@@ -110,6 +110,8 @@ magnetic_field = magnetic_field_cgs = electric_field_cgs
 electric_potential = electric_potential_cgs = energy / charge_cgs
 #: resistance_cgs
 resistance = resistance_cgs = electric_potential_cgs / current_cgs
+#: magnetic_flux_cgs
+magnetic_flux_cgs = magnetic_field_cgs * area
 
 # SI electromagnetic units
 #: charge_mks
@@ -122,15 +124,17 @@ magnetic_field_mks = electric_field_mks / velocity
 electric_potential_mks = energy / charge_mks
 #: resistance_mks
 resistance_mks = electric_potential_mks / current_mks
+#: magnetic_flux_mks
+magnetic_flux_mks = magnetic_field_mks * area
 
 #: a list containing all derived_dimensions
 derived_dimensions = [
     rate, velocity, acceleration, jerk, snap, crackle, pop,
     momentum, force, energy, power, charge_cgs, electric_field_cgs,
     magnetic_field_cgs, solid_angle, flux, specific_flux, volume,
-    area, current_cgs, charge_mks, electric_field_mks,
+    luminous_flux, area, current_cgs, charge_mks, electric_field_mks,
     magnetic_field_mks, electric_potential_cgs, electric_potential_mks,
-    resistance_cgs, resistance_mks]
+    resistance_cgs, resistance_mks, magnetic_flux_mks, magnetic_flux_cgs]
 
 
 #: a list containing all dimensions
@@ -139,6 +143,7 @@ dimensions = base_dimensions + derived_dimensions
 #: a dict containing a bidirectional mapping from
 #: mks dimension to cgs dimension
 em_dimensions = {magnetic_field_mks: magnetic_field_cgs,
+                 magnetic_flux_mks: magnetic_flux_cgs,
                  charge_mks: charge_cgs,
                  current_mks: current_cgs,
                  electric_potential_mks: electric_potential_cgs,

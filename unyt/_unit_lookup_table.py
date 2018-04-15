@@ -74,6 +74,7 @@ default_unit_symbol_lut = {
     "statA": (1.0, dimensions.current_cgs, 0.0, r"\rm{statA}"),
     "statV": (1.0, dimensions.electric_potential_cgs, 0.0, r"\rm{statV}"),
     "statohm": (1.0, dimensions.resistance_cgs, 0.0, r"\rm{statohm}"),
+    "Mx": (1.0, dimensions.magnetic_flux_cgs, 0.0, r"\rm{Mx}"),
 
     # some SI
     "m": (1.0e2, dimensions.length, 0.0, r"\rm{m}"),
@@ -87,6 +88,7 @@ default_unit_symbol_lut = {
     "Pa": (10.0, dimensions.pressure, 0.0, r"\rm{Pa}"),
     "V": (1.0e7, dimensions.electric_potential_mks, 0.0, r"\rm{V}"),
     "ohm": (1.0e7, dimensions.resistance_mks, 0.0, r"\Omega"),
+    "Wb": (1.0e7, dimensions.magnetic_flux_mks, 0.0, r"\rm{Wb}"),
     "cd": (1.0, dimensions.luminous_intensity, 0.0, r"\rm{cd}"),
     "mol": (1.0 / amu_grams, dimensions.amount, 0.0, r"\rm{mol}"),
     "lm": (1.0, dimensions.luminous_flux, 0.0, r"\rm{lm}"),
