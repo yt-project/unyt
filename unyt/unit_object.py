@@ -747,11 +747,13 @@ def _get_unit_data_from_expr(unit_expr, unit_symbol_lut):
         return (unit_expr.base_value, unit_expr.dimensions)
 
     # Now for the sympy possibilities
+    if isinstance(unit_expr, Number):
+        if unit_expr is sympy_one:
+            return (1.0, sympy_one)
+        return (float(unit_expr), sympy_one)
+
     if isinstance(unit_expr, Symbol):
         return _lookup_unit_symbol(str(unit_expr), unit_symbol_lut)
-
-    if isinstance(unit_expr, Number):
-        return (float(unit_expr), sympy_one)
 
     if isinstance(unit_expr, Pow):
         unit_data = _get_unit_data_from_expr(
