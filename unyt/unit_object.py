@@ -416,8 +416,11 @@ class Unit(Expr):
         """ Multiply Unit with u (Unit object). """
         if not isinstance(u, Unit):
             if isinstance(u, (numeric_type, list, tuple, np.ndarray)):
-                from unyt.array import unyt_quantity
-                return u*unyt_quantity(1.0, self)
+                from unyt.array import unyt_quantity, unyt_array
+                data = np.asarray(u)
+                if data.shape == ():
+                    return unyt_quantity(u, self)
+                return unyt_array(u, self)
             else:
                 raise InvalidUnitOperation(
                     "Tried to multiply a Unit object with '%s' (type %s). "
