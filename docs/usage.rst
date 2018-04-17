@@ -1,6 +1,6 @@
-=====================
-Working with ``unyt``
-=====================
+========================
+Working with :mod:`unyt`
+========================
 
 Basic Usage
 +++++++++++
@@ -29,11 +29,11 @@ For this exercise let's calculate the orbital period in days. While it's
 possible to do this using plain old floating point numbers (you probably had to
 do something similar on a calculator in a high school physics class, looking up
 and plugging in conversion factors by hand), it's much easier to do this sort of
-thing symbolically and let ``unyt`` handle the unit conversions.
+thing symbolically and let :mod:`unyt` handle the unit conversions.
 
 To do this we'll need to know the mass of jupiter (fortunately that is built
-into ``unyt``) and the semimajor axis of the orbits of Jupiter's moons, which we
-can look up from `Wikipedia
+into :mod:`unyt`) and the semimajor axis of the orbits of Jupiter's moons, which
+we can look up from `Wikipedia
 <https://en.wikipedia.org/wiki/Moons_of_Jupiter#List>`_ and enter by hand::
 
   >>> from unyt import Mjup, G, km
@@ -53,11 +53,11 @@ can look up from `Wikipedia
   Callisto: 16.69 d
 
 Let's break up this example into a few components so you can see what's going
-on. First, we import the unit symbols we need from the ``unyt`` namespace::
+on. First, we import the unit symbols we need from the :mod:`unyt` namespace::
 
   >>> from unyt import Mjup, G, km
 
-The ``unyt`` namespace has a large numbe of units and physical constants you
+The :mod:`unyt` namespace has a large numbe of units and physical constants you
 can import to apply units to data in your own code. You can see how that works
 in the example::
 
@@ -67,8 +67,8 @@ in the example::
 
 By multiplying by ``km``, we converted the python list into a
 :class:`unyt.unyt_array <unyt.array.unyt_array>` instance. This is a class
-that's built into ``unyt``, has units attached to it, and knows how to convert
-itself into different dimensionally equivalent units::
+that's built into :mod:`unyt`, has units attached to it, and knows how to
+convert itself into different dimensionally equivalent units::
 
   >>> semimajor_axis.value
   array([ 421700.,  671034., 1070412., 1882709.])
@@ -88,12 +88,14 @@ end, days::
   unyt_array([ 1.76919479,  3.55129736,  7.1547869 , 16.68956617], 'd')
 
 Note that we haven't added any conversion factors between different units,
-that's all handled internally by ``unyt``. Also note how the intermediate result
-ended up with complicated, ugly units, but the :meth:`unyt_array.to
+that's all handled internally by :mod:`unyt`. Also note how the intermediate
+result ended up with complicated, ugly units, but the :meth:`unyt_array.to
 <unyt.array.unyt_array.to>` method was able to automagically handle the
 conversion to days.
 
-It's also worth emphasizing that ``unyt`` represents powers using standard python syntax. This means you must use `**` and not `^`, even when writing a unit as a string:
+It's also worth emphasizing that :mod:`unyt` represents powers using standard
+python syntax. This means you must use `**` and not `^`, even when writing a
+unit as a string:
 
   >>> from unyt import kg, m
   >>> print((kg/m**3).to('g/cm**3'))
@@ -102,11 +104,11 @@ It's also worth emphasizing that ``unyt`` represents powers using standard pytho
 Arithmetic and units
 --------------------
 
-The real power of working with ``unyt`` is its ability to add, subtract,
+The real power of working with :mod:`unyt` is its ability to add, subtract,
 multiply, and divide quantities and arrays with units in mathematical formulas
-while atuomatically handling unit conversions and detecting
-when you have made a mistake in your units in a mathematical formula. To see
-what I mean by that, let's take a look at the following examples::
+while atuomatically handling unit conversions and detecting when you have made a
+mistake in your units in a mathematical formula. To see what I mean by that,
+let's take a look at the following examples::
 
   >>> from unyt import cm, m, ft, yard
   >>> print("{}, {}, {}, {}".format(cm, m, ft, yard))
@@ -115,10 +117,10 @@ what I mean by that, let's take a look at the following examples::
   799.24 cm
 
 Despite the fact that the four unit symbols used in the above example have four
-different units, ``unyt`` is able to automatically convert the value of all
-three units into a common unit and return the result in those units. Note
-that for expressions where the return units are ambiguous, ``unyt`` always
-returns data in the units of the leftmost object in an expression::
+different units, :mod:`unyt` is able to automatically convert the value of all
+three units into a common unit and return the result in those units. Note that
+for expressions where the return units are ambiguous, :mod:`unyt` always returns
+data in the units of the leftmost object in an expression::
 
   >>> print(4*m + 3*cm - 5*ft + 6*yard)  # doctest: +FLOAT_CMP
   7.9924 m
@@ -159,7 +161,9 @@ where :math:`\rho` is the average density of the Earth.
   >>> print(tff.to('min'))
   14.8202885145703 min
 
-If you make a mistake by adding two things that have different dimensions, ``unyt`` will raise an error to let you know that you have a bug in your code:
+If you make a mistake by adding two things that have different dimensions,
+:mod:`unyt` will raise an error to let you know that you have a bug in your
+code:
 
   >>> from unyt import kg, m
   >>> kg + m  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
@@ -192,7 +196,10 @@ the :class:`unyt.unyt_array <unyt.array.unyt_array>` class to quickly apply unit
 Logarithms, Exponentials, and Trigonometric Functions
 -----------------------------------------------------
 
-Formally it does not make sense to exponentiate, take the logarithm of, or apply a transcendental function to a quantity with units. However, the ``unyt`` library makes the practical affordance to allow this, simply ignoring the units present and returning a result without units. This makes it easy to work with
+Formally it does not make sense to exponentiate, take the logarithm of, or apply
+a transcendental function to a quantity with units. However, the :mod:`unyt`
+library makes the practical affordance to allow this, simply ignoring the units
+present and returning a result without units. This makes it easy to work with
 data that has units both in linear space and in log space:
 
   >>> from unyt import g, cm
@@ -245,8 +252,8 @@ you know which units you would like to convert it to, you can make use of the
   >>> mile.to('ft')
   unyt_quantity(5280., 'ft')
 
-If you try to convert to a unit with different dimensions, ``unyt`` will raise
-an error:
+If you try to convert to a unit with different dimensions, :mod:`unyt` will
+raise an error:
 
   >>> from unyt import mile
   >>> mile.to('lb')  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
@@ -299,7 +306,7 @@ See below for details on CGS and MKS electromagnetic units.
 Other Unit Systems
 ------------------
 
-The ``unyt`` library currently has built-in support for a number of unit
+The :mod:`unyt` library currently has built-in support for a number of unit
 systems, as detailed in the table below. Note that all unit systems currently
 use "radian" as the base angle unit.
 
@@ -346,11 +353,11 @@ system. In CGS units the electromagnetic units like Gauss and statAmpere are
 decomposible in terms of the base mass, length, and time units in the unit
 system. For this reason quantities defined in E&M units in CGS units are not
 readily convertible to MKS units and vice verse since the units are not
-dimensionally equivalent. To resolve this, ``unyt`` provides a unit equivalency
-system, discussed below, to convert data between semantically equivalent but not
-dimensionally equal units.
+dimensionally equivalent. To resolve this, :mod:`unyt` provides a unit
+equivalency system, discussed below, to convert data between semantically
+equivalent but not dimensionally equal units.
 
-You can convert data to a unit system ``unyt`` knows about using the
+You can convert data to a unit system :mod:`unyt` knows about using the
 :meth:`unyt_array.in_base <unyt.array.unyt_array.in_base>` and
 :meth:`unyt_array.convert_to_base <unyt.array.unyt_array.convert_to_base>`
 methods:
@@ -397,7 +404,7 @@ atoms and molecules:
    mp*nm**2/fs
 
 Once you have defined a new unit system that will register the new system with a
-global registry of unit systems known to the ``unyt`` library. That means you
+global registry of unit systems known to the :mod:`unyt` library. That means you
 will immediately be able to use it just like the built-in unit systems:
 
   >>> from unyt import W
@@ -418,7 +425,7 @@ some sort of shorthand or hueristic understanding of the problem under
 consideration. Only use one of these equivalencies if it makes sense to use it
 for the problem you are working on.
 
-The ``unyt`` library implements the following equivalencies:
+The :mod:`unyt` library implements the following equivalencies:
 
 * "thermal": conversions between temperature and energy (:math:`E = k_BT`)
 * "spectral": conversions between wavelength, frequency, and energy for photons
@@ -457,7 +464,7 @@ equivalence to calculate the mass of a black hole with a radius of one AU:
 
 Both the methods that convert data in-place and the ones that return a copy
 support optionally specifying equivalence. In addition to the methods described
-above, ``unyt`` also supplies two more conversion methods that *require* an
+above, :mod:`unyt` also supplies two more conversion methods that *require* an
 equivalence to be specified: :meth:`unyt_array.to_equivalent
 <unyt.array.unyt_array.to_equivalent>` and
 :meth:`unyt_array.convert_to_equivalent
@@ -476,14 +483,90 @@ custom mean molecular weight (``mu``) for the ``number_density`` equivalence:
   unyt_quantity(4.26761476, 'cm**(-3)')
 
 For full API documnentation and an autogenerated listing of the built-in
-equivalencies in ``unyt`` as well as a short usage example for each, see the
+equivalencies in :mod:`unyt` as well as a short usage example for each, see the
 :mod:`unyt.equivalencies` API listing.
 
-Converting Between ``unyt_array`` and numpy.ndarray
-+++++++++++++++++++++++++++++++++++++++++++++++++++
+Dealing with code that doesn't understand units
++++++++++++++++++++++++++++++++++++++++++++++++
 
-Integrating ``unyt`` Into a Python Library
-++++++++++++++++++++++++++++++++++++++++++
+Optimally, a function will work the same irrespective of whether the data passed in has units attached or not:
+
+    >>> from unyt import cm
+    >>> def square(x):
+    ...     return x**2
+    >>> print(square(3.))
+    9.0
+    >>> print(square(3.*cm))
+    9.0 cm**2
+
+However in the real world that is not always the case. In this section we describe strategies for dealing with that situation.
+
+Stripping units off of data
+---------------------------
+
+The :mod:`unyt` library provides a number of ways to convert
+:class:`unyt_quantity <unyt.array.unyt_quantity>` instances into floats and
+:class:`unyt_array <unyt.array.unyt_array>` instances into numpy arrays. These
+methods either return a copy of the data as a numpy array or return a view
+ontOAo the underlying array data owned by a :class:`unyt_array
+<unyt.array.unyt_array>` instance.
+
+To obtain a new array containing a copy of the original data, use either the
+:meth:`unyt_array.to_value <unyt.array.unyt_array.to_value>` function or the
+:attr:`unyt_array.value <unyt.array.unyt_array.value>` or :attr:`unyt_array.v
+<unyt.array.unyt_array.v>` properties. All of these are equivalent to passing a
+:class:`unyt_array <unyt.array.unyt_array>` to the ``numpy.array()`` function:
+
+  >>> from unyt import g
+  >>> import numpy as np
+  >>> data = [1, 2, 3]*g
+  >>> data
+  unyt_array([1., 2., 3.], 'g')
+  >>> np.array(data)
+  array([1., 2., 3.])
+  >>> data.to_value('kg')
+  array([0.001, 0.002, 0.003])
+  >>> data.value
+  array([1., 2., 3.])
+  >>> data.v
+  array([1., 2., 3.])
+
+Similarly, to obtain a ndarray containing a view of the data in the original
+array, use either the :attr:`unyt_array.ndview <unyt.array.unyt_array.ndview>`
+or the :attr:`unyt_array.d <unyt.array.unyt_array.d>` properties:
+
+  >>> data.view(np.ndarray)
+  array([1., 2., 3.])
+  >>> data.ndview
+  array([1., 2., 3.])
+  >>> data.d
+  array([1., 2., 3.])
+
+Applying units to data
+----------------------
+
+.. note::
+
+   A numpy array that shares memory with another numpy array points to the array
+   that owns the data with the ``base`` attribute. If ``arr1.base is arr2`` is
+   ``True`` then ``arr1`` is a view onto ``arr2`` and ``arr2.base`` will be
+   ``None``.
+
+When you create a :class:`unyt_array <unyt.array.unyt_array>` instance from a
+numpy array, :mod:`unyt` will not create a copy but will instead return a view
+onto the original array. This choice avoids copying data when applying units to
+data from external sources:
+
+  >>> from unyt import g
+  >>> data = np.random.random((100, 100))
+  >>> data_with_units = data*g.units
+  >>> data_with_units.base is data
+  False
+  >>> # huh? fixme
+
+
+Integrating :mod:`unyt` Into a Python Library
++++++++++++++++++++++++++++++++++++++++++++++
 
 Unit Registries
 ---------------
