@@ -259,7 +259,10 @@ class Unit(Expr):
                                  "sympy Expr. %s has type %s."
                                  % (unit_expr, type(unit_expr)))
 
-        if unit_expr == sympy_one and dimensions is None:
+        # this is slightly faster if unit_expr is the same object as
+        # sympy_one than just checking for == equality
+        is_one = (unit_expr is sympy_one or unit_expr == sympy_one)
+        if dimensions is None and is_one:
             dimensions = dimensionless
 
         if registry is None:
