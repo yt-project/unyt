@@ -45,6 +45,7 @@ from unyt.array import (
     savetxt
 )
 from unyt.exceptions import (
+    InvalidUnitOperation,
     UnitOperationError,
     UnitParseError,
     UfuncUnitError,
@@ -476,11 +477,13 @@ def test_power():
 
     cm_arr = np.array([1.0, 1.0]) * cm
 
-    assert_equal(cm**3, unyt_quantity(1, 'cm**3'))
-    assert_equal(np.power(cm, 3), unyt_quantity(1, 'cm**3'))
-    assert_equal(cm**unyt_quantity(3), unyt_quantity(1, 'cm**3'))
+    assert_equal((1*cm)**3, unyt_quantity(1, 'cm**3'))
+    assert_equal(np.power((1*cm), 3), unyt_quantity(1, 'cm**3'))
+    assert_equal((1*cm)**unyt_quantity(3), unyt_quantity(1, 'cm**3'))
     with pytest.raises(UnitOperationError):
-        np.power(cm, unyt_quantity(3, 'g'))
+        np.power((1*cm), unyt_quantity(3, 'g'))
+    with pytest.raises(InvalidUnitOperation):
+        np.power(cm, cm)
 
     assert_equal(cm_arr**3, unyt_array([1, 1], 'cm**3'))
     assert_equal(np.power(cm_arr, 3), unyt_array([1, 1], 'cm**3'))
@@ -1239,7 +1242,7 @@ def test_equivalencies():
 
     # frequency to wavelength
 
-    nu = u.MHz.copy()
+    nu = 1*u.MHz
     lam = nu.to('km', 'spectral')
     assert_allclose_units(lam, u.clight/nu)
     nu.convert_to_units('m', 'spectral')
@@ -1249,7 +1252,7 @@ def test_equivalencies():
 
     # frequency to photon energy
 
-    nu = u.MHz.copy()
+    nu = 1*u.MHz
     E = nu.to('erg', 'spectral')
     assert_allclose_units(E, u.hcgs*nu)
     nu.convert_to_units('J', 'spectral')
@@ -1347,7 +1350,7 @@ def test_equivalencies():
 
     # Schwarzschild
 
-    msun = u.mass_sun_cgs.copy()
+    msun = 1*u.Msun
     msun.convert_to_equivalent('km', 'schwarzschild')
     R = u.mass_sun_cgs.in_units("kpc", "schwarzschild")
     assert_allclose_units(msun, R)
@@ -1360,7 +1363,7 @@ def test_equivalencies():
 
     # Compton
 
-    me = u.me.copy()
+    me = 1*u.me
     me.convert_to_units('nm', 'compton')
     length = u.me.in_units("angstrom", "compton")
     assert_allclose_units(length, me)
@@ -1431,7 +1434,7 @@ def test_electromagnetic():
     qp_mks = u.qp.in_units("C", "SI")
     assert_equal(qp_mks.units.dimensions, dimensions.charge_mks)
     assert_almost_equal(qp_mks.v, 10.0*u.qp.v/speed_of_light_cm_per_s)
-    qp = u.qp.copy()
+    qp = 1*u.qp
     qp.convert_to_units("C", "SI")
     assert_equal(qp.units.dimensions, dimensions.charge_mks)
     assert_almost_equal(qp.v, 10*u.qp.v/u.clight.v)
@@ -1450,7 +1453,7 @@ def test_electromagnetic():
     qp_mks_k = u.qp.in_units("kC", "SI")
     assert_array_almost_equal(
         qp_mks_k.v, 1.0e-2*u.qp.v/speed_of_light_cm_per_s)
-    qp = u.qp.copy()
+    qp = 1*u.qp
     qp.convert_to_units('kC', 'SI')
     assert_almost_equal(qp, qp_mks_k)
 

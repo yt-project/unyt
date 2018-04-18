@@ -189,6 +189,8 @@ class Unit(Expr):
     __slots__ = ["expr", "is_atomic", "base_value", "base_offset",
                  "dimensions", "registry", "_latex_repr"]
 
+    __array_priority__ = 3.0
+
     def __new__(cls, unit_expr=sympy_one, base_value=None, base_offset=0.0,
                 dimensions=None, registry=None, latex_repr=None,
                 **assumptions):
@@ -341,6 +343,10 @@ class Unit(Expr):
         self._latex_repr = _get_latex_representation(expr, self.registry)
         return self._latex_repr
 
+    @property
+    def units(self):
+        return self
+
     # Some sympy conventions
     def __getnewargs__(self):
         return (self.expr, self.is_atomic, self.base_value, self.dimensions,
@@ -417,10 +423,14 @@ class Unit(Expr):
         if not isinstance(u, Unit):
             if isinstance(u, (numeric_type, list, tuple, np.ndarray)):
                 from unyt.array import unyt_quantity, unyt_array
-                data = np.asarray(u)
+                try:
+                    units = u.units*self
+                except AttributeError:
+                    units = self
+                data = np.asarray(u, dtype='float64')
                 if data.shape == ():
-                    return unyt_quantity(u, self)
-                return unyt_array(u, self)
+                    return unyt_quantity(data, units)
+                return unyt_array(data, units)
             else:
                 raise InvalidUnitOperation(
                     "Tried to multiply a Unit object with '%s' (type %s). "
@@ -485,7 +495,7 @@ class Unit(Expr):
         """ Take Unit to power p (float). """
         try:
             p = Rational(str(p)).limit_denominator()
-        except ValueError:
+        except (ValueError, TypeError):
             raise InvalidUnitOperation("Tried to take a Unit object to the "
                                        "power '%s' (type %s). Failed to cast "
                                        "it to a float." % (p, type(p)))

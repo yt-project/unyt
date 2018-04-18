@@ -98,8 +98,8 @@ python syntax. This means you must use `**` and not `^`, even when writing a
 unit as a string:
 
   >>> from unyt import kg, m
-  >>> print((kg/m**3).to('g/cm**3'))
-  0.001 g/cm**3
+  >>> print((10*kg/m**3).to('g/cm**3'))
+  0.01 g/cm**3
 
 Arithmetic and units
 --------------------
@@ -111,16 +111,14 @@ mistake in your units in a mathematical formula. To see what I mean by that,
 let's take a look at the following examples::
 
   >>> from unyt import cm, m, ft, yard
-  >>> print("{}, {}, {}, {}".format(cm, m, ft, yard))
-  1.0 cm, 1.0 m, 1.0 ft, 1.0 yd
   >>> print(3*cm + 4*m - 5*ft + 6*yard)
   799.24 cm
 
-Despite the fact that the four unit symbols used in the above example have four
-different units, :mod:`unyt` is able to automatically convert the value of all
-three units into a common unit and return the result in those units. Note that
-for expressions where the return units are ambiguous, :mod:`unyt` always returns
-data in the units of the leftmost object in an expression::
+Despite the fact that the four unit symbols used in the above example correspond
+to four different units, :mod:`unyt` is able to automatically convert the value
+of all three units into a common unit and return the result in those units. Note
+that for expressions where the return units are ambiguous, :mod:`unyt` always
+returns data in the units of the leftmost object in an expression::
 
   >>> print(4*m + 3*cm - 5*ft + 6*yard)  # doctest: +FLOAT_CMP
   7.9924 m
@@ -166,7 +164,7 @@ If you make a mistake by adding two things that have different dimensions,
 code:
 
   >>> from unyt import kg, m
-  >>> kg + m  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> 3*kg + 5*m  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   Traceback (most recent call last):
   ...
   unyt.exceptions.UnitOperationError: The <ufunc 'add'> operator for
@@ -249,14 +247,14 @@ you know which units you would like to convert it to, you can make use of the
 :meth:`unyt_array.to <unyt.array.unyt_array.to>` function:
 
   >>> from unyt import mile
-  >>> mile.to('ft')
+  >>> (1.0*mile).to('ft')
   unyt_quantity(5280., 'ft')
 
 If you try to convert to a unit with different dimensions, :mod:`unyt` will
 raise an error:
 
   >>> from unyt import mile
-  >>> mile.to('lb')  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> (1.0*mile).to('lb')  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   Traceback (most recent call last):
   ...
   unyt.exceptions.UnitConversionError: Unit dimensionalities do not match.
@@ -408,7 +406,7 @@ global registry of unit systems known to the :mod:`unyt` library. That means you
 will immediately be able to use it just like the built-in unit systems:
 
   >>> from unyt import W
-  >>> W.in_base('atomic')
+  >>> (1.0*W).in_base('atomic')
   unyt_quantity(0.59746607, 'mp*nm**2/fs**3')
 
 If you would like your unit system to include an MKS current unit
@@ -459,7 +457,7 @@ the unit conversion operation. For exmaple, let's use the ``schwarzschild``
 equivalence to calculate the mass of a black hole with a radius of one AU:
 
   >>> from unyt import AU
-  >>> AU.to('Msun', equivalence='schwarzschild')
+  >>> (1.0*AU).to('Msun', equivalence='schwarzschild')
   unyt_quantity(50658673.46804737, 'Msun')
 
 Both the methods that convert data in-place and the ones that return a copy
@@ -561,8 +559,7 @@ data from external sources:
   >>> data = np.random.random((100, 100))
   >>> data_with_units = data*g.units
   >>> data_with_units.base is data
-  False
-  >>> # huh? fixme
+  True
 
 
 Integrating :mod:`unyt` Into a Python Library

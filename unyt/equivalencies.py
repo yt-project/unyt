@@ -94,9 +94,9 @@ class NumberDensityEquivalence(Equivalence):
     >>> print(NumberDensityEquivalence())
     number density: density <-> number density
     >>> from unyt import Msun, pc
-    >>> rho = Msun/pc**3
+    >>> rho = 3*Msun/pc**3
     >>> rho.to_equivalent('cm**-3', 'number_density', mu=1.4)
-    unyt_quantity(28.88289965, 'cm**(-3)')
+    unyt_quantity(86.64869896, 'cm**(-3)')
     """
     type_name = "number_density"
     _dims = (density, number_density,)
@@ -171,8 +171,8 @@ class MassEnergyEquivalence(Equivalence):
     >>> print(MassEnergyEquivalence())
     mass_energy: mass <-> energy
     >>> from unyt import g
-    >>> g.to_equivalent('J', 'mass_energy')
-    unyt_quantity(8.98755179e+13, 'J')
+    >>> (3.5*g).to_equivalent('J', 'mass_energy')
+    unyt_quantity(3.14564313e+14, 'J')
 
     """
     type_name = "mass_energy"
@@ -207,9 +207,9 @@ class SpectralEquivalence(Equivalence):
     >>> print(SpectralEquivalence())
     spectral: length <-> frequency <-> energy
     >>> from unyt import angstrom, km
-    >>> angstrom.to_equivalent('keV', 'spectral')
-    unyt_quantity(12.39841932, 'keV')
-    >>> km.to_equivalent('MHz', 'spectral')
+    >>> (3*angstrom).to_equivalent('keV', 'spectral')
+    unyt_quantity(4.13280644, 'keV')
+    >>> (1*km).to_equivalent('MHz', 'spectral')
     unyt_quantity(0.29979246, 'MHz')
     """
     type_name = "spectral"
@@ -391,9 +391,9 @@ class SchwarzschildEquivalence(Equivalence):
     >>> print(SchwarzschildEquivalence())
     schwarzschild: mass <-> length
     >>> from unyt import Msun, AU
-    >>> Msun.to_equivalent('km', 'schwarzschild')
-    unyt_quantity(2.95305543, 'km')
-    >>> AU.to_equivalent('Msun', 'schwarzschild')
+    >>> (10*Msun).to_equivalent('km', 'schwarzschild')
+    unyt_quantity(29.5305543, 'km')
+    >>> (1*AU).to_equivalent('Msun', 'schwarzschild')
     unyt_quantity(50658673.46804737, 'Msun')
     """
     type_name = "schwarzschild"
@@ -506,8 +506,8 @@ class ElectromagneticSI(Equivalence):
     Example
     -------
     >>> from unyt import gauss
-    >>> gauss.to_equivalent('T', 'SI')
-    unyt_quantity(0.0001, 'T')
+    >>> (10*gauss).to_equivalent('T', 'SI')
+    unyt_quantity(0.001, 'T')
     """
     type_name = "SI"
     alternate_names = ["si", "MKS", "mks"]
@@ -541,8 +541,8 @@ class ElectromagneticCGS(Equivalence):
     Example
     -------
     >>> from unyt import Tesla
-    >>> Tesla.to_equivalent('G', 'CGS')
-    unyt_quantity(10000., 'G')
+    >>> (10*Tesla).to_equivalent('G', 'CGS')
+    unyt_quantity(100000., 'G')
     """
     type_name = "CGS"
     alternate_names = ["cgs"]
