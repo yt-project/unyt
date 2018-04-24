@@ -435,8 +435,8 @@ class Unit(Expr):
                 base_offset = self.base_offset
             else:
                 raise InvalidUnitOperation(
-                    "Quantities with units of Fahrenheit "
-                    "and Celsius or angles cannot be multiplied.")
+                    "Quantities with dimensions of angle or units of "
+                    "Fahrenheit or Celsius cannot be multiplied.")
 
         return Unit(self.expr * u.expr,
                     base_value=(self.base_value * u.base_value),

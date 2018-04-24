@@ -120,12 +120,14 @@ from unyt.dimensions import (
     angle,
     current_mks,
     dimensionless,
-    em_dimensions
+    em_dimensions,
+    temperature
 )
 from unyt.exceptions import (
     EquivalentDimsError,
     IterableUnitCoercionError,
     InvalidUnitEquivalence,
+    InvalidUnitOperation,
     UfuncUnitError,
     UnitConversionError,
     UnitOperationError,
@@ -277,9 +279,18 @@ def _handle_preserve_units(inps, units, ufunc, ret_class):
             if not units[0].same_dimensions_as(units[1]):
                 raise UnitOperationError(ufunc, *units)
             conv, offset = inps[1].units.get_conversion_factor(inps[0].units)
-            if offset is None:
-                offset = 0
-            inps = (inps[0], inps[1].d*conv - offset)
+            if offset is not None:
+                raise InvalidUnitOperation(
+                    "Quantities with units of Fahrenheit or Celsius cannot "
+                    "by multiplied, divided, subtracted or added.")
+            inps = (inps[0], inps[1].d*conv)
+    else:
+        if ((units[0].base_offset and units[0].dimensions is temperature or
+             units[1].base_offset and units[1].dimensions is temperature)):
+            raise InvalidUnitOperation(
+                "Quantities with units of Fahrenheit or Celsius cannot "
+                "by multiplied, divide, subtracted or added.")
+
     return inps, units
 
 
@@ -767,7 +778,7 @@ class unyt_array(np.ndarray):
             values *= conversion_factor
 
             if offset:
-                np.subtract(self, offset*self.uq, self)
+                np.subtract(values, offset, values)
         else:
             self.convert_to_equivalent(units, equivalence, **kwargs)
 
@@ -915,11 +926,11 @@ class unyt_array(np.ndarray):
             (conversion_factor, offset) = self.units.get_conversion_factor(
                 new_units)
 
-            new_array = type(self)(self.ndview * conversion_factor, new_units,
-                                   bypass_validation=True)
-
+            ret = np.asarray(self.ndview * conversion_factor)
             if offset:
-                np.subtract(new_array, offset*new_array.uq, new_array)
+                np.subtract(ret, offset, ret)
+
+            new_array = type(self)(ret, new_units, bypass_validation=True)
 
             return new_array
         else:
