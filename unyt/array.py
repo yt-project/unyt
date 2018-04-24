@@ -268,16 +268,18 @@ def _get_inp_u_binary(ufunc, inputs):
 
 def _handle_preserve_units(inps, units, ufunc, ret_class):
     if units[0] != units[1]:
-        any_nonzero = [np.any(inps[0]), np.any(inps[1])]
-        if any_nonzero[0] == np.bool_(False):
+        any_nonzero = [np.count_nonzero(inps[0]), np.count_nonzero(inps[1])]
+        if any_nonzero[0] == 0:
             units = (units[1], units[1])
-        elif any_nonzero[1] == np.bool_(False):
+        elif any_nonzero[1] == 0:
             units = (units[0], units[0])
         else:
             if not units[0].same_dimensions_as(units[1]):
                 raise UnitOperationError(ufunc, *units)
-            inps = (inps[0], ret_class(inps[1]).to(
-                ret_class(inps[0]).units))
+            conv, offset = inps[1].units.get_conversion_factor(inps[0].units)
+            if offset is None:
+                offset = 0
+            inps = (inps[0], inps[1].d*conv - offset)
     return inps, units
 
 
@@ -913,7 +915,8 @@ class unyt_array(np.ndarray):
             (conversion_factor, offset) = self.units.get_conversion_factor(
                 new_units)
 
-            new_array = type(self)(self.ndview * conversion_factor, new_units)
+            new_array = type(self)(self.ndview * conversion_factor, new_units,
+                                   bypass_validation=True)
 
             if offset:
                 np.subtract(new_array, offset*new_array.uq, new_array)
