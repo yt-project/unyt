@@ -311,6 +311,12 @@ def _handle_comparison_units(inps, units, ufunc, ret_class, raise_error=False):
                     raise UfuncUnitError(ufunc, *units)
                 inps = (inps[0], ret_class(inps[1]).to(
                     ret_class(inps[0]).units))
+    else:
+        if ((units[0].base_offset and units[0].dimensions is temperature or
+             units[1].base_offset and units[1].dimensions is temperature)):
+            raise InvalidUnitOperation(
+                "Quantities with units of Fahrenheit or Celsius cannot "
+                "by multiplied, divide, subtracted or added.")
     return inps, units
 
 
@@ -321,6 +327,11 @@ def _handle_multiply_divide_units(unit, units, out, out_arr):
                 out_arr = np.multiply(out_arr.view(np.ndarray),
                                       unit.base_value, out=out)
                 unit = Unit(registry=unit.registry)
+    if ((units[0].base_offset and units[0].dimensions is temperature or
+         units[1].base_offset and units[1].dimensions is temperature)):
+        raise InvalidUnitOperation(
+            "Quantities with units of Fahrenheit or Celsius cannot "
+            "by multiplied, divide, subtracted or added.")
     return out, out_arr, unit
 
 
