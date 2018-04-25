@@ -246,9 +246,9 @@ def _get_inp_u_unary(ufunc, inputs, out_arr=None):
 def _get_inp_u_binary(ufunc, inputs):
     inp1 = _coerce_iterable_units(inputs[0])
     inp2 = _coerce_iterable_units(inputs[1])
-    unit1 = getattr(inp1, 'units', None)
-    unit2 = getattr(inp2, 'units', None)
-    ret_class = _get_binary_op_return_class(type(inp1), type(inp2))
+    unit1 = getattr(inputs[0], 'units', None) or getattr(inp1, 'units', None)
+    unit2 = getattr(inputs[1], 'units', None) or getattr(inp2, 'units', None)
+    ret_class = _get_binary_op_return_class(type(inputs[0]), type(inputs[1]))
     if unit1 is None:
         unit1 = Unit(registry=getattr(unit2, 'registry', None))
     if unit2 is None and ufunc is not power:
@@ -349,6 +349,8 @@ def _coerce_iterable_units(input_object):
             return unyt_array(input_object)
         return input_object
     else:
+        if isinstance(input_object, Unit):
+            return unyt_quantity(1.0, input_object)
         return input_object
 
 
@@ -1072,8 +1074,8 @@ class unyt_array(np.ndarray):
         Example
         -------
         >>> from unyt import Newton, km
-        >>> print((Newton/km).in_cgs())
-        1.0 g/s**2
+        >>> print((10*Newton/km).in_cgs())
+        10.0 g/s**2
         """
         try:
             to_units = self.units.get_cgs_equivalent()
@@ -1095,7 +1097,7 @@ class unyt_array(np.ndarray):
         Example
         -------
         >>> from unyt import mile
-        >>> print(mile.in_mks())
+        >>> print((1*mile).in_mks())
         1609.344 m
         """
         try:
@@ -1202,7 +1204,7 @@ class unyt_array(np.ndarray):
         Example
         -------
         >>> from unyt import km
-        >>> km.list_equivalencies()
+        >>> (1.0*km).list_equivalencies()
         spectral: length <-> frequency <-> energy
         schwarzschild: mass <-> length
         compton: mass <-> length
@@ -1217,11 +1219,11 @@ class unyt_array(np.ndarray):
         Example
         -------
         >>> from unyt import km, keV
-        >>> km.has_equivalent('spectral')
+        >>> (1.0*km).has_equivalent('spectral')
         True
-        >>> print(km.to_equivalent('MHz', equivalence='spectral'))
+        >>> print((1*km).to_equivalent('MHz', equivalence='spectral'))
         0.29979245800000004 MHz
-        >>> print(keV.to_equivalent('angstrom', equivalence='spectral'))
+        >>> print((1*keV).to_equivalent('angstrom', equivalence='spectral'))
         12.398419315219659 angstrom
         """
         return self.units.has_equivalent(equivalence)
@@ -2037,8 +2039,8 @@ class unyt_array(np.ndarray):
                     unit = self._ufunc_registry[ufunc](u)
                 ret_class = type(self)
             elif len(inputs) == 2:
-                unit_operator = self._ufunc_registry[ufunc]
                 inps, units, ret_class = _get_inp_u_binary(ufunc, inputs)
+                unit_operator = self._ufunc_registry[ufunc]
                 if unit_operator in (_comparison_unit, _arctan2_unit):
                     inps, units = _handle_comparison_units(
                         inps, units, ufunc, ret_class)
@@ -2451,10 +2453,10 @@ def ustack(arrs, axis=0):
 def _get_binary_op_return_class(cls1, cls2):
     if cls1 is cls2:
         return cls1
-    if ((cls1 in (np.ndarray, np.matrix, np.ma.masked_array) or
+    if ((cls1 in (Unit, np.ndarray, np.matrix, np.ma.masked_array) or
          issubclass(cls1, (numeric_type, np.number, list, tuple)))):
         return cls2
-    if ((cls2 in (np.ndarray, np.matrix, np.ma.masked_array) or
+    if ((cls2 in (Unit, np.ndarray, np.matrix, np.ma.masked_array) or
          issubclass(cls2, (numeric_type, np.number, list, tuple)))):
         return cls1
     if issubclass(cls1, unyt_quantity):

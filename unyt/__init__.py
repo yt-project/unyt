@@ -72,7 +72,7 @@ from unyt.unit_systems import UnitSystem  # NOQA
 # constants used to *construct* a physical constant) in this namespace
 def import_quantities(module, global_namespace):
     for key, value in module.__dict__.items():
-        if isinstance(value, unyt_quantity):
+        if isinstance(value, (unyt_quantity, Unit)):
             global_namespace[key] = value
 
 
