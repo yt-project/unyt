@@ -420,17 +420,21 @@ class Unit(Expr):
 
     def __mul__(self, u):
         """ Multiply Unit with u (Unit object). """
+        from unyt.array import unyt_quantity, unyt_array
         if not isinstance(u, Unit):
-            if isinstance(u, (numeric_type, list, tuple, np.ndarray)):
-                from unyt.array import unyt_quantity, unyt_array
+            cls = type(u)
+            if ((cls in (np.ndarray, np.matrix, np.ma.masked_array) or
+                 isinstance(u, (numeric_type, list, tuple)))):
                 try:
                     units = u.units*self
                 except AttributeError:
                     units = self
                 data = np.asarray(u, dtype='float64')
                 if data.shape == ():
-                    return unyt_quantity(data, units)
-                return unyt_array(data, units)
+                    return unyt_quantity(data, units, bypass_validation=True)
+                return unyt_array(data, units, bypass_validation=True)
+            elif isinstance(u, unyt_array):
+                return cls(u, u.units*self, bypass_validation=True)
             else:
                 raise InvalidUnitOperation(
                     "Tried to multiply a Unit object with '%s' (type %s). "

@@ -672,9 +672,9 @@ class unyt_array(np.ndarray):
     def __new__(cls, input_array, input_units=None, registry=None, dtype=None,
                 bypass_validation=False):
         if dtype is None:
-            dtype = getattr(input_array, 'dtype', np.float64)
+            dtype = np.float64
         if bypass_validation is True:
-            obj = np.asarray(input_array, dtype=dtype).view(cls)
+            obj = input_array.view(type=cls, dtype=dtype)
             obj.units = input_units
             if registry is not None:
                 obj.units.registry = registry
@@ -1369,7 +1369,7 @@ class unyt_array(np.ndarray):
         <Quantity([0 1 2 3], 'erg / centimeter ** 3')>
         >>> c = unyt_array.from_pint(b)
         >>> c
-        unyt_array([0, 1, 2, 3], 'erg/cm**3')
+        unyt_array([0., 1., 2., 3.], 'erg/cm**3')
         """
         p_units = []
         for base, exponent in arr._units.items():
@@ -1377,10 +1377,11 @@ class unyt_array(np.ndarray):
             p_units.append("%s**(%s)" % (bs, Rational(exponent)))
         p_units = "*".join(p_units)
         if isinstance(arr.magnitude, np.ndarray):
-            return unyt_array(arr.magnitude, p_units, registry=unit_registry)
+            return unyt_array(arr.magnitude, p_units, registry=unit_registry,
+                              dtype='float64')
         else:
             return unyt_quantity(arr.magnitude, p_units,
-                                 registry=unit_registry)
+                                 registry=unit_registry, dtype='float64')
 
     def to_pint(self, unit_registry=None):
         """
@@ -2251,9 +2252,13 @@ class unyt_quantity(unyt_array):
                 dtype=np.float64, bypass_validation=False):
         if not isinstance(input_scalar, (numeric_type, np.number, np.ndarray)):
             raise RuntimeError("unyt_quantity values must be numeric")
+        if input_units is None:
+            units = getattr(input_scalar, 'units', None)
+        else:
+            units = input_units
         ret = unyt_array.__new__(
-            cls, input_scalar, input_units, registry,
-            dtype=dtype, bypass_validation=bypass_validation)
+            cls, np.asarray(input_scalar), units, registry, dtype=dtype,
+            bypass_validation=bypass_validation)
         if ret.size > 1:
             raise RuntimeError("unyt_quantity instances must be scalars")
         return ret
