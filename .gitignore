@@ -106,3 +106,4 @@ docs/modules/
 
 # benchmark outputs
 benchmarks/*.json
+benchmarks/*.png
