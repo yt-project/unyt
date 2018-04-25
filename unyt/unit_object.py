@@ -429,7 +429,7 @@ class Unit(Expr):
                     units = u.units*self
                 except AttributeError:
                     units = self
-                data = np.asarray(u, dtype='float64')
+                data = np.array(u, dtype='float64')
                 if data.shape == ():
                     return unyt_quantity(data, units, bypass_validation=True)
                 return unyt_array(data, units, bypass_validation=True)
