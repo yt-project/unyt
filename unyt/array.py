@@ -269,7 +269,8 @@ def _get_inp_u_binary(ufunc, inputs):
 
 
 def _handle_preserve_units(inps, units, ufunc, ret_class):
-    if units[0] != units[1]:
+    # check "is" equality first for speed
+    if units[0] is not units[1] and units[0] != units[1]:
         any_nonzero = [np.count_nonzero(inps[0]), np.count_nonzero(inps[1])]
         if any_nonzero[0] == 0:
             units = (units[1], units[1])
@@ -2067,7 +2068,8 @@ class unyt_array(np.ndarray):
                     # unyt_quantity with size > 1
                     out_arr = unyt_array(np.asarray(out_arr), unit)
                 else:
-                    out_arr = ret_class(np.asarray(out_arr), unit)
+                    out_arr = ret_class(np.asarray(out_arr), unit,
+                                        bypass_validation=True)
             if out is not None:
                 out_orig[0].flat[:] = out.flat[:]
                 if isinstance(out_orig[0], unyt_array):
