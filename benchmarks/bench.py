@@ -4,7 +4,7 @@ import os
 
 def run_perf(args, json_name):
     if os.path.exists(json_name):
-        os.remove(json_name)
+        return
     args = args + ['-o', json_name]
     print(args)
     p = subprocess.Popen(
@@ -50,7 +50,7 @@ for bs in base_setups:
             args.append('np.asarray(data)')
         else:
             args.append('data*u.g')
-        json_name = '{}_{}_create'.format(package, bs)
+        json_name = '{}_{}_create.json'.format(package, bs)
         run_perf(args, json_name)
 
 for bs in base_setups:
@@ -63,19 +63,28 @@ for bs in base_setups:
                 (ufunc + r'(data1, data2, out=out)', ufunc + '12out.json'),
                 (ufunc + r'(data2, data1, out=out)', ufunc + '21out.json'),
         ]:
-            for package in sorted(setup):
-                print(package)
-                setup_s = '; '.join(
-                    [shared_setup, setup[package], base_setups[bs]]) + '; '
-                if package == 'numpy':
-                    setup_s += '; '.join(
-                        [r'data1 = np.array(data)', r'data2 = np.array(data)'])
-                    _bench = bench.replace('data1', '.001*data1')
-                else:
-                    setup_s += '; '.join(
-                        ['data1 = data*u.g', 'data2 = data*u.kg'])
-                    _bench = bench
-                args = base_args + ['-s', setup_s + ' ']
-                json_name = '{}_{}'.format(package, bs)
-                run_perf(args + [_bench], json_name + '_' + bench_name)
+            for unit_choice in [('g', 'g'), ('kg', 'g')]:
+                for package in sorted(setup):
+                    print(package)
+                    setup_s = '; '.join(
+                        [shared_setup, setup[package], base_setups[bs]]) + '; '
+                    if 'out' in bench:
+                        if package not in ('pint', 'numpy'):
+                            setup_s += 'out=data*u.{}; '.format(unit_choice[0])
+                        else:
+                            setup_s += 'out=np.array(data); '
+                    if package == 'numpy':
+                        setup_s += '; '.join([r'data1 = np.array(data)',
+                                              r'data2 = np.array(data)'])
+                        if unit_choice[0] != unit_choice[1]:
+                            _bench = bench.replace('data1', '.001*data1')
+                    else:
+                        setup_s += '; '.join(
+                            ['data1 = data*u.{}'.format(unit_choice[0]),
+                             'data2 = data*u.{}'.format(unit_choice[1])])
+                        _bench = bench
+                    args = base_args + ['-s', setup_s + ' ']
+                    json_name = '{}_{}_{}{}'.format(
+                        package, bs, unit_choice[0], unit_choice[1])
+                    run_perf(args + [_bench], json_name + '_' + bench_name)
     
