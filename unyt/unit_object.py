@@ -185,9 +185,9 @@ class Unit(Expr):
     is_commutative = True
     is_number = False
 
-    # Extra attributes
-    __slots__ = ["expr", "is_atomic", "base_value", "base_offset",
-                 "dimensions", "registry", "_latex_repr"]
+    # caches for imports
+    _ua = None
+    _uq = None
 
     __array_priority__ = 3.0
 
@@ -420,7 +420,11 @@ class Unit(Expr):
 
     def __mul__(self, u):
         """ Multiply Unit with u (Unit object). """
-        from unyt.array import unyt_quantity, unyt_array
+        if self._ua is None:
+            # cache the imported object to avoid cost of repeated imports
+            from unyt.array import unyt_quantity, unyt_array
+            self._ua = unyt_array
+            self._uq = unyt_quantity
         if not isinstance(u, Unit):
             cls = type(u)
             if ((cls in (np.ndarray, np.matrix, np.ma.masked_array) or
@@ -431,9 +435,9 @@ class Unit(Expr):
                     units = self
                 data = np.array(u, dtype='float64')
                 if data.shape == ():
-                    return unyt_quantity(data, units, bypass_validation=True)
-                return unyt_array(data, units, bypass_validation=True)
-            elif isinstance(u, unyt_array):
+                    return self._uq(data, units, bypass_validation=True)
+                return self._ua(data, units, bypass_validation=True)
+            elif isinstance(u, self._ua):
                 return cls(u, u.units*self, bypass_validation=True)
             else:
                 raise InvalidUnitOperation(
