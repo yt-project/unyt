@@ -1,6 +1,11 @@
+import matplotlib
+matplotlib.use('agg')
 from collections import OrderedDict
-import subprocess
+from matplotlib import pyplot as plt
+import json
 import os
+import perf
+import subprocess
 
 def run_perf(args, json_name):
     if os.path.exists(json_name):
@@ -14,12 +19,29 @@ def run_perf(args, json_name):
     print(err.decode())
 
 
+def make_plot(extension):
+    means = OrderedDict()
+    stddevs = OrderedDict()
+    for package in setup:
+        benchmark = perf.Benchmark.load(
+            open('{}_{}'.format(package, extension), 'r'))
+        means[package] = benchmark.mean()
+        stddevs[package] = benchmark.stdev()
+    fig, ax = plt.subplots()
+    packages = means.keys()
+    means = means.values()
+    stddevs = stddevs.values()
+    ax.bar(packages, means, yerr=stddevs)
+    fig.suptitle(extension.replace('.json', '').replace('_', ' ').title())
+    ax.set_ylabel('time (s); lower is better')
+    plt.savefig(extension.replace('.json', '.png'))
+
+
 setup = OrderedDict([
-    ('astropy', 'import astropy.units as u'),
-    ('pint', 'from pint import UnitRegistry; u = UnitRegistry()'),
-    ('unyt', 'import unyt as u'),
-    ('yt', 'import yt.units as u'),
     ('numpy', 'import numpy as np'),
+    ('pint', 'from pint import UnitRegistry; u = UnitRegistry()'),
+    ('astropy', 'import astropy.units as u'),
+    ('unyt', 'import unyt as u'),
 ])
 
 base_args = ['python3', '-m', 'perf', 'timeit', '--rigorous']
@@ -52,6 +74,7 @@ for bs in base_setups:
             args.append('data*u.g')
         json_name = '{}_{}_create.json'.format(package, bs)
         run_perf(args, json_name)
+    make_plot("{}_create.json".format(bs))
 
 for bs in base_setups:
     for op, ufunc in op_ufuncs.items():
@@ -87,4 +110,6 @@ for bs in base_setups:
                     json_name = '{}_{}_{}{}'.format(
                         package, bs, unit_choice[0], unit_choice[1])
                     run_perf(args + [_bench], json_name + '_' + bench_name)
+                make_plot("{}_{}{}_{}".format(
+                    bs, unit_choice[0], unit_choice[1], bench_name))
     
