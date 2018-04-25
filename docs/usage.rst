@@ -551,16 +551,20 @@ Applying units to data
    ``None``.
 
 When you create a :class:`unyt_array <unyt.array.unyt_array>` instance from a
-numpy array, :mod:`unyt` will not create a copy but will instead return a view
-onto the original array. This choice avoids copying data when applying units to
-data from external sources:
+numpy array, :mod:`unyt` will create a copy of the original array:
 
   >>> from unyt import g
   >>> data = np.random.random((100, 100))
-  >>> data_with_units = data*g.units
+  >>> data_with_units = data*g
+  >>> data_with_units.base is data
+  False
+
+If you would like to create a view rather than a copy, you can apply units like this:
+
+  >>> from unyt import unyt_array
+  >>> data_with_units = unyt_array(data, g)
   >>> data_with_units.base is data
   True
-
 
 Integrating :mod:`unyt` Into a Python Library
 +++++++++++++++++++++++++++++++++++++++++++++
