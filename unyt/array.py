@@ -112,7 +112,6 @@ from unyt.unit_registry import UnitRegistry
 from unyt.dimensions import (
     angle,
     current_mks,
-    dimensionless,
     em_dimensions,
     temperature
 )
@@ -347,54 +346,6 @@ def _coerce_iterable_units(input_object):
         if isinstance(input_object, Unit):
             return unyt_quantity(1.0, input_object)
         return input_object
-
-
-def _sanitize_units_mul(this_object, other_object):
-    inp = _coerce_iterable_units(this_object)
-    ret = _coerce_iterable_units(other_object)
-    # If the other object is a unyt_array and has the same dimensions as the
-    # object under consideration, convert so we don't mix units with the same
-    # dimensions.
-    if isinstance(ret, unyt_array):
-        if inp.units.same_dimensions_as(ret.units):
-            ret.in_units(inp.units)
-    return ret
-
-
-def _sanitize_units_add(this_object, other_object, op_string):
-    inp = _coerce_iterable_units(this_object)
-    ret = _coerce_iterable_units(other_object)
-    # Make sure the other object is a unyt_array before we use the `units`
-    # attribute.
-    if isinstance(ret, unyt_array):
-        if not inp.units.same_dimensions_as(ret.units):
-            # handle special case of adding or subtracting with zero or
-            # array filled with zero
-            if not np.any(other_object):
-                return ret.view(np.ndarray)
-            elif not np.any(this_object):
-                return ret
-            raise UnitOperationError(op_string, inp.units, ret.units)
-        ret = ret.in_units(inp.units)
-    else:
-        # If the other object is not a unyt_array, then one of the arrays
-        # must be dimensionless or filled with zeros
-        if not inp.units.is_dimensionless and np.any(ret):
-            raise UnitOperationError(op_string, inp.units, dimensionless)
-    return ret
-
-
-def _validate_comparison_units(this, other, op_string):
-    # Check that other is a unyt_array.
-    if hasattr(other, 'units'):
-        if this.units.expr is other.units.expr:
-            if this.units.base_value == other.units.base_value:
-                return other
-        if not this.units.same_dimensions_as(other.units):
-            raise UnitOperationError(op_string, this.units, other.units)
-        return other.in_units(this.units)
-
-    return other
 
 
 @lru_cache(maxsize=128, typed=False)

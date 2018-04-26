@@ -2,10 +2,10 @@ import matplotlib
 matplotlib.use('agg')
 from collections import OrderedDict
 from matplotlib import pyplot as plt
-import json
 import os
 import perf
 import subprocess
+
 
 def run_perf(args, json_name):
     if os.path.exists(json_name):
@@ -112,4 +112,3 @@ for bs in base_setups:
                     run_perf(args + [_bench], json_name + '_' + bench_name)
                 make_plot("{}_{}{}_{}".format(
                     bs, unit_choice[0], unit_choice[1], bench_name))
-    
