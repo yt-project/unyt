@@ -166,6 +166,8 @@ default_unit_symbol_lut = {
     "mp": (mass_hydrogen_kg, dimensions.mass, 0.0, r"m_p"),
     'Sv': (1.0, dimensions.specific_energy, 0.0, r"\rm{Sv}"),
     "rayleigh": (2.5e9/np.pi, dimensions.count_intensity, 0.0, r"\rm{R}"),
+    "lambert": (1.0e4/np.pi, dimensions.luminance, 0.0, r"\rm{L}"),
+    "nt": (1.0, dimensions.luminance, 0.0, r"\rm{nt}"),
 
     # for AstroPy compatibility
     "solMass": (mass_sun_kg, dimensions.mass, 0.0, r"M_\odot"),

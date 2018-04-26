@@ -186,6 +186,10 @@ cd = Candela = candela = Unit("cd")
 lm = Lumen = lumen = Unit("lm")
 #: lux
 lx = Lux = lux = Unit('lx')
+#: lambert
+lambert = Lambert = Unit('lambert')
+#: nit
+nt = nit = Nit = Unit("nt")
 
 #
 # Imperial units

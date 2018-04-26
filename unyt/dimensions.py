@@ -94,6 +94,8 @@ count_flux = 1 / (area*time)
 count_intensity = count_flux / solid_angle
 #: luminous_flux
 luminous_flux = luminous_intensity * solid_angle
+#: luminance
+luminance = luminous_intensity / area
 
 # Gaussian electromagnetic units
 #: charge_cgs
@@ -132,7 +134,8 @@ derived_dimensions = [
     magnetic_field_cgs, solid_angle, flux, specific_flux, volume,
     luminous_flux, area, current_cgs, charge_mks, electric_field_mks,
     magnetic_field_mks, electric_potential_cgs, electric_potential_mks,
-    resistance_cgs, resistance_mks, magnetic_flux_mks, magnetic_flux_cgs]
+    resistance_cgs, resistance_mks, magnetic_flux_mks, magnetic_flux_cgs,
+    luminance]
 
 
 #: a list containing all dimensions
