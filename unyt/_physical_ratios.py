@@ -86,6 +86,7 @@ day_per_year = 365.25
 
 # velocities, accelerations
 speed_of_light_m_per_s = 2.99792458e8
+speed_of_light_cm_per_s = speed_of_light_m_per_s * 100.0
 standard_gravity_m_per_s2 = 9.80665
 
 # some constants
