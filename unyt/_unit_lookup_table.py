@@ -269,8 +269,8 @@ prefixable_units = [
 ]
 
 default_base_units = {
-    dimensions.mass: 'g',
-    dimensions.length: 'cm',
+    dimensions.mass: 'kg',
+    dimensions.length: 'm',
     dimensions.time: 's',
     dimensions.temperature: 'K',
     dimensions.angle: 'radian',
