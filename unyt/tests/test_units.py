@@ -55,7 +55,7 @@ from unyt._physical_ratios import (
     sec_per_year,
     cm_per_km,
     cm_per_mpc,
-    mass_sun_grams
+    mass_sun_kg
 )
 
 
@@ -111,6 +111,7 @@ def test_create_from_string():
     Create units with strings and check attributes.
 
     """
+    msun_grams = mass_sun_kg*1000.0
 
     u1 = Unit("g * cm**2 * s**-2")
     assert u1.dimensions == energy
@@ -140,7 +141,7 @@ def test_create_from_string():
     u6 = Unit("Msun/pc**3")
     assert u6.dimensions == mass/length**3
     assert_array_almost_equal_nulp(np.array([u6.base_value]),
-                                   np.array([mass_sun_grams/cm_per_pc**3]))
+                                   np.array([msun_grams/cm_per_pc**3]))
 
     with pytest.raises(UnitParseError):
         Unit('m**m')
@@ -329,7 +330,7 @@ def test_multiplication():
     Multiply two units.
 
     """
-    msun_cgs = mass_sun_grams
+    msun_cgs = mass_sun_kg*1000.0
     pc_cgs = cm_per_pc
 
     # Create symbols
@@ -424,7 +425,7 @@ def test_base_equivalent():
     Check base equivalent of a unit.
 
     """
-    Msun_cgs = mass_sun_grams
+    Msun_cgs = mass_sun_kg*1.0e3
     Mpc_cgs = cm_per_mpc
 
     u1 = Unit("Msun * Mpc**-3")
