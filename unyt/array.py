@@ -270,28 +270,29 @@ def _get_inp_u_binary(ufunc, inputs):
 
 def _handle_preserve_units(inps, units, ufunc, ret_class):
     # check "is" equality first for speed
+    i0 = inps[0]
+    i1 = inps[1]
     if units[0] is not units[1] and units[0] != units[1]:
-        any_nonzero = [np.count_nonzero(inps[0]), np.count_nonzero(inps[1])]
-        if any_nonzero[0] == 0:
-            units = (units[1], units[1])
-        elif any_nonzero[1] == 0:
-            units = (units[0], units[0])
-        else:
-            if not units[0].same_dimensions_as(units[1]):
-                raise UnitOperationError(ufunc, *units)
-            conv, offset = inps[1].units.get_conversion_factor(inps[0].units)
-            if offset is not None:
-                raise InvalidUnitOperation(
-                    "Quantities with units of Fahrenheit or Celsius cannot "
-                    "by multiplied, divided, subtracted or added.")
-            inps = (inps[0], inps[1].d*conv)
+        if not isinstance(i0, unyt_array) or not isinstance(i1, unyt_array):
+            any_nonzero = [np.count_nonzero(i0), np.count_nonzero(i1)]
+            if any_nonzero[0] == 0:
+                units = (units[1], units[1])
+            elif any_nonzero[1] == 0:
+                units = (units[0], units[0])
+        if not units[0].same_dimensions_as(units[1]):
+            raise UnitOperationError(ufunc, *units)
+        conv, offset = units[1].get_conversion_factor(units[0])
+        if offset is not None:
+            raise InvalidUnitOperation(
+                "Quantities with units of Fahrenheit or Celsius cannot "
+                "by multiplied, divided, subtracted or added.")
+        inps = (i0, np.asarray(i1)*conv)
     else:
         if ((units[0].base_offset and units[0].dimensions is temperature or
              units[1].base_offset and units[1].dimensions is temperature)):
             raise InvalidUnitOperation(
                 "Quantities with units of Fahrenheit or Celsius cannot "
                 "by multiplied, divide, subtracted or added.")
-
     return inps, units
 
 

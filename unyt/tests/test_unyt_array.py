@@ -169,8 +169,7 @@ def test_addition():
     zeros_yta_dimless = unyt_array(zeros, 'dimensionless')
     zeros_yta_length = unyt_array(zeros, 'm')
     zeros_yta_mass = unyt_array(zeros, 'kg')
-    operands = [0, unyt_quantity(0), unyt_quantity(0, 'kg'), zeros,
-                zeros_yta_dimless, zeros_yta_length, zeros_yta_mass]
+    operands = [0, zeros, zeros_yta_length]
 
     for op in [operator.add, np.add]:
         for operand in operands:
@@ -178,6 +177,20 @@ def test_addition():
             operate_and_compare(operand, a1, op, a1)
             operate_and_compare(4*m, operand, op, 4*m)
             operate_and_compare(operand, 4*m, op, 4*m)
+
+    operands = [unyt_quantity(0), unyt_quantity(0, 'kg'),
+                zeros_yta_dimless, zeros_yta_mass]
+
+    for op in [operator.add, np.add]:
+        for operand in operands:
+            with pytest.raises(UnitOperationError):
+                operate_and_compare(a1, operand, op, a1)
+            with pytest.raises(UnitOperationError):
+                operate_and_compare(operand, a1, op, a1)
+            with pytest.raises(UnitOperationError):
+                operate_and_compare(4*m, operand, op, 4*m)
+            with pytest.raises(UnitOperationError):
+                operate_and_compare(operand, 4*m, op, 4*m)
 
 
 def test_subtraction():
@@ -273,8 +286,7 @@ def test_subtraction():
     zeros_yta_dimless = unyt_array(zeros, 'dimensionless')
     zeros_yta_length = unyt_array(zeros, 'm')
     zeros_yta_mass = unyt_array(zeros, 'kg')
-    operands = [0, unyt_quantity(0), unyt_quantity(0, 'kg'), zeros,
-                zeros_yta_dimless, zeros_yta_length, zeros_yta_mass]
+    operands = [0, zeros, zeros_yta_length]
 
     for op in [operator.sub, np.subtract]:
         for operand in operands:
@@ -282,6 +294,20 @@ def test_subtraction():
             operate_and_compare(operand, a1, op, -a1)
             operate_and_compare(4*m, operand, op, 4*m)
             operate_and_compare(operand, 4*m, op, -4*m)
+
+    operands = [unyt_quantity(0), unyt_quantity(0, 'kg'),
+                zeros_yta_dimless, zeros_yta_mass]
+
+    for op in [operator.sub, np.subtract]:
+        for operand in operands:
+            with pytest.raises(UnitOperationError):
+                operate_and_compare(a1, operand, op, a1)
+            with pytest.raises(UnitOperationError):
+                operate_and_compare(operand, a1, op, -a1)
+            with pytest.raises(UnitOperationError):
+                operate_and_compare(4*m, operand, op, 4*m)
+            with pytest.raises(UnitOperationError):
+                operate_and_compare(operand, 4*m, op, -4*m)
 
 
 def test_multiplication():
