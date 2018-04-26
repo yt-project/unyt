@@ -33,8 +33,7 @@ from unyt import (
 def test_unit_systems():
     goofy_unit_system = UnitSystem(
         "goofy", "ly", "lbm", "hr", temperature_unit="R",
-        angle_unit="arcsec", mks_system=True,
-        current_mks_unit="mA", amount_unit="mol",
+        angle_unit="arcsec", current_mks_unit="mA",
         luminous_intensity_unit="cd")
     assert goofy_unit_system["temperature"] == Unit("R")
     assert goofy_unit_system[dimensions.solid_angle] == Unit("arcsec**2")
