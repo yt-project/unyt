@@ -2,6 +2,7 @@ import matplotlib
 matplotlib.use('agg')
 from collections import OrderedDict
 from matplotlib import pyplot as plt
+import numpy as np
 import os
 import perf
 import subprocess
@@ -20,21 +21,31 @@ def run_perf(args, json_name):
 
 
 def make_plot(extension):
-    means = OrderedDict()
+    ratios = OrderedDict()
     stddevs = OrderedDict()
+    np_bench = perf.Benchmark.load(
+        open('{}_{}'.format('numpy', extension), 'r'))
+    np_mean = np_bench.mean()
+    np_stddev = np_bench.stdev()
     for package in setup:
+        if package == 'numpy':
+            continue
         benchmark = perf.Benchmark.load(
             open('{}_{}'.format(package, extension), 'r'))
-        means[package] = benchmark.mean()
-        stddevs[package] = benchmark.stdev()
+        mean = benchmark.mean()
+        stddev = benchmark.stdev()
+        ratios[package] = mean/np_mean
+        stddevs[package] = ratios[package]*np.sqrt(
+            (np_stddev/np_mean)**2 + (stddev/mean)**2)
     fig, ax = plt.subplots()
-    packages = means.keys()
-    means = means.values()
+    packages = ratios.keys()
+    ratios = ratios.values()
     stddevs = stddevs.values()
-    ax.bar(packages, means, yerr=stddevs)
+    ax.bar(packages, ratios, yerr=stddevs)
     fig.suptitle(extension.replace('.json', '').replace('_', ' ').title())
-    ax.set_ylabel('time (s); lower is better')
+    ax.set_ylabel('numpy overhead (x time for numpy); lower is better')
     plt.savefig(extension.replace('.json', '.png'))
+    plt.close(fig)
 
 
 setup = OrderedDict([
@@ -44,7 +55,7 @@ setup = OrderedDict([
     ('unyt', 'import unyt as u'),
 ])
 
-base_args = ['python3', '-m', 'perf', 'timeit', '--rigorous']
+base_args = ['python3.6', '-m', 'perf', 'timeit', '--rigorous']
 
 shared_setup = 'import numpy as np; import operator'
 
