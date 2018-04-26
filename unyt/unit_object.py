@@ -933,7 +933,7 @@ def _define_unit(registry, symbol, value, tex_repr=None, offset=None,
             value = unyt_quantity(value[0], value[1])
         else:
             raise RuntimeError("\"value\" needs to be a (value, unit) tuple!")
-    base_value = float(value.in_base(unit_system='unyt_base'))
+    base_value = float(value.in_base(unit_system='mks'))
     dimensions = value.units.dimensions
     registry.add(symbol, base_value, dimensions, tex_repr=tex_repr,
                  offset=offset)
