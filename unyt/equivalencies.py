@@ -506,6 +506,7 @@ class ElectromagneticSI(Equivalence):
     * statA -> A
     * statV -> V
     * statohm -> ohm
+    * Mx -> Wb
 
     Example
     -------
@@ -541,6 +542,7 @@ class ElectromagneticCGS(Equivalence):
     * A -> statA
     * V -> statV
     * ohm -> statohm
+    * Wb -> Mx
 
     Example
     -------
