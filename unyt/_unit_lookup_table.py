@@ -275,6 +275,5 @@ default_base_units = {
     dimensions.temperature: 'K',
     dimensions.angle: 'radian',
     dimensions.current_mks: 'A',
-    dimensions.amount: 'mol',
     dimensions.luminous_intensity: 'cd',
 }
