@@ -16,7 +16,6 @@ unyt_array class.
 import copy
 import numpy as np
 
-from distutils.version import LooseVersion
 from functools import wraps
 from numpy import (
     add,
@@ -97,19 +96,13 @@ from numpy import (
     ceil,
     trunc,
     fabs,
-    spacing
+    spacing,
+    positive,
+    divmod as divmod_,
+    isnat,
+    heaviside,
 )
 from numpy.core.umath import _ones_like
-try:
-    # numpy 1.13 or newer
-    from numpy import (
-        positive,
-        divmod as divmod_,
-        isnat,
-        heaviside
-    )
-except ImportError:
-    positive, divmod_, isnat, heaviside = (None,)*4
 
 from unyt.unit_object import (
     Unit,
@@ -128,7 +121,6 @@ from unyt.exceptions import (
     IterableUnitCoercionError,
     InvalidUnitEquivalence,
     InvalidUnitOperation,
-    UfuncUnitError,
     UnitConversionError,
     UnitOperationError,
     UnitsNotReducible,
@@ -296,7 +288,7 @@ def _handle_preserve_units(inps, units, ufunc, ret_class):
     return inps, units
 
 
-def _handle_comparison_units(inps, units, ufunc, ret_class, raise_error=False):
+def _handle_comparison_units(inps, units, ufunc, ret_class):
     if units[0] != units[1]:
         u1d = units[0].is_dimensionless
         u2d = units[1].is_dimensionless
@@ -309,8 +301,6 @@ def _handle_comparison_units(inps, units, ufunc, ret_class, raise_error=False):
             if not units[0].same_dimensions_as(units[1]):
                 raise UnitOperationError(ufunc, *units)
             else:
-                if raise_error:
-                    raise UfuncUnitError(ufunc, *units)
                 inps = (inps[0], ret_class(inps[1]).to(
                     ret_class(inps[0]).units))
     else:
@@ -1729,400 +1719,104 @@ class unyt_array(np.ndarray):
     # Start operation methods
     #
 
-    if LooseVersion(np.__version__) < LooseVersion('1.13.0'):
-
-        def __add__(self, right_object):
-            """
-            Add this unyt_array to the object on the right of the `+` operator.
-            Must check for the correct (same dimension) units.
-
-            """
-            ro = _sanitize_units_add(self, right_object, "addition")
-            return super(unyt_array, self).__add__(ro)
-
-        def __radd__(self, left_object):
-            """ See __add__. """
-            lo = _sanitize_units_add(self, left_object, "addition")
-            return super(unyt_array, self).__radd__(lo)
-
-        def __iadd__(self, other):
-            """ See __add__. """
-            oth = _sanitize_units_add(self, other, "addition")
-            np.add(self, oth, out=self)
-            return self
-
-        def __sub__(self, right_object):
-            """
-            Subtract the object on the right of the `-` from this unyt_array.
-            Must check for the correct (same dimension) units.
-
-            """
-            ro = _sanitize_units_add(self, right_object, "subtraction")
-            return super(unyt_array, self).__sub__(ro)
-
-        def __rsub__(self, left_object):
-            """ See __sub__. """
-            lo = _sanitize_units_add(self, left_object, "subtraction")
-            return super(unyt_array, self).__rsub__(lo)
-
-        def __isub__(self, other):
-            """ See __sub__. """
-            oth = _sanitize_units_add(self, other, "subtraction")
-            np.subtract(self, oth, out=self)
-            return self
-
-        def __neg__(self):
-            """ Negate the data. """
-            return super(unyt_array, self).__neg__()
-
-        def __mul__(self, right_object):
-            """
-            Multiply this unyt_array by the object on the right of the `*`
-            operator. The unit objects handle being multiplied.
-
-            """
-            ro = _sanitize_units_mul(self, right_object)
-            return super(unyt_array, self).__mul__(ro)
-
-        def __rmul__(self, left_object):
-            """ See __mul__. """
-            lo = _sanitize_units_mul(self, left_object)
-            return super(unyt_array, self).__rmul__(lo)
-
-        def __imul__(self, other):
-            """ See __mul__. """
-            oth = _sanitize_units_mul(self, other)
-            np.multiply(self, oth, out=self)
-            return self
-
-        def __div__(self, right_object):
-            """
-            Divide this unyt_array by the object on the right of the `/`
-            operator.
-
-            """
-            ro = _sanitize_units_mul(self, right_object)
-            return super(unyt_array, self).__div__(ro)
-
-        def __rdiv__(self, left_object):
-            """ See __div__. """
-            lo = _sanitize_units_mul(self, left_object)
-            return super(unyt_array, self).__rdiv__(lo)
-
-        def __idiv__(self, other):
-            """ See __div__. """
-            oth = _sanitize_units_mul(self, other)
-            np.divide(self, oth, out=self)
-            return self
-
-        def __truediv__(self, right_object):
-            ro = _sanitize_units_mul(self, right_object)
-            return super(unyt_array, self).__truediv__(ro)
-
-        def __rtruediv__(self, left_object):
-            """ See __div__. """
-            lo = _sanitize_units_mul(self, left_object)
-            return super(unyt_array, self).__rtruediv__(lo)
-
-        def __itruediv__(self, other):
-            """ See __div__. """
-            oth = _sanitize_units_mul(self, other)
-            np.true_divide(self, oth, out=self)
-            return self
-
-        def __floordiv__(self, right_object):
-            ro = _sanitize_units_mul(self, right_object)
-            return super(unyt_array, self).__floordiv__(ro)
-
-        def __rfloordiv__(self, left_object):
-            """ See __div__. """
-            lo = _sanitize_units_mul(self, left_object)
-            return super(unyt_array, self).__rfloordiv__(lo)
-
-        def __ifloordiv__(self, other):
-            """ See __div__. """
-            oth = _sanitize_units_mul(self, other)
-            np.floor_divide(self, oth, out=self)
-            return self
-
-        def __or__(self, right_object):
-            return super(unyt_array, self).__or__(right_object)
-
-        def __ror__(self, left_object):
-            return super(unyt_array, self).__ror__(left_object)
-
-        def __ior__(self, other):
-            np.bitwise_or(self, other, out=self)
-            return self
-
-        def __xor__(self, right_object):
-            return super(unyt_array, self).__xor__(right_object)
-
-        def __rxor__(self, left_object):
-            return super(unyt_array, self).__rxor__(left_object)
-
-        def __ixor__(self, other):
-            np.bitwise_xor(self, other, out=self)
-            return self
-
-        def __and__(self, right_object):
-            return super(unyt_array, self).__and__(right_object)
-
-        def __rand__(self, left_object):
-            return super(unyt_array, self).__rand__(left_object)
-
-        def __iand__(self, other):
-            np.bitwise_and(self, other, out=self)
-            return self
-
-        def __pow__(self, power):
-            """
-            Raise this unyt_array to some power.
-
-            Parameters
-            ----------
-            power : float or dimensionless unyt_array.
-                The pow value.
-
-            """
-            if isinstance(power, unyt_array):
-                if not power.units.is_dimensionless:
-                    raise UnitOperationError('power', power.unit)
-
-            # Work around a sympy issue (I think?)
-            #
-            # If I don't do this, super(unyt_array, self).__pow__ returns a
-            # unyt_array with a unit attribute set to the sympy expression 1/1
-            # rather than a dimensionless Unit object.
-            if self.units.is_dimensionless and power == -1:
-                ret = super(unyt_array, self).__pow__(power)
-                return type(self)(ret, input_units='')
-
-            return super(unyt_array, self).__pow__(power)
-
-        def __abs__(self):
-            """ Return a unyt_array with the abs of the data. """
-            return super(unyt_array, self).__abs__()
-
-        #
-        # Start comparison operators.
-        #
-
-        def __lt__(self, other):
-            """ Test if this is less than the object on the right. """
-            # converts if possible
-            oth = _validate_comparison_units(self, other, 'less_than')
-            return super(unyt_array, self).__lt__(oth)
-
-        def __le__(self, other):
-            """Test if this is less than or equal to the object on the right.
-            """
-            oth = _validate_comparison_units(self, other, 'less_than or equal')
-            return super(unyt_array, self).__le__(oth)
-
-        def __eq__(self, other):
-            """ Test if this is equal to the object on the right. """
-            # Check that other is a unyt_array.
-            if other is None:
-                # self is a unyt_array, so it can't be None.
-                return False
-            oth = _validate_comparison_units(self, other, 'equal')
-            return super(unyt_array, self).__eq__(oth)
-
-        def __ne__(self, other):
-            """ Test if this is not equal to the object on the right. """
-            # Check that the other is a unyt_array.
-            if other is None:
-                return True
-            oth = _validate_comparison_units(self, other, 'not equal')
-            return super(unyt_array, self).__ne__(oth)
-
-        def __ge__(self, other):
-            """ Test if this is greater than or equal to other. """
-            # Check that the other is a unyt_array.
-            oth = _validate_comparison_units(
-                self, other, 'greater than or equal')
-            return super(unyt_array, self).__ge__(oth)
-
-        def __gt__(self, other):
-            """ Test if this is greater than the object on the right. """
-            # Check that the other is a unyt_array.
-            oth = _validate_comparison_units(self, other, 'greater than')
-            return super(unyt_array, self).__gt__(oth)
-
-        #
-        # End comparison operators
-        #
-
-        #
-        # Begin reduction operators
-        #
-
-        @_return_arr
-        def prod(self, axis=None, dtype=None, out=None):
-            if axis is not None:
-                units = self.units**self.shape[axis]
-            else:
-                units = self.units**self.size
-            return super(unyt_array, self).prod(axis, dtype, out), units
-
-        @_return_arr
-        def mean(self, axis=None, dtype=None, out=None):
-            return super(unyt_array, self).mean(axis, dtype, out), self.units
-
-        @_return_arr
-        def sum(self, axis=None, dtype=None, out=None):
-            return super(unyt_array, self).sum(axis, dtype, out), self.units
-
-        @_return_arr
-        def std(self, axis=None, dtype=None, out=None, ddof=0):
-            return (super(unyt_array, self).std(axis, dtype, out, ddof),
-                    self.units)
-
-        def __array_wrap__(self, out_arr, context=None):
-            ret = super(unyt_array, self).__array_wrap__(out_arr, context)
-            if isinstance(ret, unyt_quantity) and ret.shape != ():
-                ret = ret.view(unyt_array)
-            if context is None:
-                if ret.shape == ():
-                    return ret[()]
+    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
+        func = getattr(ufunc, method)
+        if 'out' not in kwargs:
+            out = None
+            out_func = None
+        else:
+            out = kwargs.pop('out')[0]
+            out_func = out.view(np.ndarray)
+        if len(inputs) == 1:
+            _, inp, u = _get_inp_u_unary(ufunc, inputs)
+            out_arr = func(np.asarray(inp), out=out_func, **kwargs)
+            if ufunc in (multiply, divide) and method == 'reduce':
+                power_sign = POWER_SIGN_MAPPING[ufunc]
+                if 'axis' in kwargs and kwargs['axis'] is not None:
+                    unit = u**(power_sign*inp.shape[kwargs['axis']])
                 else:
-                    return ret
-            ufunc = context[0]
-            inputs = context[1]
-            if ufunc in unary_operators:
-                out_arr, inp, u = _get_inp_u_unary(ufunc, inputs, out_arr)
-                unit = self._ufunc_registry[context[0]](u)
-                ret_class = type(self)
-            elif ufunc in binary_operators:
-                unit_operator = self._ufunc_registry[context[0]]
-                inps, units, ret_class = _get_inp_u_binary(ufunc, inputs)
-                if unit_operator in (_preserve_units, _comparison_unit,
-                                     _arctan2_unit):
-                    inps, units = _handle_comparison_units(
-                        inps, units, ufunc, ret_class, raise_error=True)
-                unit = unit_operator(*units)
-                if unit_operator in (_multiply_units, _divide_units):
-                    out_arr, out_arr, unit = _handle_multiply_divide_units(
-                        unit, units, out_arr, out_arr, None)
+                    unit = u**(power_sign*inp.size)
             else:
-                raise RuntimeError(
-                    "Support for the %s ufunc has not been added "
-                    "to unyt_array." % str(context[0]))
-            if unit is None:
-                out_arr = np.array(out_arr, copy=False)
-                return out_arr
-            out_arr.units = unit
-            if out_arr.size == 1:
-                return unyt_quantity(np.array(out_arr), unit)
+                unit = self._ufunc_registry[ufunc](u)
+            ret_class = type(self)
+        elif len(inputs) == 2:
+            inps, units, ret_class = _get_inp_u_binary(ufunc, inputs)
+            unit_operator = self._ufunc_registry[ufunc]
+            if unit_operator in (_comparison_unit, _arctan2_unit):
+                inps, units = _handle_comparison_units(
+                    inps, units, ufunc, ret_class)
+            elif unit_operator is _preserve_units:
+                inps, units = _handle_preserve_units(
+                     inps, units, ufunc, ret_class)
+            unit = unit_operator(*units)
+            out_arr = func(np.asarray(inps[0]), np.asarray(inps[1]),
+                           out=out_func, **kwargs)
+            if unit_operator in (_multiply_units, _divide_units):
+                out, out_arr, unit = _handle_multiply_divide_units(
+                    unit, units, out, out_arr, out_func)
+        else:
+            raise RuntimeError(
+                "Support for the %s ufunc with %i inputs has not been"
+                "added to unyt_array." % (str(ufunc), len(inputs)))
+        if unit is None:
+            out_arr = np.array(out_arr, copy=False)
+        elif ufunc in (modf, divmod_):
+            out_arr = tuple((ret_class(o, unit) for o in out_arr))
+        elif out_arr.size == 1:
+            out_arr = unyt_quantity(np.asarray(out_arr), unit)
+        else:
+            if ret_class is unyt_quantity:
+                # This happens if you do ndarray * unyt_quantity.
+                # Explicitly casting to unyt_array avoids creating a
+                # unyt_quantity with size > 1
+                out_arr = unyt_array(np.asarray(out_arr), unit)
             else:
-                if ret_class is unyt_quantity:
-                    # This happens if you do ndarray * unyt_quantity.
-                    # Explicitly casting to unyt_array avoids creating a
-                    # unyt_quantity with size > 1
-                    return unyt_array(np.array(out_arr), unit)
-                return ret_class(np.array(out_arr, copy=False), unit)
+                out_arr = ret_class(
+                    np.asarray(out_arr), unit, bypass_validation=True)
+        if out is not None:
+            if isinstance(out, unyt_array):
+                try:
+                    out.units = out_arr.units
+                except AttributeError:
+                    # out_arr is an ndarray
+                    out.units = Unit('', registry=self.units.registry)
+        return out_arr
 
-    else:  # numpy version equal to or newer than 1.13
+    def copy(self, order='C'):
+        """
+        Return a copy of the array.
 
-        def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
-            func = getattr(ufunc, method)
-            if 'out' not in kwargs:
-                out = None
-                out_func = None
-            else:
-                out = kwargs.pop('out')[0]
-                out_func = out.view(np.ndarray)
-            if len(inputs) == 1:
-                _, inp, u = _get_inp_u_unary(ufunc, inputs)
-                out_arr = func(np.asarray(inp), out=out_func, **kwargs)
-                if ufunc in (multiply, divide) and method == 'reduce':
-                    power_sign = POWER_SIGN_MAPPING[ufunc]
-                    if 'axis' in kwargs and kwargs['axis'] is not None:
-                        unit = u**(power_sign*inp.shape[kwargs['axis']])
-                    else:
-                        unit = u**(power_sign*inp.size)
-                else:
-                    unit = self._ufunc_registry[ufunc](u)
-                ret_class = type(self)
-            elif len(inputs) == 2:
-                inps, units, ret_class = _get_inp_u_binary(ufunc, inputs)
-                unit_operator = self._ufunc_registry[ufunc]
-                if unit_operator in (_comparison_unit, _arctan2_unit):
-                    inps, units = _handle_comparison_units(
-                        inps, units, ufunc, ret_class)
-                elif unit_operator is _preserve_units:
-                    inps, units = _handle_preserve_units(
-                         inps, units, ufunc, ret_class)
-                unit = unit_operator(*units)
-                out_arr = func(np.asarray(inps[0]), np.asarray(inps[1]),
-                               out=out_func, **kwargs)
-                if unit_operator in (_multiply_units, _divide_units):
-                    out, out_arr, unit = _handle_multiply_divide_units(
-                        unit, units, out, out_arr, out_func)
-            else:
-                raise RuntimeError(
-                    "Support for the %s ufunc with %i inputs has not been"
-                    "added to unyt_array." % (str(ufunc), len(inputs)))
-            if unit is None:
-                out_arr = np.array(out_arr, copy=False)
-            elif ufunc in (modf, divmod_):
-                out_arr = tuple((ret_class(o, unit) for o in out_arr))
-            elif out_arr.size == 1:
-                out_arr = unyt_quantity(np.asarray(out_arr), unit)
-            else:
-                if ret_class is unyt_quantity:
-                    # This happens if you do ndarray * unyt_quantity.
-                    # Explicitly casting to unyt_array avoids creating a
-                    # unyt_quantity with size > 1
-                    out_arr = unyt_array(np.asarray(out_arr), unit)
-                else:
-                    out_arr = ret_class(
-                        np.asarray(out_arr), unit, bypass_validation=True)
-            if out is not None:
-                if isinstance(out, unyt_array):
-                    try:
-                        out.units = out_arr.units
-                    except AttributeError:
-                        # out_arr is an ndarray
-                        out.units = Unit('', registry=self.units.registry)
-            return out_arr
+        Parameters
+        ----------
+        order : {'C', 'F', 'A', 'K'}, optional
+            Controls the memory layout of the copy. 'C' means C-order,
+            'F' means F-order, 'A' means 'F' if `a` is Fortran contiguous,
+            'C' otherwise. 'K' means match the layout of `a` as closely
+            as possible. (Note that this function and :func:`numpy.copy`
+            are very similar, but have different default values for their
+            order= arguments.)
 
-        def copy(self, order='C'):
-            """
-            Return a copy of the array.
+        See also
+        --------
+        numpy.copy
+        numpy.copyto
 
-            Parameters
-            ----------
-            order : {'C', 'F', 'A', 'K'}, optional
-                Controls the memory layout of the copy. 'C' means C-order,
-                'F' means F-order, 'A' means 'F' if `a` is Fortran contiguous,
-                'C' otherwise. 'K' means match the layout of `a` as closely
-                as possible. (Note that this function and :func:`numpy.copy`
-                are very similar, but have different default values for their
-                order= arguments.)
+        Examples
+        --------
+        >>> from unyt import km
+        >>> x = [[1,2,3],[4,5,6]] * km
+        >>> y = x.copy()
+        >>> x.fill(0)
+        >>> print(x)
+        [[0. 0. 0.]
+         [0. 0. 0.]] km
 
-            See also
-            --------
-            numpy.copy
-            numpy.copyto
+        >>> print(y)
+        [[1. 2. 3.]
+         [4. 5. 6.]] km
 
-            Examples
-            --------
-            >>> from unyt import km
-            >>> x = [[1,2,3],[4,5,6]] * km
-            >>> y = x.copy()
-            >>> x.fill(0)
-            >>> print(x)
-            [[0. 0. 0.]
-             [0. 0. 0.]] km
-
-            >>> print(y)
-            [[1. 2. 3.]
-             [4. 5. 6.]] km
-
-            """
-            return type(self)(np.copy(np.asarray(self)), self.units)
+        """
+        return type(self)(np.copy(np.asarray(self)), self.units)
 
     def __array_finalize__(self, obj):
         if obj is None and hasattr(self, 'units'):
@@ -2375,10 +2069,7 @@ def unorm(data, ord=None, axis=None, keepdims=False):
     >>> print(unorm(data))
     3.7416573867739413 km
     """
-    if LooseVersion(np.__version__) < LooseVersion('1.10.0'):
-        norm = np.linalg.norm(data, ord=ord, axis=axis)
-    else:
-        norm = np.linalg.norm(data, ord=ord, axis=axis, keepdims=keepdims)
+    norm = np.linalg.norm(data, ord=ord, axis=axis, keepdims=keepdims)
     if norm.shape == ():
         return unyt_quantity(norm, data.units)
     return unyt_array(norm, data.units)

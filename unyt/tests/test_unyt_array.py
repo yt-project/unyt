@@ -24,7 +24,6 @@ import pytest
 import shutil
 import tempfile
 
-from distutils.version import LooseVersion
 from numpy.testing import (
     assert_array_equal,
     assert_equal,
@@ -48,7 +47,6 @@ from unyt.exceptions import (
     InvalidUnitOperation,
     UnitOperationError,
     UnitParseError,
-    UfuncUnitError,
 )
 from unyt._testing import assert_allclose_units
 from unyt.unit_symbols import (
@@ -109,18 +107,11 @@ def test_addition():
     operate_and_compare(a1, a2, operator.add, answer1)
     operate_and_compare(a2, a1, operator.add, answer2)
     operate_and_compare(a1, a3, operator.add, answer1)
-    if LooseVersion(np.__version__) < LooseVersion('1.13.0'):
-        operate_and_compare(a3, a1, operator.add, answer1)
-        with pytest.raises(UfuncUnitError):
-            np.add(a1, a2)
-        with pytest.raises(UfuncUnitError):
-            np.add(a1, a3)
-    else:
-        operate_and_compare(a3, a1, operator.add, answer2)
-        operate_and_compare(a1, a2, np.add, answer1)
-        operate_and_compare(a2, a1, np.add, answer2)
-        operate_and_compare(a1, a3, np.add, answer1)
-        operate_and_compare(a3, a1, np.add, answer2)
+    operate_and_compare(a3, a1, operator.add, answer2)
+    operate_and_compare(a1, a2, np.add, answer1)
+    operate_and_compare(a2, a1, np.add, answer2)
+    operate_and_compare(a1, a3, np.add, answer1)
+    operate_and_compare(a3, a1, np.add, answer2)
 
     # Test dimensionless quantities
     a1 = unyt_array([1, 2, 3])
@@ -227,16 +218,10 @@ def test_subtraction():
     operate_and_compare(a2, a1, operator.sub, answer2)
     operate_and_compare(a1, a3, operator.sub, answer1)
     operate_and_compare(a3, a1, operator.sub, answer3)
-    if LooseVersion(np.__version__) < LooseVersion('1.13.0'):
-        with pytest.raises(UfuncUnitError):
-            np.subtract(a1, a2)
-        with pytest.raises(UfuncUnitError):
-            np.subtract(a1, a3)
-    else:
-        operate_and_compare(a1, a2, np.subtract, answer1)
-        operate_and_compare(a2, a1, np.subtract, answer2)
-        operate_and_compare(a1, a3, np.subtract, answer1)
-        operate_and_compare(a3, a1, np.subtract, answer3)
+    operate_and_compare(a1, a2, np.subtract, answer1)
+    operate_and_compare(a2, a1, np.subtract, answer2)
+    operate_and_compare(a1, a3, np.subtract, answer1)
+    operate_and_compare(a3, a1, np.subtract, answer3)
 
     # Test dimensionless quantities
     a1 = unyt_array([1, 2, 3])
@@ -426,23 +411,15 @@ def test_division():
     a3 = [4*m, 5*m, 6*m]
     answer1 = unyt_array([.0025, .004, .005])
     answer2 = unyt_array([400, 250, 200])
-    answer3 = unyt_array([0.25, 0.4, 0.5], 'cm/m')
-    answer4 = unyt_array([4.0, 2.5, 2.0], 'm/cm')
 
     operate_and_compare(a1, a2, op, answer1)
     operate_and_compare(a2, a1, op, answer2)
     operate_and_compare(a1, a3, op, answer1)
     operate_and_compare(a3, a1, op, answer2)
-    if LooseVersion(np.__version__) < LooseVersion('1.13.0'):
-        operate_and_compare(a1, a2, np.divide, answer3)
-        operate_and_compare(a2, a1, np.divide, answer4)
-        operate_and_compare(a1, a3, np.divide, answer3)
-        operate_and_compare(a3, a1, np.divide, answer4)
-    else:
-        operate_and_compare(a1, a2, np.divide, answer1)
-        operate_and_compare(a2, a1, np.divide, answer2)
-        operate_and_compare(a1, a3, np.divide, answer1)
-        operate_and_compare(a3, a1, np.divide, answer2)
+    operate_and_compare(a1, a2, np.divide, answer1)
+    operate_and_compare(a2, a1, np.divide, answer2)
+    operate_and_compare(a1, a3, np.divide, answer1)
+    operate_and_compare(a3, a1, np.divide, answer2)
 
     # different dimensions
     a1 = unyt_array([1., 2., 3.], 'cm')
@@ -554,11 +531,7 @@ def test_comparisons():
         operate_and_compare(a1, dimless, op, answer)
 
     for op, answer in zip(ops, answers):
-        if LooseVersion(np.__version__) < LooseVersion('1.13.0'):
-            with pytest.raises(UfuncUnitError):
-                op(a1, a3)
-        else:
-            operate_and_compare(a1, a3, op, answer)
+        operate_and_compare(a1, a3, op, answer)
 
     for op, answer in zip(ops, answers):
         operate_and_compare(a1, a3.in_units('cm'), op, answer)
@@ -915,12 +888,7 @@ def binary_ufunc_comparison(ufunc, a, b):
             'greater', 'greater_equal', 'less', 'less_equal', 'equal',
             'not_equal', 'logical_and', 'logical_or', 'logical_xor', 'maximum',
             'minimum', 'fmax', 'fmin', 'nextafter', 'heaviside']):
-        if a.units != b.units and a.units.dimensions == b.units.dimensions:
-            if LooseVersion(np.__version__) < LooseVersion('1.13.0'):
-                with pytest.raises(UfuncUnitError):
-                    ufunc(a, b)
-                return
-        elif a.units != b.units:
+        if a.units != b.units and a.units.dimensions != b.units.dimensions:
             with pytest.raises(UnitOperationError):
                 ufunc(a, b)
             return
@@ -950,9 +918,6 @@ def binary_ufunc_comparison(ufunc, a, b):
          (a.units.dimensions == b.units.dimensions))):
         assert_array_almost_equal(
             np.array(ret), ufunc(np.array(a.in_cgs()), np.array(b.in_cgs())))
-    elif LooseVersion(np.__version__) < LooseVersion('1.13.0'):
-        assert_array_almost_equal(np.array(ret),
-                                  ufunc(np.array(a), np.array(b)))
 
 
 def test_ufuncs():
