@@ -321,12 +321,16 @@ def _handle_comparison_units(inps, units, ufunc, ret_class, raise_error=False):
     return inps, units
 
 
-def _handle_multiply_divide_units(unit, units, out, out_arr):
+def _handle_multiply_divide_units(unit, units, out, out_arr, out_func):
     if unit.is_dimensionless and unit.base_value != 1.0:
         if not units[0].is_dimensionless:
             if units[0].dimensions == units[1].dimensions:
-                out_arr = np.multiply(out_arr.view(np.ndarray),
-                                      unit.base_value, out=out)
+                if out_func is not None:
+                    out_arr = np.multiply(out_arr.view(np.ndarray),
+                                          unit.base_value, out=out_func)
+                else:
+                    out_arr = np.multiply(out_arr.view(np.ndarray),
+                                          unit.base_value, out=out)
                 unit = Unit(registry=unit.registry)
     if ((units[0].base_offset and units[0].dimensions is temperature or
          units[1].base_offset and units[1].dimensions is temperature)):
@@ -1999,7 +2003,7 @@ class unyt_array(np.ndarray):
                 unit = unit_operator(*units)
                 if unit_operator in (_multiply_units, _divide_units):
                     out_arr, out_arr, unit = _handle_multiply_divide_units(
-                        unit, units, out_arr, out_arr)
+                        unit, units, out_arr, out_arr, None)
             else:
                 raise RuntimeError(
                     "Support for the %s ufunc has not been added "
@@ -2022,14 +2026,15 @@ class unyt_array(np.ndarray):
 
         def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
             func = getattr(ufunc, method)
-            if 'out' in kwargs:
-                out_orig = kwargs.pop('out')
-                out = np.asarray(out_orig[0])
-            else:
+            if 'out' not in kwargs:
                 out = None
+                out_func = None
+            else:
+                out = kwargs.pop('out')[0]
+                out_func = out.view(np.ndarray)
             if len(inputs) == 1:
                 _, inp, u = _get_inp_u_unary(ufunc, inputs)
-                out_arr = func(np.asarray(inp), out=out, **kwargs)
+                out_arr = func(np.asarray(inp), out=out_func, **kwargs)
                 if ufunc in (multiply, divide) and method == 'reduce':
                     power_sign = POWER_SIGN_MAPPING[ufunc]
                     if 'axis' in kwargs and kwargs['axis'] is not None:
@@ -2050,10 +2055,10 @@ class unyt_array(np.ndarray):
                          inps, units, ufunc, ret_class)
                 unit = unit_operator(*units)
                 out_arr = func(np.asarray(inps[0]), np.asarray(inps[1]),
-                               out=out, **kwargs)
+                               out=out_func, **kwargs)
                 if unit_operator in (_multiply_units, _divide_units):
                     out, out_arr, unit = _handle_multiply_divide_units(
-                        unit, units, out, out_arr)
+                        unit, units, out, out_arr, out_func)
             else:
                 raise RuntimeError(
                     "Support for the %s ufunc with %i inputs has not been"
@@ -2071,12 +2076,15 @@ class unyt_array(np.ndarray):
                     # unyt_quantity with size > 1
                     out_arr = unyt_array(np.asarray(out_arr), unit)
                 else:
-                    out_arr = ret_class(np.asarray(out_arr), unit,
-                                        bypass_validation=True)
+                    out_arr = ret_class(
+                        np.asarray(out_arr), unit, bypass_validation=True)
             if out is not None:
-                out_orig[0].flat[:] = out.flat[:]
-                if isinstance(out_orig[0], unyt_array):
-                    out_orig[0].units = unit
+                if isinstance(out, unyt_array):
+                    try:
+                        out.units = out_arr.units
+                    except AttributeError:
+                        # out_arr is an ndarray
+                        out.units = Unit('', registry=self.units.registry)
             return out_arr
 
         def copy(self, order='C'):
