@@ -222,114 +222,6 @@ def _bitop_units(unit1, unit2):
         "Bit-twiddling operators are not defined for unyt_array instances")
 
 
-def _get_inp_u_unary(ufunc, inputs, out_arr=None):
-    inp = inputs[0]
-    u = getattr(inp, 'units', None)
-    if u is None:
-        u = NULL_UNIT
-    if u.dimensions is angle and ufunc in trigonometric_operators:
-        inp = inp.in_units('radian').v
-        if out_arr is not None:
-            out_arr = ufunc(inp).view(np.ndarray)
-    return out_arr, inp, u
-
-
-def _get_inp_u_binary(ufunc, inputs):
-    inp1 = _coerce_iterable_units(inputs[0])
-    inp2 = _coerce_iterable_units(inputs[1])
-    unit1 = getattr(inputs[0], 'units', None) or getattr(inp1, 'units', None)
-    unit2 = getattr(inputs[1], 'units', None) or getattr(inp2, 'units', None)
-    ret_class = _get_binary_op_return_class(type(inputs[0]), type(inputs[1]))
-    if unit1 is None:
-        unit1 = Unit(registry=getattr(unit2, 'registry', None))
-    if unit2 is None and ufunc is not power:
-        unit2 = Unit(registry=getattr(unit1, 'registry', None))
-    elif ufunc is power:
-        unit2 = inp2
-        if isinstance(unit2, np.ndarray):
-            if isinstance(unit2, unyt_array):
-                if unit2.units.is_dimensionless:
-                    pass
-                else:
-                    raise UnitOperationError(ufunc, unit1, unit2)
-            try:
-                unit2 = float(unit2)
-            except TypeError:
-                raise UnitOperationError(ufunc, unit1, unit2)
-    return (inp1, inp2), (unit1, unit2), ret_class
-
-
-def _handle_preserve_units(inps, units, ufunc, ret_class):
-    # check "is" equality first for speed
-    i0 = inps[0]
-    i1 = inps[1]
-    if units[0] is not units[1] and units[0] != units[1]:
-        if not isinstance(i0, unyt_array) or not isinstance(i1, unyt_array):
-            any_nonzero = [np.count_nonzero(i0), np.count_nonzero(i1)]
-            if any_nonzero[0] == 0:
-                units = (units[1], units[1])
-            elif any_nonzero[1] == 0:
-                units = (units[0], units[0])
-        if not units[0].same_dimensions_as(units[1]):
-            raise UnitOperationError(ufunc, *units)
-        conv, offset = units[1].get_conversion_factor(units[0])
-        if offset is not None:
-            raise InvalidUnitOperation(
-                "Quantities with units of Fahrenheit or Celsius cannot "
-                "by multiplied, divided, subtracted or added.")
-        inps = (i0, np.asarray(i1)*conv)
-    else:
-        if ((units[0].base_offset and units[0].dimensions is temperature or
-             units[1].base_offset and units[1].dimensions is temperature)):
-            raise InvalidUnitOperation(
-                "Quantities with units of Fahrenheit or Celsius cannot "
-                "by multiplied, divide, subtracted or added.")
-    return inps, units
-
-
-def _handle_comparison_units(inps, units, ufunc, ret_class):
-    if units[0] != units[1]:
-        u1d = units[0].is_dimensionless
-        u2d = units[1].is_dimensionless
-        any_nonzero = [np.any(inps[0]), np.any(inps[1])]
-        if any_nonzero[0] == np.bool_(False):
-            units = (units[1], units[1])
-        elif any_nonzero[1] == np.bool_(False):
-            units = (units[0], units[0])
-        elif not any([u1d, u2d]):
-            if not units[0].same_dimensions_as(units[1]):
-                raise UnitOperationError(ufunc, *units)
-            else:
-                inps = (inps[0], ret_class(inps[1]).to(
-                    ret_class(inps[0]).units))
-    else:
-        if ((units[0].base_offset and units[0].dimensions is temperature or
-             units[1].base_offset and units[1].dimensions is temperature)):
-            raise InvalidUnitOperation(
-                "Quantities with units of Fahrenheit or Celsius cannot "
-                "by multiplied, divide, subtracted or added.")
-    return inps, units
-
-
-def _handle_multiply_divide_units(unit, units, out, out_arr, out_func):
-    if unit.is_dimensionless and unit.base_value != 1.0:
-        if not units[0].is_dimensionless:
-            if units[0].dimensions == units[1].dimensions:
-                if out_func is not None:
-                    out_arr = np.multiply(out_arr.view(np.ndarray),
-                                          unit.base_value, out=out_func)
-                else:
-                    out_arr = np.multiply(out_arr.view(np.ndarray),
-                                          unit.base_value, out=out)
-                unit = Unit(registry=unit.registry)
-    if ((units[0].base_offset and units[0].dimensions is temperature or
-         units[1].base_offset and units[1].dimensions is temperature)):
-        raise InvalidUnitOperation(
-            "Quantities with units of Fahrenheit or Celsius cannot "
-            "by multiplied, divide, subtracted or added.")
-    return out, out_arr, unit
-
-
 def _coerce_iterable_units(input_object):
     if isinstance(input_object, np.ndarray):
         return input_object
@@ -1679,7 +1571,12 @@ class unyt_array(np.ndarray):
             out = kwargs.pop('out')[0]
             out_func = out.view(np.ndarray)
         if len(inputs) == 1:
-            _, inp, u = _get_inp_u_unary(ufunc, inputs)
+            inp = inputs[0]
+            u = getattr(inp, 'units', None)
+            if u is None:
+                u = NULL_UNIT
+            if u.dimensions is angle and ufunc in trigonometric_operators:
+                inp = inp.in_units('radian').v
             out_arr = func(np.asarray(inp), out=out_func, **kwargs)
             if ufunc in (multiply, divide) and method == 'reduce':
                 power_sign = POWER_SIGN_MAPPING[ufunc]
@@ -1691,20 +1588,98 @@ class unyt_array(np.ndarray):
                 unit = self._ufunc_registry[ufunc](u)
             ret_class = type(self)
         elif len(inputs) == 2:
-            inps, units, ret_class = _get_inp_u_binary(ufunc, inputs)
+            i0 = inputs[0]
+            i1 = inputs[1]
+            inp0 = _coerce_iterable_units(i0)
+            inp1 = _coerce_iterable_units(i1)
+            u0 = getattr(i0, 'units', None) or getattr(inp0, 'units', None)
+            u1 = getattr(i1, 'units', None) or getattr(inp1, 'units', None)
+            ret_class = _get_binary_op_return_class(type(i0), type(i1))
+            if u0 is None:
+                u0 = Unit(registry=getattr(u1, 'registry', None))
+            if u1 is None and ufunc is not power:
+                u1 = Unit(registry=getattr(u0, 'registry', None))
+            elif ufunc is power:
+                u1 = inp1
+                if isinstance(u1, np.ndarray):
+                    if isinstance(u1, unyt_array):
+                        if u1.units.is_dimensionless:
+                            pass
+                        else:
+                            raise UnitOperationError(ufunc, u0, u1)
+                    try:
+                        u1 = float(u1)
+                    except TypeError:
+                        raise UnitOperationError(ufunc, u0, u1)
             unit_operator = self._ufunc_registry[ufunc]
             if unit_operator in (_comparison_unit, _arctan2_unit):
-                inps, units = _handle_comparison_units(
-                    inps, units, ufunc, ret_class)
+                if u0 != u1:
+                    u0d = u0.is_dimensionless
+                    u1d = u1.is_dimensionless
+                    any_nonzero = [np.count_nonzero(i0), np.count_nonzero(i1)]
+                    if any_nonzero[0] == 0:
+                        u0 = u1
+                    elif any_nonzero[1] == 0:
+                        u1 = u0
+                    elif not any([u0d, u1d]):
+                        if not u0.same_dimensions_as(u1):
+                            raise UnitOperationError(ufunc, u0, u1)
+                        else:
+                            i1 = ret_class(i1).to(ret_class(i0).units)
+                else:
+                    if ((u0.base_offset and u0.dimensions is temperature or
+                         u1.base_offset and u1.dimensions is temperature)):
+                        raise InvalidUnitOperation(
+                            "Quantities with units of Fahrenheit or Celsius "
+                            "cannot by multiplied, divided, subtracted or "
+                            "added.")
             elif unit_operator is _preserve_units:
-                inps, units = _handle_preserve_units(
-                     inps, units, ufunc, ret_class)
-            unit = unit_operator(*units)
-            out_arr = func(np.asarray(inps[0]), np.asarray(inps[1]),
+                # check "is" equality first for speed
+                if u0 is not u1 and u0 != u1:
+                    if ((not isinstance(i0, unyt_array) or
+                         not isinstance(i1, unyt_array))):
+                        any_nonzero = [np.count_nonzero(i0),
+                                       np.count_nonzero(i1)]
+                        if any_nonzero[0] == 0:
+                            u0 = u1
+                        elif any_nonzero[1] == 0:
+                            u1 = u0
+                    if not u0.same_dimensions_as(u1):
+                        raise UnitOperationError(ufunc, u0, u1)
+                    conv, offset = u1.get_conversion_factor(u0)
+                    if offset is not None:
+                        raise InvalidUnitOperation(
+                            "Quantities with units of Fahrenheit or Celsius "
+                            "cannot by multiplied, divided, subtracted or "
+                            "added.")
+                    i1 = np.asarray(i1)*conv
+                else:
+                    if ((u0.base_offset and u0.dimensions is temperature or
+                         u1.base_offset and u1.dimensions is temperature)):
+                        raise InvalidUnitOperation(
+                            "Quantities with units of Fahrenheit or Celsius "
+                            "cannot by multiplied, divide, subtracted or "
+                            "added.")
+            unit = unit_operator(u0, u1)
+            out_arr = func(np.asarray(i0), np.asarray(i1),
                            out=out_func, **kwargs)
             if unit_operator in (_multiply_units, _divide_units):
-                out, out_arr, unit = _handle_multiply_divide_units(
-                    unit, units, out, out_arr, out_func)
+                if unit.is_dimensionless and unit.base_value != 1.0:
+                    if not u0.is_dimensionless:
+                        if u0.dimensions == u1.dimensions:
+                            if out_func is not None:
+                                out_arr = np.multiply(
+                                    out_arr.view(np.ndarray),
+                                    unit.base_value, out=out_func)
+                            else:
+                                out_arr = np.multiply(out_arr.view(np.ndarray),
+                                                      unit.base_value, out=out)
+                            unit = Unit(registry=unit.registry)
+                if ((u0.base_offset and u0.dimensions is temperature or
+                     u1.base_offset and u1.dimensions is temperature)):
+                    raise InvalidUnitOperation(
+                        "Quantities with units of Fahrenheit or Celsius "
+                        "cannot by multiplied, divide, subtracted or added.")
         else:
             raise RuntimeError(
                 "Support for the %s ufunc with %i inputs has not been"
