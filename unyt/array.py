@@ -1612,28 +1612,8 @@ class unyt_array(np.ndarray):
                     except TypeError:
                         raise UnitOperationError(ufunc, u0, u1)
             unit_operator = self._ufunc_registry[ufunc]
-            if unit_operator in (_comparison_unit, _arctan2_unit):
-                if u0 != u1:
-                    u0d = u0.is_dimensionless
-                    u1d = u1.is_dimensionless
-                    any_nonzero = [np.count_nonzero(i0), np.count_nonzero(i1)]
-                    if any_nonzero[0] == 0:
-                        u0 = u1
-                    elif any_nonzero[1] == 0:
-                        u1 = u0
-                    elif not any([u0d, u1d]):
-                        if not u0.same_dimensions_as(u1):
-                            raise UnitOperationError(ufunc, u0, u1)
-                        else:
-                            inp1 = ret_class(i1).to(ret_class(i0).units)
-                else:
-                    if ((u0.base_offset and u0.dimensions is temperature or
-                         u1.base_offset and u1.dimensions is temperature)):
-                        raise InvalidUnitOperation(
-                            "Quantities with units of Fahrenheit or Celsius "
-                            "cannot by multiplied, divided, subtracted or "
-                            "added.")
-            elif unit_operator is _preserve_units:
+            if unit_operator in (_preserve_units, _comparison_unit,
+                                 _arctan2_unit):
                 # check "is" equality first for speed
                 if u0 is not u1 and u0 != u1:
                     if ((not isinstance(i0, unyt_array) or
@@ -1645,7 +1625,15 @@ class unyt_array(np.ndarray):
                         elif any_nonzero[1] == 0:
                             u1 = u0
                     if not u0.same_dimensions_as(u1):
-                        raise UnitOperationError(ufunc, u0, u1)
+                        if unit_operator is _comparison_unit:
+                            if u0.is_dimensionless:
+                                u0 = u1
+                            elif u1.is_dimensionless:
+                                u1 = u0
+                            else:
+                                raise UnitOperationError(ufunc, u0, u1)
+                        else:
+                            raise UnitOperationError(ufunc, u0, u1)
                     conv, offset = u1.get_conversion_factor(u0)
                     if offset is not None:
                         raise InvalidUnitOperation(
