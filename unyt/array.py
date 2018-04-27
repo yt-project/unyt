@@ -634,7 +634,7 @@ class unyt_array(np.ndarray):
         else:
             self.convert_to_equivalent(units, equivalence, **kwargs)
 
-    def convert_to_base(self, unit_system="cgs", equivalence=None, **kwargs):
+    def convert_to_base(self, unit_system="mks", equivalence=None, **kwargs):
         """
         Convert the array in-place to the equivalent base units in
         the specified unit system.
@@ -646,7 +646,7 @@ class unyt_array(np.ndarray):
         ----------
         unit_system : string, optional
             The unit system to be used in the conversion. If not specified,
-            the default base units of cgs are used.
+            the default base units of mks are used.
         equivalence : string, optional
             The equivalence you wish to use. To see which equivalencies
             are supported for this object, try the ``list_equivalencies``
@@ -875,7 +875,7 @@ class unyt_array(np.ndarray):
         else:
             return v
 
-    def in_base(self, unit_system="cgs", equivalence=None, **kwargs):
+    def in_base(self, unit_system="mks", equivalence=None, **kwargs):
         """
         Creates a copy of this array with the data in the specified unit
         system, and returns it in that system's base units.
@@ -884,7 +884,7 @@ class unyt_array(np.ndarray):
         ----------
         unit_system : string, optional
             The unit system to be used in the conversion. If not specified,
-            the default base units of cgs are used.
+            the default base units of mks are used.
 
         Examples
         --------
