@@ -72,7 +72,6 @@ def make_plot(extension):
                 print("{}: {} +- {} ({})".format(
                     package, ratios[package], stddevs[package], res))
             print(get_script(benchmarks, 'unyt'))
-            import pdb; pdb.set_trace()
 
 
 def get_script(benchmarks, package):
