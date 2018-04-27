@@ -233,11 +233,11 @@ def _coerce_iterable_units(input_object):
                 raise IterableUnitCoercionError(input_object)
             # This will create a copy of the data in the iterable.
             return unyt_array(input_object)
-        return input_object
+        return np.asarray(input_object)
     else:
         if isinstance(input_object, Unit):
             return unyt_quantity(1.0, input_object)
-        return input_object
+        return np.asarray(input_object)
 
 
 @lru_cache(maxsize=128, typed=False)
@@ -1625,7 +1625,7 @@ class unyt_array(np.ndarray):
                         if not u0.same_dimensions_as(u1):
                             raise UnitOperationError(ufunc, u0, u1)
                         else:
-                            i1 = ret_class(i1).to(ret_class(i0).units)
+                            inp1 = ret_class(i1).to(ret_class(i0).units)
                 else:
                     if ((u0.base_offset and u0.dimensions is temperature or
                          u1.base_offset and u1.dimensions is temperature)):
@@ -1652,7 +1652,7 @@ class unyt_array(np.ndarray):
                             "Quantities with units of Fahrenheit or Celsius "
                             "cannot by multiplied, divided, subtracted or "
                             "added.")
-                    i1 = np.asarray(i1)*conv
+                    inp1 = np.asarray(inp1)*conv
                 else:
                     if ((u0.base_offset and u0.dimensions is temperature or
                          u1.base_offset and u1.dimensions is temperature)):
@@ -1661,7 +1661,7 @@ class unyt_array(np.ndarray):
                             "cannot by multiplied, divide, subtracted or "
                             "added.")
             unit = unit_operator(u0, u1)
-            out_arr = func(np.asarray(i0), np.asarray(i1),
+            out_arr = func(inp0.view(np.ndarray), inp1.view(np.ndarray),
                            out=out_func, **kwargs)
             if unit_operator in (_multiply_units, _divide_units):
                 if unit.is_dimensionless and unit.base_value != 1.0:
@@ -1695,10 +1695,9 @@ class unyt_array(np.ndarray):
                 # This happens if you do ndarray * unyt_quantity.
                 # Explicitly casting to unyt_array avoids creating a
                 # unyt_quantity with size > 1
-                out_arr = unyt_array(np.asarray(out_arr), unit)
+                out_arr = unyt_array(out_arr, unit)
             else:
-                out_arr = ret_class(
-                    np.asarray(out_arr), unit, bypass_validation=True)
+                out_arr = ret_class(out_arr, unit, bypass_validation=True)
         if out is not None:
             if isinstance(out, unyt_array):
                 try:
