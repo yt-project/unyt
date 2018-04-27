@@ -26,6 +26,7 @@ from unyt import physical_constants as pc
 
 unit_system_registry = {}
 
+cmks = dimensions.current_mks
 
 class _UnitSystemConstants(object):
     """
@@ -81,6 +82,9 @@ class UnitSystem(object):
                  current_mks_unit="A", luminous_intensity_unit="cd",
                  registry=None):
         self.registry = registry
+        if current_mks_unit is not None:
+            current_mks_unit = Unit(current_mks_unit,
+                                    registry=self.registry)
         self.units_map = OrderedDict([
             (dimensions.length, Unit(length_unit, registry=self.registry)),
             (dimensions.mass, Unit(mass_unit, registry=self.registry)),
@@ -88,11 +92,13 @@ class UnitSystem(object):
             (dimensions.temperature, Unit(
                 temperature_unit, registry=self.registry)),
             (dimensions.angle, Unit(angle_unit, registry=self.registry)),
-            (dimensions.current_mks, Unit(current_mks_unit,
-                                          registry=self.registry)),
+            (dimensions.current_mks, current_mks_unit),
             (dimensions.luminous_intensity, Unit(
                 luminous_intensity_unit, registry=self.registry))])
         for dimension, unit in self.units_map.items():
+            # CGS sets the current_mks unit to none, so catch it here
+            if unit is None:
+                continue
             if unit.dimensions is not dimension:
                 raise IllDefinedUnitSystem(self.units_map)
         self._dims = ["length", "mass", "time", "temperature", "angle",
@@ -108,8 +114,7 @@ class UnitSystem(object):
             key = getattr(dimensions, key)
         um = self.units_map
         if key not in um or um[key].dimensions is not key:
-            cmks = dimensions.current_mks
-            if cmks in key.free_symbols and cmks not in self.units_map:
+            if cmks in key.free_symbols and self.units_map[cmks] is None:
                 raise MissingMKSCurrent(self.name)
             units = _get_system_unit_string(key, self.units_map)
             self.units_map[key] = Unit(units, registry=self.registry)
@@ -120,6 +125,8 @@ class UnitSystem(object):
             if key not in self._dims:
                 self._dims.append(key)
             key = getattr(dimensions, key)
+        if self.units_map[cmks] is None and cmks in key.free_symbols:
+            raise MissingMKSCurrent(self.name)
         self.units_map[key] = Unit(value, registry=self.registry)
 
     def __str__(self):
@@ -138,7 +145,7 @@ class UnitSystem(object):
         return repr[:-1]
 
 #: The CGS unit system
-cgs_unit_system = UnitSystem("cgs", "cm", "g", "s")
+cgs_unit_system = UnitSystem("cgs", "cm", "g", "s", current_mks_unit=None)
 cgs_unit_system["energy"] = "erg"
 cgs_unit_system["specific_energy"] = "erg/g"
 cgs_unit_system["pressure"] = "dyne/cm**2"
