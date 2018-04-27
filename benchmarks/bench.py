@@ -55,7 +55,7 @@ setup = OrderedDict([
     ('unyt', 'import unyt as u'),
 ])
 
-base_args = ['python3.6', '-m', 'perf', 'timeit', '--rigorous']
+base_args = ['python3.6', '-m', 'perf', 'timeit']
 
 shared_setup = 'import numpy as np; import operator'
 
@@ -63,8 +63,8 @@ base_setups = OrderedDict([
     ('small_list', 'data = [1., 2., 3.]'),
     ('small_tuple', 'data = (1., 2., 3.)'),
     ('small_array', 'data = np.array([1., 2., 3.])'),
-    ('big_list', 'data = np.arange(1e6).tolist()'),
-    ('big_array', 'data = np.arange(1e6)'),
+    ('big_list', 'data = (np.arange(1e6)+1).tolist()'),
+    ('big_array', 'data = (np.arange(1e6)+1)'),
 ])
 
 op_ufuncs = OrderedDict([
@@ -72,6 +72,7 @@ op_ufuncs = OrderedDict([
     ('operator.sub', 'np.subtract'),
     ('operator.mul', 'np.multiply'),
     ('operator.truediv', 'np.true_divide'),
+    ('operator.eq', 'np.equal'),
 ])
 
 for bs in base_setups:
@@ -80,14 +81,63 @@ for bs in base_setups:
         setup_s = '; '.join([shared_setup, setup[package], base_setups[bs]])
         args = base_args + ['-s', setup_s + ' ']
         if package == 'numpy':
-            args.append('np.asarray(data)')
+            args.append('np.array(data)')
         else:
             args.append('data*u.g')
         json_name = '{}_{}_create.json'.format(package, bs)
         run_perf(args, json_name)
+
+        if 'list' in bs or 'tuple' in bs:
+            continue
+
+        args = base_args + ['-s', setup_s +
+                            '; data=np.asarray(data); out=data.copy()']
+        if package == 'numpy':
+            args[-1] += '; '
+        else:
+            if package != 'pint':
+                args[-1] += '*u.g'
+            args[-1] += '; data = data*u.g '
+
+        args.append('data**2')
+        json_name = '{}_{}_square.json'.format(package, bs)
+        run_perf(args, json_name)
+
+        args[-1] = 'np.power(data, 2)'
+        json_name = '{}_{}_npsquare.json'.format(package, bs)
+        run_perf(args, json_name)
+
+        args[-1] = 'np.power(data, 2, out=out)'
+        json_name = '{}_{}_npsquareout.json'.format(package, bs)
+        run_perf(args, json_name)
+
+        args[-1] = 'data**0.5'
+        json_name = '{}_{}_sqrt.json'.format(package, bs)
+        run_perf(args, json_name)
+
+        args[-1] = 'np.sqrt(data)'
+        json_name = '{}_{}_npsqrt.json'.format(package, bs)
+        run_perf(args, json_name)
+
+        args[-1] = 'np.sqrt(data, out=out)'
+        json_name = '{}_{}_npsqrtout.json'.format(package, bs)
+        run_perf(args, json_name)
+
+
+
     make_plot("{}_create.json".format(bs))
+    if 'list' not in bs and 'tuple' not in bs:
+        make_plot("{}_square.json".format(bs))
+        make_plot("{}_npsquare.json".format(bs))
+        make_plot("{}_npsquareout.json".format(bs))
+        make_plot("{}_sqrt.json".format(bs))
+        make_plot("{}_npsqrt.json".format(bs))
+        make_plot("{}_npsqrtout.json".format(bs))
+
 
 for bs in base_setups:
+    if 'list' in bs or 'tuple' in bs:
+        continue
     for op, ufunc in op_ufuncs.items():
         for bench, bench_name in [
                 (op + r'(data1, data2)', op + '12.json'),
@@ -103,7 +153,8 @@ for bs in base_setups:
                     setup_s = '; '.join(
                         [shared_setup, setup[package], base_setups[bs]]) + '; '
                     if 'out' in bench:
-                        if package not in ('pint', 'numpy'):
+                        if (package not in ('pint', 'numpy') and
+                            'equal' not in bench):
                             setup_s += 'out=data*u.{}; '.format(unit_choice[0])
                         else:
                             setup_s += 'out=np.array(data); '
