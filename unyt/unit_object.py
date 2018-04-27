@@ -57,10 +57,10 @@ from unyt.unit_registry import (
 from unyt.exceptions import (
     InvalidUnitOperation,
     MissingMKSCurrent,
+    UnitsNotReducible,
 )
 from unyt.equivalencies import (
     equivalence_registry,
-    em_conversions,
 )
 import copy
 import token
@@ -650,7 +650,7 @@ class Unit(Expr):
         try:
             units_string = unit_system[self.dimensions]
         except MissingMKSCurrent:
-            units_string = em_conversions[self.dimensions][0]
+            raise UnitsNotReducible(self.units, unit_system)
         return Unit(units_string, registry=self.registry)
 
     def get_cgs_equivalent(self):
