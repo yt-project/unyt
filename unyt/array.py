@@ -1568,28 +1568,40 @@ class unyt_array(np.ndarray):
             out = None
             out_func = None
         else:
+            # we need to get both the actual "out" object and a view onto it
+            # in case we need to do in-place operations
             out = kwargs.pop('out')[0]
             out_func = out.view(np.ndarray)
         if len(inputs) == 1:
+            # Unary ufuncs
             inp = inputs[0]
             u = getattr(inp, 'units', None)
             if u is None:
                 u = NULL_UNIT
             if u.dimensions is angle and ufunc in trigonometric_operators:
+                # ensure np.sin(90*degrees) works as expected
                 inp = inp.in_units('radian').v
+            # evaluate the ufunc
             out_arr = func(np.asarray(inp), out=out_func, **kwargs)
             if ufunc in (multiply, divide) and method == 'reduce':
+                # a reduction of a multiply or divide corresponds to
+                # a repeated product which we implement as an exponent
                 power_sign = POWER_SIGN_MAPPING[ufunc]
                 if 'axis' in kwargs and kwargs['axis'] is not None:
                     unit = u**(power_sign*inp.shape[kwargs['axis']])
                 else:
                     unit = u**(power_sign*inp.size)
             else:
+                # get unit of result
                 unit = self._ufunc_registry[ufunc](u)
+            # use type(self) here so we can support user-defined
+            # subclasses of unyt_array
             ret_class = type(self)
         elif len(inputs) == 2:
+            # binary ufuncs
             i0 = inputs[0]
             i1 = inputs[1]
+            # coerce inputs to be ndarrays if they aren't already
             inp0 = _coerce_iterable_units(i0)
             inp1 = _coerce_iterable_units(i1)
             u0 = getattr(i0, 'units', None) or getattr(inp0, 'units', None)
@@ -1616,6 +1628,13 @@ class unyt_array(np.ndarray):
                                  _arctan2_unit):
                 # check "is" equality first for speed
                 if u0 is not u1 and u0 != u1:
+                    # we allow adding, multiplying, comparisons with
+                    # zero-filled arrays, lists, etc or scalar zero. We
+                    # do not allow zero-filled unyt_array instances for
+                    # performance reasons. If we did allow it, every
+                    # binary operation would need to scan over all the
+                    # elements of both arrays to check for arrays filled
+                    # with zeros
                     if ((not isinstance(i0, unyt_array) or
                          not isinstance(i1, unyt_array))):
                         any_nonzero = [np.count_nonzero(i0),
@@ -1626,6 +1645,8 @@ class unyt_array(np.ndarray):
                             u1 = u0
                     if not u0.same_dimensions_as(u1):
                         if unit_operator is _comparison_unit:
+                            # we allow comparisons between data with
+                            # units and dimensionless data
                             if u0.is_dimensionless:
                                 u0 = u1
                             elif u1.is_dimensionless:
@@ -1648,7 +1669,9 @@ class unyt_array(np.ndarray):
                             "Quantities with units of Fahrenheit or Celsius "
                             "cannot by multiplied, divide, subtracted or "
                             "added.")
+            # get the unit of the result
             unit = unit_operator(u0, u1)
+            # actually evaluate the ufunc
             out_arr = func(inp0.view(np.ndarray), inp1.view(np.ndarray),
                            out=out_func, **kwargs)
             if unit_operator in (_multiply_units, _divide_units):
