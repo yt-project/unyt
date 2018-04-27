@@ -1,11 +1,23 @@
 import matplotlib
 matplotlib.use('agg')
 from collections import OrderedDict
+import contextlib
+import io
 from matplotlib import pyplot as plt
 import numpy as np
 import os
 import perf
 import subprocess
+import sys
+
+@contextlib.contextmanager
+def stdoutIO(stdout=None):
+    old = sys.stdout
+    if stdout is None:
+        stdout = io.StringIO()
+    sys.stdout = stdout
+    yield stdout
+    sys.stdout = old
 
 
 def run_perf(args, json_name):
@@ -23,6 +35,7 @@ def run_perf(args, json_name):
 def make_plot(extension):
     ratios = OrderedDict()
     stddevs = OrderedDict()
+    benchmarks = OrderedDict()
     np_bench = perf.Benchmark.load(
         open('{}_{}'.format('numpy', extension), 'r'))
     np_mean = np_bench.mean()
@@ -30,22 +43,45 @@ def make_plot(extension):
     for package in setup:
         if package == 'numpy':
             continue
-        benchmark = perf.Benchmark.load(
+        benchmarks[package] = perf.Benchmark.load(
             open('{}_{}'.format(package, extension), 'r'))
-        mean = benchmark.mean()
-        stddev = benchmark.stdev()
+        mean = benchmarks[package].mean()
+        stddev = benchmarks[package].stdev()
         ratios[package] = mean/np_mean
         stddevs[package] = ratios[package]*np.sqrt(
             (np_stddev/np_mean)**2 + (stddev/mean)**2)
     fig, ax = plt.subplots()
-    packages = ratios.keys()
-    ratios = ratios.values()
-    stddevs = stddevs.values()
-    ax.bar(packages, ratios, yerr=stddevs)
+    packages = list(ratios.keys())
+    ax.bar(packages, ratios.values(), yerr=stddevs.values())
     fig.suptitle(extension.replace('.json', '').replace('_', ' ').title())
     ax.set_ylabel('numpy overhead (x time for numpy); lower is better')
     plt.savefig(extension.replace('.json', '.png'))
     plt.close(fig)
+
+    if ratios['unyt'] != min(ratios.values()):
+        rvalues = list(ratios.values())
+        svalues = list(stddevs.values())
+        unyt_index = packages.index('unyt')
+        min_index = rvalues.index(min(rvalues))
+        if ratios['unyt'] > 3*svalues[min_index] + rvalues[min_index]:
+            for package in ratios:
+                script = get_script(benchmarks, package)
+                with stdoutIO() as s:
+                    exec(script)
+                res = s.getvalue().replace('\n', '')
+                print("{}: {} +- {} ({})".format(
+                    package, ratios[package], stddevs[package], res))
+            print(get_script(benchmarks, 'unyt'))
+            import pdb; pdb.set_trace()
+
+
+def get_script(benchmarks, package):
+    meta = benchmarks[package].get_metadata()
+    setup_s = meta['timeit_setup'][1:-1]
+    bench_s = 'print(' + meta['timeit_stmt'][1:-1] + ')'
+    script = setup_s + '; ' + bench_s
+    script = script.replace('; ', '\n')
+    return script
 
 
 setup = OrderedDict([
