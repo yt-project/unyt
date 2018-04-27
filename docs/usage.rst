@@ -577,8 +577,63 @@ with the same units:
 Working with code that uses ``astropy.units``
 ---------------------------------------------
 
+The :mod:`unyt` library can convert data contained inside of an Astropy
+``Quantity`` instance. It can also produce a ``Quantity`` from an existing
+:class:`unyt_array <unyt.array.unyt_array>` instance. To convert data from
+``astropy.units`` to :mod:`unyt` use the :func:`unyt_array.from_astropy
+<unyt.array.unyt_array.from_astropy>` function:
+
+  >>> from astropy.units import km
+  >>> from unyt import unyt_quantity
+  >>> unyt_quantity.from_astropy(km)
+  unyt_quantity(1., 'km')
+  >>> a = [1, 2, 3]*km
+  >>> a
+  <Quantity [1., 2., 3.] km>
+  >>> unyt_array.from_astropy(a)
+  unyt_array([1., 2., 3.], 'km')
+
+To convert data *to* ``astropy.units`` use the :meth:`unyt_array.to_astropy <unyt.array.unyt_array.to_astropy>` method:
+
+  >>> from unyt import g, cm
+  >>> data = [3, 4, 5]*g/cm**3
+  >>> data.to_astropy()
+  <Quantity [3., 4., 5.] g / cm3>
+  >>> (4*cm).to_astropy()
+  <Quantity 4. cm>
+
+
 Working with code that uses ``Pint``
 ------------------------------------
+
+The :mod:`unyt` library can also convert data contained in ``Pint`` ``Quantity``
+instances. To convert data from ``Pint`` to :mod:`unyt`, use the :func:`unyt_array.from_pint <unyt.array.unyt_array.from_pint>` function:
+
+  >>> from pint import UnitRegistry
+  >>> import numpy as np
+  >>> ureg = UnitRegistry()
+  >>> a = np.arange(4)
+  >>> b = ureg.Quantity(a, "erg/cm**3")
+  >>> b
+  <Quantity([0 1 2 3], 'erg / centimeter ** 3')>
+  >>> c = unyt_array.from_pint(b)
+  >>> c
+  unyt_array([0., 1., 2., 3.], 'erg/cm**3')
+
+And to convert data contained in a :class:`unyt_array <unyt.array.unyt_array>`
+instance, use the :meth:`unyt_array.to_pint <unyt.array.unyt_array.to_pint>`
+method:
+
+  >>> from unyt import cm, s
+  >>> a = 4*cm**2/s
+  >>> print(a)
+  4.0 cm**2/s
+  >>> a.to_pint()
+  <Quantity(4.0, 'centimeter ** 2 / second')>
+  >>> b = [1, 2, 3]*cm
+  >>> b.to_pint()
+  <Quantity([1. 2. 3.], 'centimeter')>
+
 
 Integrating :mod:`unyt` Into a Python Library
 +++++++++++++++++++++++++++++++++++++++++++++
