@@ -420,7 +420,7 @@ class ComptonEquivalence(Equivalence):
 
     .. math::
 
-      \lambda_c = h/mc
+      \\lambda_c = h/mc
 
     Example
     -------
