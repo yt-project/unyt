@@ -415,8 +415,12 @@ class SchwarzschildEquivalence(Equivalence):
 
 
 class ComptonEquivalence(Equivalence):
-    """Equivalence between the wavelength change of a compton scattered photon
-    and the mass of the particle it scatters off of.
+    """Equivalence between the Compton wavelength
+    of a particle and its mass.
+
+    .. math::
+
+      \lambda_c = h/mc
 
     Example
     -------
