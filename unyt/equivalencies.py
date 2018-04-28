@@ -438,7 +438,7 @@ class ComptonEquivalence(Equivalence):
 
     def _convert(self, x, new_dims):
         from unyt import physical_constants as pc
-        return np.divide(pc.hcgs/pc.clight, x, out=self._get_out(x))
+        return np.divide(pc.hmks/pc.clight, x, out=self._get_out(x))
 
     def __str__(self):
         return "compton: mass <-> length"
@@ -473,10 +473,10 @@ class EffectiveTemperature(Equivalence):
         if new_dims == flux:
             x4 = np.power(x, 4, out=self._get_out(x))
             return np.multiply(
-                pc.stefan_boltzmann_constant_cgs, x4, out=self._get_out(x))
+                pc.stefan_boltzmann_constant_mks, x4, out=self._get_out(x))
         elif new_dims == temperature:
             T4 = np.divide(
-                x, pc.stefan_boltzmann_constant_cgs, out=self._get_out(x))
+                x, pc.stefan_boltzmann_constant_mks, out=self._get_out(x))
             return np.power(T4, 0.25, out=self._get_out(x))
 
     def __str__(self):
