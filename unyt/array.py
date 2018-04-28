@@ -122,11 +122,11 @@ from unyt.exceptions import (
     InvalidUnitOperation,
     UnitConversionError,
     UnitOperationError,
-    UnitsNotReducible,
 )
 from unyt.equivalencies import (
     equivalence_registry,
-    em_conversions
+    em_conversions,
+    get_em_base_unit,
 )
 try:
     from functools import lru_cache
@@ -875,7 +875,7 @@ class unyt_array(np.ndarray):
         else:
             return v
 
-    def in_base(self, unit_system="mks", equivalence=None, **kwargs):
+    def in_base(self, unit_system="mks"):
         """
         Creates a copy of this array with the data in the specified unit
         system, and returns it in that system's base units.
@@ -893,14 +893,17 @@ class unyt_array(np.ndarray):
         >>> print(E.in_base("mks"))
         2.5e-07 W
         """
-        try:
+        potential_base_unit = get_em_base_unit(str(self.units))
+        em_units, _, em_us = em_conversions.get(potential_base_unit, (None,)*3)
+        if em_units is None or em_us == unit_system:
+            to_units = em_units
+            equivalence = em_us
+        else:
             to_units = self.units.get_base_equivalent(unit_system)
-        except UnitsNotReducible:
-            to_units, _ = em_conversions[self.units.dimensions]
-            raise EquivalentDimsError(self.units, to_units, unit_system)
-        return self.in_units(to_units, equivalence=equivalence, **kwargs)
+            equivalence = None
+        return self.in_units(to_units, equivalence=equivalence)
 
-    def in_cgs(self, equivalence=None, **kwargs):
+    def in_cgs(self):
         """
         Creates a copy of this array with the data in the equivalent cgs units,
         and returns it.
@@ -915,15 +918,9 @@ class unyt_array(np.ndarray):
         >>> print((10*Newton/km).in_cgs())
         10.0 g/s**2
         """
-        try:
-            to_units = self.units.get_cgs_equivalent()
-        except UnitsNotReducible:
-            to_units, _ = em_conversions[self.units.dimensions]
-            if equivalence is not None:
-                raise EquivalentDimsError(self.units, to_units, 'cgs')
-        return self.in_units(to_units, equivalence=equivalence, **kwargs)
+        return self.in_base("cgs")
 
-    def in_mks(self, equivalence=None, **kwargs):
+    def in_mks(self):
         """
         Creates a copy of this array with the data in the equivalent mks units,
         and returns it.
@@ -938,13 +935,7 @@ class unyt_array(np.ndarray):
         >>> print((1*mile).in_mks())
         1609.344 m
         """
-        try:
-            to_units = self.units.get_mks_equivalent()
-        except UnitsNotReducible:
-            to_units, _ = em_conversions[self.units.dimensions]
-            if equivalence is not None:
-                raise EquivalentDimsError(self.units, to_units, 'mks')
-        return self.in_units(to_units, equivalence=equivalence, **kwargs)
+        return self.in_base("mks")
 
     def convert_to_equivalent(self, unit, equivalence, **kwargs):
         """
