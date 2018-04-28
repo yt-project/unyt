@@ -523,7 +523,7 @@ class ElectromagneticSI(Equivalence):
     one_way = True
     _dims = (current_cgs, charge_cgs, magnetic_field_cgs,
              electric_field_cgs, electric_potential_cgs,
-             resistance_cgs)
+             resistance_cgs, magnetic_flux_cgs)
 
     def _convert(self, x, new_dims):
         old_dims = x.units.dimensions
@@ -559,7 +559,7 @@ class ElectromagneticCGS(Equivalence):
     one_way = True
     _dims = (current_mks, charge_mks, magnetic_field_mks,
              electric_field_mks, electric_potential_mks,
-             resistance_mks)
+             resistance_mks, magnetic_flux_mks)
 
     def _convert(self, x, new_dims):
         old_dims = x.units.dimensions
