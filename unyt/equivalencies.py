@@ -222,19 +222,19 @@ class SpectralEquivalence(Equivalence):
         from unyt import physical_constants as pc
         if new_dims == energy:
             if x.units.dimensions == length:
-                return np.divide(pc.clight*pc.hcgs, x, out=self._get_out(x))
+                return np.divide(pc.clight*pc.hmks, x, out=self._get_out(x))
             elif x.units.dimensions == rate:
-                return np.multiply(x, pc.hcgs, out=self._get_out(x))
+                return np.multiply(x, pc.hmks, out=self._get_out(x))
         elif new_dims == length:
             if x.units.dimensions == rate:
                 return np.divide(pc.clight, x, out=self._get_out(x))
             elif x.units.dimensions == energy:
-                return np.divide(pc.hcgs*pc.clight, x, out=self._get_out(x))
+                return np.divide(pc.hmks*pc.clight, x, out=self._get_out(x))
         elif new_dims == rate:
             if x.units.dimensions == length:
                 return np.divide(pc.clight, x, out=self._get_out(x))
             elif x.units.dimensions == energy:
-                return np.divide(x, pc.hcgs, out=self._get_out(x))
+                return np.divide(x, pc.hmks, out=self._get_out(x))
 
     def __str__(self):
         return "spectral: length <-> frequency <-> energy"
