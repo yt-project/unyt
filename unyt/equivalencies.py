@@ -501,6 +501,8 @@ em_conversions = {
 }
 
 def get_em_base_unit(unit_str):
+    if len(unit_str) == 1:
+        return unit_str
     possible_prefix = unit_str[0]
     prefix_len = 1
     if unit_str[:2] == 'da':
