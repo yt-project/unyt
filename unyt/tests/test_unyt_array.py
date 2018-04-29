@@ -1236,7 +1236,7 @@ def test_equivalencies():
 
     lam = 4000*u.angstrom
     hnu = lam.in_units('erg', 'spectral')
-    assert_allclose_units(hnu, u.hcgs*u.clight/lam)
+    assert_allclose_units(hnu, u.hmks*u.clight/lam)
     lam.convert_to_units('eV', 'spectral')
     assert_allclose_units(lam, hnu)
     assert lam.units == u.eV.units
@@ -1256,7 +1256,7 @@ def test_equivalencies():
 
     nu = 1*u.MHz
     E = nu.to('erg', 'spectral')
-    assert_allclose_units(E, u.hcgs*nu)
+    assert_allclose_units(E, u.hmks*nu)
     nu.convert_to_units('J', 'spectral')
     assert_allclose_units(nu, E)
     assert nu.units == u.J.units
@@ -1266,7 +1266,7 @@ def test_equivalencies():
 
     E = 13.6*u.eV
     nu = E.to('Hz', 'spectral')
-    assert_allclose_units(nu, E/u.hcgs)
+    assert_allclose_units(nu, E/u.hmks)
     E.convert_to_units('MHz', 'spectral')
     assert_allclose_units(nu, E)
     assert E.units == u.MHz.units
@@ -1276,7 +1276,7 @@ def test_equivalencies():
 
     E = 13.6*u.eV
     lam = E.to('nm', 'spectral')
-    assert_allclose_units(lam, u.hcgs*u.clight/E)
+    assert_allclose_units(lam, u.hmks*u.clight/E)
     E.convert_to_units('angstrom', 'spectral')
     assert_allclose_units(E, lam)
     assert E.units == u.angstrom.units
@@ -1369,7 +1369,7 @@ def test_equivalencies():
     me.convert_to_units('nm', 'compton')
     length = u.me.in_units("angstrom", "compton")
     assert_allclose_units(length, me)
-    assert_allclose_units(length, u.hcgs/(u.me*u.clight))
+    assert_allclose_units(length, u.hmks/(u.me*u.clight))
     assert_allclose_units(u.me, length.in_units("g", "compton"))
     assert me.units == u.nm.units
     assert length.units == u.angstrom.units
@@ -1602,8 +1602,8 @@ def test_initialization_different_registries():
     l1 = unyt_quantity(1.0, 'code_length', registry=reg1)
     l2 = unyt_quantity(1.0, 'code_length', registry=reg2)
 
-    assert_almost_equal(float(l1.in_cgs()), 1.0)
-    assert_almost_equal(float(l2.in_cgs()), 3.0)
+    assert_almost_equal(float(l1.in_mks()), 1.0)
+    assert_almost_equal(float(l2.in_mks()), 3.0)
 
 
 def test_ones_and_zeros_like():
