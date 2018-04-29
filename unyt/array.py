@@ -895,7 +895,7 @@ class unyt_array(np.ndarray):
         """
         potential_base_unit = get_em_base_unit(str(self.units))
         em_units, _, em_us = em_conversions.get(potential_base_unit, (None,)*3)
-        if em_units is None or em_us == unit_system:
+        if em_units is not None and em_us == unit_system:
             to_units = em_units
             equivalence = em_us
         else:
