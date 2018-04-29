@@ -79,8 +79,9 @@ qp = elementary_charge = proton_charge = charge_proton = charge_proton_mks = \
 #: Charge of the electron
 electron_charge = charge_electron = charge_electron_mks = -qp
 
-charge_proton_cgs = unyt_quantity(4.8032056e-10, 'esu')
-charge_electron_cgs = -charge_proton_cgs
+qp_cgs = elementary_charge_cgs = proton_charge_cgs = charge_proton_cgs = \
+    unyt_quantity(4.8032056e-10, 'esu')
+electron_charge_cgs = charge_electron_cgs = -charge_proton_cgs
 
 # Physical Constants
 #: Boltzmann constant
