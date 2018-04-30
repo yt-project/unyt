@@ -126,7 +126,7 @@ from unyt.exceptions import (
 from unyt.equivalencies import (
     equivalence_registry,
     em_conversions,
-    get_em_base_unit,
+    check_em_conversion,
 )
 try:
     from functools import lru_cache
@@ -621,6 +621,12 @@ class unyt_array(np.ndarray):
         """
         if equivalence is None:
             units = _sanitize_units_convert(units, self.units.registry)
+            em_units, em_us = check_em_conversion(self.units)
+            if em_units is not None:
+                em_units = _sanitize_units_convert(em_units,
+                                                   self.units.registry)
+                if em_units.dimensions == units.dimensions:
+                    return self.convert_to_equivalent(units, em_us)
             new_units = _unit_repr_check_same(self.units, units)
             (conversion_factor, offset) = self.units.get_conversion_factor(
                 new_units)
@@ -774,6 +780,12 @@ class unyt_array(np.ndarray):
         """
         units = _sanitize_units_convert(units, self.units.registry)
         if equivalence is None:
+            em_units, em_us = check_em_conversion(self.units)
+            if em_units is not None:
+                em_units = _sanitize_units_convert(em_units,
+                                                   self.units.registry)
+                if em_units.dimensions == units.dimensions:
+                    return self.to_equivalent(units, em_us)
             new_units = _unit_repr_check_same(self.units, units)
             (conversion_factor, offset) = self.units.get_conversion_factor(
                 new_units)
@@ -893,8 +905,7 @@ class unyt_array(np.ndarray):
         >>> print(E.in_base("mks"))
         2.5e-07 W
         """
-        potential_base_unit = get_em_base_unit(str(self.units))
-        em_units, _, em_us = em_conversions.get(potential_base_unit, (None,)*3)
+        em_units, em_us = check_em_conversion(self.units)
         if em_units is not None and em_us == unit_system:
             to_units = em_units
             equivalence = em_us

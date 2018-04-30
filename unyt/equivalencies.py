@@ -500,7 +500,8 @@ em_conversions = {
     "statohm": ("ohm", speed_of_light_cm_per_s**2*1.0e-9, "mks"),
 }
 
-def get_em_base_unit(unit_str):
+def _get_em_base_unit(units):
+    unit_str = str(units)
     if len(unit_str) == 1:
         return unit_str
     possible_prefix = unit_str[0]
@@ -513,6 +514,11 @@ def get_em_base_unit(unit_str):
     else:
         base_unit = unit_str
     return base_unit
+
+def check_em_conversion(units):
+    base_unit = _get_em_base_unit(units)
+    em_info = em_conversions.get(base_unit, (None,)*3)
+    return em_info[0], em_info[2]
 
 class ElectromagneticSI(Equivalence):
     """An equivalence between CGS and SI electromagnetic units
@@ -544,7 +550,7 @@ class ElectromagneticSI(Equivalence):
              resistance_cgs, magnetic_flux_cgs)
 
     def _convert(self, x, new_dims):
-        base_unit = get_em_base_unit(str(x.units))
+        base_unit = _get_em_base_unit(x.units)
         new_units, convert_factor, _ = em_conversions[base_unit]
         return x.in_cgs().v*convert_factor, new_units
 
@@ -581,7 +587,7 @@ class ElectromagneticCGS(Equivalence):
              resistance_mks, magnetic_flux_mks)
 
     def _convert(self, x, new_dims):
-        base_unit = get_em_base_unit(str(x.units))
+        base_unit = _get_em_base_unit(x.units)
         new_units, convert_factor, _ = em_conversions[base_unit]
         return x.in_mks().v*convert_factor, new_units
 
