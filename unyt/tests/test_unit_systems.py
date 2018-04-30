@@ -48,15 +48,15 @@ def test_unit_system_id():
     reg1 = UnitRegistry()
     reg2 = UnitRegistry()
     assert reg1.unit_system_id == reg2.unit_system_id
-    reg1.modify('m', 2.0)
+    reg1.modify('g', 2.0)
     assert reg1.unit_system_id != reg2.unit_system_id
     reg1 = UnitRegistry()
     reg1.add('dinosaurs', 12.0, dimensions.length)
     assert reg1.unit_system_id != reg2.unit_system_id
     reg1 = UnitRegistry()
-    reg1.remove('m')
+    reg1.remove('g')
     assert reg1.unit_system_id != reg2.unit_system_id
-    reg1.add('m', 100., dimensions.length)
+    reg1.add('g', 1.0e-3, dimensions.mass)
     assert reg1.unit_system_id == reg2.unit_system_id
 
 
