@@ -41,6 +41,14 @@ The ``unyt`` package provides a subclass of NumPy's ``ndarray`` class that knows
 
 And a whole lot more! See `the documentation <http://unyt.readthedocs.io>`_ for more examples as well as full API docs.
 
+Code of Conduct
+---------------
+
+The ``unyt`` package is part of `The yt Project
+<https://yt-project.org>`. Participating in ``unyt`` development therefore
+happens under the auspices of the `yt community code of conduct
+<http://yt-project.org/doc/developing/developing.html#yt-community-code-of-conduct>`. If for any reason you feel that the code of conduct has been violated, please send an e-mail to confidential@yt-project.org with details describing the incident. All emails sent to this address will be treated with the strictest confidence.
+
 License
 -------
 

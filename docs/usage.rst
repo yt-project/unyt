@@ -638,8 +638,29 @@ method:
 Integrating :mod:`unyt` Into a Python Library
 +++++++++++++++++++++++++++++++++++++++++++++
 
+The :mod:`unyt` library began life as the unit system for the ``yt`` data
+analysis and visualization package, in the form of ``yt.units``. In this role,
+:mod:`unyt` was deeply integrated into a larger python library. Due to these
+origins, it is straightforward to build applications that ensure unit
+consistency by making use of :mod:`unyt`. Below we discuss a few topics that
+most often come up when integrating :mod:`unyt` into a new or existing Python library.
+
 Unit Registries
 ---------------
+
+Often it is convenient to define new custom units.
+
+Writing Data with Units to Disk
+-------------------------------
+
+Pickles
+*******
+
+HDF5 Files
+**********
+
+Text Files
+**********
 
 Performance Considerations
 --------------------------
