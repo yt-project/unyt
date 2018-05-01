@@ -1452,9 +1452,9 @@ def test_electromagnetic():
     assert_almost_equal(u.qp, qp)
     assert qp.units == u.C.units
 
-    qp_mks_k = u.qp.in_units("kC", "SI")
+    qp_mks_k = u.qp_cgs.in_units("kC", "SI")
     assert_array_almost_equal(
-        qp_mks_k.v, 1.0e-2*u.qp.v/speed_of_light_cm_per_s)
+        qp_mks_k.v, 1.0e-2*u.qp_cgs.v/speed_of_light_cm_per_s)
     qp = 1*u.qp_cgs
     qp.convert_to_units('kC', 'SI')
     assert_almost_equal(qp, qp_mks_k)
