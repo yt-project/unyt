@@ -75,7 +75,7 @@ default_unit_symbol_lut = {
     "gauss": (0.1**0.5, dimensions.magnetic_field_cgs, 0.0, r"\rm{G}"),
     "degC": (1.0, dimensions.temperature, -273.15, r"^\circ\rm{C}"),
     "statA": (1.0e-3**1.5, dimensions.current_cgs, 0.0, r"\rm{statA}"),
-    "statV": (0.1*1.0e-3**1.5, dimensions.electric_potential_cgs,
+    "statV": (0.1*1.0e-3**0.5, dimensions.electric_potential_cgs,
               0.0, r"\rm{statV}"),
     "statohm": (100.0, dimensions.resistance_cgs, 0.0, r"\rm{statohm}"),
     "Mx": (1.0e-3**1.5, dimensions.magnetic_flux_cgs, 0.0, r"\rm{Mx}"),
