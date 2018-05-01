@@ -18,6 +18,7 @@ Test symbolic unit handling.
 import numpy as np
 from numpy.testing import (
     assert_almost_equal,
+    assert_allclose,
     assert_array_almost_equal_nulp,
     assert_equal
 )
@@ -520,7 +521,7 @@ def test_creation_from_ytarray():
     assert_equal(u2, Unit('4.8032056e-10*esu'))
     assert_equal(u1, elementary_charge_cgs.units)
 
-    assert_equal((u1/u2).base_value, electrostatic_unit/elementary_charge_cgs)
+    assert_allclose((u1/u2).base_value, electrostatic_unit/elementary_charge_cgs)
 
     with pytest.raises(UnitParseError):
         Unit([1, 2, 3]*elementary_charge_cgs)

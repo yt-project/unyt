@@ -1406,14 +1406,14 @@ def test_equivalencies():
     # Effective temperature
 
     T = 1e4*u.K
-    F = T.in_units("erg/s/cm**2", equivalence="effective_temperature")
-    assert_allclose_units(F, u.stefan_boltzmann_constant_cgs*T**4)
+    F = T.in_units("W/m**2", equivalence="effective_temperature")
+    assert_allclose_units(F, u.stefan_boltzmann_constant*T**4)
     assert_allclose_units(
         T, F.in_units("K", equivalence="effective_temperature"))
-    T.convert_to_units('W/m**2', 'effective_temperature')
+    T.convert_to_units('erg/s/cm**2', 'effective_temperature')
     assert_allclose_units(T, F)
-    assert T.units == (u.W/u.m**2).units
-    assert F.units == (u.erg/u.s/u.cm**2).units
+    assert T.units == unyt_quantity(1.0, "erg/cm**2/s").units
+    assert F.units == u.W/u.m**2
     T.convert_to_units('K', 'effective_temperature')
     assert_almost_equal(T.value, 1e4)
     assert T.units == u.K.units
@@ -1422,10 +1422,10 @@ def test_equivalencies():
 
     assert_allclose_units(
         F.value,
-        T.to_value("erg/s/cm**2", equivalence="effective_temperature"))
+        T.to_value("W/m**2", equivalence="effective_temperature"))
     assert_allclose_units(
         n.value,
-        rho.to_value("cm**-3", equivalence="number_density", mu=0.75))
+        rho.to_value("m**-3", equivalence="number_density", mu=0.75))
 
 
 def test_electromagnetic():
@@ -1464,6 +1464,8 @@ def test_electromagnetic():
     assert_equal(B.units.dimensions, dimensions.magnetic_field_mks)
     assert_equal(B_cgs.units.dimensions, dimensions.magnetic_field_cgs)
     assert_array_almost_equal(B_cgs, unyt_quantity(1.0e4, "gauss"))
+    B.convert_to_cgs(equivalence="cgs")
+    assert_almost_equal(B, B_cgs)
 
     B = 1.0*u.T
     u_mks = B*B/(2*u.mu_0)
