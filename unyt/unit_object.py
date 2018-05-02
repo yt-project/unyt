@@ -61,7 +61,7 @@ from unyt.exceptions import (
 )
 from unyt.equivalencies import (
     equivalence_registry,
-    check_em_conversion,
+    _check_em_conversion,
 )
 import copy
 import token
@@ -649,7 +649,7 @@ class Unit(Expr):
             unit_system = self.registry.unit_system_id
         unit_system = unit_system_registry[str(unit_system)]
         try:
-            em_units, em_us = check_em_conversion(self.units)
+            em_units, em_us = _check_em_conversion(self.units)
             if em_units is not None and em_us == str(unit_system):
                 units_string = em_units
             else:

@@ -515,7 +515,7 @@ def _get_em_base_unit(units):
         base_unit = unit_str
     return base_unit
 
-def check_em_conversion(units):
+def _check_em_conversion(units):
     base_unit = _get_em_base_unit(units)
     em_info = em_conversions.get(base_unit, (None,)*3)
     return em_info[0], em_info[2]

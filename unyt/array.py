@@ -125,8 +125,7 @@ from unyt.exceptions import (
 )
 from unyt.equivalencies import (
     equivalence_registry,
-    em_conversions,
-    check_em_conversion,
+    _check_em_conversion,
 )
 try:
     from functools import lru_cache
@@ -621,7 +620,7 @@ class unyt_array(np.ndarray):
         """
         if equivalence is None:
             units = _sanitize_units_convert(units, self.units.registry)
-            em_units, em_us = check_em_conversion(self.units)
+            em_units, em_us = _check_em_conversion(self.units)
             if em_units is not None:
                 em_units = _sanitize_units_convert(em_units,
                                                    self.units.registry)
@@ -780,7 +779,7 @@ class unyt_array(np.ndarray):
         """
         units = _sanitize_units_convert(units, self.units.registry)
         if equivalence is None:
-            em_units, em_us = check_em_conversion(self.units)
+            em_units, em_us = _check_em_conversion(self.units)
             if em_units is not None:
                 em_units = _sanitize_units_convert(em_units,
                                                    self.units.registry)
@@ -905,7 +904,7 @@ class unyt_array(np.ndarray):
         >>> print(E.in_base("mks"))
         2.5e-07 W
         """
-        em_units, em_us = check_em_conversion(self.units)
+        em_units, em_us = _check_em_conversion(self.units)
         if em_units is not None and em_us == unit_system:
             to_units = em_units
             equivalence = em_us
