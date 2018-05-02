@@ -1464,8 +1464,13 @@ def test_electromagnetic():
     assert_equal(B.units.dimensions, dimensions.magnetic_field_mks)
     assert_equal(B_cgs.units.dimensions, dimensions.magnetic_field_cgs)
     assert_array_almost_equal(B_cgs, unyt_quantity(1.0e4, "gauss"))
-    B.convert_to_cgs(equivalence="cgs")
+    B.convert_to_cgs()
     assert_almost_equal(B, B_cgs)
+    B.convert_to_mks()
+    B_cgs2 = B.to("gauss")
+    assert_almost_equal(B_cgs, B_cgs2)
+    B_mks2 = B_cgs2.to("T")
+    assert_almost_equal(B, B_mks2)
 
     B = 1.0*u.T
     u_mks = B*B/(2*u.mu_0)
