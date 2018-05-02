@@ -19,7 +19,7 @@ that can be directly imported from from the ``unyt`` namespace:
   >>> from unyt import G, Mearth, Rearth
   >>> v_esc = (2*G*Mearth/Rearth)**(1./2)
   >>> print(v_esc.to('km/s'))
-  11.254342299356157 km/s
+  11.254342299356159 km/s
 
 
 .. toctree::

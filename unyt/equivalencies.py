@@ -341,7 +341,7 @@ class LorentzEquivalence(Equivalence):
     >>> from unyt import c, dimensionless
     >>> v = 0.99*c
     >>> print(v.to_equivalent('', 'lorentz'))
-    7.088812050083354 dimensionless
+    7.088812050083393 dimensionless
     >>> fast = 99.9*dimensionless
     >>> fast.to_equivalent('c', 'lorentz')
     unyt_quantity(0.9999499, 'c')
@@ -397,7 +397,7 @@ class SchwarzschildEquivalence(Equivalence):
     >>> (10*Msun).to_equivalent('km', 'schwarzschild')
     unyt_quantity(29.5305543, 'km')
     >>> (1*AU).to_equivalent('Msun', 'schwarzschild')
-    unyt_quantity(50658673.46804737, 'Msun')
+    unyt_quantity(50658673.46804734, 'Msun')
     """
     type_name = "schwarzschild"
     _dims = (mass, length,)

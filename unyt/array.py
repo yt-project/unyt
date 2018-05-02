@@ -1014,7 +1014,7 @@ class unyt_array(np.ndarray):
         >>> from unyt import K
         >>> a = 1.0e7*K
         >>> print(a.to_equivalent("keV", "thermal"))
-        0.8617332401096502 keV
+        0.8617332401096504 keV
         """
         conv_unit = Unit(unit, registry=self.units.registry)
         if self.units.same_dimensions_as(conv_unit):
