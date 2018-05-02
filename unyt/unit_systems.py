@@ -136,7 +136,8 @@ class UnitSystem(object):
         repr = "%s Unit System\n" % self.name
         repr += " Base Units:\n"
         for dim in self.base_units:
-            repr += "  %s: %s\n" % (str(dim).strip("()"), self.base_units[dim])
+            if self.base_units[dim] is not None:
+                repr += "  %s: %s\n" % (str(dim).strip("()"), self.base_units[dim])
         repr += " Other Units:\n"
         for key in self._dims:
             dim = getattr(dimensions, key)
