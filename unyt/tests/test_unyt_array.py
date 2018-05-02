@@ -1485,6 +1485,10 @@ def test_electromagnetic():
     assert current.units == u.statA.units
     current.convert_to_units('A', equivalence='MKS')
     assert current.units == u.A.units
+    I_cgs2 = current.to('statA')
+    assert I_cgs2.units == u.statA.units
+    assert_array_almost_equal(
+        I_cgs2, unyt_quantity(0.1*speed_of_light_cm_per_s, "statA"))
 
     current = 1.0*u.A
     R = unyt_quantity(1.0, "ohm")
