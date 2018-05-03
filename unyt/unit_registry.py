@@ -136,7 +136,7 @@ class UnitRegistry:
 
         if hasattr(base_value, "in_base"):
             new_dimensions = base_value.units.dimensions
-            base_value = base_value.in_base('cgs-ampere')
+            base_value = base_value.in_base('mks')
             base_value = base_value.value
         else:
             new_dimensions = self.lut[symbol][1]

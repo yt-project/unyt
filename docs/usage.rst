@@ -83,7 +83,7 @@ end, days::
 
   >>> period = 2*pi*(semimajor_axis**3/(G*Mjup))**0.5
   >>> period
-  unyt_array([0.00483381, 0.00970288, 0.01954837, 0.04559936], 'km**(3/2)*s/cm**(3/2)')
+  unyt_array([ 4.83380797,  9.70288268, 19.54836529, 45.5993645 ], 'km**(3/2)*s/m**(3/2)')
   >>> period.to('d')
   unyt_array([ 1.76919479,  3.55129736,  7.1547869 , 16.68956617], 'd')
 
@@ -154,10 +154,10 @@ where :math:`\rho` is the average density of the Earth.
   ...
   >>> rho = Mearth / (4./3 * pi* Rearth**3)
   >>> print(rho.to('g/cm**3'))
-  5.581225129861077 g/cm**3
+  5.581225129861083 g/cm**3
   >>> tff = np.sqrt(3*pi/(32*G*rho))
   >>> print(tff.to('min'))
-  14.8202885145703 min
+  14.820288514570295 min
 
 If you make a mistake by adding two things that have different dimensions,
 :mod:`unyt` will raise an error to let you know that you have a bug in your
@@ -393,6 +393,8 @@ atoms and molecules:
      time: fs
      temperature: nK
      angle: rad
+     current_mks: A
+     luminous_intensity: cd
     Other Units:
      energy: eV
 
@@ -458,7 +460,7 @@ equivalence to calculate the mass of a black hole with a radius of one AU:
 
   >>> from unyt import AU
   >>> (1.0*AU).to('Msun', equivalence='schwarzschild')
-  unyt_quantity(50658673.46804737, 'Msun')
+  unyt_quantity(50658673.46804734, 'Msun')
 
 Both the methods that convert data in-place and the ones that return a copy
 support optionally specifying equivalence. In addition to the methods described

@@ -1236,7 +1236,7 @@ def test_equivalencies():
 
     lam = 4000*u.angstrom
     hnu = lam.in_units('erg', 'spectral')
-    assert_allclose_units(hnu, u.hcgs*u.clight/lam)
+    assert_allclose_units(hnu, u.hmks*u.clight/lam)
     lam.convert_to_units('eV', 'spectral')
     assert_allclose_units(lam, hnu)
     assert lam.units == u.eV.units
@@ -1256,7 +1256,7 @@ def test_equivalencies():
 
     nu = 1*u.MHz
     E = nu.to('erg', 'spectral')
-    assert_allclose_units(E, u.hcgs*nu)
+    assert_allclose_units(E, u.hmks*nu)
     nu.convert_to_units('J', 'spectral')
     assert_allclose_units(nu, E)
     assert nu.units == u.J.units
@@ -1266,7 +1266,7 @@ def test_equivalencies():
 
     E = 13.6*u.eV
     nu = E.to('Hz', 'spectral')
-    assert_allclose_units(nu, E/u.hcgs)
+    assert_allclose_units(nu, E/u.hmks)
     E.convert_to_units('MHz', 'spectral')
     assert_allclose_units(nu, E)
     assert E.units == u.MHz.units
@@ -1276,7 +1276,7 @@ def test_equivalencies():
 
     E = 13.6*u.eV
     lam = E.to('nm', 'spectral')
-    assert_allclose_units(lam, u.hcgs*u.clight/E)
+    assert_allclose_units(lam, u.hmks*u.clight/E)
     E.convert_to_units('angstrom', 'spectral')
     assert_allclose_units(E, lam)
     assert E.units == u.angstrom.units
@@ -1290,7 +1290,7 @@ def test_equivalencies():
     gg = 5./3.
     T = 1e8*u.K
     c_s = T.in_units("km/s", equivalence="sound_speed")
-    assert_equal(c_s, np.sqrt(gg*u.kboltz*T/(mu*u.mh)))
+    assert_allclose_units(c_s, np.sqrt(gg*u.kboltz*T/(mu*u.mh)))
     assert_allclose_units(T, c_s.in_units("K", "sound_speed"))
     T.convert_to_units('m/s', 'sound_speed')
     assert_allclose_units(c_s, T)
@@ -1301,7 +1301,7 @@ def test_equivalencies():
     gg = 4./3.
     T = 1e8*u.K
     c_s = T.in_units("km/s", "sound_speed", mu=mu, gamma=gg)
-    assert_equal(c_s, np.sqrt(gg*u.kboltz*T/(mu*u.mh)))
+    assert_allclose_units(c_s, np.sqrt(gg*u.kboltz*T/(mu*u.mh)))
     assert_allclose_units(T, c_s.in_units("K", "sound_speed", mu=mu, gamma=gg))
     T.convert_to_units('m/s', 'sound_speed', mu=mu, gamma=gg)
     assert_allclose_units(c_s, T)
@@ -1354,12 +1354,12 @@ def test_equivalencies():
 
     msun = 1*u.Msun
     msun.convert_to_equivalent('km', 'schwarzschild')
-    R = u.mass_sun_cgs.in_units("kpc", "schwarzschild")
+    R = u.mass_sun_mks.in_units("kpc", "schwarzschild")
     assert_allclose_units(msun, R)
-    assert_allclose_units(R.in_cgs(), 2*u.G*u.mass_sun_cgs/(u.clight**2))
-    assert_allclose_units(u.mass_sun_cgs, R.in_units("g", "schwarzschild"))
+    assert_allclose_units(R.in_mks(), 2*u.G*u.mass_sun_mks/(u.clight**2))
+    assert_allclose_units(u.mass_sun_mks, R.in_units("kg", "schwarzschild"))
     R.convert_to_units('Msun', 'schwarzschild')
-    assert_allclose_units(u.mass_sun_cgs, R)
+    assert_allclose_units(u.mass_sun_mks, R)
     assert R.units == u.Msun.units
     assert msun.units == u.km.units
 
@@ -1369,7 +1369,7 @@ def test_equivalencies():
     me.convert_to_units('nm', 'compton')
     length = u.me.in_units("angstrom", "compton")
     assert_allclose_units(length, me)
-    assert_allclose_units(length, u.hcgs/(u.me*u.clight))
+    assert_allclose_units(length, u.hmks/(u.me*u.clight))
     assert_allclose_units(u.me, length.in_units("g", "compton"))
     assert me.units == u.nm.units
     assert length.units == u.angstrom.units
@@ -1378,42 +1378,42 @@ def test_equivalencies():
 
     # Number density
 
-    rho = u.mp/u.cm**3
-    n = rho.in_units("cm**-3", "number_density")
+    rho = u.mp/u.m**3
+    n = rho.in_units("m**-3", "number_density")
     assert_allclose_units(n, rho/(u.mh*0.6))
-    assert_allclose_units(rho, n.in_units("g/cm**3", "number_density"))
-    rho.convert_to_units('m**-3', 'number_density')
-    assert rho.units == (1/u.m**3).units
-    assert n.units == (1/u.cm**3).units
+    assert_allclose_units(rho, n.in_units("kg/m**3", "number_density"))
+    rho.convert_to_units('cm**-3', 'number_density')
+    assert rho.units == (1/u.cm**3).units
+    assert n.units == (1/u.m**3).units
     assert_allclose_units(n, rho)
-    rho.convert_to_units('g/cm**3', 'number_density')
-    assert_allclose_units(u.mp/u.cm**3, rho)
-    assert rho.units == (u.g/u.cm**3).units
+    rho.convert_to_units('kg/m**3', 'number_density')
+    assert_allclose_units(u.mp/u.m**3, rho)
+    assert rho.units == (u.kg/u.m**3).units
 
-    rho = u.mp/u.cm**3
-    n = rho.in_units("cm**-3", equivalence="number_density", mu=0.75)
+    rho = u.mp/u.m**3
+    n = rho.in_units("m**-3", equivalence="number_density", mu=0.75)
     assert_allclose_units(n, rho/(u.mh*0.75))
     assert_allclose_units(
-        rho, n.in_units("g/cm**3", equivalence="number_density", mu=0.75))
-    rho.convert_to_units('m**-3', 'number_density', mu=0.75)
-    assert rho.units == (1/u.m**3).units
-    assert n.units == (1/u.cm**3).units
+        rho, n.in_units("kg/m**3", equivalence="number_density", mu=0.75))
+    rho.convert_to_units('cm**-3', 'number_density', mu=0.75)
+    assert rho.units == (1/u.cm**3).units
+    assert n.units == (1/u.m**3).units
     assert_allclose_units(n, rho)
-    rho.convert_to_units('g/cm**3', 'number_density', mu=0.75)
-    assert_allclose_units(u.mp/u.cm**3, rho)
-    assert rho.units == (u.g/u.cm**3).units
+    rho.convert_to_units('kg/m**3', 'number_density', mu=0.75)
+    assert_allclose_units(u.mp/u.m**3, rho)
+    assert rho.units == (u.kg/u.m**3).units
 
     # Effective temperature
 
     T = 1e4*u.K
-    F = T.in_units("erg/s/cm**2", equivalence="effective_temperature")
-    assert_allclose_units(F, u.stefan_boltzmann_constant_cgs*T**4)
+    F = T.in_units("W/m**2", equivalence="effective_temperature")
+    assert_allclose_units(F, u.stefan_boltzmann_constant*T**4)
     assert_allclose_units(
         T, F.in_units("K", equivalence="effective_temperature"))
-    T.convert_to_units('W/m**2', 'effective_temperature')
+    T.convert_to_units('erg/s/cm**2', 'effective_temperature')
     assert_allclose_units(T, F)
-    assert T.units == (u.W/u.m**2).units
-    assert F.units == (u.erg/u.s/u.cm**2).units
+    assert T.units == unyt_quantity(1.0, "erg/cm**2/s").units
+    assert F.units == u.W/u.m**2
     T.convert_to_units('K', 'effective_temperature')
     assert_almost_equal(T.value, 1e4)
     assert T.units == u.K.units
@@ -1422,10 +1422,10 @@ def test_equivalencies():
 
     assert_allclose_units(
         F.value,
-        T.to_value("erg/s/cm**2", equivalence="effective_temperature"))
+        T.to_value("W/m**2", equivalence="effective_temperature"))
     assert_allclose_units(
         n.value,
-        rho.to_value("cm**-3", equivalence="number_density", mu=0.75))
+        rho.to_value("m**-3", equivalence="number_density", mu=0.75))
 
 
 def test_electromagnetic():
@@ -1433,29 +1433,29 @@ def test_electromagnetic():
 
     # Various tests of SI and CGS electromagnetic units
 
-    qp_mks = u.qp.in_units("C", "SI")
-    assert_equal(qp_mks.units.dimensions, dimensions.charge_mks)
-    assert_almost_equal(qp_mks.v, 10.0*u.qp.v/speed_of_light_cm_per_s)
-    qp = 1*u.qp
+    qp_cgs = u.qp_cgs.in_units("C", "SI")
+    assert_equal(qp_cgs.units.dimensions, dimensions.charge_mks)
+    assert_almost_equal(qp_cgs.v, 10.0*u.qp.v/speed_of_light_cm_per_s)
+    qp = 1*u.qp_cgs
     qp.convert_to_units("C", "SI")
     assert_equal(qp.units.dimensions, dimensions.charge_mks)
     assert_almost_equal(qp.v, 10*u.qp.v/u.clight.v)
 
-    qp_cgs = qp_mks.in_units("esu", "CGS")
-    assert_array_almost_equal(qp_cgs, u.qp)
-    assert_equal(qp_cgs.units.dimensions, u.qp.units.dimensions)
-    qp = qp_mks.copy()
+    qp_cgs = u.qp.in_units("esu", "CGS")
+    assert_array_almost_equal(qp_cgs, u.qp_cgs)
+    assert_equal(qp_cgs.units.dimensions, u.qp_cgs.units.dimensions)
+    qp = u.qp.copy()
     qp.convert_to_units('esu', 'CGS')
-    assert_almost_equal(qp_cgs, qp)
+    assert_almost_equal(qp_cgs, qp_cgs)
     assert qp.units == u.esu.units
     qp.convert_to_units('C', 'MKS')
-    assert_almost_equal(qp_mks, qp)
+    assert_almost_equal(u.qp, qp)
     assert qp.units == u.C.units
 
-    qp_mks_k = u.qp.in_units("kC", "SI")
+    qp_mks_k = u.qp_cgs.in_units("kC", "SI")
     assert_array_almost_equal(
-        qp_mks_k.v, 1.0e-2*u.qp.v/speed_of_light_cm_per_s)
-    qp = 1*u.qp
+        qp_mks_k.v, 1.0e-2*u.qp_cgs.v/speed_of_light_cm_per_s)
+    qp = 1*u.qp_cgs
     qp.convert_to_units('kC', 'SI')
     assert_almost_equal(qp, qp_mks_k)
 
@@ -1464,8 +1464,13 @@ def test_electromagnetic():
     assert_equal(B.units.dimensions, dimensions.magnetic_field_mks)
     assert_equal(B_cgs.units.dimensions, dimensions.magnetic_field_cgs)
     assert_array_almost_equal(B_cgs, unyt_quantity(1.0e4, "gauss"))
-    B.convert_to_cgs(equivalence="cgs")
+    B.convert_to_cgs()
     assert_almost_equal(B, B_cgs)
+    B.convert_to_mks()
+    B_cgs2 = B.to("gauss")
+    assert_almost_equal(B_cgs, B_cgs2)
+    B_mks2 = B_cgs2.to("T")
+    assert_almost_equal(B, B_mks2)
 
     B = 1.0*u.T
     u_mks = B*B/(2*u.mu_0)
@@ -1485,6 +1490,10 @@ def test_electromagnetic():
     assert current.units == u.statA.units
     current.convert_to_units('A', equivalence='MKS')
     assert current.units == u.A.units
+    I_cgs2 = current.to('statA')
+    assert I_cgs2.units == u.statA.units
+    assert_array_almost_equal(
+        I_cgs2, unyt_quantity(0.1*speed_of_light_cm_per_s, "statA"))
 
     current = 1.0*u.A
     R = unyt_quantity(1.0, "ohm")
@@ -1544,15 +1553,13 @@ def test_modified_unit_division():
     reg1 = UnitRegistry()
     reg2 = UnitRegistry()
 
-    # this mocks comoving coordinates without going through the trouble
-    # of setting up a fake cosmological dataset
-    reg1.modify('m', 50)
+    reg1.modify('g', 50)
 
-    a = unyt_quantity(3, 'm', registry=reg1)
-    b = unyt_quantity(3, 'm', registry=reg2)
+    a = unyt_quantity(3, 'g', registry=reg1)
+    b = unyt_quantity(3, 'g', registry=reg2)
 
     ret = a/b
-    assert ret == 0.5
+    assert ret == 50000.
     assert ret.units.is_dimensionless
     assert ret.units.base_value == 1.0
 
@@ -1602,8 +1609,8 @@ def test_initialization_different_registries():
     l1 = unyt_quantity(1.0, 'code_length', registry=reg1)
     l2 = unyt_quantity(1.0, 'code_length', registry=reg2)
 
-    assert_almost_equal(float(l1.in_cgs()), 1.0)
-    assert_almost_equal(float(l2.in_cgs()), 3.0)
+    assert_almost_equal(float(l1.in_mks()), 1.0)
+    assert_almost_equal(float(l2.in_mks()), 3.0)
 
 
 def test_ones_and_zeros_like():

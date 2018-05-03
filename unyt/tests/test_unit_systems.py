@@ -33,7 +33,8 @@ from unyt import (
 def test_unit_systems():
     goofy_unit_system = UnitSystem(
         "goofy", "ly", "lbm", "hr", temperature_unit="R",
-        angle_unit="arcsec", current_mks_unit="mA")
+        angle_unit="arcsec", current_mks_unit="mA",
+        luminous_intensity_unit="cd")
     assert goofy_unit_system["temperature"] == Unit("R")
     assert goofy_unit_system[dimensions.solid_angle] == Unit("arcsec**2")
     assert goofy_unit_system["energy"] == Unit("lbm*ly**2/hr**2")
@@ -47,27 +48,23 @@ def test_unit_system_id():
     reg1 = UnitRegistry()
     reg2 = UnitRegistry()
     assert reg1.unit_system_id == reg2.unit_system_id
-    reg1.modify('m', 2.0)
+    reg1.modify('g', 2.0)
     assert reg1.unit_system_id != reg2.unit_system_id
     reg1 = UnitRegistry()
     reg1.add('dinosaurs', 12.0, dimensions.length)
     assert reg1.unit_system_id != reg2.unit_system_id
     reg1 = UnitRegistry()
-    reg1.remove('m')
+    reg1.remove('g')
     assert reg1.unit_system_id != reg2.unit_system_id
-    reg1.add('m', 100., dimensions.length)
+    reg1.add('g', 1.0e-3, dimensions.mass)
     assert reg1.unit_system_id == reg2.unit_system_id
 
 
 def test_cgs_mks_unit_conversions():
     t = 1*Tesla
     g = 1*gauss
-    with pytest.raises(EquivalentDimsError):
-        t.to('G')
     assert t.to_equivalent('G', 'cgs') == 1e4*gauss
     assert t.to_equivalent('G', 'CGS') == 1e4*gauss
-    with pytest.raises(EquivalentDimsError):
-        g.to('T')
     assert g.to_equivalent("T", "mks") == 1e-4*Tesla
     assert g.to_equivalent("T", "MKS") == 1e-4*Tesla
     assert g.to_equivalent("T", "si") == 1e-4*Tesla

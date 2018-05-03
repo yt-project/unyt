@@ -30,6 +30,8 @@ from unyt.dimensions import (
     charge_mks,
     magnetic_field_cgs,
     magnetic_field_mks,
+    magnetic_flux_cgs,
+    magnetic_flux_mks,
     electric_potential_cgs,
     electric_potential_mks,
     electric_field_cgs,
@@ -39,6 +41,7 @@ from unyt.dimensions import (
 )
 
 from unyt._physical_ratios import speed_of_light_cm_per_s
+from unyt._unit_lookup_table import unit_prefixes
 from six import add_metaclass
 import numpy as np
 
@@ -219,19 +222,19 @@ class SpectralEquivalence(Equivalence):
         from unyt import physical_constants as pc
         if new_dims == energy:
             if x.units.dimensions == length:
-                return np.divide(pc.clight*pc.hcgs, x, out=self._get_out(x))
+                return np.divide(pc.clight*pc.hmks, x, out=self._get_out(x))
             elif x.units.dimensions == rate:
-                return np.multiply(x, pc.hcgs, out=self._get_out(x))
+                return np.multiply(x, pc.hmks, out=self._get_out(x))
         elif new_dims == length:
             if x.units.dimensions == rate:
                 return np.divide(pc.clight, x, out=self._get_out(x))
             elif x.units.dimensions == energy:
-                return np.divide(pc.hcgs*pc.clight, x, out=self._get_out(x))
+                return np.divide(pc.hmks*pc.clight, x, out=self._get_out(x))
         elif new_dims == rate:
             if x.units.dimensions == length:
                 return np.divide(pc.clight, x, out=self._get_out(x))
             elif x.units.dimensions == energy:
-                return np.divide(x, pc.hcgs, out=self._get_out(x))
+                return np.divide(x, pc.hmks, out=self._get_out(x))
 
     def __str__(self):
         return "spectral: length <-> frequency <-> energy"
@@ -338,7 +341,7 @@ class LorentzEquivalence(Equivalence):
     >>> from unyt import c, dimensionless
     >>> v = 0.99*c
     >>> print(v.to_equivalent('', 'lorentz'))
-    7.088812050083354 dimensionless
+    7.088812050083393 dimensionless
     >>> fast = 99.9*dimensionless
     >>> fast.to_equivalent('c', 'lorentz')
     unyt_quantity(0.9999499, 'c')
@@ -394,7 +397,7 @@ class SchwarzschildEquivalence(Equivalence):
     >>> (10*Msun).to_equivalent('km', 'schwarzschild')
     unyt_quantity(29.5305543, 'km')
     >>> (1*AU).to_equivalent('Msun', 'schwarzschild')
-    unyt_quantity(50658673.46804737, 'Msun')
+    unyt_quantity(50658673.46804734, 'Msun')
     """
     type_name = "schwarzschild"
     _dims = (mass, length,)
@@ -413,8 +416,12 @@ class SchwarzschildEquivalence(Equivalence):
 
 
 class ComptonEquivalence(Equivalence):
-    """Equivalence between the wavelength change of a compton scattered photon
-    and the mass of the particle it scatters off of.
+    """Equivalence between the Compton wavelength
+    of a particle and its mass.
+
+    .. math::
+
+      \\lambda_c = h/mc
 
     Example
     -------
@@ -431,7 +438,7 @@ class ComptonEquivalence(Equivalence):
 
     def _convert(self, x, new_dims):
         from unyt import physical_constants as pc
-        return np.divide(pc.hcgs/pc.clight, x, out=self._get_out(x))
+        return np.divide(pc.hmks/pc.clight, x, out=self._get_out(x))
 
     def __str__(self):
         return "compton: mass <-> length"
@@ -466,29 +473,52 @@ class EffectiveTemperature(Equivalence):
         if new_dims == flux:
             x4 = np.power(x, 4, out=self._get_out(x))
             return np.multiply(
-                pc.stefan_boltzmann_constant_cgs, x4, out=self._get_out(x))
+                pc.stefan_boltzmann_constant_mks, x4, out=self._get_out(x))
         elif new_dims == temperature:
             T4 = np.divide(
-                x, pc.stefan_boltzmann_constant_cgs, out=self._get_out(x))
+                x, pc.stefan_boltzmann_constant_mks, out=self._get_out(x))
             return np.power(T4, 0.25, out=self._get_out(x))
 
     def __str__(self):
         return "effective_temperature: flux <-> temperature"
 
-
 em_conversions = {
-    charge_mks: ("esu", 0.1*speed_of_light_cm_per_s),
-    magnetic_field_mks: ("gauss", 1.0e4),
-    current_mks: ("statA", 0.1*speed_of_light_cm_per_s),
-    electric_potential_mks: ("statV", 1.0e-8*speed_of_light_cm_per_s),
-    resistance_mks: ("statohm", 1.0e9/(speed_of_light_cm_per_s**2)),
-    charge_cgs: ("C", 10.0/speed_of_light_cm_per_s),
-    magnetic_field_cgs: ("T", 1.0e-4),
-    current_cgs: ("A", 10.0/speed_of_light_cm_per_s),
-    electric_potential_cgs: ("V", 1.0e8/speed_of_light_cm_per_s),
-    resistance_cgs: ("ohm", speed_of_light_cm_per_s**2*1.0e-9),
+    "C": ("esu", 0.1*speed_of_light_cm_per_s, "cgs"),
+    "T": ("gauss", 1.0e4, "cgs"),
+    "Wb": ("Mx", 1.0e8, "cgs"),
+    "A": ("statA", 0.1*speed_of_light_cm_per_s, "cgs"),
+    "V": ("statV", 1.0e-8*speed_of_light_cm_per_s, "cgs"),
+    "ohm": ("statohm", 1.0e9/(speed_of_light_cm_per_s**2), "cgs"),
+    "esu": ("C", 10.0/speed_of_light_cm_per_s, "mks"),
+    "Fr": ("C", 10.0/speed_of_light_cm_per_s, "mks"),
+    "statC": ("C", 10.0/speed_of_light_cm_per_s, "mks"),
+    "gauss": ("T", 1.0e-4, "mks"),
+    "G": ("T", 1.0e-4, "mks"),
+    "Mx": ("Wb", 1.0e-8, "mks"),
+    "statA": ("A", 10.0/speed_of_light_cm_per_s, "mks"),
+    "statV": ("V", 1.0e8/speed_of_light_cm_per_s, "mks"),
+    "statohm": ("ohm", speed_of_light_cm_per_s**2*1.0e-9, "mks"),
 }
 
+def _get_em_base_unit(units):
+    unit_str = str(units)
+    if len(unit_str) == 1:
+        return unit_str
+    possible_prefix = unit_str[0]
+    prefix_len = 1
+    if unit_str[:2] == 'da':
+        possible_prefix = 'da'
+        prefix_len += 1
+    if possible_prefix in unit_prefixes:
+        base_unit = unit_str[prefix_len:]
+    else:
+        base_unit = unit_str
+    return base_unit
+
+def _check_em_conversion(units):
+    base_unit = _get_em_base_unit(units)
+    em_info = em_conversions.get(base_unit, (None,)*3)
+    return em_info[0], em_info[2]
 
 class ElectromagneticSI(Equivalence):
     """An equivalence between CGS and SI electromagnetic units
@@ -497,11 +527,14 @@ class ElectromagneticSI(Equivalence):
     or statohm) this equivelency will convert the data to the appropriate
     SI electromagnetic unit, using the following mapping:
 
+    * Fr -> C
+    * statC -> C
     * esu -> C
     * G -> T
     * statA -> A
     * statV -> V
     * statohm -> ohm
+    * Mx -> Wb
 
     Example
     -------
@@ -514,11 +547,11 @@ class ElectromagneticSI(Equivalence):
     one_way = True
     _dims = (current_cgs, charge_cgs, magnetic_field_cgs,
              electric_field_cgs, electric_potential_cgs,
-             resistance_cgs)
+             resistance_cgs, magnetic_flux_cgs)
 
     def _convert(self, x, new_dims):
-        old_dims = x.units.dimensions
-        new_units, convert_factor = em_conversions[old_dims]
+        base_unit = _get_em_base_unit(x.units)
+        new_units, convert_factor, _ = em_conversions[base_unit]
         return x.in_cgs().v*convert_factor, new_units
 
     def __str__(self):
@@ -528,15 +561,17 @@ class ElectromagneticSI(Equivalence):
 class ElectromagneticCGS(Equivalence):
     """An equivalence between SI and CGS electromagnetic units
 
-    Given data in SI electromagnetic units (one of C, T, A, V, or ohm), this
-    equivalency will convert the data to the appropriate CGS electromagnetic
-    unit, using the following mapping:
+    Given data in SI electromagnetic units (one of C, T, A, V, ohm, or Wb,
+    or a prefixed version of these), this equivalency will convert the
+    data to the appropriate CGS electromagnetic unit, using the following
+    mapping:
 
     * C -> esu
     * T -> G
     * A -> statA
     * V -> statV
     * ohm -> statohm
+    * Wb -> Mx
 
     Example
     -------
@@ -549,11 +584,11 @@ class ElectromagneticCGS(Equivalence):
     one_way = True
     _dims = (current_mks, charge_mks, magnetic_field_mks,
              electric_field_mks, electric_potential_mks,
-             resistance_mks)
+             resistance_mks, magnetic_flux_mks)
 
     def _convert(self, x, new_dims):
-        old_dims = x.units.dimensions
-        new_units, convert_factor = em_conversions[old_dims]
+        base_unit = _get_em_base_unit(x.units)
+        new_units, convert_factor, _ = em_conversions[base_unit]
         return x.in_mks().v*convert_factor, new_units
 
     def __str__(self):

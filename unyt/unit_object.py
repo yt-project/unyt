@@ -57,10 +57,11 @@ from unyt.unit_registry import (
 from unyt.exceptions import (
     InvalidUnitOperation,
     MissingMKSCurrent,
+    UnitsNotReducible,
 )
 from unyt.equivalencies import (
     equivalence_registry,
-    em_conversions,
+    _check_em_conversion,
 )
 import copy
 import token
@@ -632,7 +633,7 @@ class Unit(Expr):
         old_dims = self.dimensions
         return old_dims in this_equiv._dims
 
-    def get_base_equivalent(self, unit_system="cgs"):
+    def get_base_equivalent(self, unit_system="mks"):
         """Create and return dimensionally-equivalent units in a specified base.
 
         >>> from unyt import g, cm
@@ -648,9 +649,13 @@ class Unit(Expr):
             unit_system = self.registry.unit_system_id
         unit_system = unit_system_registry[str(unit_system)]
         try:
-            units_string = unit_system[self.dimensions]
+            em_units, em_us = _check_em_conversion(self.units)
+            if em_units is not None and em_us == str(unit_system):
+                units_string = em_units
+            else:
+                units_string = unit_system[self.dimensions]
         except MissingMKSCurrent:
-            units_string = em_conversions[self.dimensions][0]
+            raise UnitsNotReducible(self.units, unit_system)
         return Unit(units_string, registry=self.registry)
 
     def get_cgs_equivalent(self):
@@ -933,7 +938,7 @@ def _define_unit(registry, symbol, value, tex_repr=None, offset=None,
             value = unyt_quantity(value[0], value[1])
         else:
             raise RuntimeError("\"value\" needs to be a (value, unit) tuple!")
-    base_value = float(value.in_base(unit_system='cgs-ampere'))
+    base_value = float(value.in_base(unit_system='mks'))
     dimensions = value.units.dimensions
     registry.add(symbol, base_value, dimensions, tex_repr=tex_repr,
                  offset=offset)

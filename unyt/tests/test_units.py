@@ -18,6 +18,7 @@ Test symbolic unit handling.
 import numpy as np
 from numpy.testing import (
     assert_almost_equal,
+    assert_allclose,
     assert_array_almost_equal_nulp,
     assert_equal
 )
@@ -26,14 +27,14 @@ import pytest
 from sympy import Symbol
 from unyt._testing import assert_allclose_units
 from unyt.unit_registry import UnitRegistry
-from unyt import electrostatic_unit, elementary_charge
+from unyt import electrostatic_unit, elementary_charge_cgs
 from unyt.dimensions import (
     mass,
     length,
     time,
     temperature,
     energy,
-    magnetic_field,
+    magnetic_field_cgs,
     power,
     rate
 )
@@ -51,11 +52,11 @@ from unyt._unit_lookup_table import (
 )
 import unyt.unit_symbols as unit_symbols
 from unyt._physical_ratios import (
-    cm_per_pc,
+    m_per_pc,
     sec_per_year,
-    cm_per_km,
-    cm_per_mpc,
-    mass_sun_grams
+    m_per_km,
+    m_per_mpc,
+    mass_sun_kg
 )
 
 
@@ -112,35 +113,35 @@ def test_create_from_string():
 
     """
 
-    u1 = Unit("g * cm**2 * s**-2")
+    u1 = Unit("kg * m**2 * s**-2")
     assert u1.dimensions == energy
     assert u1.base_value == 1.0
 
     # make sure order doesn't matter
-    u2 = Unit("cm**2 * s**-2 * g")
+    u2 = Unit("m**2 * s**-2 * kg")
     assert u2.dimensions == energy
     assert u2.base_value == 1.0
 
     # Test rationals
-    u3 = Unit("g**0.5 * cm**-0.5 * s**-1")
-    assert u3.dimensions == magnetic_field
+    u3 = Unit("kg**0.5 * m**-0.5 * s**-1")
+    assert u3.dimensions == magnetic_field_cgs
     assert u3.base_value == 1.0
 
     # sqrt functions
-    u4 = Unit("sqrt(g)/sqrt(cm)/s")
-    assert u4.dimensions == magnetic_field
+    u4 = Unit("sqrt(kg)/sqrt(m)/s")
+    assert u4.dimensions == magnetic_field_cgs
     assert u4.base_value == 1.0
 
     # commutative sqrt function
-    u5 = Unit("sqrt(g/cm)/s")
-    assert u5.dimensions == magnetic_field
+    u5 = Unit("sqrt(kg/m)/s")
+    assert u5.dimensions == magnetic_field_cgs
     assert u5.base_value == 1.0
 
     # nonzero CGS conversion factor
     u6 = Unit("Msun/pc**3")
     assert u6.dimensions == mass/length**3
     assert_array_almost_equal_nulp(np.array([u6.base_value]),
-                                   np.array([mass_sun_grams/cm_per_pc**3]))
+                                   np.array([mass_sun_kg/m_per_pc**3]))
 
     with pytest.raises(UnitParseError):
         Unit('m**m')
@@ -157,8 +158,8 @@ def test_create_from_expr():
     Create units from sympy Exprs and check attributes.
 
     """
-    pc_cgs = cm_per_pc
-    yr_cgs = sec_per_year
+    pc_mks = m_per_pc
+    yr_mks = sec_per_year
 
     # Symbol expr
     s1 = Symbol("pc", positive=True)
@@ -178,10 +179,10 @@ def test_create_from_expr():
     assert u3.expr == s3
     assert u4.expr == s4
 
-    assert_allclose_units(u1.base_value, pc_cgs, 1e-12)
-    assert_allclose_units(u2.base_value, yr_cgs, 1e-12)
-    assert_allclose_units(u3.base_value, pc_cgs * yr_cgs, 1e-12)
-    assert_allclose_units(u4.base_value, pc_cgs**2 / yr_cgs, 1e-12)
+    assert_allclose_units(u1.base_value, pc_mks, 1e-12)
+    assert_allclose_units(u2.base_value, yr_mks, 1e-12)
+    assert_allclose_units(u3.base_value, pc_mks * yr_mks, 1e-12)
+    assert_allclose_units(u4.base_value, pc_mks**2 / yr_mks, 1e-12)
 
     assert u1.dimensions == length
     assert u2.dimensions == time
@@ -195,15 +196,15 @@ def test_create_with_duplicate_dimensions():
 
     """
 
-    u1 = Unit("erg * s**-1")
+    u1 = Unit("J * s**-1")
     u2 = Unit("km/s/Mpc")
-    km_cgs = cm_per_km
-    Mpc_cgs = cm_per_mpc
+    km_mks = m_per_km
+    Mpc_mks = m_per_mpc
 
     assert u1.base_value == 1
     assert u1.dimensions == power
 
-    assert_allclose_units(u2.base_value, km_cgs / Mpc_cgs, 1e-12)
+    assert_allclose_units(u2.base_value, km_mks / Mpc_mks, 1e-12)
     assert u2.dimensions == rate
 
 
@@ -329,8 +330,8 @@ def test_multiplication():
     Multiply two units.
 
     """
-    msun_cgs = mass_sun_grams
-    pc_cgs = cm_per_pc
+    msun_mks = mass_sun_kg
+    pc_mks = m_per_pc
 
     # Create symbols
     msun_sym = Symbol("Msun", positive=True)
@@ -345,7 +346,7 @@ def test_multiplication():
     u3 = u1 * u2
 
     assert u3.expr == msun_sym * pc_sym
-    assert_allclose_units(u3.base_value, msun_cgs * pc_cgs, 1e-12)
+    assert_allclose_units(u3.base_value, msun_mks * pc_mks, 1e-12)
     assert u3.dimensions == mass * length
 
     # Pow and Mul operations
@@ -355,7 +356,7 @@ def test_multiplication():
     u6 = u4 * u5
 
     assert u6.expr == pc_sym**2 * msun_sym * s_sym
-    assert_allclose_units(u6.base_value, pc_cgs**2 * msun_cgs, 1e-12)
+    assert_allclose_units(u6.base_value, pc_mks**2 * msun_mks, 1e-12)
     assert u6.dimensions == length**2 * mass * time
 
 
@@ -364,8 +365,8 @@ def test_division():
     Divide two units.
 
     """
-    pc_cgs = cm_per_pc
-    km_cgs = cm_per_km
+    pc_mks = m_per_pc
+    km_mks = m_per_km
 
     # Create symbols
     pc_sym = Symbol("pc", positive=True)
@@ -379,7 +380,7 @@ def test_division():
     u3 = u1 / u2
 
     assert u3.expr == pc_sym / (km_sym * s_sym)
-    assert_allclose_units(u3.base_value, pc_cgs / km_cgs, 1e-12)
+    assert_allclose_units(u3.base_value, pc_mks / km_mks, 1e-12)
     assert u3.dimensions == 1 / time
 
 
@@ -390,20 +391,20 @@ def test_power():
     """
     from sympy import nsimplify
 
-    pc_cgs = cm_per_pc
-    mK_cgs = 1e-3
+    pc_mks = m_per_pc
+    mK_mks = 1e-3
     u1_dims = mass * length**2 * time**-3 * temperature**4
-    u1 = Unit("g * pc**2 * s**-3 * mK**4")
+    u1 = Unit("kg * pc**2 * s**-3 * mK**4")
 
     u2 = u1**2
 
     assert u2.dimensions == u1_dims**2
-    assert_allclose_units(u2.base_value, (pc_cgs**2 * mK_cgs**4)**2, 1e-12)
+    assert_allclose_units(u2.base_value, (pc_mks**2 * mK_mks**4)**2, 1e-12)
 
     u3 = u1**(-1.0/3)
 
     assert u3.dimensions == nsimplify(u1_dims**(-1.0/3))
-    assert_allclose_units(u3.base_value, (pc_cgs**2 * mK_cgs**4)**(-1.0/3),
+    assert_allclose_units(u3.base_value, (pc_mks**2 * mK_mks**4)**(-1.0/3),
                           1e-12)
 
 
@@ -424,17 +425,17 @@ def test_base_equivalent():
     Check base equivalent of a unit.
 
     """
-    Msun_cgs = mass_sun_grams
-    Mpc_cgs = cm_per_mpc
+    Msun_mks = mass_sun_kg
+    Mpc_mks = m_per_mpc
 
     u1 = Unit("Msun * Mpc**-3")
-    u2 = Unit("g * cm**-3")
+    u2 = Unit("kg * m**-3")
     u3 = u1.get_base_equivalent()
 
     assert u2.expr == u3.expr
     assert u2 == u3
 
-    assert_allclose_units(u1.base_value, Msun_cgs / Mpc_cgs**3, 1e-12)
+    assert_allclose_units(u1.base_value, Msun_mks / Mpc_mks**3, 1e-12)
     assert u2.base_value == 1
     assert u3.base_value == 1
 
@@ -445,7 +446,7 @@ def test_base_equivalent():
     assert u3.dimensions == mass_density
 
     assert_allclose_units(_get_conversion_factor(u1, u3)[0],
-                          Msun_cgs / Mpc_cgs**3, 1e-12)
+                          Msun_mks / Mpc_mks**3, 1e-12)
 
 
 def test_temperature_offsets():
@@ -466,7 +467,7 @@ def test_latex_repr():
                  "\\rm{pc}/(1+z)")
 
     test_unit = Unit('Mpccm', registry=registry)
-    assert_almost_equal(test_unit.base_value, cm_per_mpc/3)
+    assert_almost_equal(test_unit.base_value, m_per_mpc/3)
     assert_equal(test_unit.latex_repr, r'\rm{Mpc}/(1+z)')
 
     test_unit = Unit('cm**-3', base_value=1.0, registry=registry)
@@ -515,15 +516,15 @@ def test_creation_from_ytarray():
     assert_equal(u1, Unit('esu'))
     assert_equal(u1, electrostatic_unit.units)
 
-    u2 = Unit(elementary_charge)
+    u2 = Unit(elementary_charge_cgs)
     assert_equal(str(u2), '4.8032056e-10*esu')
     assert_equal(u2, Unit('4.8032056e-10*esu'))
-    assert_equal(u1, elementary_charge.units)
+    assert_equal(u1, elementary_charge_cgs.units)
 
-    assert_equal((u1/u2).base_value, electrostatic_unit/elementary_charge)
+    assert_allclose((u1/u2).base_value, electrostatic_unit/elementary_charge_cgs)
 
     with pytest.raises(UnitParseError):
-        Unit([1, 2, 3]*elementary_charge)
+        Unit([1, 2, 3]*elementary_charge_cgs)
 
 
 def test_list_same_dimensions():

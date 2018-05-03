@@ -180,6 +180,16 @@ THz = thz = terahertz = Unit("THz")
 Pa = pascal = Unit("Pa")
 #: sievert
 Sv = sievert = Unit("Sv")
+#: candela
+cd = Candela = candela = Unit("cd")
+#: lumen
+lm = Lumen = lumen = Unit("lm")
+#: lux
+lx = Lux = lux = Unit('lx')
+#: lambert
+lambert = Lambert = Unit('lambert')
+#: nit
+nt = nit = Nit = Unit("nt")
 
 #
 # Imperial units
@@ -296,6 +306,8 @@ statampere = statA = Unit("statA")
 statvolt = statV = Unit("statV")
 #: Statohm
 statohm = Unit("statohm")
+#: Maxwell
+Mx = maxwell = Maxwell = Unit("Mx")
 
 #
 # SI electromagnetic units
@@ -311,6 +323,8 @@ A = ampere = Ampere = Unit("A")
 V = volt = Volt = Unit("V")
 #: Ohm
 ohm = Ohm = Unit("ohm")
+#: Weber
+Wb = weber = Weber = Unit("Wb")
 
 #
 # Geographic units
