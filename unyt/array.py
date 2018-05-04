@@ -144,7 +144,7 @@ POWER_SIGN_MAPPING = {multiply: 1, divide: -1}
 def _iterable(obj):
     try:
         len(obj)
-    except Exception as e:
+    except Exception:
         return False
     return True
 
