@@ -57,6 +57,12 @@ class UnitRegistry:
     def __contains__(self, item):
         return item in self.lut
 
+    def pop(self, item):
+        if item in self.unit_objs:
+            del self.unit_objs[item]
+        if item in self.lut:
+            del self.lut[item]
+
     @property
     def unit_system_id(self):
         """
