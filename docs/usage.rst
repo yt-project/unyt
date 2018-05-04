@@ -694,7 +694,53 @@ Unit registries
 
 In these cases it becomes important to understand how ``unyt`` stores unit metadata in an internal database, how to add custom entries to the database, how to modify them, and how to persist custom units.
 
-A common example would be adding a ``code_length`` unit that corresponds to the scaling to from physical lengths to an internal unit system. In practice, this value is arbitrary, but will be fixed for a given problem.
+In practice, the unit metadata for a unit object is contained in an instance of the :class:`UnitRegistry <unyt.unit_registry.UnitRegistry>` class. Every :class:`Unit <unyt.unit_object.Unit>` instance contains a reference to a :class:`UnitRegistry <unyt.unit_registry.UnitRegistry>` instance:
+
+  >>> from unyt import g
+  >>> g.registry  # doctest: +ELLIPSIS
+  <unyt.unit_registry.UnitRegistry object at ...>
+
+All the unit objects in the :mod:`unyt` namespace make use of the default unit
+registry, importable as :data:`unyt.unit_registry.default_unit_registry`. This
+registry object contains all of the real-world physical units that the
+:mod:`unyt` library ships with out of the box.
+
+The unit registry itself contains a look-up table that maps from unit names to the metadata necessary to construct a unit. Note that the unit registry only contains metadata for "base" units, and not, for example, SI-prefixed units like centimeter of kilogram, it will instead only contain entries for meter and gram.
+
+Sometimes it is convenient to create a unit registry containing new units that are not available in the default unit registry. A common example would be adding a ``code_length`` unit that corresponds to the scaling to from physical lengths to an internal unit system. In practice, this value is arbitrary, but will be fixed for a given problem. Let's create a unit registry and a custom ``"code_length"`` unit to it, and then create a ``"code_length"`` unit and a quantity with units of ``"code_length"``. For the sake of example, let's set the value of ``"code_length"`` equal to 10 meters.
+
+  >>> from unyt import UnitRegistry, Unit
+  >>> from unyt.dimensions import length
+  >>> reg = UnitRegistry()
+  >>> reg.add("code_length", base_value=10.0, dimensions=length,
+  ...         tex_repr=r"\rm{Code Length}")
+  >>> u = Unit('code_length', registry=reg)
+  >>> data = 3*u
+  >>> print(data)
+  3.0 code_length
+
+In an application that depends on ``unyt``, it is often convenient to define
+methods or functions to automatically attach the correct unit registry to a set
+unit object. For example, consider a ``Simulation`` class. Let's give this class
+two methods named ``quantitity`` and ``array`` to create new :mod:`unyt_array
+<unyt.array.unyt_array>` and :mod:`unyt_quantity <unyt.array.unyt_quantity>`
+instances, respectively:
+
+  >>> class Simulation(object):
+  ...     def __init__(self, registry):
+  ...         self.registry = registry
+  ...
+  ...     def quan(self, value, units):
+  ...         return unyt_quantity(value, units, registry=self.registry)
+  ...
+  ...     def array(self, value, units):
+  ...         return unyt_array(value, units, registry=self.registry)
+  ...
+  >>> s = Simulation(reg)
+  >>> s.array([1, 2, 3], 'code_length')
+  unyt_array([1., 2., 3.], 'code_length')
+
+As for arrays with different units, for operation between two arrays with units that have references to different unit registries, the result of the operation will have the same unit registry as the leftmost unit. This can sometimes lead to surprising behaviors where data will seem to "forget" about custom units. In this situation it is important to make sure ahead of time that all data are created with units using the same unit registry. If for some reason that is not possible (for example, when comparing data from two different simulations with different internal units), then care must be taken when working with custom units. To avoid these sorts of ambiguities it is best to do work in physical units as much as possible.
 
 Writing Data with Units to Disk
 -------------------------------
