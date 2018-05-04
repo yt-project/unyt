@@ -10,7 +10,7 @@ To use unyt in a project::
   >>> import unyt
 
 The top-level :mod:`unyt` namespace defines both a number of useful functions as
-well as a number of unit symbols you can use to attach units to numpy arrays or
+well as a number of unit symbols you can use to attach units to NumPy arrays or
 python lists.
 
 An Example from High School Physics
@@ -31,7 +31,7 @@ do something similar on a calculator in a high school physics class, looking up
 and plugging in conversion factors by hand), it's much easier to do this sort of
 thing symbolically and let :mod:`unyt` handle the unit conversions.
 
-To do this we'll need to know the mass of jupiter (fortunately that is built
+To do this we'll need to know the mass of Jupiter (fortunately that is built
 into :mod:`unyt`) and the semimajor axis of the orbits of Jupiter's moons, which
 we can look up from `Wikipedia
 <https://en.wikipedia.org/wiki/Moons_of_Jupiter#List>`_ and enter by hand::
@@ -57,7 +57,7 @@ on. First, we import the unit symbols we need from the :mod:`unyt` namespace::
 
   >>> from unyt import Mjup, G, km
 
-The :mod:`unyt` namespace has a large numbe of units and physical constants you
+The :mod:`unyt` namespace has a large number of units and physical constants you
 can import to apply units to data in your own code. You can see how that works
 in the example::
 
@@ -106,7 +106,7 @@ Arithmetic and units
 
 The real power of working with :mod:`unyt` is its ability to add, subtract,
 multiply, and divide quantities and arrays with units in mathematical formulas
-while atuomatically handling unit conversions and detecting when you have made a
+while automatically handling unit conversions and detecting when you have made a
 mistake in your units in a mathematical formula. To see what I mean by that,
 let's take a look at the following examples::
 
@@ -205,7 +205,7 @@ data that has units both in linear space and in log space:
   >>> print(np.log10(1e-23*g/cm**3))
   -23.0
 
-The one exception to this rule is for trigonometric functions applied to data with ungular units:
+The one exception to this rule is for trigonometric functions applied to data with angular units:
 
   >>> from unyt import degree, radian
   >>> import numpy as np
@@ -260,7 +260,7 @@ raise an error:
   unyt.exceptions.UnitConversionError: Unit dimensionalities do not match.
   Tried to convert between mile (dim (length)) and lb (dim (mass)).
 
-While we recomment using :meth:`unyt_array.to <unyt.array.unyt_array.to>` in
+While we recommend using :meth:`unyt_array.to <unyt.array.unyt_array.to>` in
 most cases to convert arrays or quantities to different units, if you would like
 to explicitly emphasize that this operation has to do with units, we also
 provide the more verbose name :meth:`unyt_array.in_units
@@ -347,13 +347,17 @@ combining the base units for the unit system into the appropriate dimension.
 +--------------+--------------------+--------------------------+
 
 Note that in MKS units the current unit, Ampere, is a base unit in the unit
-system. In CGS units the electromagnetic units like Gauss and statAmpere are
-decomposible in terms of the base mass, length, and time units in the unit
+system. In CGS units the electromagnetic units like Gauss and statA are
+decomposable in terms of the base mass, length, and time units in the unit
 system. For this reason quantities defined in E&M units in CGS units are not
 readily convertible to MKS units and vice verse since the units are not
 dimensionally equivalent. To resolve this, :mod:`unyt` provides a unit
 equivalency system, discussed below, to convert data between semantically
 equivalent but not dimensionally equal units.
+
+The names ``"SI"``, ``"si"``, and ``"MKS"`` are accepted as alternative names
+by :mod:`unyt` for the MKS unit system. Similarly, ``"CGS"`` is acceptable as
+a name for the CGS unit system.
 
 You can convert data to a unit system :mod:`unyt` knows about using the
 :meth:`unyt_array.in_base <unyt.array.unyt_array.in_base>` and
@@ -421,7 +425,7 @@ Equivalencies
 
 An equivalency is a way to define a mapping to convert from one unit to another
 even if the two units are not dimensionally equivalent. This usually involves
-some sort of shorthand or hueristic understanding of the problem under
+some sort of shorthand or heuristic understanding of the problem under
 consideration. Only use one of these equivalencies if it makes sense to use it
 for the problem you are working on.
 
@@ -439,7 +443,7 @@ The :mod:`unyt` library implements the following equivalencies:
   (:math:`\lambda = h/mc`)
 
 You can convert data to a specific set of units via an equivalency appropriate
-for the units of the data. To see the uquivalencies that are available for an
+for the units of the data. To see the equivalencies that are available for an
 array, use the :meth:`unit_array.list_equivalencies
 <unyt.array.unyt_array.list_equivalencies>` method:
 
@@ -455,7 +459,7 @@ array, use the :meth:`unit_array.list_equivalencies
 
 All of the unit conversion methods described above have an ``equivalence``
 keyword argument that allows one to optionally specify an equivalence to use for
-the unit conversion operation. For exmaple, let's use the ``schwarzschild``
+the unit conversion operation. For example, let's use the ``schwarzschild``
 equivalence to calculate the mass of a black hole with a radius of one AU:
 
   >>> from unyt import AU
@@ -474,7 +478,7 @@ argument to the function rather than an optional keyword argument. Use these
 functions when you want to emphasize that an equivalence is being used.
 
 If the equivalence has optional keyword arguments, these can be passed to the
-unit conversion function. For example, here's an exmample where we specify a
+unit conversion function. For example, here's an example where we specify a
 custom mean molecular weight (``mu``) for the ``number_density`` equivalence:
 
   >>> from unyt import g, cm
@@ -482,7 +486,7 @@ custom mean molecular weight (``mu``) for the ``number_density`` equivalence:
   >>> rho.to('cm**-3', equivalence='number_density', mu=1.4)
   unyt_quantity(4.26761476, 'cm**(-3)')
 
-For full API documnentation and an autogenerated listing of the built-in
+For full API documentation and an autogenerated listing of the built-in
 equivalencies in :mod:`unyt` as well as a short usage example for each, see the
 :mod:`unyt.equivalencies` API listing.
 
@@ -508,7 +512,7 @@ The :mod:`unyt` library provides a number of ways to convert
 :class:`unyt_quantity <unyt.array.unyt_quantity>` instances into floats and
 :class:`unyt_array <unyt.array.unyt_array>` instances into numpy arrays. These
 methods either return a copy of the data as a numpy array or return a view
-ontOAo the underlying array data owned by a :class:`unyt_array
+onto the underlying array data owned by a :class:`unyt_array
 <unyt.array.unyt_array>` instance.
 
 To obtain a new array containing a copy of the original data, use either the
@@ -647,10 +651,50 @@ origins, it is straightforward to build applications that ensure unit
 consistency by making use of :mod:`unyt`. Below we discuss a few topics that
 most often come up when integrating :mod:`unyt` into a new or existing Python library.
 
-Unit Registries
----------------
+User-Defined Units
+------------------
 
-Often it is convenient to define new custom units.
+Often it is convenient to define new custom units. This can happen when you need
+to make use of a unit that the :mod:`unyt` library does not have a definition
+for already. It can also happen when dealing with data that uses a custom unit
+system or when writing software that needs to deal with such data in a flexible
+way, particularly when the units might change from dataset to dataset. This
+comes up often when modeling a physical system since it is often convenient to
+rescale data from a physical unit system to an internal "code" unit system in
+which the values of the variables under consideration are close to unity. This
+approach can help minimize floating point round-off error but is often done for
+convenience or to non-dimensionalize the problem under consideration.
+
+The :mod:`unyt` library provides two approaches for dealing with this
+problem. For more toy one-off use-cases, we suggest using
+:func:`unyt.define_unit <unyt.unit_object.define_unit>` which allows defining a
+new unit name in the global, default unit system that :mod:`unyt` ships with by
+default. For more complex uses cases that need more flexibility, it is possible
+to use a custom unit system by ensuring that the data you are working with makes
+use of a :class:`UnitRegistry <unyt.unit_registry.UnitRegistry>` customized for
+your use case.
+
+Using :func:`unyt.define_unit <unyt.unit_object.define_unit>`
+*************************************************************
+
+This function makes it possible to easily define a new unit that is unknown to
+the :mod:`unyt` library:
+
+  >>> import unyt as u
+  >>> two_weeks = 14.0*u.day
+  >>> one_day = 1.0*u.day
+  >>> u.define_unit("fortnight", two_weeks)
+  >>> print((3*u.fortnight)/one_day)
+  42.0 dimensionless
+
+This is primarily useful for one-off definitions of units that the :mod:`unyt` library does not already have predefined.
+
+Unit registries
+***************
+
+In these cases it becomes important to understand how ``unyt`` stores unit metadata in an internal database, how to add custom entries to the database, how to modify them, and how to persist custom units.
+
+A common example would be adding a ``code_length`` unit that corresponds to the scaling to from physical lengths to an internal unit system. In practice, this value is arbitrary, but will be fixed for a given problem.
 
 Writing Data with Units to Disk
 -------------------------------
