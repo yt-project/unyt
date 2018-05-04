@@ -13,10 +13,7 @@ Test unit systems.
 
 import pytest
 
-from unyt.exceptions import (
-    EquivalentDimsError,
-    IllDefinedUnitSystem,
-)
+from unyt.exceptions import IllDefinedUnitSystem
 from unyt.unit_object import Unit
 from unyt.unit_systems import (
     UnitSystem,

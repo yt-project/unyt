@@ -482,6 +482,7 @@ class EffectiveTemperature(Equivalence):
     def __str__(self):
         return "effective_temperature: flux <-> temperature"
 
+
 em_conversions = {
     "C": ("esu", 0.1*speed_of_light_cm_per_s, "cgs"),
     "T": ("gauss", 1.0e4, "cgs"),
@@ -500,6 +501,7 @@ em_conversions = {
     "statohm": ("ohm", speed_of_light_cm_per_s**2*1.0e-9, "mks"),
 }
 
+
 def _get_em_base_unit(units):
     unit_str = str(units)
     if len(unit_str) == 1:
@@ -515,10 +517,12 @@ def _get_em_base_unit(units):
         base_unit = unit_str
     return base_unit
 
+
 def _check_em_conversion(units):
     base_unit = _get_em_base_unit(units)
     em_info = em_conversions.get(base_unit, (None,)*3)
     return em_info[0], em_info[2]
+
 
 class ElectromagneticSI(Equivalence):
     """An equivalence between CGS and SI electromagnetic units

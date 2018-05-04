@@ -521,7 +521,8 @@ def test_creation_from_ytarray():
     assert_equal(u2, Unit('4.8032056e-10*esu'))
     assert_equal(u1, elementary_charge_cgs.units)
 
-    assert_allclose((u1/u2).base_value, electrostatic_unit/elementary_charge_cgs)
+    assert_allclose((u1/u2).base_value,
+                    electrostatic_unit/elementary_charge_cgs)
 
     with pytest.raises(UnitParseError):
         Unit([1, 2, 3]*elementary_charge_cgs)

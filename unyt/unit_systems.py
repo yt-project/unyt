@@ -28,6 +28,7 @@ unit_system_registry = {}
 
 cmks = dimensions.current_mks
 
+
 class _UnitSystemConstants(object):
     """
     A class to facilitate conversions of physical constants into a given unit
@@ -137,13 +138,15 @@ class UnitSystem(object):
         repr += " Base Units:\n"
         for dim in self.base_units:
             if self.base_units[dim] is not None:
-                repr += "  %s: %s\n" % (str(dim).strip("()"), self.base_units[dim])
+                repr += "  %s: %s\n" % (
+                    str(dim).strip("()"), self.base_units[dim])
         repr += " Other Units:\n"
         for key in self._dims:
             dim = getattr(dimensions, key)
             if dim not in self.base_units:
                 repr += "  %s: %s\n" % (key, self.units_map[dim])
         return repr[:-1]
+
 
 #: The CGS unit system
 cgs_unit_system = UnitSystem("cgs", "cm", "g", "s", current_mks_unit=None)
