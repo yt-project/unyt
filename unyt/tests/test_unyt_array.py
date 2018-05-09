@@ -1661,3 +1661,21 @@ def test_bypass_validation():
                      bypass_validation=True)
     assert obj.units == cm
     assert obj.units.registry is reg
+
+
+def test_creation_from_unyt_array():
+    from unyt import cm, UnitRegistry
+
+    data = [1, 2, 3]*cm
+
+    new_data = unyt_array(data)
+
+    assert new_data.units is cm
+    assert_array_equal(new_data.v, np.array([1, 2, 3], dtype='float64'))
+
+    reg = UnitRegistry()
+
+    new_data = unyt_array(data, registry=reg)
+    assert new_data.units is not cm
+    assert new_data.units == cm
+    assert new_data.units.registry is reg
