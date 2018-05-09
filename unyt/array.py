@@ -228,11 +228,7 @@ def _coerce_iterable_units(input_object):
                 raise IterableUnitCoercionError(input_object)
             # This will create a copy of the data in the iterable.
             return unyt_array(input_object)
-        return np.asarray(input_object)
-    else:
-        if isinstance(input_object, Unit):
-            return unyt_quantity(1.0, input_object)
-        return np.asarray(input_object)
+    return np.asarray(input_object)
 
 
 @lru_cache(maxsize=128, typed=False)

@@ -45,6 +45,7 @@ from unyt.array import (
 )
 from unyt.exceptions import (
     InvalidUnitOperation,
+    IterableUnitCoercionError,
     UnitOperationError,
     UnitParseError,
 )
@@ -1635,3 +1636,15 @@ def test_ones_and_zeros_like():
     assert_equal(zd.units, data.units)
     assert_equal(od, unyt_array([1, 1, 1], 'cm'))
     assert_equal(od.units, data.units)
+
+
+def test_coerce_iterable():
+    from unyt import cm, km
+
+    a = unyt_array([1, 2, 3], 'cm')
+    b = [1*cm, 2*km, 3*cm]
+
+    with pytest.raises(IterableUnitCoercionError):
+        a + b
+    with pytest.raises(IterableUnitCoercionError):
+        b + a
