@@ -21,10 +21,6 @@ from unyt.unit_systems import (
 )
 from unyt.unit_registry import UnitRegistry
 from unyt import dimensions
-from unyt import (
-    gauss,
-    Tesla,
-)
 
 
 def test_unit_systems():
@@ -55,17 +51,6 @@ def test_unit_system_id():
     assert reg1.unit_system_id != reg2.unit_system_id
     reg1.add('g', 1.0e-3, dimensions.mass)
     assert reg1.unit_system_id == reg2.unit_system_id
-
-
-def test_cgs_mks_unit_conversions():
-    t = 1*Tesla
-    g = 1*gauss
-    assert t.to_equivalent('G', 'cgs') == 1e4*gauss
-    assert t.to_equivalent('G', 'CGS') == 1e4*gauss
-    assert g.to_equivalent("T", "mks") == 1e-4*Tesla
-    assert g.to_equivalent("T", "MKS") == 1e-4*Tesla
-    assert g.to_equivalent("T", "si") == 1e-4*Tesla
-    assert g.to_equivalent("T", "SI") == 1e-4*Tesla
 
 
 def test_bad_unit_system():

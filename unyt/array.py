@@ -109,22 +109,15 @@ from numpy import (
 from numpy.core.umath import _ones_like
 from sympy import Rational
 
-from unyt.unit_object import (
-    Unit,
-    UnitParseError
-)
-from unyt.unit_registry import UnitRegistry
 from unyt.dimensions import (
     angle,
-    current_mks,
-    em_dimensions,
     temperature
 )
 from unyt.exceptions import (
-    EquivalentDimsError,
     IterableUnitCoercionError,
     InvalidUnitEquivalence,
     InvalidUnitOperation,
+    MKSCGSConversionError,
     UnitConversionError,
     UnitOperationError,
 )
@@ -249,14 +242,6 @@ def _unit_repr_check_same(my_units, other_units):
     is compatible with this quantity. Returns Unit object.
 
     """
-    equiv_dims = em_dimensions.get(my_units.dimensions, None)
-    if equiv_dims == other_units.dimensions:
-        if current_mks in equiv_dims.free_symbols:
-            base = "SI"
-        else:
-            base = "CGS"
-        raise EquivalentDimsError(my_units, other_units, base)
-
     if not my_units.same_dimensions_as(other_units):
         raise UnitConversionError(
             my_units, my_units.dimensions, other_units, other_units.dimensions)
@@ -622,17 +607,20 @@ class unyt_array(np.ndarray):
         >>> print(length)
         [30. 20. 10.] m
         """
+        units = _sanitize_units_convert(units, self.units.registry)
         if equivalence is None:
-            units = _sanitize_units_convert(units, self.units.registry)
-            em_units, em_us = _check_em_conversion(self.units)
-            if em_units is not None:
-                em_units = _sanitize_units_convert(em_units,
-                                                   self.units.registry)
-                if em_units.dimensions == units.dimensions:
-                    return self.convert_to_equivalent(units, em_us)
-            new_units = _unit_repr_check_same(self.units, units)
-            (conversion_factor, offset) = self.units.get_conversion_factor(
-                new_units)
+            try:
+                conv_data = _check_em_conversion(self.units, units)
+            except MKSCGSConversionError:
+                raise UnitConversionError(self.units, self.units.dimensions,
+                                          units, units.dimensions)
+            if any(conv_data):
+                new_units, (conversion_factor, offset) = _em_conversion(
+                    self.units, conv_data, units)
+            else:
+                new_units = _unit_repr_check_same(self.units, units)
+                (conversion_factor, offset) = self.units.get_conversion_factor(
+                    new_units)
 
             self.units = new_units
             values = self.d
@@ -783,15 +771,19 @@ class unyt_array(np.ndarray):
         """
         units = _sanitize_units_convert(units, self.units.registry)
         if equivalence is None:
-            em_units, em_us = _check_em_conversion(self.units)
-            if em_units is not None:
-                em_units = _sanitize_units_convert(em_units,
-                                                   self.units.registry)
-                if em_units.dimensions == units.dimensions:
-                    return self.to_equivalent(units, em_us)
-            new_units = _unit_repr_check_same(self.units, units)
-            (conversion_factor, offset) = self.units.get_conversion_factor(
-                new_units)
+            try:
+                conv_data = _check_em_conversion(self.units, units)
+            except MKSCGSConversionError:
+                raise UnitConversionError(self.units, self.units.dimensions,
+                                          units, units.dimensions)
+            if any(conv_data):
+                new_units, (conversion_factor, offset) = _em_conversion(
+                    self.units, conv_data, units)
+                offset = 0
+            else:
+                new_units = _unit_repr_check_same(self.units, units)
+                (conversion_factor, offset) = self.units.get_conversion_factor(
+                    new_units)
 
             ret = np.asarray(self.ndview * conversion_factor)
             if offset:
@@ -908,14 +900,17 @@ class unyt_array(np.ndarray):
         >>> print(E.in_base("mks"))
         2.5e-07 W
         """
-        em_units, em_us = _check_em_conversion(self.units)
-        if em_units is not None and em_us == unit_system:
-            to_units = em_units
-            equivalence = em_us
+        conv_data = _check_em_conversion(self.units)
+        if any(conv_data):
+            to_units, (conv, offset) = _em_conversion(
+                self.units, conv_data, unit_system=unit_system)
         else:
             to_units = self.units.get_base_equivalent(unit_system)
-            equivalence = None
-        return self.in_units(to_units, equivalence=equivalence)
+            conv, offset = self.units.get_conversion_factor(to_units)
+        ret = self.v*conv
+        if offset:
+            ret = ret - offset
+        return type(self)(ret, to_units)
 
     def in_cgs(self):
         """

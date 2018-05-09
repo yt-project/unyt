@@ -57,6 +57,15 @@ class MissingMKSCurrent(Exception):
         return err
 
 
+class MKSCGSConversionError(Exception):
+    def __init__(self, unit):
+        self.unit = unit
+
+    def __str__(self):
+        err = ("The %s unit cannot be safely converted." % self.unit)
+        return err
+
+
 class UnitsNotReducible(Exception):
     def __init__(self, unit, units_base):
         self.unit = unit

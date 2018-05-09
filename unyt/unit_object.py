@@ -56,6 +56,7 @@ from unyt.exceptions import (
     MKSCGSConversionError,
     UnitConversionError,
 )
+from unyt._physical_ratios import speed_of_light_cm_per_s
 from unyt._unit_lookup_table import (
     unit_prefixes,
     prefixable_units,
@@ -65,15 +66,6 @@ from unyt.unit_registry import (
     default_unit_registry,
     UnitRegistry,
     UnitParseError
-)
-from unyt.exceptions import (
-    InvalidUnitOperation,
-    MissingMKSCurrent,
-    UnitsNotReducible,
-)
-from unyt.equivalencies import (
-    equivalence_registry,
-    _check_em_conversion,
 )
 
 sympy_one = sympify(1)
@@ -656,15 +648,13 @@ class Unit(Expr):
         elif unit_system == "code":
             unit_system = self.registry.unit_system_id
         unit_system = unit_system_registry[str(unit_system)]
-        try:
-            em_units, em_us = _check_em_conversion(self.units)
-            if em_units is not None and em_us == str(unit_system):
-                units_string = em_units
-            else:
-                units_string = unit_system[self.dimensions]
-        except MissingMKSCurrent:
-            raise UnitsNotReducible(self.units, unit_system)
-        return Unit(units_string, registry=self.registry)
+        conv_data = _check_em_conversion(self.units)
+        if any(conv_data):
+            new_units, _ = _em_conversion(
+                self, conv_data, unit_system=unit_system)
+        else:
+            new_units = unit_system[self.dimensions]
+        return Unit(new_units, registry=self.registry)
 
     def get_cgs_equivalent(self):
         """Create and return dimensionally-equivalent cgs units.
@@ -730,6 +720,79 @@ class Unit(Expr):
 #
 
 
+em_conversions = {
+    "C": ("esu", 0.1*speed_of_light_cm_per_s, "cgs"),
+    "T": ("gauss", 1.0e4, "cgs"),
+    "Wb": ("Mx", 1.0e8, "cgs"),
+    "A": ("statA", 0.1*speed_of_light_cm_per_s, "cgs"),
+    "V": ("statV", 1.0e-8*speed_of_light_cm_per_s, "cgs"),
+    "ohm": ("statohm", 1.0e9/(speed_of_light_cm_per_s**2), "cgs"),
+    "esu": ("C", 10.0/speed_of_light_cm_per_s, "mks"),
+    "Fr": ("C", 10.0/speed_of_light_cm_per_s, "mks"),
+    "statC": ("C", 10.0/speed_of_light_cm_per_s, "mks"),
+    "gauss": ("T", 1.0e-4, "mks"),
+    "G": ("T", 1.0e-4, "mks"),
+    "Mx": ("Wb", 1.0e-8, "mks"),
+    "statA": ("A", 10.0/speed_of_light_cm_per_s, "mks"),
+    "statV": ("V", 1.0e8/speed_of_light_cm_per_s, "mks"),
+    "statohm": ("ohm", speed_of_light_cm_per_s**2*1.0e-9, "mks"),
+}
+
+
+def _em_conversion(orig_units, conv_data, to_units=None, unit_system=None):
+    new_expr = orig_units.copy().expr
+    inter_expr = orig_units.copy().expr
+    base_value = orig_units.base_value
+    for orig_unit in conv_data:
+        conv_unit, scale = conv_data[orig_unit]
+        new_expr = new_expr.replace(
+            orig_unit.expr, scale*conv_unit.expr)
+        inter_expr = inter_expr.replace(
+            orig_unit.expr, conv_unit.expr)
+        base_value *= float((new_expr.as_coefficient(inter_expr) *
+                             conv_unit.base_value/orig_unit.base_value))
+    if unit_system is not None:
+        to_units = Unit(
+            inter_expr, registry=orig_units.registry)
+    new_units = Unit(new_expr, registry=orig_units.registry)
+    try:
+        conv = new_units.get_conversion_factor(to_units)
+    except UnitConversionError:
+        raise UnitConversionError(orig_units, orig_units.dimensions,
+                                  to_units, to_units.dimensions)
+    return to_units, conv
+
+
+def _get_em_base_unit(units):
+    unit_str = str(units)
+    if len(unit_str) == 1:
+        return unit_str
+    possible_prefix = unit_str[0]
+    prefix_len = 1
+    if unit_str[:2] == 'da':
+        possible_prefix = 'da'
+        prefix_len += 1
+    if possible_prefix in unit_prefixes:
+        base_unit = unit_str[prefix_len:]
+    else:
+        base_unit = unit_str
+    return base_unit
+
+
+def _check_em_conversion(units, to_units=None):
+    em_map = {}
+    base_unit = _get_em_base_unit(str(units))
+    if base_unit in em_conversions:
+        em_info = em_conversions.get(base_unit, (None,)*2)
+        to_unit = Unit(em_info[0], registry=units.registry)
+        if to_units is None or to_units.dimensions == to_unit.dimensions:
+            em_map[Unit(base_unit, registry=units.registry)] = (
+                to_unit, em_info[1])
+    if len(em_map) > 1:
+        raise MKSCGSConversionError(units)
+    return em_map
+
+
 def _get_conversion_factor(old_units, new_units):
     """
     Get the conversion factor between two units of equivalent dimensions. This
@@ -751,6 +814,9 @@ def _get_conversion_factor(old_units, new_units):
         Offset between the old unit and new unit.
 
     """
+    if old_units.dimensions != new_units.dimensions:
+        raise UnitConversionError(old_units, old_units.dimensions,
+                                  new_units, new_units.dimensions)
     ratio = old_units.base_value / new_units.base_value
     if old_units.base_offset == 0 and new_units.base_offset == 0:
         return (ratio, None)

@@ -965,6 +965,12 @@ def test_reductions():
     assert_equal(ev_result.units, res.units)
     assert_isinstance(ev_result, unyt_array)
 
+    qv = unyt_array([1, 2, 3], 'cm').dot(unyt_array([1, 2, 3], 'cm'))
+    qa = unyt_quantity(14, 'cm**2')
+    assert qv == qa
+    assert qv.units == qa.units
+    assert_isinstance(qv, unyt_quantity)
+
     answers = {
         'prod': (unyt_quantity(720, 'cm**6'),
                  unyt_array([4, 10, 18], 'cm**2'),
@@ -1433,34 +1439,39 @@ def test_electromagnetic():
 
     # Various tests of SI and CGS electromagnetic units
 
-    qp_cgs = u.qp_cgs.in_units("C", "SI")
+    t = 1*u.Tesla
+    g = 1*u.gauss
+    assert t.to('gauss') == 1e4*u.gauss
+    assert g.to('T') == 1e-4*u.Tesla
+
+    qp_cgs = u.qp_cgs.in_units("C")
     assert_equal(qp_cgs.units.dimensions, dimensions.charge_mks)
     assert_almost_equal(qp_cgs.v, 10.0*u.qp.v/speed_of_light_cm_per_s)
     qp = 1*u.qp_cgs
-    qp.convert_to_units("C", "SI")
+    qp.convert_to_units("C")
     assert_equal(qp.units.dimensions, dimensions.charge_mks)
     assert_almost_equal(qp.v, 10*u.qp.v/u.clight.v)
 
-    qp_cgs = u.qp.in_units("esu", "CGS")
+    qp_cgs = u.qp.in_units("esu")
     assert_array_almost_equal(qp_cgs, u.qp_cgs)
     assert_equal(qp_cgs.units.dimensions, u.qp_cgs.units.dimensions)
     qp = u.qp.copy()
-    qp.convert_to_units('esu', 'CGS')
+    qp.convert_to_units('esu')
     assert_almost_equal(qp_cgs, qp_cgs)
     assert qp.units == u.esu.units
-    qp.convert_to_units('C', 'MKS')
+    qp.convert_to_units('C')
     assert_almost_equal(u.qp, qp)
     assert qp.units == u.C.units
 
-    qp_mks_k = u.qp_cgs.in_units("kC", "SI")
+    qp_mks_k = u.qp_cgs.in_units("kC")
     assert_array_almost_equal(
         qp_mks_k.v, 1.0e-2*u.qp_cgs.v/speed_of_light_cm_per_s)
     qp = 1*u.qp_cgs
-    qp.convert_to_units('kC', 'SI')
+    qp.convert_to_units('kC')
     assert_almost_equal(qp, qp_mks_k)
 
     B = 1.0*u.T
-    B_cgs = B.in_units("gauss", "CGS")
+    B_cgs = B.in_units("gauss")
     assert_equal(B.units.dimensions, dimensions.magnetic_field_mks)
     assert_equal(B_cgs.units.dimensions, dimensions.magnetic_field_cgs)
     assert_array_almost_equal(B_cgs, unyt_quantity(1.0e4, "gauss"))
@@ -1477,18 +1488,20 @@ def test_electromagnetic():
     assert_equal(u_mks.units.dimensions, dimensions.pressure)
     u_cgs = B_cgs*B_cgs/(8*np.pi)
     assert_equal(u_cgs.units.dimensions, dimensions.pressure)
-    assert_almost_equal(u_mks.in_cgs(), u_cgs)
+    assert_equal(u_cgs.to(u_mks.units), u_mks)
+    assert_equal(u_mks.to(u_cgs.units), u_cgs)
+    assert_equal(u_mks.in_cgs(), u_cgs)
+    assert_equal(u_cgs.in_mks(), u_mks)
 
     current = 1.0*u.A
-    I_cgs = current.in_units("statA", equivalence="CGS")
+    I_cgs = current.in_units("statA")
     assert_array_almost_equal(
         I_cgs, unyt_quantity(0.1*speed_of_light_cm_per_s, "statA"))
-    assert_array_almost_equal(
-        I_cgs.in_units("mA", equivalence="SI"), current.in_units("mA"))
+    assert_array_almost_equal(I_cgs.in_units("mA"), current.in_units("mA"))
     assert_equal(I_cgs.units.dimensions, dimensions.current_cgs)
-    current.convert_to_units('statA', equivalence='CGS')
+    current.convert_to_units('statA')
     assert current.units == u.statA.units
-    current.convert_to_units('A', equivalence='MKS')
+    current.convert_to_units('A')
     assert current.units == u.A.units
     I_cgs2 = current.to('statA')
     assert I_cgs2.units == u.statA.units
@@ -1497,7 +1510,7 @@ def test_electromagnetic():
 
     current = 1.0*u.A
     R = unyt_quantity(1.0, "ohm")
-    R_cgs = R.in_units("statohm", "CGS")
+    R_cgs = R.in_units("statohm")
     P_mks = current*current*R
     P_cgs = I_cgs*I_cgs*R_cgs
     assert_equal(P_mks.units.dimensions, dimensions.power)
@@ -1506,7 +1519,7 @@ def test_electromagnetic():
     assert_array_almost_equal(P_cgs.in_mks(), unyt_quantity(1.0, "W"))
 
     V = unyt_quantity(1.0, "statV")
-    V_mks = V.in_units("V", "SI")
+    V_mks = V.in_units("V")
     assert_array_almost_equal(V_mks.v, 1.0e8*V.v/speed_of_light_cm_per_s)
 
 
