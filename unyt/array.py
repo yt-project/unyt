@@ -14,9 +14,13 @@ unyt_array class.
 # -----------------------------------------------------------------------------
 
 import copy
-import numpy as np
-
 from functools import wraps
+try:
+    from functools import lru_cache
+except ImportError:
+    from backports.functools_lru_cache import lru_cache
+from numbers import Number as numeric_type
+import numpy as np
 from numpy import (
     add,
     subtract,
@@ -103,6 +107,7 @@ from numpy import (
     heaviside,
 )
 from numpy.core.umath import _ones_like
+from sympy import Rational
 
 from unyt.unit_object import (
     Unit,
@@ -123,19 +128,17 @@ from unyt.exceptions import (
     UnitConversionError,
     UnitOperationError,
 )
-from unyt.equivalencies import (
-    equivalence_registry,
-    _check_em_conversion,
-)
-try:
-    from functools import lru_cache
-except ImportError:
-    from backports.functools_lru_cache import lru_cache
-from numbers import Number as numeric_type
+from unyt.equivalencies import equivalence_registry
 from unyt._on_demand_imports import _astropy
-from sympy import Rational
 from unyt._unit_lookup_table import default_unit_symbol_lut
 from unyt._pint_conversions import convert_pint_units
+from unyt.unit_object import (
+    _check_em_conversion,
+    _em_conversion,
+    Unit,
+    UnitParseError,
+)
+from unyt.unit_registry import UnitRegistry
 
 NULL_UNIT = Unit()
 POWER_SIGN_MAPPING = {multiply: 1, divide: -1}

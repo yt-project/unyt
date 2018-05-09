@@ -13,7 +13,13 @@ A class that represents a unit symbol.
 # -----------------------------------------------------------------------------
 
 
+import copy
+from keyword import iskeyword as _iskeyword
+import numpy as np
+from numbers import Number as numeric_type
 from six import text_type
+import token
+
 from sympy import (
     Expr,
     Mul,
@@ -37,12 +43,18 @@ from sympy.parsing.sympy_parser import (
     auto_number,
     rationalize
 )
-from keyword import iskeyword as _iskeyword
+
 from unyt.dimensions import (
+    angle,
     base_dimensions,
-    temperature,
     dimensionless,
-    angle
+    temperature,
+)
+from unyt.equivalencies import equivalence_registry
+from unyt.exceptions import (
+    InvalidUnitOperation,
+    MKSCGSConversionError,
+    UnitConversionError,
 )
 from unyt._unit_lookup_table import (
     unit_prefixes,
@@ -63,10 +75,6 @@ from unyt.equivalencies import (
     equivalence_registry,
     _check_em_conversion,
 )
-import copy
-import token
-import numpy as np
-from numbers import Number as numeric_type
 
 sympy_one = sympify(1)
 
