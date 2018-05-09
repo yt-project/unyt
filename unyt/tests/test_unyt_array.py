@@ -871,7 +871,7 @@ def unary_ufunc_comparison(ufunc, a):
         assert_array_equal(ret2, npret2)
     elif ufunc is np.invert:
         with pytest.raises(TypeError):
-            ufunc(a)
+            ufunc(a.astype('int64'))
     elif hasattr(np, 'isnat') and ufunc is np.isnat:
         # numpy 1.13 raises ValueError, numpy 1.14 and newer raise TypeError
         with pytest.raises((TypeError, ValueError)):
