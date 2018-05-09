@@ -321,6 +321,7 @@ unary_operators = (
     spacing,
     positive,
     isnat,
+    invert,
 )
 
 binary_operators = (
