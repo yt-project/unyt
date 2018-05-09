@@ -44,8 +44,6 @@ class _RegisteredEquivalence(type):
 
 @add_metaclass(_RegisteredEquivalence)
 class Equivalence(object):
-    one_way = False
-
     def __init__(self, in_place=False):
         self.in_place = in_place
 

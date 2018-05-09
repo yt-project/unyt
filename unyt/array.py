@@ -962,21 +962,15 @@ class unyt_array(np.ndarray):
         conv_unit = Unit(unit, registry=self.units.registry)
         if self.units.same_dimensions_as(conv_unit):
             self.convert_to_units(conv_unit)
+            return
         this_equiv = equivalence_registry[equivalence](in_place=True)
-        oneway_or_equivalent = (conv_unit.has_equivalent(equivalence)
-                                or this_equiv.one_way)
-        if self.has_equivalent(equivalence) and oneway_or_equivalent:
-            ret = this_equiv._convert(self, conv_unit.dimensions, **kwargs)
-            if isinstance(ret, tuple):
-                # need to subtract off the current value because index
-                # into an array scalar isn't allowed
-                view = self.d
-                view += (ret[0] - view)
-                self.units = Unit(ret[1], registry=self.units.registry)
+        if self.has_equivalent(equivalence):
+            orig_units = self.units
+            this_equiv._convert(self, conv_unit.dimensions, **kwargs)
             try:
                 self.convert_to_units(conv_unit)
             except UnitConversionError:
-                InvalidUnitEquivalence(equivalence, self.units, unit)
+                InvalidUnitEquivalence(equivalence, orig_units, unit)
         else:
             raise InvalidUnitEquivalence(equivalence, self.units, unit)
 
@@ -1007,19 +1001,13 @@ class unyt_array(np.ndarray):
         if self.units.same_dimensions_as(conv_unit):
             return self.in_units(conv_unit)
         this_equiv = equivalence_registry[equivalence]()
-        oneway_or_equivalent = (
-            conv_unit.has_equivalent(equivalence) or this_equiv.one_way)
-        if self.has_equivalent(equivalence) and oneway_or_equivalent:
+        if self.has_equivalent(equivalence):
             new_arr = this_equiv._convert(
                 self, conv_unit.dimensions, **kwargs)
-            if isinstance(new_arr, tuple):
-                try:
-                    return type(self)(new_arr[0], new_arr[1]).in_units(
-                        conv_unit)
-                except UnitConversionError:
-                    raise InvalidUnitEquivalence(equivalence, self.units, unit)
-            else:
+            try:
                 return new_arr.in_units(conv_unit)
+            except UnitConversionError:
+                raise InvalidUnitEquivalence(equivalence, self.units, unit)
         else:
             raise InvalidUnitEquivalence(equivalence, self.units, unit)
 

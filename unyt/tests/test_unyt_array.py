@@ -1207,6 +1207,12 @@ def test_h5_io():
 def test_equivalencies():
     import unyt as u
 
+    # equivalence is ignored if the conversion doesn't need one
+    data = 12*u.g
+    data.convert_to_equivalent('kg', None)
+    assert data.value == .012
+    assert data.units == u.kg
+
     # Mass-energy
 
     mp = u.mp.copy()
@@ -1475,6 +1481,14 @@ def test_electromagnetic():
 
     B = 1.0*u.T
     B_cgs = B.in_units("gauss")
+    assert_equal(B.units.dimensions, dimensions.magnetic_field_mks)
+    assert_equal(B_cgs.units.dimensions, dimensions.magnetic_field_cgs)
+    assert_array_almost_equal(B_cgs, unyt_quantity(1.0e4, "gauss"))
+    B_cgs = B.in_cgs()
+    assert_equal(B.units.dimensions, dimensions.magnetic_field_mks)
+    assert_equal(B_cgs.units.dimensions, dimensions.magnetic_field_cgs)
+    assert_array_almost_equal(B_cgs, unyt_quantity(1.0e4, "gauss"))
+    B_cgs = B.in_base('cgs')
     assert_equal(B.units.dimensions, dimensions.magnetic_field_mks)
     assert_equal(B_cgs.units.dimensions, dimensions.magnetic_field_cgs)
     assert_array_almost_equal(B_cgs, unyt_quantity(1.0e4, "gauss"))
