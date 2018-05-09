@@ -257,8 +257,8 @@ raise an error:
   >>> (1.0*mile).to('lb')  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   Traceback (most recent call last):
   ...
-  unyt.exceptions.UnitConversionError: Unit dimensionalities do not match.
-  Tried to convert between mile (dim (length)) and lb (dim (mass)).
+  unyt.exceptions.UnitConversionError: Cannot convert between mile (dim
+  (length)) and lb (dim (mass)).
 
 While we recommend using :meth:`unyt_array.to <unyt.array.unyt_array.to>` in
 most cases to convert arrays or quantities to different units, if you would like

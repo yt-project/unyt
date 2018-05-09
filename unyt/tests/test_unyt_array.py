@@ -46,8 +46,10 @@ from unyt.array import (
 from unyt.exceptions import (
     InvalidUnitOperation,
     IterableUnitCoercionError,
+    UnitConversionError,
     UnitOperationError,
     UnitParseError,
+    UnitsNotReducible,
 )
 from unyt._testing import assert_allclose_units
 from unyt.unit_symbols import (
@@ -1489,10 +1491,14 @@ def test_electromagnetic():
     assert_equal(u_mks.units.dimensions, dimensions.pressure)
     u_cgs = B_cgs*B_cgs/(8*np.pi)
     assert_equal(u_cgs.units.dimensions, dimensions.pressure)
-    assert_equal(u_cgs.to(u_mks.units), u_mks)
-    assert_equal(u_mks.to(u_cgs.units), u_cgs)
-    assert_equal(u_mks.in_cgs(), u_cgs)
-    assert_equal(u_cgs.in_mks(), u_mks)
+    with pytest.raises(UnitConversionError):
+        u_cgs.to(u_mks.units)
+    with pytest.raises(UnitConversionError):
+        u_mks.to(u_cgs.units)
+    with pytest.raises(UnitsNotReducible):
+        u_mks.in_cgs()
+    with pytest.raises(UnitsNotReducible):
+        u_cgs.in_mks()
 
     current = 1.0*u.A
     I_cgs = current.in_units("statA")
@@ -1516,12 +1522,30 @@ def test_electromagnetic():
     P_cgs = I_cgs*I_cgs*R_cgs
     assert_equal(P_mks.units.dimensions, dimensions.power)
     assert_equal(P_cgs.units.dimensions, dimensions.power)
-    assert_array_almost_equal(P_cgs.in_cgs(), P_mks.in_cgs())
-    assert_array_almost_equal(P_cgs.in_mks(), unyt_quantity(1.0, "W"))
+    with pytest.raises(UnitsNotReducible):
+        P_cgs.in_cgs()
+    with pytest.raises(UnitsNotReducible):
+        P_mks.in_cgs()
 
     V = unyt_quantity(1.0, "statV")
     V_mks = V.in_units("V")
     assert_array_almost_equal(V_mks.v, 1.0e8*V.v/speed_of_light_cm_per_s)
+
+    data = 1.0*u.C*u.T*u.V
+    with pytest.raises(UnitConversionError):
+        data.to('statC*G*statV')
+    with pytest.raises(UnitConversionError):
+        data.convert_to_units('statC*G*statV')
+    with pytest.raises(UnitsNotReducible):
+        data.in_cgs()
+
+    data = 1.0*u.statC*u.G*u.statV
+    with pytest.raises(UnitConversionError):
+        data.to('C*T*V')
+    with pytest.raises(UnitConversionError):
+        data.convert_to_units('C*T*V')
+    with pytest.raises(UnitsNotReducible):
+        data.in_mks()
 
 
 def test_ytarray_coercion():
@@ -1663,7 +1687,7 @@ def test_bypass_validation():
     assert obj.units.registry is reg
 
 
-def test_creation_from_unyt_array():
+def test_creation():
     from unyt import cm, UnitRegistry
 
     data = [1, 2, 3]*cm
@@ -1676,6 +1700,17 @@ def test_creation_from_unyt_array():
     reg = UnitRegistry()
 
     new_data = unyt_array(data, registry=reg)
+    assert_array_equal(new_data.v, np.array([1, 2, 3], dtype='float64'))
+    assert new_data.units is not cm
+    assert new_data.units == cm
+    assert new_data.units.registry is reg
+
+    new_data = unyt_array([1, 2, 3], cm)
+    assert_array_equal(new_data.v, np.array([1, 2, 3], dtype='float64'))
+    assert new_data.units is cm
+
+    new_data = unyt_array([1, 2, 3], cm, registry=reg)
+    assert_array_equal(new_data.v, np.array([1, 2, 3], dtype='float64'))
     assert new_data.units is not cm
     assert new_data.units == cm
     assert new_data.units.registry is reg

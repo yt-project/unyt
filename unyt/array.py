@@ -120,6 +120,7 @@ from unyt.exceptions import (
     MKSCGSConversionError,
     UnitConversionError,
     UnitOperationError,
+    UnitsNotReducible,
 )
 from unyt.equivalencies import equivalence_registry
 from unyt._on_demand_imports import _astropy
@@ -885,7 +886,10 @@ class unyt_array(np.ndarray):
         >>> print(E.in_base("mks"))
         2.5e-07 W
         """
-        conv_data = _check_em_conversion(self.units)
+        try:
+            conv_data = _check_em_conversion(self.units)
+        except MKSCGSConversionError:
+            raise UnitsNotReducible(self.units, unit_system)
         if any(conv_data):
             to_units, (conv, offset) = _em_conversion(
                 self.units, conv_data, unit_system=unit_system)

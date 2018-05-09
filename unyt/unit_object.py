@@ -787,6 +787,9 @@ def _get_em_base_unit(units):
 def _check_em_conversion(units, to_units=None):
     em_map = {}
     base_unit = _get_em_base_unit(str(units))
+    base_to_unit = _get_em_base_unit(str(to_units))
+    if base_unit == base_to_unit:
+        return em_map
     if base_unit in em_conversions:
         em_info = em_conversions.get(base_unit, (None,)*2)
         to_unit = Unit(em_info[0], registry=units.registry)
@@ -795,6 +798,14 @@ def _check_em_conversion(units, to_units=None):
                 to_unit, em_info[1])
     if len(em_map) > 1:
         raise MKSCGSConversionError(units)
+    if em_map:
+        return em_map
+    for unit in units.expr.atoms():
+        if unit.is_Number:
+            pass
+        base_unit = _get_em_base_unit(str(unit))
+        if base_unit in em_conversions:
+            raise MKSCGSConversionError(units)
     return em_map
 
 
