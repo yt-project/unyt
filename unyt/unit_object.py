@@ -53,8 +53,10 @@ from unyt.dimensions import (
 from unyt.equivalencies import equivalence_registry
 from unyt.exceptions import (
     InvalidUnitOperation,
+    MissingMKSCurrent,
     MKSCGSConversionError,
     UnitConversionError,
+    UnitsNotReducible
 )
 from unyt._physical_ratios import speed_of_light_cm_per_s
 from unyt._unit_lookup_table import (
@@ -653,7 +655,10 @@ class Unit(Expr):
             new_units, _ = _em_conversion(
                 self, conv_data, unit_system=unit_system)
         else:
-            new_units = unit_system[self.dimensions]
+            try:
+                new_units = unit_system[self.dimensions]
+            except MissingMKSCurrent:
+                raise UnitsNotReducible(self.units, unit_system)
         return Unit(new_units, registry=self.registry)
 
     def get_cgs_equivalent(self):
