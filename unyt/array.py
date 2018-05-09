@@ -129,7 +129,6 @@ from unyt.unit_object import (
     _check_em_conversion,
     _em_conversion,
     Unit,
-    UnitParseError,
 )
 from unyt.unit_registry import UnitRegistry
 
@@ -500,15 +499,6 @@ class unyt_array(np.ndarray):
             if registry is not None:
                 obj.units.registry = registry
             return obj
-        if input_array is NotImplemented:
-            return input_array.view(cls)
-        if registry is None and isinstance(input_units, (str, bytes)):
-            if input_units.startswith('code_'):
-                raise UnitParseError(
-                    "Code units used without referring to a dataset. \n"
-                    "Perhaps you meant to do something like this instead: \n"
-                    "ds.arr(%s, \"%s\")" % (input_array, input_units)
-                    )
         if isinstance(input_array, unyt_array):
             ret = input_array.view(cls)
             if input_units is None:
