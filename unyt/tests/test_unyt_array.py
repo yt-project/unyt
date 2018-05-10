@@ -690,11 +690,41 @@ def test_temperature_conversions():
     with pytest.raises(InvalidUnitOperation):
         np.multiply(balmy, balmy)
     with pytest.raises(InvalidUnitOperation):
-        np.add(balmy_F, balmy_F)
+        np.multiply(balmy_F, balmy_F)
     with pytest.raises(InvalidUnitOperation):
-        np.subtract(balmy_C, balmy_C)
+        np.multiply(balmy_F, balmy_C)
+    with pytest.raises(InvalidUnitOperation):
+        np.divide(balmy, balmy)
+    with pytest.raises(InvalidUnitOperation):
+        np.divide(balmy_F, balmy_F)
     with pytest.raises(InvalidUnitOperation):
         np.divide(balmy_F, balmy_C)
+    with pytest.raises(InvalidUnitOperation):
+        balmy*km
+    with pytest.raises(InvalidUnitOperation):
+        balmy*balmy
+    with pytest.raises(InvalidUnitOperation):
+        balmy_F*balmy_F
+    with pytest.raises(InvalidUnitOperation):
+        balmy_F*balmy_C
+    with pytest.raises(InvalidUnitOperation):
+        2*balmy_F
+    with pytest.raises(InvalidUnitOperation):
+        balmy/balmy
+    with pytest.raises(InvalidUnitOperation):
+        balmy_F/balmy_F
+    with pytest.raises(InvalidUnitOperation):
+        balmy_F/balmy_C
+    assert_equal(np.add(balmy_F, balmy_F), unyt_quantity(80.33*2, 'degF'))
+    with pytest.raises(InvalidUnitOperation):
+        np.add(balmy_F, balmy_C)
+    with pytest.raises(InvalidUnitOperation):
+        balmy_F + balmy_C
+    assert_equal(np.subtract(balmy_C, balmy_C), unyt_quantity(0, 'degC'))
+    with pytest.raises(InvalidUnitOperation):
+        np.subtract(balmy_F, balmy_C)
+    with pytest.raises(InvalidUnitOperation):
+        balmy_F - balmy_C
 
     # Does CGS conversion from F to K work?
     assert_array_almost_equal(balmy.in_cgs(), unyt_quantity(300, 'K'))

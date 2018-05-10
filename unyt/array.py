@@ -1623,15 +1623,8 @@ class unyt_array(np.ndarray):
                         raise InvalidUnitOperation(
                             "Quantities with units of Fahrenheit or Celsius "
                             "cannot by multiplied, divided, subtracted or "
-                            "added.")
+                            "added with data that has different units.")
                     inp1 = np.asarray(inp1)*conv
-                else:
-                    if ((u0.base_offset and u0.dimensions is temperature or
-                         u1.base_offset and u1.dimensions is temperature)):
-                        raise InvalidUnitOperation(
-                            "Quantities with units of Fahrenheit or Celsius "
-                            "cannot by multiplied, divide, subtracted or "
-                            "added.")
             # get the unit of the result
             unit = unit_operator(u0, u1)
             # actually evaluate the ufunc
