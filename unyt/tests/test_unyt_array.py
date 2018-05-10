@@ -1202,6 +1202,30 @@ def test_h5_io():
     assert_equal(warr.units.registry['code_length'],
                  iarr.units.registry['code_length'])
 
+    # test code to overwrite existing dataset
+
+    warr.write_hdf5('test.h5')
+
+    giarr = unyt_array.from_hdf5('test.h5')
+
+    assert_equal(warr, giarr)
+
+    # test code to overwrite existing dataset with data that has a different
+    # shape
+
+    warr = unyt_array(np.random.random((255, 255)), 'code_length',
+                      registry=reg)
+
+    warr.write_hdf5('test.h5')
+
+    giarr = unyt_array.from_hdf5('test.h5')
+
+    assert_equal(warr, giarr)
+
+    os.remove('test.h5')
+
+    # write to a group that doesn't exist
+
     warr.write_hdf5('test.h5', dataset_name="test_dset",
                     group_name='/arrays/test_group')
 
@@ -1209,6 +1233,23 @@ def test_h5_io():
                                  group_name='/arrays/test_group')
 
     assert_equal(warr, giarr)
+
+    os.remove('test.h5')
+
+    # write to a group that does exist
+
+    with _h5py.File('test.h5') as f:
+        f.create_group('/arrays/test_group')
+
+    warr.write_hdf5('test.h5', dataset_name="test_dset",
+                    group_name='/arrays/test_group')
+
+    giarr = unyt_array.from_hdf5('test.h5', dataset_name="test_dset",
+                                 group_name='/arrays/test_group')
+
+    assert_equal(warr, giarr)
+
+    os.remove('test.h5')
 
     os.chdir(curdir)
     shutil.rmtree(tmpdir)
