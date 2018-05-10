@@ -1215,6 +1215,9 @@ def test_subclass():
     assert_isinstance(a[:2], unyt_a_subclass)
     assert_isinstance(unyt_a_subclass(yta), unyt_a_subclass)
 
+    with pytest.raises(RuntimeError):
+        a + 'hello'
+
 
 def test_h5_io():
     if isinstance(_h5py.__version__, NotAModule):
