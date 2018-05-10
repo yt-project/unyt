@@ -1541,8 +1541,6 @@ class unyt_array(np.ndarray):
             # Unary ufuncs
             inp = inputs[0]
             u = getattr(inp, 'units', None)
-            if u is None:
-                u = NULL_UNIT
             if u.dimensions is angle and ufunc in trigonometric_operators:
                 # ensure np.sin(90*degrees) works as expected
                 inp = inp.in_units('radian').v
