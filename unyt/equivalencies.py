@@ -25,6 +25,7 @@ from unyt.dimensions import (
     number_density,
     flux,
 )
+from unyt.exceptions import InvalidUnitEquivalence
 
 from six import add_metaclass
 import numpy as np
@@ -47,6 +48,12 @@ class Equivalence(object):
     def __init__(self, in_place=False):
         self.in_place = in_place
 
+    def convert(self, x, new_dims, **kwargs):
+        if x.units.dimensions in self._dims and new_dims in self._dims:
+            return self._convert(x, new_dims, **kwargs)
+        else:
+            raise InvalidUnitEquivalence(self, x, new_dims)
+
     def _get_out(self, x):
         if self.in_place:
             return x
@@ -54,7 +61,8 @@ class Equivalence(object):
 
 
 class NumberDensityEquivalence(Equivalence):
-    """Equivalence between mass and number density, given a mean molecular weight.
+    """Equivalence between mass and number density, given a mean molecular
+    weight.
 
     Given a number density :math:`n`, the mass density :math:`\\rho` is:
 

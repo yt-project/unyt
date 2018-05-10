@@ -108,8 +108,14 @@ class InvalidUnitEquivalence(Exception):
         self.unit2 = unit2
 
     def __str__(self):
-        return ("The unit equivalence '%s' does not exist for the units '%s' "
-                "and '%s'." % (self.equiv, self.unit1, self.unit2))
+        from unyt.unit_object import Unit
+        if isinstance(self.unit2, Unit):
+            msg = ("The unit equivalence '%s' does not exist for the units "
+                   "'%s' and '%s'.")
+        else:
+            msg = ("The unit equivalence '%s' does not exist for units '%s' "
+                   "to convert to a new unit with dimensions '%s'.")
+        return msg % (self.equiv, self.unit1, self.unit2)
 
 
 class InvalidUnitOperation(Exception):

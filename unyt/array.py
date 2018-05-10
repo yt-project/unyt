@@ -965,12 +965,8 @@ class unyt_array(np.ndarray):
             return
         this_equiv = equivalence_registry[equivalence](in_place=True)
         if self.has_equivalent(equivalence):
-            orig_units = self.units
-            this_equiv._convert(self, conv_unit.dimensions, **kwargs)
-            try:
-                self.convert_to_units(conv_unit)
-            except UnitConversionError:
-                InvalidUnitEquivalence(equivalence, orig_units, unit)
+            this_equiv.convert(self, conv_unit.dimensions, **kwargs)
+            self.convert_to_units(conv_unit)
         else:
             raise InvalidUnitEquivalence(equivalence, self.units, unit)
 
@@ -1002,12 +998,9 @@ class unyt_array(np.ndarray):
             return self.in_units(conv_unit)
         this_equiv = equivalence_registry[equivalence]()
         if self.has_equivalent(equivalence):
-            new_arr = this_equiv._convert(
+            new_arr = this_equiv.convert(
                 self, conv_unit.dimensions, **kwargs)
-            try:
-                return new_arr.in_units(conv_unit)
-            except UnitConversionError:
-                raise InvalidUnitEquivalence(equivalence, self.units, unit)
+            return new_arr.in_units(conv_unit)
         else:
             raise InvalidUnitEquivalence(equivalence, self.units, unit)
 
