@@ -1180,6 +1180,9 @@ def test_subclass():
 
 
 def test_h5_io():
+    if isinstance(_h5py.__version__, NotAModule):
+        return
+
     tmpdir = tempfile.mkdtemp()
     curdir = os.getcwd()
     os.chdir(tmpdir)
