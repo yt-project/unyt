@@ -821,6 +821,10 @@ def test_copy():
     assert_equal(copy.deepcopy(quan), quan)
     assert_array_equal(copy.deepcopy(arr), arr)
 
+    memo = {}
+    assert_equal(copy.deepcopy(quan, memo), quan)
+    assert_array_equal(copy.deepcopy(arr), arr)
+
     assert_equal(quan.copy(), quan)
     assert_array_equal(arr.copy(), arr)
 

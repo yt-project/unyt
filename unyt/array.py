@@ -1778,8 +1778,6 @@ class unyt_array(np.ndarray):
 
         This is necessary for stdlib deepcopy of arrays and quantities.
         """
-        if memodict is None:
-            memodict = {}
         ret = super(unyt_array, self).__deepcopy__(memodict)
         return type(self)(ret, copy.deepcopy(self.units))
 
