@@ -77,9 +77,8 @@ def test_no_conflicting_symbols():
             new_symbol = "%s%s" % (prefix, symbol)
 
             # test if we have seen this symbol
-            if new_symbol in full_set:
-                print("Duplicate symbol: %s" % new_symbol)
-                raise RuntimeError
+            assert new_symbol not in full_set, ("Duplicate symbol: %s" %
+                                                new_symbol)
 
             full_set.add(new_symbol)
 
@@ -246,12 +245,8 @@ def test_create_fail_on_unknown_symbol():
     Fail to create unit with unknown symbol, without base_value and dimensions.
 
     """
-    try:
+    with pytest.raises(UnitParseError):
         Unit(Symbol("jigawatts"))
-    except UnitParseError:
-        assert True
-    else:
-        assert False
 
 
 def test_create_fail_on_bad_symbol_type():
@@ -259,12 +254,8 @@ def test_create_fail_on_bad_symbol_type():
     Fail to create unit with bad symbol type.
 
     """
-    try:
+    with pytest.raises(UnitParseError):
         Unit([1])  # something other than Expr and str
-    except UnitParseError:
-        assert True
-    else:
-        assert False
 
 
 def test_create_fail_on_bad_dimensions_type():
@@ -272,12 +263,8 @@ def test_create_fail_on_bad_dimensions_type():
     Fail to create unit with bad dimensions type.
 
     """
-    try:
+    with pytest.raises(UnitParseError):
         Unit("a", base_value=1, dimensions="(mass)")
-    except UnitParseError:
-        assert True
-    else:
-        assert False
 
 
 def test_create_fail_on_dimensions_content():
@@ -286,13 +273,8 @@ def test_create_fail_on_dimensions_content():
 
     """
     a = Symbol("a")
-
-    try:
+    with pytest.raises(UnitParseError):
         Unit("a", base_value=1, dimensions=a)
-    except UnitParseError:
-        pass
-    else:
-        assert False
 
 
 def test_create_fail_on_base_value_type():
@@ -300,12 +282,8 @@ def test_create_fail_on_base_value_type():
     Fail to create unit with bad base_value type.
 
     """
-    try:
+    with pytest.raises(UnitParseError):
         Unit("a", base_value="a", dimensions=(mass/time))
-    except UnitParseError:
-        assert True
-    else:
-        assert False
 
 
 def test_string_representation():
