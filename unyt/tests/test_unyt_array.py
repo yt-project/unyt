@@ -1264,6 +1264,22 @@ def test_equivalencies():
     assert data.value == .012
     assert data.units == u.kg
 
+    data = 12*u.g
+    data = data.to_equivalent('kg', None)
+    assert data.value == .012
+    assert data.units == u.kg
+
+    # incorrect usate of the equivalence raises errors
+
+    with pytest.raises(InvalidUnitEquivalence):
+        data.convert_to_equivalent('erg', 'thermal')
+    with pytest.raises(InvalidUnitEquivalence):
+        data.convert_to_equivalent('m', 'mass_energy')
+    with pytest.raises(InvalidUnitEquivalence):
+        data.to_equivalent('erg', 'thermal')
+    with pytest.raises(InvalidUnitEquivalence):
+        data.to_equivalent('m', 'mass_energy')
+
     # Mass-energy
 
     mp = u.mp.copy()
