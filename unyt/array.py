@@ -127,7 +127,6 @@ from unyt._on_demand_imports import (
     _astropy,
     _pint,
 )
-from unyt._unit_lookup_table import default_unit_symbol_lut
 from unyt._pint_conversions import convert_pint_units
 from unyt.unit_object import (
     _check_em_conversion,
