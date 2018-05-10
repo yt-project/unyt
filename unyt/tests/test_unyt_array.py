@@ -1116,8 +1116,8 @@ def test_pint():
         return
     ureg = _pint.UnitRegistry()
 
-    p_arr = np.arange(10)*ureg.km/ureg.hr
-    yt_arr = unyt_array(np.arange(10), "km/hr")
+    p_arr = np.arange(10)*ureg.km/ureg.year
+    yt_arr = unyt_array(np.arange(10), "km/yr")
     yt_arr2 = unyt_array.from_pint(p_arr)
 
     p_quan = 10.*ureg.g**0.5/(ureg.mm**3)
