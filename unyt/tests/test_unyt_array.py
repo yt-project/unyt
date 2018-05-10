@@ -39,7 +39,9 @@ from unyt.array import (
     binary_operators,
     uconcatenate,
     ucross,
+    udot,
     uintersect1d,
+    unorm,
     uunion1d,
     loadtxt,
     savetxt
@@ -1679,10 +1681,14 @@ def test_ytarray_coercion():
 def test_numpy_wrappers():
     a1 = unyt_array([1, 2, 3], 'cm')
     a2 = unyt_array([2, 3, 4, 5, 6], 'cm')
+    a3 = unyt_array([[1, 2, 3], [4, 5, 6]], 'cm')
     catenate_answer = [1, 2, 3, 2, 3, 4, 5, 6]
     intersect_answer = [2, 3]
     union_answer = [1, 2, 3, 4, 5, 6]
     cross_answer = [-2, 4, -2]
+    norm_answer = np.sqrt(1**2 + 2**2 + 3**2)
+    arr_norm_answer = [norm_answer, np.sqrt(4**2 + 5**2 + 6**2)]
+    dot_answer = 14
 
     assert_array_equal(unyt_array(catenate_answer, 'cm'),
                        uconcatenate((a1, a2)))
@@ -1698,6 +1704,13 @@ def test_numpy_wrappers():
     assert_array_equal(unyt_array(cross_answer, 'cm**2'),
                        ucross(a1, a1+(2*a1.units)))
     assert_array_equal(cross_answer, np.cross(a1.v, a1.v+2))
+
+    assert_array_equal(unorm(a1), unyt_quantity(norm_answer, 'cm'))
+    assert_array_equal(np.linalg.norm(a1), norm_answer)
+    assert_array_equal(unorm(a3, axis=1), unyt_array(arr_norm_answer, 'cm'))
+    assert_array_equal(np.linalg.norm(a3, axis=1), arr_norm_answer)
+
+    assert_array_equal(udot(a1, a1), unyt_quantity(dot_answer, 'cm**2'))
 
     assert_array_equal(np.array(catenate_answer), uconcatenate((a1.v, a2.v)))
     with pytest.raises(RuntimeError):
