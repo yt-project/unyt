@@ -105,6 +105,7 @@ from numpy import (
     divmod as divmod_,
     isnat,
     heaviside,
+    ones_like,
 )
 from numpy.core.umath import _ones_like
 from sympy import Rational
@@ -304,6 +305,7 @@ unary_operators = (
     spacing,
     positive,
     isnat,
+    ones_like,
 )
 
 binary_operators = (
