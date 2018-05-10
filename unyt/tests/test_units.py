@@ -24,6 +24,7 @@ from numpy.testing import (
 )
 import operator
 import pytest
+from six.moves import cPickle as pickle
 from sympy import Symbol
 from unyt._testing import assert_allclose_units
 from unyt.unit_registry import UnitRegistry
@@ -150,6 +151,13 @@ def test_create_from_string():
         Unit('m+g')
     with pytest.raises(UnitParseError):
         Unit('m-g')
+    with pytest.raises(UnitParseError):
+        Unit('hello!')
+
+    cm = Unit('cm')
+    data = 1*cm
+
+    assert Unit(data) == cm
 
 
 def test_create_from_expr():
@@ -457,6 +465,9 @@ def test_latex_repr():
     test_unit = Unit('1e9*cm')
     assert_equal(test_unit.latex_repr, '1.0 \\times 10^{9}\\ \\rm{cm}')
 
+    test_unit = Unit('1.0*cm')
+    assert_equal(test_unit.latex_repr, '\\rm{cm}')
+
 
 def test_latitude_longitude():
     lat = unit_symbols.lat
@@ -523,3 +534,8 @@ def test_decagram():
     dag = Unit('dag')
     g = Unit('g')
     assert dag.get_conversion_factor(g) == (10.0, None)
+
+
+def test_pickle():
+    cm = Unit('cm')
+    assert cm == pickle.loads(pickle.dumps(cm))

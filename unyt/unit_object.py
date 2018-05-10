@@ -154,14 +154,15 @@ def _get_latex_representation(expr, registry):
         for i in range(1, len(symbols)):
             expr = expr.subs(symbols[i], symbols[0])
     prefix = None
+    l_expr = expr
     if isinstance(expr, Mul):
         coeffs = expr.as_coeff_Mul()
         if coeffs[0] == 1 or not isinstance(coeffs[0], Float):
-            pass
+            l_expr = coeffs[1]
         else:
-            expr = coeffs[1]
+            l_expr = coeffs[1]
             prefix = Float(coeffs[0], 2)
-    latex_repr = latex(expr, symbol_names=symbol_table, mul_symbol="dot",
+    latex_repr = latex(l_expr, symbol_names=symbol_table, mul_symbol="dot",
                        fold_frac_powers=True, fold_short_frac=True)
 
     if prefix is not None:
