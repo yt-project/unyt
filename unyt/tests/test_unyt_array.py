@@ -38,6 +38,7 @@ from unyt.array import (
     unary_operators,
     binary_operators,
     uconcatenate,
+    ucross,
     uintersect1d,
     uunion1d,
     loadtxt,
@@ -1681,6 +1682,7 @@ def test_numpy_wrappers():
     catenate_answer = [1, 2, 3, 2, 3, 4, 5, 6]
     intersect_answer = [2, 3]
     union_answer = [1, 2, 3, 4, 5, 6]
+    cross_answer = [-2, 4, -2]
 
     assert_array_equal(unyt_array(catenate_answer, 'cm'),
                        uconcatenate((a1, a2)))
@@ -1692,6 +1694,10 @@ def test_numpy_wrappers():
 
     assert_array_equal(unyt_array(union_answer, 'cm'), uunion1d(a1, a2))
     assert_array_equal(union_answer, np.union1d(a1, a2))
+
+    assert_array_equal(unyt_array(cross_answer, 'cm**2'),
+                       ucross(a1, a1+(2*a1.units)))
+    assert_array_equal(cross_answer, np.cross(a1.v, a1.v+2))
 
     assert_array_equal(np.array(catenate_answer), uconcatenate((a1.v, a2.v)))
     with pytest.raises(RuntimeError):
