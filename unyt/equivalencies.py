@@ -38,9 +38,6 @@ class _RegisteredEquivalence(type):
         type.__init__(cls, name, b, d)
         if hasattr(cls, "type_name"):
             equivalence_registry[cls.type_name] = cls
-        if hasattr(cls, "alternate_names"):
-            for name in cls.alternate_names:
-                equivalence_registry[name] = cls
 
 
 @add_metaclass(_RegisteredEquivalence)
