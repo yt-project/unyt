@@ -177,7 +177,7 @@ def _get_latex_representation(expr, registry):
 unit_text_transform = (_auto_positive_symbol, rationalize, auto_number)
 
 
-class Unit(Expr):
+class Unit(object):
     """
     A symbolic unit, using sympy functionality. We only add "dimensions" so
     that sympy understands relations between different units.
@@ -196,8 +196,7 @@ class Unit(Expr):
     __array_priority__ = 3.0
 
     def __new__(cls, unit_expr=sympy_one, base_value=None, base_offset=0.0,
-                dimensions=None, registry=None, latex_repr=None,
-                **assumptions):
+                dimensions=None, registry=None, latex_repr=None):
         """
         Create a new unit. May be an atomic unit (like a gram) or combinations
         of atomic units (like g / cm**3).
@@ -219,9 +218,6 @@ class Unit(Expr):
             The unit registry we use to interpret unit symbols.
         latex_repr : string
             A string to render the unit as LaTeX
-
-        Additional keyword arguments are passed as assumptions to the Sympy
-        Expr initializer
 
         """
         # Simplest case. If user passes a Unit object, just use the expr.
@@ -310,7 +306,7 @@ class Unit(Expr):
                 base_offset = 0.0
 
         # Create obj with superclass construct.
-        obj = Expr.__new__(cls, **assumptions)
+        obj = super(Unit, cls).__new__(cls)
 
         # Attach attributes to obj.
         obj.expr = unit_expr
@@ -351,17 +347,8 @@ class Unit(Expr):
     def units(self):
         return self
 
-    # Some sympy conventions
-    def __getnewargs__(self):
-        return (self.expr, self.is_atomic, self.base_value, self.dimensions,
-                self.registry)
-
     def __hash__(self):
         return super(Unit, self).__hash__()
-
-    def _hashable_content(self):
-        return (self.expr, self.is_atomic, self.base_value, self.dimensions,
-                self.registry)
 
     # end sympy conventions
 
