@@ -123,7 +123,10 @@ from unyt.exceptions import (
     UnitsNotReducible,
 )
 from unyt.equivalencies import equivalence_registry
-from unyt._on_demand_imports import _astropy
+from unyt._on_demand_imports import (
+    _astropy,
+    _pint,
+)
 from unyt._unit_lookup_table import default_unit_symbol_lut
 from unyt._pint_conversions import convert_pint_units
 from unyt.unit_object import (
@@ -1147,10 +1150,6 @@ class unyt_array(np.ndarray):
         >>> data.to_astropy()
         <Quantity [3., 4., 5.] g / cm3>
         """
-        if _astropy.units is None:
-            raise ImportError(
-                "You don't have AstroPy installed, so you can't convert to " +
-                "an AstroPy quantity.")
         return self.value*_astropy.units.Unit(str(self.units), **kwargs)
 
     @classmethod
@@ -1213,9 +1212,8 @@ class unyt_array(np.ndarray):
         >>> a.to_pint()
         <Quantity(4.0, 'centimeter ** 2 / second')>
         """
-        from pint import UnitRegistry
         if unit_registry is None:
-            unit_registry = UnitRegistry()
+            unit_registry = _pint.UnitRegistry()
         powers_dict = self.units.expr.as_powers_dict()
         units = []
         for unit, pow in powers_dict.items():

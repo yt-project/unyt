@@ -44,6 +44,7 @@ from unyt.array import (
     savetxt
 )
 from unyt.exceptions import (
+    InvalidUnitEquivalence,
     InvalidUnitOperation,
     IterableUnitCoercionError,
     UnitConversionError,
@@ -61,7 +62,9 @@ from unyt.unit_symbols import (
 from unyt.unit_registry import UnitRegistry
 from unyt._on_demand_imports import (
     _astropy,
-    _pint
+    _h5py,
+    _pint,
+    NotAModule,
 )
 from unyt._physical_ratios import (
     metallicity_sun,
@@ -1086,6 +1089,8 @@ def test_to_value():
 
 
 def test_astropy():
+    if isinstance(_astropy.__version__, NotAModule):
+        return
     ap_arr = np.arange(10)*_astropy.units.km/_astropy.units.hr
     yt_arr = unyt_array(np.arange(10), "km/hr")
     yt_arr2 = unyt_array.from_astropy(ap_arr)
@@ -1107,6 +1112,8 @@ def test_astropy():
 
 
 def test_pint():
+    if isinstance(_pint.UnitRegistry, NotAModule):
+        return
     ureg = _pint.UnitRegistry()
 
     p_arr = np.arange(10)*ureg.km/ureg.hr
