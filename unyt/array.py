@@ -1326,10 +1326,7 @@ class unyt_array(np.ndarray):
         dataset = g[dataset_name]
         data = dataset[:]
         units = dataset.attrs.get('units', '')
-        if 'unit_registry' in dataset.attrs.keys():
-            unit_lut = pickle.loads(dataset.attrs['unit_registry'].tostring())
-        else:
-            unit_lut = None
+        unit_lut = pickle.loads(dataset.attrs['unit_registry'].tostring())
         f.close()
         registry = UnitRegistry(lut=unit_lut, add_default_symbols=False)
         return cls(data, units, registry=registry)
