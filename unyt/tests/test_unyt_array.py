@@ -1745,7 +1745,7 @@ def test_modified_unit_division():
     assert ret.units.base_value == 1.0
 
 
-def test_load_and_save():
+def test_loadtxt_and_savetxt():
     tmpdir = tempfile.mkdtemp()
     curdir = os.getcwd()
     os.chdir(tmpdir)
@@ -1760,6 +1760,47 @@ def test_load_and_save():
 
     assert_array_equal(b, d)
     assert_array_equal(c, e)
+
+    # adding newlines to the file doesn't matter
+
+    savetxt("arrays.dat", [a, b, c], delimiter=",")
+
+    with open('arrays.dat', 'r+') as f:
+        content = f.read()
+        f.seek(0, 0)
+        f.write('\n' + content)
+
+    d, e = loadtxt("arrays.dat", usecols=(1, 2), delimiter=",")
+
+    assert_array_equal(b, d)
+    assert_array_equal(c, e)
+
+    # data saved by numpy savetxt are loaded without units
+
+    np.savetxt("arrays.dat", np.squeeze(np.transpose([a.v, b.v, c.v])),
+               delimiter=",")
+
+    d, e = loadtxt("arrays.dat", usecols=(1, 2), delimiter=",")
+
+    assert_array_equal(b.v, d)
+    assert_array_equal(c.v, e)
+
+    # save a single array
+
+    savetxt("arrays.dat", a)
+
+    d = loadtxt("arrays.dat")
+
+    assert_array_equal(a, d)
+
+    # save an array with no units and an array with units with a header
+
+    savetxt("arrays.dat", [a.v, b], header='this is a header!')
+
+    d, e = loadtxt("arrays.dat")
+
+    assert_array_equal(a.v, d)
+    assert_array_equal(b, e)
 
     os.chdir(curdir)
     shutil.rmtree(tmpdir)

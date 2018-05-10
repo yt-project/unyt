@@ -2103,23 +2103,25 @@ def loadtxt(fname, dtype='float', delimiter='\t', usecols=None, comments='#'):
                 next_one = True
         else:
             # Here we catch the first line of numbers
-            try:
-                col_words = line.strip().split(delimiter)
-                for word in col_words:
-                    float(word)
-                num_cols = len(col_words)
-                break
-            except ValueError:
-                pass
+            col_words = line.strip().split(delimiter)
+            for word in col_words:
+                float(word)
+            num_cols = len(col_words)
+            break
     f.close()
     if len(units) != num_cols:
         units = ["dimensionless"]*num_cols
     arrays = np.loadtxt(fname, dtype=dtype, comments=comments,
                         delimiter=delimiter, converters=None,
                         unpack=True, usecols=usecols, ndmin=0)
+    if len(arrays.shape) < 2:
+        arrays = [arrays]
     if usecols is not None:
         units = [units[col] for col in usecols]
-    return tuple([unyt_array(arr, unit) for arr, unit in zip(arrays, units)])
+    ret = tuple([unyt_array(arr, unit) for arr, unit in zip(arrays, units)])
+    if len(ret) == 1:
+        return ret[0]
+    return ret
 
 
 def savetxt(fname, arrays, fmt='%.18e', delimiter='\t', header='',
@@ -2164,7 +2166,7 @@ def savetxt(fname, arrays, fmt='%.18e', delimiter='\t', header='',
             units.append(str(array.units))
         else:
             units.append("dimensionless")
-    if header != '':
+    if header != '' and not header.endswith('\n'):
         header += '\n'
     header += " Units\n " + '\t'.join(units)
     np.savetxt(fname, np.transpose(arrays), header=header,
