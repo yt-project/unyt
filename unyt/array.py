@@ -2024,6 +2024,14 @@ def ustack(arrs, axis=0):
     This is a wrapper around np.stack that preserves units. See the
     documentation for np.stack for full details.
 
+    Examples
+    --------
+    >>> from unyt import km
+    >>> a = [1, 2, 3]*km
+    >>> b = [2, 3, 4]*km
+    >>> print(ustack([a, b]))
+    [[1. 2. 3.]
+     [2. 3. 4.]] km
     """
     v = np.stack(arrs)
     v = _validate_numpy_wrapper_units(v, arrs)
