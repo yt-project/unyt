@@ -1770,19 +1770,7 @@ class unyt_array(np.ndarray):
         metadata extracted in __reduce__ and then serialized by pickle.
         """
         super(unyt_array, self).__setstate__(state[1:])
-        try:
-            unit, lut = state[0]
-        except TypeError:
-            # this case happens when we try to load an old pickle file
-            # created before we serialized the unit symbol lookup table
-            # into the pickle file
-            unit, lut = str(state[0]), default_unit_symbol_lut.copy()
-        # need to fix up the lut if the pickle was saved prior to PR #1728
-        # when the pickle format changed
-        if len(lut['m']) == 2:
-            lut.update(default_unit_symbol_lut)
-            for k, v in [(k, v) for k, v in lut.items() if len(v) == 2]:
-                lut[k] = v + (0.0, r'\rm{' + k.replace('_', '\ ') + '}')
+        unit, lut = state[0]
         registry = UnitRegistry(lut=lut, add_default_symbols=False)
         self.units = Unit(unit, registry=registry)
 
