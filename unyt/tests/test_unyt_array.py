@@ -915,9 +915,16 @@ def unary_ufunc_comparison(ufunc, a):
         # numpy 1.13 raises ValueError, numpy 1.14 and newer raise TypeError
         with pytest.raises((TypeError, ValueError)):
             ufunc(a)
-    else:
-        # There shouldn't be any untested ufuncs.
-        assert False
+    # no untested ufuncs
+    assert ufunc in yield_np_ufuncs([
+        'isreal', 'iscomplex', 'exp', 'exp2', 'log', 'log2', 'log10', 'expm1',
+        'log1p', 'sin', 'cos', 'tan', 'arcsin', 'arccos', 'arctan', 'sinh',
+        'cosh', 'tanh', 'arccosh', 'arcsinh', 'arctanh', 'deg2rad', 'rad2deg',
+        'isfinite', 'isinf', 'isnan', 'signbit', 'sign', 'rint', 'logical_not',
+        'absolute', 'fabs', 'conjugate', 'floor', 'ceil', 'trunc', 'negative',
+        'spacing', 'positive', 'ones_like', 'square', 'sqrt', 'reciprocal',
+        'invert', 'isnat', 'modf', 'frexp',
+    ])
 
 
 def binary_ufunc_comparison(ufunc, a, b):
@@ -961,15 +968,11 @@ def binary_ufunc_comparison(ufunc, a, b):
 
 def test_ufuncs():
     for ufunc in unary_operators:
-        if ufunc is None:
-            continue
         unary_ufunc_comparison(ufunc, unyt_array([.3, .4, .5], 'cm'))
         unary_ufunc_comparison(ufunc, unyt_array([12, 23, 47], 'g'))
         unary_ufunc_comparison(ufunc, unyt_array([2, 4, -6], 'erg/m**3'))
 
     for ufunc in binary_operators:
-        if ufunc is None:
-            continue
         # arr**arr is undefined for arrays with units because
         # each element of the result would have different units.
         if ufunc is np.power:
