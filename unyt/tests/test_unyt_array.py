@@ -1693,6 +1693,12 @@ def test_numpy_wrappers():
     assert_array_equal(unyt_array(union_answer, 'cm'), uunion1d(a1, a2))
     assert_array_equal(union_answer, np.union1d(a1, a2))
 
+    assert_array_equal(np.array(catenate_answer), uconcatenate((a1.v, a2.v)))
+    with pytest.raises(RuntimeError):
+        uconcatenate((a1, a2.v))
+    with pytest.raises(RuntimeError):
+        uconcatenate((a1.to('m'), a2))
+
 
 def test_dimensionless_conversion():
     a = unyt_quantity(1, 'Zsun')
@@ -1829,3 +1835,8 @@ def test_creation():
     assert new_data.units is not cm
     assert new_data.units == cm
     assert new_data.units.registry is reg
+
+    with pytest.raises(RuntimeError):
+        unyt_quantity('hello', 'cm')
+    with pytest.raises(RuntimeError):
+        unyt_quantity(np.array([1, 2, 3]), 'cm')
