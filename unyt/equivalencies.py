@@ -431,7 +431,7 @@ class ComptonEquivalence(Equivalence):
         return "compton: mass <-> length"
 
 
-class EffectiveTemperature(Equivalence):
+class EffectiveTemperatureEquivalence(Equivalence):
     """Equivalence between the emmitted flux accross all wavelengths and
     temperature of a blackbody
 
@@ -446,6 +446,8 @@ class EffectiveTemperature(Equivalence):
 
     Example
     -------
+    >>> print(EffectiveTemperatureEquivalence())
+    effective_temperature: flux <-> temperature
     >>> from unyt import K, W, m
     >>> (5000*K).to_equivalent('W/m**2', 'effective_temperature')
     unyt_quantity(35439831.25, 'W/m**2')
