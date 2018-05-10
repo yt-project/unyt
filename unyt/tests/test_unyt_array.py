@@ -860,11 +860,7 @@ def unary_ufunc_comparison(ufunc, a):
             'isinf', 'isnan', 'signbit', 'sign', 'rint', 'logical_not']):
         # These operations should return identical results compared to numpy.
         with np.errstate(invalid='ignore'):
-            try:
-                ret = ufunc(a, out=out)
-            except UnitOperationError:
-                assert ufunc in (np.deg2rad, np.rad2deg)
-                ret = ufunc(unyt_array(a, '1'))
+            ret = ufunc(a, out=out)
 
             assert_array_equal(ret, out)
             assert_array_equal(ret, ufunc(a_array))
