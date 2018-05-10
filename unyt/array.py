@@ -1711,8 +1711,6 @@ class unyt_array(np.ndarray):
         return type(self)(np.copy(np.asarray(self)), self.units)
 
     def __array_finalize__(self, obj):
-        if obj is None and hasattr(self, 'units'):
-            return
         self.units = getattr(obj, 'units', NULL_UNIT)
 
     def __pos__(self):
