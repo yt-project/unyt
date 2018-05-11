@@ -619,9 +619,9 @@ class Unit(object):
         """Create and return dimensionally-equivalent units in a specified base.
 
         >>> from unyt import g, cm
-        >>> (g/cm**3).units.get_base_equivalent('mks')
+        >>> (g/cm**3).get_base_equivalent('mks')
         kg/m**3
-        >>> (g/cm**3).units.get_base_equivalent('solar')
+        >>> (g/cm**3).get_base_equivalent('solar')
         Mearth/AU**3
         """
         from unyt.unit_systems import unit_system_registry
@@ -647,7 +647,7 @@ class Unit(object):
         Example
         -------
         >>> from unyt import kg, m
-        >>> (kg/m**3).units.get_cgs_equivalent()
+        >>> (kg/m**3).get_cgs_equivalent()
         g/cm**3
         """
         return self.get_base_equivalent(unit_system="cgs")
@@ -658,7 +658,7 @@ class Unit(object):
         Example
         -------
         >>> from unyt import g, cm
-        >>> (g/cm**3).units.get_mks_equivalent()
+        >>> (g/cm**3).get_mks_equivalent()
         kg/m**3
         """
         return self.get_base_equivalent(unit_system="mks")
@@ -682,9 +682,9 @@ class Unit(object):
         Examples
         --------
         >>> from unyt import km, cm, degree_fahrenheit, degree_celsius
-        >>> km.units.get_conversion_factor(cm.units)
+        >>> km.get_conversion_factor(cm)
         (100000.0, None)
-        >>> degree_celsius.units.get_conversion_factor(degree_fahrenheit.units)
+        >>> degree_celsius.get_conversion_factor(degree_fahrenheit)
         (1.7999999999999998, -31.999999999999886)
         """
         return _get_conversion_factor(self, other_units)
@@ -695,7 +695,7 @@ class Unit(object):
         Examples
         --------
         >>> from unyt import g, cm
-        >>> (g/cm**3).units.latex_representation()
+        >>> (g/cm**3).latex_representation()
         '\\\\frac{\\\\rm{g}}{\\\\rm{cm}^{3}}'
         """
         return self.latex_repr
