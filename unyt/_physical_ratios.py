@@ -74,8 +74,6 @@ m_per_rearth = 1.0 / rearth_per_m
 m_per_rjup = 1.0 / rjup_per_m
 m_per_au = 1.0 / au_per_m
 m_per_ang = 1.0 / ang_per_m
-m_per_inch = 0.0254
-m_per_ft = m_per_inch * 12.0
 
 # time
 # "IAU Style Manual" by G.A. Wilkins, Comm. 5, in IAU Transactions XXB (1989)
@@ -158,3 +156,5 @@ planck_charge_C = np.sqrt(4.0*np.pi*eps_0*hbar_mks*speed_of_light_m_per_s)
 # Imperial and other non-metric units
 kg_per_pound = 0.45359237
 pascal_per_atm = 101325.0
+m_per_inch = 0.0254
+m_per_ft = m_per_inch * 12.0
