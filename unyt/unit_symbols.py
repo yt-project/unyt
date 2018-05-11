@@ -20,7 +20,6 @@ For example::
 # -----------------------------------------------------------------------------
 
 from unyt.unit_object import Unit
-from unyt.array import unyt_quantity as quan
 
 #
 # meter
@@ -273,11 +272,9 @@ eV = electron_volt = electronvolt = Unit("eV")
 #: kiloelectronvolt
 keV = kilo_electron_volt = kiloelectronvolt = Unit("keV")
 #: Megaelectronvolt
-MeV = mega_electron_volt = Megaelectronvolt = megaelectronvolt = quan(
-    1.0, "MeV")
+MeV = mega_electron_volt = Megaelectronvolt = megaelectronvolt = Unit("MeV")
 #: Gigaelectronvolt
-GeV = giga_electron_volt = Gigaelectronvolt = gigaelectronvolt = quan(
-    1.0, "GeV")
+GeV = giga_electron_volt = Gigaelectronvolt = gigaelectronvolt = Unit("GeV")
 #: Atomic mass unit
 amu = atomic_mass_unit = Unit("amu")
 mol = Unit("mol")
