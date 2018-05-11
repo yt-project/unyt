@@ -591,3 +591,14 @@ def test_preserve_offset():
 
     with pytest.raises(InvalidUnitOperation):
         dimensionless/degF
+
+
+def test_is_code_unit():
+    from unyt import UnitRegistry
+
+    ureg = UnitRegistry()
+    ureg.add('code_length', 10., length)
+    u = Unit('code_length', registry=ureg)
+    assert u.is_code_unit is True
+    u = Unit('cm')
+    assert u.is_code_unit is False

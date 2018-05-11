@@ -571,13 +571,12 @@ class Unit(object):
 
         Returns
         -------
-        True if the unit name begins with "code" False otherwise
+        True if the unit consists of atom units that being with "code".
+        False otherwise
 
         """
         for atom in self.expr.atoms():
-            if str(atom).startswith("code") or atom.is_Number:
-                pass
-            else:
+            if not (str(atom).startswith("code") or atom.is_Number):
                 return False
         return True
 
