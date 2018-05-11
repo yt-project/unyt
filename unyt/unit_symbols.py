@@ -195,22 +195,36 @@ nt = nit = Nit = Unit("nt")
 # Imperial units
 #
 
+#: inch
+inch = Unit("inch")
 #: foot
 ft = foot = Unit("ft")
 #: mile
 mile = Unit("mile")
 #: furlong
-furlong = quan(660, "ft")
+fur = furlong = Unit("fur")
 #: yard
 yard = yd = Unit("yd")
 #: pound
 lb = pound = Unit("lb")
+#: slug
+slug = Unit("slug")
+#: ounce
+oz = ounce = Unit("oz")
+#: ton
+ton = Unit("ton")
 #: pound-force
 lbf = pound_force = Unit("lbf")
 #: atmosphere
 atm = atmosphere = Unit("atm")
 #: horsepower
 hp = horsepower = Unit("hp")
+#: BTU
+BTU = Unit("BTU")
+#: calorie
+cal = calorie = Unit("cal")
+#: psi
+psi = Unit("psi")
 
 #
 # Solar units
