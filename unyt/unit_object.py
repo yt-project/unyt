@@ -603,8 +603,10 @@ class Unit(object):
         Example
         -------
         >>> from unyt import km
-        >>> km.units.has_equivalent('spectral')
+        >>> km.has_equivalent('spectral')
         True
+        >>> km.has_equivalent('mass_energy')
+        False
         """
         try:
             this_equiv = equivalence_registry[equiv]()
