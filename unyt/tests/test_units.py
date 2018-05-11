@@ -603,3 +603,11 @@ def test_code_unit():
     assert u.get_base_equivalent() == Unit('m')
     u = Unit('cm')
     assert u.is_code_unit is False
+
+
+def test_bad_equivalence():
+    from unyt import cm
+
+    with pytest.raises(KeyError):
+        cm.has_equivalent('dne')
+
