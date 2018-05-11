@@ -364,10 +364,6 @@ class Unit(object):
         # @todo: don't use dunder method?
         return self.expr.__str__()
 
-    # for sympy.printing
-    def _sympystr(self, *args):
-        return str(self.expr)
-
     #
     # Start unit operations
     #
