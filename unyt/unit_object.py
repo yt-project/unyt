@@ -462,15 +462,12 @@ class Unit(object):
 
         base_offset = 0.0
         if self.base_offset or u.base_offset:
-            if u.dimensions in (temperature, angle) and self.is_dimensionless:
-                base_offset = u.base_offset
-            elif (self.dimensions in (temperature, angle) and
-                  u.is_dimensionless):
+            if self.dimensions in (temperature, angle) and u.is_dimensionless:
                 base_offset = self.base_offset
             else:
                 raise InvalidUnitOperation(
                     "Quantities with units of Farhenheit "
-                    "and Celsius cannot be multiplied.")
+                    "and Celsius cannot be divided.")
 
         return Unit(self.expr / u.expr,
                     base_value=(self.base_value / u.base_value),

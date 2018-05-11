@@ -309,6 +309,7 @@ def test_string_representation():
     assert str(speed) == "pc/Myr"
     assert repr(speed) == "pc/Myr"
     assert str(dimensionless) == "dimensionless"
+    assert repr(dimensionless) == "(dimensionless)"
 
 
 def test_multiplication():
@@ -404,6 +405,36 @@ def test_equality():
     u2 = Unit("m * ms**-1")
 
     assert u1 == u2
+
+
+def test_invalid_operations():
+    u1 = Unit('cm')
+    u2 = Unit('m')
+
+    with pytest.raises(InvalidUnitOperation):
+        u1+u2
+    with pytest.raises(InvalidUnitOperation):
+        u1 += u2
+    with pytest.raises(InvalidUnitOperation):
+        1+u1
+    with pytest.raises(InvalidUnitOperation):
+        u1+1
+    with pytest.raises(InvalidUnitOperation):
+        u1-u2
+    with pytest.raises(InvalidUnitOperation):
+        u1 -= u2
+    with pytest.raises(InvalidUnitOperation):
+        1-u1
+    with pytest.raises(InvalidUnitOperation):
+        u1-1
+    with pytest.raises(InvalidUnitOperation):
+        u1 *= u2
+    with pytest.raises(InvalidUnitOperation):
+        u1*'hello!'
+    with pytest.raises(InvalidUnitOperation):
+        u1 /= u2
+    with pytest.raises(InvalidUnitOperation):
+        u1/'hello!'
 
 
 def test_base_equivalent():
@@ -539,3 +570,22 @@ def test_decagram():
 def test_pickle():
     cm = Unit('cm')
     assert cm == pickle.loads(pickle.dumps(cm))
+
+
+def test_preserve_offset():
+    from unyt import degF, dimensionless
+
+    new_unit = degF*dimensionless
+
+    assert new_unit is not degF
+    assert new_unit == degF
+    assert new_unit.base_offset == degF.base_offset
+
+    new_unit = degF/dimensionless
+
+    assert new_unit is not degF
+    assert new_unit == degF
+    assert new_unit.base_offset == degF.base_offset
+
+    with pytest.raises(InvalidUnitOperation):
+        dimensionless/degF
