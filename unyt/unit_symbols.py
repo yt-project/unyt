@@ -20,7 +20,6 @@ For example::
 # -----------------------------------------------------------------------------
 
 from unyt.unit_object import Unit
-from unyt.array import unyt_quantity as quan
 
 #
 # meter
@@ -195,22 +194,36 @@ nt = nit = Nit = Unit("nt")
 # Imperial units
 #
 
+#: inch
+inch = Unit("inch")
 #: foot
 ft = foot = Unit("ft")
 #: mile
 mile = Unit("mile")
 #: furlong
-furlong = quan(660, "ft")
+fur = furlong = Unit("fur")
 #: yard
 yard = yd = Unit("yd")
 #: pound
 lb = pound = Unit("lb")
+#: slug
+slug = Unit("slug")
+#: ounce
+oz = ounce = Unit("oz")
+#: ton
+ton = Unit("ton")
 #: pound-force
 lbf = pound_force = Unit("lbf")
 #: atmosphere
 atm = atmosphere = Unit("atm")
 #: horsepower
 hp = horsepower = Unit("hp")
+#: BTU
+BTU = Unit("BTU")
+#: calorie
+cal = calorie = Unit("cal")
+#: psi
+psi = Unit("psi")
 
 #
 # Solar units
@@ -259,11 +272,9 @@ eV = electron_volt = electronvolt = Unit("eV")
 #: kiloelectronvolt
 keV = kilo_electron_volt = kiloelectronvolt = Unit("keV")
 #: Megaelectronvolt
-MeV = mega_electron_volt = Megaelectronvolt = megaelectronvolt = quan(
-    1.0, "MeV")
+MeV = mega_electron_volt = Megaelectronvolt = megaelectronvolt = Unit("MeV")
 #: Gigaelectronvolt
-GeV = giga_electron_volt = Gigaelectronvolt = gigaelectronvolt = quan(
-    1.0, "GeV")
+GeV = giga_electron_volt = Gigaelectronvolt = gigaelectronvolt = Unit("GeV")
 #: Atomic mass unit
 amu = atomic_mass_unit = Unit("amu")
 mol = Unit("mol")

@@ -156,3 +156,5 @@ planck_charge_C = np.sqrt(4.0*np.pi*eps_0*hbar_mks*speed_of_light_m_per_s)
 # Imperial and other non-metric units
 kg_per_pound = 0.45359237
 pascal_per_atm = 101325.0
+m_per_inch = 0.0254
+m_per_ft = 0.3048

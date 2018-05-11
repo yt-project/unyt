@@ -18,6 +18,8 @@ from unyt._physical_ratios import (
     m_per_ly,
     m_per_au,
     m_per_rsun,
+    m_per_inch,
+    m_per_ft,
     watt_per_horsepower,
     mass_sun_kg,
     sec_per_year,
@@ -95,10 +97,11 @@ default_unit_symbol_lut = {
     "lx": (1.0, dimensions.luminous_flux/dimensions.area, 0.0, r"\rm{lx}"),
 
     # Imperial and other non-metric units
-    "in": (0.0254, dimensions.length, 0.0, r"\rm{in}"),
-    "ft": (0.3048, dimensions.length, 0.0, r"\rm{ft}"),
+    "inch": (m_per_inch, dimensions.length, 0.0, r"\rm{in}"),
+    "ft": (m_per_ft, dimensions.length, 0.0, r"\rm{ft}"),
     "yd": (0.9144, dimensions.length, 0.0, r"\rm{yd}"),
     "mile": (1609.344, dimensions.length, 0.0, r"\rm{mile}"),
+    "fur": (m_per_ft*660.0, dimensions.length, 0.0, r"\rm{fur}"),
     "degF": (kelvin_per_rankine, dimensions.temperature, -459.67,
              "^\circ\rm{F}"),
     "R": (kelvin_per_rankine, dimensions.temperature, 0.0, r"^\circ\rm{R}"),
@@ -108,6 +111,14 @@ default_unit_symbol_lut = {
     "lbm": (kg_per_pound, dimensions.mass, 0.0, r"\rm{lbm}"),
     "atm": (pascal_per_atm, dimensions.pressure, 0.0, r"\rm{atm}"),
     "hp": (watt_per_horsepower, dimensions.power, 0.0, r"\rm{hp}"),
+    "oz": (kg_per_pound/16.0, dimensions.mass, 0.0, r"\rm{oz}"),
+    "ton": (kg_per_pound*2000.0, dimensions.mass, 0.0, r"\rm{ton}"),
+    "slug": (kg_per_pound*standard_gravity_m_per_s2/m_per_ft,
+             dimensions.mass, 0.0, r"\rm{slug}"),
+    "cal": (4.184, dimensions.energy, 0.0, r"\rm{cal}"),
+    "BTU": (1055.0559, dimensions.energy, 0.0, r"\rm{BTU}"),
+    "psi": (kg_per_pound*standard_gravity_m_per_s2/m_per_inch**2,
+            dimensions.pressure, 0.0, r"\rm{psi}"),
 
     # dimensionless stuff
     "h": (1.0, dimensions.dimensionless, 0.0, r"h"),
