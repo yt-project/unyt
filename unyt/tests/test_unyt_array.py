@@ -1860,11 +1860,11 @@ def test_coerce_iterable():
 def test_bypass_validation():
     from unyt import unyt_array, cm, UnitRegistry
 
-    obj = unyt_array(np.array([1, 2, 3]), cm, bypass_validation=True)
+    obj = unyt_array(np.array([1., 2., 3.]), cm, bypass_validation=True)
     assert obj.units is cm
 
     reg = UnitRegistry()
-    obj = unyt_array(np.array([1, 2, 3]), cm, registry=reg,
+    obj = unyt_array(np.array([1., 2., 3.]), cm, registry=reg,
                      bypass_validation=True)
     assert obj.units == cm
     assert obj.units.registry is reg
