@@ -519,8 +519,6 @@ class Unit(object):
         return copy.deepcopy(self)
 
     def __deepcopy__(self, memodict=None):
-        if memodict is None:
-            memodict = {}
         expr = str(self.expr)
         base_value = copy.deepcopy(self.base_value)
         base_offset = copy.deepcopy(self.base_offset)
