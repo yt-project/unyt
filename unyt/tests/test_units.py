@@ -95,6 +95,8 @@ def test_dimensionless():
     assert u1.expr == 1
     assert u1.base_value == 1
     assert u1.dimensions == 1
+    assert u1 != 'hello!'
+    assert (u1 == 'hello') is False
 
     u2 = Unit("")
 
