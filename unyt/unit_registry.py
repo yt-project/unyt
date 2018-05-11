@@ -14,9 +14,7 @@ A registry for units that can be added to and modified.
 
 
 import json
-import re
 
-from distutils.version import LooseVersion
 from unyt.exceptions import (
     SymbolNotFoundError,
     UnitParseError,
@@ -27,14 +25,7 @@ import six
 from sympy import (
     sympify,
     srepr,
-    __version__ as sympy_version
 )
-
-SYMPY_VERSION = LooseVersion(sympy_version)
-
-
-def _positive_symbol_replacer(match):
-    return match.group().replace(')\')', ')\', positive=True)')
 
 
 class UnitRegistry:
@@ -46,7 +37,6 @@ class UnitRegistry:
             self.lut = lut
         else:
             self.lut = {}
-        self.unit_objs = {}
 
         if add_default_symbols:
             self.lut.update(default_unit_symbol_lut)
@@ -58,8 +48,6 @@ class UnitRegistry:
         return item in self.lut
 
     def pop(self, item):
-        if item in self.unit_objs:
-            del self.unit_objs[item]
         if item in self.lut:
             del self.lut[item]
 
@@ -124,8 +112,6 @@ class UnitRegistry:
                 "in this registry." % symbol)
 
         del self.lut[symbol]
-        if symbol in self.unit_objs:
-            del self.unit_objs[symbol]
 
     def modify(self, symbol, base_value):
         """
@@ -150,9 +136,6 @@ class UnitRegistry:
         self.lut[symbol] = ((float(base_value), new_dimensions) +
                             self.lut[symbol][2:])
 
-        if symbol in self.unit_objs:
-            del self.unit_objs[symbol]
-
     def keys(self):
         """
         Print out the units contained in the lookup table.
@@ -168,10 +151,6 @@ class UnitRegistry:
         for k, v in six.iteritems(self.lut):
             san_v = list(v)
             repr_dims = srepr(v[1])
-            if SYMPY_VERSION < LooseVersion("1.0.0"):
-                # see https://github.com/sympy/sympy/issues/6131
-                repr_dims = re.sub("Symbol\('\([a-z_]*\)'\)",
-                                   _positive_symbol_replacer, repr_dims)
             san_v[1] = repr_dims
             sanitized_lut[k] = tuple(san_v)
 
@@ -198,8 +177,6 @@ class UnitRegistry:
         """
         equiv = [k for k, v in self.lut.items()
                  if v[1] is unit_object.dimensions]
-        equiv += [n for n, u in self.unit_objs.items()
-                  if u.dimensions is unit_object.dimensions]
         equiv = list(sorted(set(equiv)))
         return equiv
 

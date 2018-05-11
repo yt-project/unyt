@@ -40,15 +40,16 @@ from unyt.dimensions import (
     rate
 )
 from unyt.exceptions import (
-    UnitsNotReducible
+    InvalidUnitOperation,
+    UnitsNotReducible,
+    UnitConversionError,
 )
 from unyt.unit_object import (
     default_unit_registry,
-    _get_conversion_factor,
     Unit,
     UnitParseError,
-    InvalidUnitOperation
 )
+from unyt.unit_systems import UnitSystem
 from unyt._unit_lookup_table import (
     default_unit_symbol_lut,
     unit_prefixes,
@@ -467,8 +468,14 @@ def test_base_equivalent():
     assert u2.dimensions == mass_density
     assert u3.dimensions == mass_density
 
-    assert_allclose_units(_get_conversion_factor(u1, u3)[0],
+    assert_allclose_units(u1.get_conversion_factor(u3)[0],
                           Msun_mks / Mpc_mks**3, 1e-12)
+
+    with pytest.raises(UnitConversionError):
+        u1.get_conversion_factor(Unit('m'))
+
+    with pytest.raises(UnitConversionError):
+        u1.get_conversion_factor(Unit('degF'))
 
 
 def test_temperature_offsets():
@@ -554,16 +561,10 @@ def test_creation_from_ytarray():
 
 
 def test_list_same_dimensions():
+    from unyt import m
     reg = default_unit_registry
-    for name1, u1 in reg.unit_objs.items():
-        for name2 in reg.list_same_dimensions(u1):
-            if name2 == name1:
-                continue
-            if name2 in reg.unit_objs:
-                dim2 = reg.unit_objs[name2].dimensions
-            else:
-                _, dim2, _, _ = reg.lut[name2]
-            assert u1.dimensions is dim2
+    for equiv in reg.list_same_dimensions(m):
+        assert Unit(equiv).dimensions is length
 
 
 def test_decagram():
@@ -607,6 +608,32 @@ def test_code_unit():
     u = Unit('cm')
     assert u.is_code_unit is False
 
+    UnitSystem(ureg.unit_system_id, 'code_length', 'kg', 's', registry=ureg)
+
+    u = Unit('cm', registry=ureg)
+    ue = u.get_base_equivalent('code')
+
+    assert str(ue) == 'code_length'
+    assert ue.base_value == 10
+    assert ue.dimensions is length
+
+    class FakeDataset(object):
+        unit_registry = ureg
+
+    ds = FakeDataset()
+
+    UnitSystem(ds, 'code_length', 'kg', 's', registry=ureg)
+
+    u = Unit('cm', registry=ureg)
+    ue = u.get_base_equivalent(ds)
+
+    assert str(ue) == 'code_length'
+    assert ue.base_value == 10
+    assert ue.dimensions is length
+
+    with pytest.raises(UnitParseError):
+        Unit('code_length')
+
 
 def test_bad_equivalence():
     from unyt import cm
@@ -620,3 +647,12 @@ def test_em_unit_base_equivalent():
 
     with pytest.raises(UnitsNotReducible):
         (A/cm).get_base_equivalent('cgs')
+
+
+def test_define_unit_error():
+    from unyt import define_unit
+
+    with pytest.raises(RuntimeError):
+        define_unit('foobar', 'baz')
+    with pytest.raises(RuntimeError):
+        define_unit('foobar', 12)

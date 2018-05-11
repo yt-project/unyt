@@ -220,26 +220,21 @@ class Unit(object):
 
         """
         # Simplest case. If user passes a Unit object, just use the expr.
-        unit_key = None
         if isinstance(unit_expr, (str, bytes, text_type)):
             if isinstance(unit_expr, bytes):
                 unit_expr = unit_expr.decode("utf-8")
 
-            if registry and unit_expr in registry.unit_objs:
-                return registry.unit_objs[unit_expr]
-            else:
-                unit_key = unit_expr
-                if not unit_expr:
-                    # Bug catch...
-                    # if unit_expr is an empty string, parse_expr fails hard...
-                    unit_expr = "1"
-                try:
-                    unit_expr = parse_expr(unit_expr, global_dict=global_dict,
-                                           transformations=unit_text_transform)
-                except SyntaxError as e:
-                    msg = ("Unit expression %s raised an error "
-                           "during parsing:\n%s" % (unit_expr, repr(e)))
-                    raise UnitParseError(msg)
+            if not unit_expr:
+                # Bug catch...
+                # if unit_expr is an empty string, parse_expr fails hard...
+                unit_expr = "1"
+            try:
+                unit_expr = parse_expr(unit_expr, global_dict=global_dict,
+                                       transformations=unit_text_transform)
+            except SyntaxError as e:
+                msg = ("Unit expression %s raised an error "
+                       "during parsing:\n%s" % (unit_expr, repr(e)))
+                raise UnitParseError(msg)
         elif isinstance(unit_expr, Unit):
             # grab the unit object's sympy expression.
             unit_expr = unit_expr.expr
@@ -315,9 +310,6 @@ class Unit(object):
         obj.dimensions = dimensions
         obj._latex_repr = latex_repr
         obj.registry = registry
-
-        if unit_key is not None:
-            registry.unit_objs[unit_key] = obj
 
         # Return `obj` so __init__ can handle it.
 
@@ -739,11 +731,7 @@ def _em_conversion(orig_units, conv_data, to_units=None, unit_system=None):
         to_units = Unit(
             inter_expr, registry=orig_units.registry)
     new_units = Unit(new_expr, registry=orig_units.registry)
-    try:
-        conv = new_units.get_conversion_factor(to_units)
-    except UnitConversionError:
-        raise UnitConversionError(orig_units, orig_units.dimensions,
-                                  to_units, to_units.dimensions)
+    conv = new_units.get_conversion_factor(to_units)
     return to_units, conv
 
 
@@ -775,8 +763,6 @@ def _check_em_conversion(units, to_units=None):
         if to_units is None or to_units.dimensions == to_unit.dimensions:
             em_map[Unit(base_unit, registry=units.registry)] = (
                 to_unit, em_info[1])
-    if len(em_map) > 1:
-        raise MKSCGSConversionError(units)
     if em_map:
         return em_map
     for unit in units.expr.atoms():
@@ -816,12 +802,9 @@ def _get_conversion_factor(old_units, new_units):
     if old_units.base_offset == 0 and new_units.base_offset == 0:
         return (ratio, None)
     else:
-        if old_units.dimensions in (temperature, angle):
-            return ratio, ratio*old_units.base_offset - new_units.base_offset
-        else:
-            raise InvalidUnitOperation(
-                "Fahrenheit and Celsius are not absolute temperature scales "
-                "and cannot be used in compound unit symbols.")
+        # the dimensions are the same, so both are temperatures, where
+        # it's legal to convert units so no need to do error checking
+        return ratio, ratio*old_units.base_offset - new_units.base_offset
 
 #
 # Helper functions
@@ -840,10 +823,6 @@ def _get_unit_data_from_expr(unit_expr, unit_symbol_lut):
         Provides the unit data for each valid unit symbol.
 
     """
-    # The simplest case first
-    if isinstance(unit_expr, Unit):
-        return (unit_expr.base_value, unit_expr.dimensions)
-
     # Now for the sympy possibilities
     if isinstance(unit_expr, Number):
         if unit_expr is sympy_one:
