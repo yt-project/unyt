@@ -13,10 +13,14 @@ Test unit systems.
 
 import pytest
 
-from unyt.exceptions import IllDefinedUnitSystem
+from unyt.exceptions import (
+    IllDefinedUnitSystem,
+    MissingMKSCurrent,
+)
 from unyt.unit_object import Unit
 from unyt.unit_systems import (
     UnitSystem,
+    cgs_unit_system,
     unit_system_registry,
 )
 from unyt.unit_registry import UnitRegistry
@@ -56,3 +60,14 @@ def test_unit_system_id():
 def test_bad_unit_system():
     with pytest.raises(IllDefinedUnitSystem):
         UnitSystem('atomic', 'nm', 'fs', 'nK', 'rad')
+
+
+def test_mks_current():
+    with pytest.raises(MissingMKSCurrent):
+        cgs_unit_system[dimensions.current_mks]
+    with pytest.raises(MissingMKSCurrent):
+        cgs_unit_system[dimensions.magnetic_field]
+    with pytest.raises(MissingMKSCurrent):
+        cgs_unit_system[dimensions.current_mks] = 'foo'
+    with pytest.raises(MissingMKSCurrent):
+        cgs_unit_system[dimensions.magnetic_field] = 'bar'

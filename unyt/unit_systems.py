@@ -22,29 +22,10 @@ from unyt.unit_object import (
     Unit,
     _get_system_unit_string
 )
-from unyt import physical_constants as pc
 
 unit_system_registry = {}
 
 cmks = dimensions.current_mks
-
-
-class _UnitSystemConstants(object):
-    """
-    A class to facilitate conversions of physical constants into a given unit
-    system specified by *name*.
-    """
-    def __init__(self, name):
-        self.name = name
-
-    def __repr__(self):
-        return "Physical constants in %s units." % self.name
-
-    def __str__(self):
-        return self.name
-
-    def __getattr__(self, item):
-        return getattr(pc, item).in_base(self.name)
 
 
 class UnitSystem(object):
@@ -108,13 +89,12 @@ class UnitSystem(object):
         self.base_units = self.units_map.copy()
         unit_system_registry[name] = self
         self.name = name
-        self.constants = _UnitSystemConstants(self.name)
 
     def __getitem__(self, key):
         if isinstance(key, string_types):
             key = getattr(dimensions, key)
         um = self.units_map
-        if key not in um or um[key].dimensions is not key:
+        if key not in um or um[key] is None or um[key].dimensions is not key:
             if cmks in key.free_symbols and self.units_map[cmks] is None:
                 raise MissingMKSCurrent(self.name)
             units = _get_system_unit_string(key, self.units_map)

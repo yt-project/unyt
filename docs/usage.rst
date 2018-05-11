@@ -418,7 +418,8 @@ atoms and molecules:
      luminous_intensity: cd
     Other Units:
      energy: eV
-
+   >>> print(atomic_unit_system)
+   atomic
    >>> atomic_unit_system['number_density']
    nm**(-3)
    >>> atomic_unit_system['angular_momentum']

@@ -24,7 +24,8 @@ from unyt.exceptions import (
 from unyt.unit_registry import UnitRegistry
 
 
-def test_add_error():
+def test_add_modify_error():
+    from unyt import m
     ureg = UnitRegistry()
 
     with pytest.raises(UnitParseError):
@@ -40,3 +41,14 @@ def test_add_error():
 
     with pytest.raises(SymbolNotFoundError):
         ureg.remove('tayn')
+    with pytest.raises(SymbolNotFoundError):
+        ureg.modify('tayn', 1.2)
+
+    ureg.modify('tayne', 1.0*m)
+
+    assert ureg['tayne'][:3] == ureg['m'][:3]
+
+
+def test_keys():
+    ureg = UnitRegistry()
+    assert sorted(ureg.keys()) == sorted(ureg.lut.keys())
