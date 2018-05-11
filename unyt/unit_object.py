@@ -53,7 +53,6 @@ from unyt.dimensions import (
 from unyt.equivalencies import equivalence_registry
 from unyt.exceptions import (
     InvalidUnitOperation,
-    MissingMKSCurrent,
     MKSCGSConversionError,
     UnitConversionError,
     UnitsNotReducible
@@ -630,15 +629,15 @@ class Unit(object):
         elif unit_system == "code":
             unit_system = self.registry.unit_system_id
         unit_system = unit_system_registry[str(unit_system)]
-        conv_data = _check_em_conversion(self.units)
+        try:
+            conv_data = _check_em_conversion(self.units)
+        except MKSCGSConversionError:
+            raise UnitsNotReducible(self.units, unit_system)
         if any(conv_data):
             new_units, _ = _em_conversion(
                 self, conv_data, unit_system=unit_system)
         else:
-            try:
-                new_units = unit_system[self.dimensions]
-            except MissingMKSCurrent:
-                raise UnitsNotReducible(self.units, unit_system)
+            new_units = unit_system[self.dimensions]
         return Unit(new_units, registry=self.registry)
 
     def get_cgs_equivalent(self):

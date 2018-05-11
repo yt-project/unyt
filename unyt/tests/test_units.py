@@ -39,6 +39,9 @@ from unyt.dimensions import (
     power,
     rate
 )
+from unyt.exceptions import (
+    UnitsNotReducible
+)
 from unyt.unit_object import (
     default_unit_registry,
     _get_conversion_factor,
@@ -611,3 +614,9 @@ def test_bad_equivalence():
     with pytest.raises(KeyError):
         cm.has_equivalent('dne')
 
+
+def test_em_unit_base_equivalent():
+    from unyt import A, cm
+
+    with pytest.raises(UnitsNotReducible):
+        (A/cm).get_base_equivalent('cgs')
