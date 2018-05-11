@@ -99,8 +99,8 @@ default_unit_symbol_lut = {
     # Imperial and other non-metric units
     "inch": (m_per_inch, dimensions.length, 0.0, r"\rm{in}"),
     "ft": (m_per_ft, dimensions.length, 0.0, r"\rm{ft}"),
-    "yd": (m_per_ft*3.0, dimensions.length, 0.0, r"\rm{yd}"),
-    "mile": (m_per_ft*5280.0, dimensions.length, 0.0, r"\rm{mile}"),
+    "yd": (0.9144, dimensions.length, 0.0, r"\rm{yd}"),
+    "mile": (1609.344, dimensions.length, 0.0, r"\rm{mile}"),
     "fur": (m_per_ft*660.0, dimensions.length, 0.0, r"\rm{fur}"),
     "degF": (kelvin_per_rankine, dimensions.temperature, -459.67,
              "^\circ\rm{F}"),
