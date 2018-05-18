@@ -257,8 +257,8 @@ raise an error:
   >>> (1.0*mile).to('lb')  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   Traceback (most recent call last):
   ...
-  unyt.exceptions.UnitConversionError: Unit dimensionalities do not match.
-  Tried to convert between mile (dim (length)) and lb (dim (mass)).
+  unyt.exceptions.UnitConversionError: Cannot convert between mile (dim
+  (length)) and lb (dim (mass)).
 
 While we recommend using :meth:`unyt_array.to <unyt.array.unyt_array.to>` in
 most cases to convert arrays or quantities to different units, if you would like
@@ -351,13 +351,30 @@ system. In CGS units the electromagnetic units like Gauss and statA are
 decomposable in terms of the base mass, length, and time units in the unit
 system. For this reason quantities defined in E&M units in CGS units are not
 readily convertible to MKS units and vice verse since the units are not
-dimensionally equivalent. To resolve this, :mod:`unyt` provides a unit
-equivalency system, discussed below, to convert data between semantically
-equivalent but not dimensionally equal units.
+dimensionally equivalent. The :mod:`unyt` library does have limited support for converting electromagnetic units between MKS and CGS, however only simple conversions of data with a single specific unit are supported and no conversions are allowed for complex combinations of units. For example converting between Gauss and Tesla is supported:
 
-The names ``"SI"``, ``"si"``, and ``"MKS"`` are accepted as alternative names
-by :mod:`unyt` for the MKS unit system. Similarly, ``"CGS"`` is acceptable as
-a name for the CGS unit system.
+  >>> from unyt import T
+  >>> (1.0*T).to('G')
+  unyt_quantity(10000., 'G')
+
+But converting a more complicated compound unit will raise an error:
+
+  >>> from unyt import C, T, V
+  >>> (1.0*C*T*V).in_cgs()  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  Traceback (most recent call last):
+  ...
+  unyt.exceptions.UnitsNotReducible: The unit "C*T*V" (dimensions
+  "(length)**2*(mass)**2/((current_mks)*(time)**4)" cannot be reduced to
+  an expression within the cgs system of units.
+
+If you need to work with complex expressions involving electromagnetic units, we
+suggest sticking to either CGS or SI units for the full calculation. There is no
+general way to convert an arbitrary quantity between CGS and SI units if the
+quantity involves electromagnetic units. Instead, it is necessary to do the
+conversion on the equations under consideration, and then recompute the
+necessary quantity in the transformed set of equations. This requires
+understanding the context for a calculation, which unfortunately is beyond the
+scope of a library like :mod:`unyt`.
 
 You can convert data to a unit system :mod:`unyt` knows about using the
 :meth:`unyt_array.in_base <unyt.array.unyt_array.in_base>` and
@@ -401,7 +418,8 @@ atoms and molecules:
      luminous_intensity: cd
     Other Units:
      energy: eV
-
+   >>> print(atomic_unit_system)
+   atomic
    >>> atomic_unit_system['number_density']
    nm**(-3)
    >>> atomic_unit_system['angular_momentum']

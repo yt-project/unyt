@@ -41,8 +41,7 @@ class UnitConversionError(Exception):
         Exception.__init__(self)
 
     def __str__(self):
-        err = ("Unit dimensionalities do not match. Tried to convert between "
-               "%s (dim %s) and %s (dim %s)." %
+        err = ("Cannot convert between %s (dim %s) and %s (dim %s)." %
                (self.unit1, self.dimension1, self.unit2, self.dimension2))
         return err
 
@@ -54,6 +53,15 @@ class MissingMKSCurrent(Exception):
     def __str__(self):
         err = ("The %s unit system does not have a MKS current base unit" %
                self.unit_system_name)
+        return err
+
+
+class MKSCGSConversionError(Exception):
+    def __init__(self, unit):
+        self.unit = unit
+
+    def __str__(self):
+        err = ("The %s unit cannot be safely converted." % self.unit)
         return err
 
 
@@ -100,8 +108,14 @@ class InvalidUnitEquivalence(Exception):
         self.unit2 = unit2
 
     def __str__(self):
-        return ("The unit equivalence '%s' does not exist for the units '%s' "
-                "and '%s'." % (self.equiv, self.unit1, self.unit2))
+        from unyt.unit_object import Unit
+        if isinstance(self.unit2, Unit):
+            msg = ("The unit equivalence '%s' does not exist for the units "
+                   "'%s' and '%s'.")
+        else:
+            msg = ("The unit equivalence '%s' does not exist for units '%s' "
+                   "to convert to a new unit with dimensions '%s'.")
+        return msg % (self.equiv, self.unit1, self.unit2)
 
 
 class InvalidUnitOperation(Exception):

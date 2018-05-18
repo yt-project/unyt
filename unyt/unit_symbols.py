@@ -311,6 +311,8 @@ HA = hourangle = Unit("hourangle")
 electrostatic_unit = esu = Unit("esu")
 #: Gauss
 gauss = G = Unit("gauss")
+#: Statcoulomb
+statcoulomb = statC = Unit("statC")
 #: Statampere
 statampere = statA = Unit("statA")
 #: Statvolt

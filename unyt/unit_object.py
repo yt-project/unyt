@@ -13,7 +13,13 @@ A class that represents a unit symbol.
 # -----------------------------------------------------------------------------
 
 
+import copy
+from keyword import iskeyword as _iskeyword
+import numpy as np
+from numbers import Number as numeric_type
 from six import text_type
+import token
+
 from sympy import (
     Expr,
     Mul,
@@ -37,13 +43,21 @@ from sympy.parsing.sympy_parser import (
     auto_number,
     rationalize
 )
-from keyword import iskeyword as _iskeyword
+
 from unyt.dimensions import (
+    angle,
     base_dimensions,
-    temperature,
     dimensionless,
-    angle
+    temperature,
 )
+from unyt.equivalencies import equivalence_registry
+from unyt.exceptions import (
+    InvalidUnitOperation,
+    MKSCGSConversionError,
+    UnitConversionError,
+    UnitsNotReducible
+)
+from unyt._physical_ratios import speed_of_light_cm_per_s
 from unyt._unit_lookup_table import (
     unit_prefixes,
     prefixable_units,
@@ -54,19 +68,6 @@ from unyt.unit_registry import (
     UnitRegistry,
     UnitParseError
 )
-from unyt.exceptions import (
-    InvalidUnitOperation,
-    MissingMKSCurrent,
-    UnitsNotReducible,
-)
-from unyt.equivalencies import (
-    equivalence_registry,
-    _check_em_conversion,
-)
-import copy
-import token
-import numpy as np
-from numbers import Number as numeric_type
 
 sympy_one = sympify(1)
 
@@ -152,14 +153,15 @@ def _get_latex_representation(expr, registry):
         for i in range(1, len(symbols)):
             expr = expr.subs(symbols[i], symbols[0])
     prefix = None
+    l_expr = expr
     if isinstance(expr, Mul):
         coeffs = expr.as_coeff_Mul()
         if coeffs[0] == 1 or not isinstance(coeffs[0], Float):
-            pass
+            l_expr = coeffs[1]
         else:
-            expr = coeffs[1]
+            l_expr = coeffs[1]
             prefix = Float(coeffs[0], 2)
-    latex_repr = latex(expr, symbol_names=symbol_table, mul_symbol="dot",
+    latex_repr = latex(l_expr, symbol_names=symbol_table, mul_symbol="dot",
                        fold_frac_powers=True, fold_short_frac=True)
 
     if prefix is not None:
@@ -174,7 +176,7 @@ def _get_latex_representation(expr, registry):
 unit_text_transform = (_auto_positive_symbol, rationalize, auto_number)
 
 
-class Unit(Expr):
+class Unit(object):
     """
     A symbolic unit, using sympy functionality. We only add "dimensions" so
     that sympy understands relations between different units.
@@ -193,8 +195,7 @@ class Unit(Expr):
     __array_priority__ = 3.0
 
     def __new__(cls, unit_expr=sympy_one, base_value=None, base_offset=0.0,
-                dimensions=None, registry=None, latex_repr=None,
-                **assumptions):
+                dimensions=None, registry=None, latex_repr=None):
         """
         Create a new unit. May be an atomic unit (like a gram) or combinations
         of atomic units (like g / cm**3).
@@ -217,31 +218,23 @@ class Unit(Expr):
         latex_repr : string
             A string to render the unit as LaTeX
 
-        Additional keyword arguments are passed as assumptions to the Sympy
-        Expr initializer
-
         """
         # Simplest case. If user passes a Unit object, just use the expr.
-        unit_key = None
         if isinstance(unit_expr, (str, bytes, text_type)):
             if isinstance(unit_expr, bytes):
                 unit_expr = unit_expr.decode("utf-8")
 
-            if registry and unit_expr in registry.unit_objs:
-                return registry.unit_objs[unit_expr]
-            else:
-                unit_key = unit_expr
-                if not unit_expr:
-                    # Bug catch...
-                    # if unit_expr is an empty string, parse_expr fails hard...
-                    unit_expr = "1"
-                try:
-                    unit_expr = parse_expr(unit_expr, global_dict=global_dict,
-                                           transformations=unit_text_transform)
-                except SyntaxError as e:
-                    msg = ("Unit expression %s raised an error "
-                           "during parsing:\n%s" % (unit_expr, repr(e)))
-                    raise UnitParseError(msg)
+            if not unit_expr:
+                # Bug catch...
+                # if unit_expr is an empty string, parse_expr fails hard...
+                unit_expr = "1"
+            try:
+                unit_expr = parse_expr(unit_expr, global_dict=global_dict,
+                                       transformations=unit_text_transform)
+            except SyntaxError as e:
+                msg = ("Unit expression %s raised an error "
+                       "during parsing:\n%s" % (unit_expr, repr(e)))
+                raise UnitParseError(msg)
         elif isinstance(unit_expr, Unit):
             # grab the unit object's sympy expression.
             unit_expr = unit_expr.expr
@@ -307,7 +300,7 @@ class Unit(Expr):
                 base_offset = 0.0
 
         # Create obj with superclass construct.
-        obj = Expr.__new__(cls, **assumptions)
+        obj = super(Unit, cls).__new__(cls)
 
         # Attach attributes to obj.
         obj.expr = unit_expr
@@ -317,9 +310,6 @@ class Unit(Expr):
         obj.dimensions = dimensions
         obj._latex_repr = latex_repr
         obj.registry = registry
-
-        if unit_key is not None:
-            registry.unit_objs[unit_key] = obj
 
         # Return `obj` so __init__ can handle it.
 
@@ -348,17 +338,8 @@ class Unit(Expr):
     def units(self):
         return self
 
-    # Some sympy conventions
-    def __getnewargs__(self):
-        return (self.expr, self.is_atomic, self.base_value, self.dimensions,
-                self.registry)
-
     def __hash__(self):
         return super(Unit, self).__hash__()
-
-    def _hashable_content(self):
-        return (self.expr, self.is_atomic, self.base_value, self.dimensions,
-                self.registry)
 
     # end sympy conventions
 
@@ -373,10 +354,6 @@ class Unit(Expr):
             return "dimensionless"
         # @todo: don't use dunder method?
         return self.expr.__str__()
-
-    # for sympy.printing
-    def _sympystr(self, *args):
-        return str(self.expr)
 
     #
     # Start unit operations
@@ -476,15 +453,12 @@ class Unit(Expr):
 
         base_offset = 0.0
         if self.base_offset or u.base_offset:
-            if u.dimensions in (temperature, angle) and self.is_dimensionless:
-                base_offset = u.base_offset
-            elif (self.dimensions in (temperature, angle) and
-                  u.is_dimensionless):
+            if self.dimensions in (temperature, angle) and u.is_dimensionless:
                 base_offset = self.base_offset
             else:
                 raise InvalidUnitOperation(
                     "Quantities with units of Farhenheit "
-                    "and Celsius cannot be multiplied.")
+                    "and Celsius cannot be divided.")
 
         return Unit(self.expr / u.expr,
                     base_value=(self.base_value / u.base_value),
@@ -536,8 +510,6 @@ class Unit(Expr):
         return copy.deepcopy(self)
 
     def __deepcopy__(self, memodict=None):
-        if memodict is None:
-            memodict = {}
         expr = str(self.expr)
         base_value = copy.deepcopy(self.base_value)
         base_offset = copy.deepcopy(self.base_offset)
@@ -590,13 +562,12 @@ class Unit(Expr):
 
         Returns
         -------
-        True if the unit name begins with "code" False otherwise
+        True if the unit consists of atom units that being with "code".
+        False otherwise
 
         """
         for atom in self.expr.atoms():
-            if str(atom).startswith("code") or atom.is_Number:
-                pass
-            else:
+            if not (str(atom).startswith("code") or atom.is_Number):
                 return False
         return True
 
@@ -623,8 +594,10 @@ class Unit(Expr):
         Example
         -------
         >>> from unyt import km
-        >>> km.units.has_equivalent('spectral')
+        >>> km.has_equivalent('spectral')
         True
+        >>> km.has_equivalent('mass_energy')
+        False
         """
         try:
             this_equiv = equivalence_registry[equiv]()
@@ -637,9 +610,9 @@ class Unit(Expr):
         """Create and return dimensionally-equivalent units in a specified base.
 
         >>> from unyt import g, cm
-        >>> (g/cm**3).units.get_base_equivalent('mks')
+        >>> (g/cm**3).get_base_equivalent('mks')
         kg/m**3
-        >>> (g/cm**3).units.get_base_equivalent('solar')
+        >>> (g/cm**3).get_base_equivalent('solar')
         Mearth/AU**3
         """
         from unyt.unit_systems import unit_system_registry
@@ -649,14 +622,15 @@ class Unit(Expr):
             unit_system = self.registry.unit_system_id
         unit_system = unit_system_registry[str(unit_system)]
         try:
-            em_units, em_us = _check_em_conversion(self.units)
-            if em_units is not None and em_us == str(unit_system):
-                units_string = em_units
-            else:
-                units_string = unit_system[self.dimensions]
-        except MissingMKSCurrent:
+            conv_data = _check_em_conversion(self.units)
+        except MKSCGSConversionError:
             raise UnitsNotReducible(self.units, unit_system)
-        return Unit(units_string, registry=self.registry)
+        if any(conv_data):
+            new_units, _ = _em_conversion(
+                self, conv_data, unit_system=unit_system)
+        else:
+            new_units = unit_system[self.dimensions]
+        return Unit(new_units, registry=self.registry)
 
     def get_cgs_equivalent(self):
         """Create and return dimensionally-equivalent cgs units.
@@ -664,7 +638,7 @@ class Unit(Expr):
         Example
         -------
         >>> from unyt import kg, m
-        >>> (kg/m**3).units.get_cgs_equivalent()
+        >>> (kg/m**3).get_cgs_equivalent()
         g/cm**3
         """
         return self.get_base_equivalent(unit_system="cgs")
@@ -675,7 +649,7 @@ class Unit(Expr):
         Example
         -------
         >>> from unyt import g, cm
-        >>> (g/cm**3).units.get_mks_equivalent()
+        >>> (g/cm**3).get_mks_equivalent()
         kg/m**3
         """
         return self.get_base_equivalent(unit_system="mks")
@@ -699,9 +673,9 @@ class Unit(Expr):
         Examples
         --------
         >>> from unyt import km, cm, degree_fahrenheit, degree_celsius
-        >>> km.units.get_conversion_factor(cm.units)
+        >>> km.get_conversion_factor(cm)
         (100000.0, None)
-        >>> degree_celsius.units.get_conversion_factor(degree_fahrenheit.units)
+        >>> degree_celsius.get_conversion_factor(degree_fahrenheit)
         (1.7999999999999998, -31.999999999999886)
         """
         return _get_conversion_factor(self, other_units)
@@ -712,7 +686,7 @@ class Unit(Expr):
         Examples
         --------
         >>> from unyt import g, cm
-        >>> (g/cm**3).units.latex_representation()
+        >>> (g/cm**3).latex_representation()
         '\\\\frac{\\\\rm{g}}{\\\\rm{cm}^{3}}'
         """
         return self.latex_repr
@@ -720,6 +694,98 @@ class Unit(Expr):
 #
 # Unit manipulation functions
 #
+
+
+em_conversions = {
+    "C": ("esu", 0.1*speed_of_light_cm_per_s, "cgs"),
+    "T": ("gauss", 1.0e4, "cgs"),
+    "Wb": ("Mx", 1.0e8, "cgs"),
+    "A": ("statA", 0.1*speed_of_light_cm_per_s, "cgs"),
+    "V": ("statV", 1.0e-8*speed_of_light_cm_per_s, "cgs"),
+    "ohm": ("statohm", 1.0e9/(speed_of_light_cm_per_s**2), "cgs"),
+    "esu": ("C", 10.0/speed_of_light_cm_per_s, "mks"),
+    "Fr": ("C", 10.0/speed_of_light_cm_per_s, "mks"),
+    "statC": ("C", 10.0/speed_of_light_cm_per_s, "mks"),
+    "gauss": ("T", 1.0e-4, "mks"),
+    "G": ("T", 1.0e-4, "mks"),
+    "Mx": ("Wb", 1.0e-8, "mks"),
+    "statA": ("A", 10.0/speed_of_light_cm_per_s, "mks"),
+    "statV": ("V", 1.0e8/speed_of_light_cm_per_s, "mks"),
+    "statohm": ("ohm", speed_of_light_cm_per_s**2*1.0e-9, "mks"),
+}
+
+
+def _em_conversion(orig_units, conv_data, to_units=None, unit_system=None):
+    """Convert between E&M & MKS base units.
+
+    If orig_units is a CGS (or MKS) E&M unit, conv_data contains the
+    corresponding MKS (or CGS) unit and scale factor converting between them.
+    This must be done by replacing the expression of the original unit
+    with the new one in the unit expression and multiplying by the scale
+    factor.
+    """
+    conv_unit, scale = conv_data
+    new_expr = orig_units.copy().expr.replace(
+        orig_units.expr, scale*conv_unit.expr)
+    if unit_system is not None:
+        # we don't know the to_units, so we get it directly from the
+        # conv_data
+        inter_expr = orig_units.copy().expr.replace(
+            orig_units.expr, conv_unit.expr)
+        to_units = Unit(inter_expr, registry=orig_units.registry)
+    new_units = Unit(new_expr, registry=orig_units.registry)
+    conv = new_units.get_conversion_factor(to_units)
+    return to_units, conv
+
+
+def _get_em_base_unit(units):
+    unit_str = str(units)
+    if len(unit_str) == 1:
+        return unit_str
+    possible_prefix = unit_str[0]
+    prefix_len = 1
+    if unit_str[:2] == 'da':
+        possible_prefix = 'da'
+        prefix_len += 1
+    if possible_prefix in unit_prefixes:
+        base_unit = unit_str[prefix_len:]
+    else:
+        base_unit = unit_str
+    return base_unit
+
+
+def _check_em_conversion(units, to_units=None):
+    """Check to see if the units contain E&M units
+
+    This function supports unyt's ability to convert data to and from E&M
+    electromagnetic units. However, this support is limited and only very
+    simple unit expressions can be readily converted. This function
+    to see if the unit is an atomic base unit that is present in the
+    em_conversions dict. If it does not contain E&M units, the function
+    returns an empty tuple. If it does contain an atomic E&M unit in
+    the em_conversions dict, it returns a tuple containing the unit to convert
+    to and scale factor. If it contains a more complicated E&M unit and we are
+    trying to convert between CGS & MKS E&M units, it raises an error.
+    """
+    em_map = ()
+    base_unit = _get_em_base_unit(str(units))
+    base_to_unit = _get_em_base_unit(str(to_units))
+    if base_unit == base_to_unit:
+        return em_map
+    if base_unit in em_conversions:
+        em_info = em_conversions.get(base_unit, (None,)*2)
+        to_unit = Unit(em_info[0], registry=units.registry)
+        if to_units is None or to_units.dimensions == to_unit.dimensions:
+            em_map = (to_unit, em_info[1])
+    if em_map:
+        return em_map
+    for unit in units.expr.atoms():
+        if unit.is_Number:
+            pass
+        base_unit = _get_em_base_unit(str(unit))
+        if base_unit in em_conversions:
+            raise MKSCGSConversionError(units)
+    return em_map
 
 
 def _get_conversion_factor(old_units, new_units):
@@ -743,16 +809,16 @@ def _get_conversion_factor(old_units, new_units):
         Offset between the old unit and new unit.
 
     """
+    if old_units.dimensions != new_units.dimensions:
+        raise UnitConversionError(old_units, old_units.dimensions,
+                                  new_units, new_units.dimensions)
     ratio = old_units.base_value / new_units.base_value
     if old_units.base_offset == 0 and new_units.base_offset == 0:
         return (ratio, None)
     else:
-        if old_units.dimensions in (temperature, angle):
-            return ratio, ratio*old_units.base_offset - new_units.base_offset
-        else:
-            raise InvalidUnitOperation(
-                "Fahrenheit and Celsius are not absolute temperature scales "
-                "and cannot be used in compound unit symbols.")
+        # the dimensions are the same, so both are temperatures, where
+        # it's legal to convert units so no need to do error checking
+        return ratio, ratio*old_units.base_offset - new_units.base_offset
 
 #
 # Helper functions
@@ -771,10 +837,6 @@ def _get_unit_data_from_expr(unit_expr, unit_symbol_lut):
         Provides the unit data for each valid unit symbol.
 
     """
-    # The simplest case first
-    if isinstance(unit_expr, Unit):
-        return (unit_expr.base_value, unit_expr.dimensions)
-
     # Now for the sympy possibilities
     if isinstance(unit_expr, Number):
         if unit_expr is sympy_one:

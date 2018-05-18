@@ -24,24 +24,9 @@ from unyt.dimensions import (
     density,
     number_density,
     flux,
-    current_cgs,
-    current_mks,
-    charge_cgs,
-    charge_mks,
-    magnetic_field_cgs,
-    magnetic_field_mks,
-    magnetic_flux_cgs,
-    magnetic_flux_mks,
-    electric_potential_cgs,
-    electric_potential_mks,
-    electric_field_cgs,
-    electric_field_mks,
-    resistance_cgs,
-    resistance_mks
 )
+from unyt.exceptions import InvalidUnitEquivalence
 
-from unyt._physical_ratios import speed_of_light_cm_per_s
-from unyt._unit_lookup_table import unit_prefixes
 from six import add_metaclass
 import numpy as np
 
@@ -53,17 +38,18 @@ class _RegisteredEquivalence(type):
         type.__init__(cls, name, b, d)
         if hasattr(cls, "type_name"):
             equivalence_registry[cls.type_name] = cls
-        if hasattr(cls, "alternate_names"):
-            for name in cls.alternate_names:
-                equivalence_registry[name] = cls
 
 
 @add_metaclass(_RegisteredEquivalence)
 class Equivalence(object):
-    one_way = False
-
     def __init__(self, in_place=False):
         self.in_place = in_place
+
+    def convert(self, x, new_dims, **kwargs):
+        if x.units.dimensions in self._dims and new_dims in self._dims:
+            return self._convert(x, new_dims, **kwargs)
+        else:
+            raise InvalidUnitEquivalence(self, x, new_dims)
 
     def _get_out(self, x):
         if self.in_place:
@@ -72,7 +58,8 @@ class Equivalence(object):
 
 
 class NumberDensityEquivalence(Equivalence):
-    """Equivalence between mass and number density, given a mean molecular weight.
+    """Equivalence between mass and number density, given a mean molecular
+    weight.
 
     Given a number density :math:`n`, the mass density :math:`\\rho` is:
 
@@ -444,7 +431,7 @@ class ComptonEquivalence(Equivalence):
         return "compton: mass <-> length"
 
 
-class EffectiveTemperature(Equivalence):
+class EffectiveTemperatureEquivalence(Equivalence):
     """Equivalence between the emmitted flux accross all wavelengths and
     temperature of a blackbody
 
@@ -459,6 +446,8 @@ class EffectiveTemperature(Equivalence):
 
     Example
     -------
+    >>> print(EffectiveTemperatureEquivalence())
+    effective_temperature: flux <-> temperature
     >>> from unyt import K, W, m
     >>> (5000*K).to_equivalent('W/m**2', 'effective_temperature')
     unyt_quantity(35439831.25, 'W/m**2')
@@ -481,119 +470,3 @@ class EffectiveTemperature(Equivalence):
 
     def __str__(self):
         return "effective_temperature: flux <-> temperature"
-
-
-em_conversions = {
-    "C": ("esu", 0.1*speed_of_light_cm_per_s, "cgs"),
-    "T": ("gauss", 1.0e4, "cgs"),
-    "Wb": ("Mx", 1.0e8, "cgs"),
-    "A": ("statA", 0.1*speed_of_light_cm_per_s, "cgs"),
-    "V": ("statV", 1.0e-8*speed_of_light_cm_per_s, "cgs"),
-    "ohm": ("statohm", 1.0e9/(speed_of_light_cm_per_s**2), "cgs"),
-    "esu": ("C", 10.0/speed_of_light_cm_per_s, "mks"),
-    "Fr": ("C", 10.0/speed_of_light_cm_per_s, "mks"),
-    "statC": ("C", 10.0/speed_of_light_cm_per_s, "mks"),
-    "gauss": ("T", 1.0e-4, "mks"),
-    "G": ("T", 1.0e-4, "mks"),
-    "Mx": ("Wb", 1.0e-8, "mks"),
-    "statA": ("A", 10.0/speed_of_light_cm_per_s, "mks"),
-    "statV": ("V", 1.0e8/speed_of_light_cm_per_s, "mks"),
-    "statohm": ("ohm", speed_of_light_cm_per_s**2*1.0e-9, "mks"),
-}
-
-
-def _get_em_base_unit(units):
-    unit_str = str(units)
-    if len(unit_str) == 1:
-        return unit_str
-    possible_prefix = unit_str[0]
-    prefix_len = 1
-    if unit_str[:2] == 'da':
-        possible_prefix = 'da'
-        prefix_len += 1
-    if possible_prefix in unit_prefixes:
-        base_unit = unit_str[prefix_len:]
-    else:
-        base_unit = unit_str
-    return base_unit
-
-
-def _check_em_conversion(units):
-    base_unit = _get_em_base_unit(units)
-    em_info = em_conversions.get(base_unit, (None,)*3)
-    return em_info[0], em_info[2]
-
-
-class ElectromagneticSI(Equivalence):
-    """An equivalence between CGS and SI electromagnetic units
-
-    Given data in CGS electromagnetic units (one of esu, gauss, statA, statV,
-    or statohm) this equivelency will convert the data to the appropriate
-    SI electromagnetic unit, using the following mapping:
-
-    * Fr -> C
-    * statC -> C
-    * esu -> C
-    * G -> T
-    * statA -> A
-    * statV -> V
-    * statohm -> ohm
-    * Mx -> Wb
-
-    Example
-    -------
-    >>> from unyt import gauss
-    >>> (10*gauss).to_equivalent('T', 'SI')
-    unyt_quantity(0.001, 'T')
-    """
-    type_name = "SI"
-    alternate_names = ["si", "MKS", "mks"]
-    one_way = True
-    _dims = (current_cgs, charge_cgs, magnetic_field_cgs,
-             electric_field_cgs, electric_potential_cgs,
-             resistance_cgs, magnetic_flux_cgs)
-
-    def _convert(self, x, new_dims):
-        base_unit = _get_em_base_unit(x.units)
-        new_units, convert_factor, _ = em_conversions[base_unit]
-        return x.in_cgs().v*convert_factor, new_units
-
-    def __str__(self):
-        return "SI: EM CGS unit -> EM SI unit"
-
-
-class ElectromagneticCGS(Equivalence):
-    """An equivalence between SI and CGS electromagnetic units
-
-    Given data in SI electromagnetic units (one of C, T, A, V, ohm, or Wb,
-    or a prefixed version of these), this equivalency will convert the
-    data to the appropriate CGS electromagnetic unit, using the following
-    mapping:
-
-    * C -> esu
-    * T -> G
-    * A -> statA
-    * V -> statV
-    * ohm -> statohm
-    * Wb -> Mx
-
-    Example
-    -------
-    >>> from unyt import Tesla
-    >>> (10*Tesla).to_equivalent('G', 'CGS')
-    unyt_quantity(100000., 'G')
-    """
-    type_name = "CGS"
-    alternate_names = ["cgs"]
-    one_way = True
-    _dims = (current_mks, charge_mks, magnetic_field_mks,
-             electric_field_mks, electric_potential_mks,
-             resistance_mks, magnetic_flux_mks)
-
-    def _convert(self, x, new_dims):
-        base_unit = _get_em_base_unit(x.units)
-        new_units, convert_factor, _ = em_conversions[base_unit]
-        return x.in_mks().v*convert_factor, new_units
-
-    def __str__(self):
-        return "CGS: EM SI unit -> EM CGS unit"

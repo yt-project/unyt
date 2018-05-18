@@ -24,6 +24,7 @@ from numpy.testing import (
 )
 import operator
 import pytest
+from six.moves import cPickle as pickle
 from sympy import Symbol
 from unyt._testing import assert_allclose_units
 from unyt.unit_registry import UnitRegistry
@@ -38,13 +39,17 @@ from unyt.dimensions import (
     power,
     rate
 )
+from unyt.exceptions import (
+    InvalidUnitOperation,
+    UnitsNotReducible,
+    UnitConversionError,
+)
 from unyt.unit_object import (
     default_unit_registry,
-    _get_conversion_factor,
     Unit,
     UnitParseError,
-    InvalidUnitOperation
 )
+from unyt.unit_systems import UnitSystem
 from unyt._unit_lookup_table import (
     default_unit_symbol_lut,
     unit_prefixes,
@@ -77,9 +82,8 @@ def test_no_conflicting_symbols():
             new_symbol = "%s%s" % (prefix, symbol)
 
             # test if we have seen this symbol
-            if new_symbol in full_set:
-                print("Duplicate symbol: %s" % new_symbol)
-                raise RuntimeError
+            assert new_symbol not in full_set, ("Duplicate symbol: %s" %
+                                                new_symbol)
 
             full_set.add(new_symbol)
 
@@ -95,6 +99,8 @@ def test_dimensionless():
     assert u1.expr == 1
     assert u1.base_value == 1
     assert u1.dimensions == 1
+    assert u1 != 'hello!'
+    assert (u1 == 'hello') is False
 
     u2 = Unit("")
 
@@ -151,6 +157,13 @@ def test_create_from_string():
         Unit('m+g')
     with pytest.raises(UnitParseError):
         Unit('m-g')
+    with pytest.raises(UnitParseError):
+        Unit('hello!')
+
+    cm = Unit('cm')
+    data = 1*cm
+
+    assert Unit(data) == cm
 
 
 def test_create_from_expr():
@@ -246,12 +259,8 @@ def test_create_fail_on_unknown_symbol():
     Fail to create unit with unknown symbol, without base_value and dimensions.
 
     """
-    try:
+    with pytest.raises(UnitParseError):
         Unit(Symbol("jigawatts"))
-    except UnitParseError:
-        assert True
-    else:
-        assert False
 
 
 def test_create_fail_on_bad_symbol_type():
@@ -259,12 +268,8 @@ def test_create_fail_on_bad_symbol_type():
     Fail to create unit with bad symbol type.
 
     """
-    try:
+    with pytest.raises(UnitParseError):
         Unit([1])  # something other than Expr and str
-    except UnitParseError:
-        assert True
-    else:
-        assert False
 
 
 def test_create_fail_on_bad_dimensions_type():
@@ -272,12 +277,8 @@ def test_create_fail_on_bad_dimensions_type():
     Fail to create unit with bad dimensions type.
 
     """
-    try:
+    with pytest.raises(UnitParseError):
         Unit("a", base_value=1, dimensions="(mass)")
-    except UnitParseError:
-        assert True
-    else:
-        assert False
 
 
 def test_create_fail_on_dimensions_content():
@@ -286,13 +287,8 @@ def test_create_fail_on_dimensions_content():
 
     """
     a = Symbol("a")
-
-    try:
+    with pytest.raises(UnitParseError):
         Unit("a", base_value=1, dimensions=a)
-    except UnitParseError:
-        pass
-    else:
-        assert False
 
 
 def test_create_fail_on_base_value_type():
@@ -300,12 +296,8 @@ def test_create_fail_on_base_value_type():
     Fail to create unit with bad base_value type.
 
     """
-    try:
+    with pytest.raises(UnitParseError):
         Unit("a", base_value="a", dimensions=(mass/time))
-    except UnitParseError:
-        assert True
-    else:
-        assert False
 
 
 def test_string_representation():
@@ -323,6 +315,7 @@ def test_string_representation():
     assert str(speed) == "pc/Myr"
     assert repr(speed) == "pc/Myr"
     assert str(dimensionless) == "dimensionless"
+    assert repr(dimensionless) == "(dimensionless)"
 
 
 def test_multiplication():
@@ -420,6 +413,36 @@ def test_equality():
     assert u1 == u2
 
 
+def test_invalid_operations():
+    u1 = Unit('cm')
+    u2 = Unit('m')
+
+    with pytest.raises(InvalidUnitOperation):
+        u1+u2
+    with pytest.raises(InvalidUnitOperation):
+        u1 += u2
+    with pytest.raises(InvalidUnitOperation):
+        1+u1
+    with pytest.raises(InvalidUnitOperation):
+        u1+1
+    with pytest.raises(InvalidUnitOperation):
+        u1-u2
+    with pytest.raises(InvalidUnitOperation):
+        u1 -= u2
+    with pytest.raises(InvalidUnitOperation):
+        1-u1
+    with pytest.raises(InvalidUnitOperation):
+        u1-1
+    with pytest.raises(InvalidUnitOperation):
+        u1 *= u2
+    with pytest.raises(InvalidUnitOperation):
+        u1*'hello!'
+    with pytest.raises(InvalidUnitOperation):
+        u1 /= u2
+    with pytest.raises(InvalidUnitOperation):
+        u1/'hello!'
+
+
 def test_base_equivalent():
     """
     Check base equivalent of a unit.
@@ -445,8 +468,14 @@ def test_base_equivalent():
     assert u2.dimensions == mass_density
     assert u3.dimensions == mass_density
 
-    assert_allclose_units(_get_conversion_factor(u1, u3)[0],
+    assert_allclose_units(u1.get_conversion_factor(u3)[0],
                           Msun_mks / Mpc_mks**3, 1e-12)
+
+    with pytest.raises(UnitConversionError):
+        u1.get_conversion_factor(Unit('m'))
+
+    with pytest.raises(UnitConversionError):
+        u1.get_conversion_factor(Unit('degF'))
 
 
 def test_temperature_offsets():
@@ -478,6 +507,9 @@ def test_latex_repr():
 
     test_unit = Unit('1e9*cm')
     assert_equal(test_unit.latex_repr, '1.0 \\times 10^{9}\\ \\rm{cm}')
+
+    test_unit = Unit('1.0*cm')
+    assert_equal(test_unit.latex_repr, '\\rm{cm}')
 
 
 def test_latitude_longitude():
@@ -529,19 +561,98 @@ def test_creation_from_ytarray():
 
 
 def test_list_same_dimensions():
+    from unyt import m
     reg = default_unit_registry
-    for name1, u1 in reg.unit_objs.items():
-        for name2 in reg.list_same_dimensions(u1):
-            if name2 == name1:
-                continue
-            if name2 in reg.unit_objs:
-                dim2 = reg.unit_objs[name2].dimensions
-            else:
-                _, dim2, _, _ = reg.lut[name2]
-            assert u1.dimensions is dim2
+    for equiv in reg.list_same_dimensions(m):
+        assert Unit(equiv).dimensions is length
 
 
 def test_decagram():
     dag = Unit('dag')
     g = Unit('g')
     assert dag.get_conversion_factor(g) == (10.0, None)
+
+
+def test_pickle():
+    cm = Unit('cm')
+    assert cm == pickle.loads(pickle.dumps(cm))
+
+
+def test_preserve_offset():
+    from unyt import degF, dimensionless
+
+    new_unit = degF*dimensionless
+
+    assert new_unit is not degF
+    assert new_unit == degF
+    assert new_unit.base_offset == degF.base_offset
+
+    new_unit = degF/dimensionless
+
+    assert new_unit is not degF
+    assert new_unit == degF
+    assert new_unit.base_offset == degF.base_offset
+
+    with pytest.raises(InvalidUnitOperation):
+        dimensionless/degF
+
+
+def test_code_unit():
+    from unyt import UnitRegistry
+
+    ureg = UnitRegistry()
+    ureg.add('code_length', 10., length)
+    u = Unit('code_length', registry=ureg)
+    assert u.is_code_unit is True
+    assert u.get_base_equivalent() == Unit('m')
+    u = Unit('cm')
+    assert u.is_code_unit is False
+
+    UnitSystem(ureg.unit_system_id, 'code_length', 'kg', 's', registry=ureg)
+
+    u = Unit('cm', registry=ureg)
+    ue = u.get_base_equivalent('code')
+
+    assert str(ue) == 'code_length'
+    assert ue.base_value == 10
+    assert ue.dimensions is length
+
+    class FakeDataset(object):
+        unit_registry = ureg
+
+    ds = FakeDataset()
+
+    UnitSystem(ds, 'code_length', 'kg', 's', registry=ureg)
+
+    u = Unit('cm', registry=ureg)
+    ue = u.get_base_equivalent(ds)
+
+    assert str(ue) == 'code_length'
+    assert ue.base_value == 10
+    assert ue.dimensions is length
+
+    with pytest.raises(UnitParseError):
+        Unit('code_length')
+
+
+def test_bad_equivalence():
+    from unyt import cm
+
+    with pytest.raises(KeyError):
+        cm.has_equivalent('dne')
+
+
+def test_em_unit_base_equivalent():
+    from unyt import A, cm
+
+    with pytest.raises(UnitsNotReducible):
+        (A/cm).get_base_equivalent('cgs')
+
+
+def test_define_unit_error():
+    from unyt import define_unit
+
+    with pytest.raises(RuntimeError):
+        define_unit('foobar', 'baz')
+    with pytest.raises(RuntimeError):
+        define_unit('foobar', 12)

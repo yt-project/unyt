@@ -38,15 +38,22 @@ from unyt.array import (
     unary_operators,
     binary_operators,
     uconcatenate,
+    ucross,
+    udot,
     uintersect1d,
+    unorm,
     uunion1d,
     loadtxt,
     savetxt
 )
 from unyt.exceptions import (
+    InvalidUnitEquivalence,
     InvalidUnitOperation,
+    IterableUnitCoercionError,
+    UnitConversionError,
     UnitOperationError,
     UnitParseError,
+    UnitsNotReducible,
 )
 from unyt._testing import assert_allclose_units
 from unyt.unit_symbols import (
@@ -58,7 +65,9 @@ from unyt.unit_symbols import (
 from unyt.unit_registry import UnitRegistry
 from unyt._on_demand_imports import (
     _astropy,
-    _pint
+    _h5py,
+    _pint,
+    NotAModule,
 )
 from unyt._physical_ratios import (
     metallicity_sun,
@@ -684,11 +693,41 @@ def test_temperature_conversions():
     with pytest.raises(InvalidUnitOperation):
         np.multiply(balmy, balmy)
     with pytest.raises(InvalidUnitOperation):
-        np.add(balmy_F, balmy_F)
+        np.multiply(balmy_F, balmy_F)
     with pytest.raises(InvalidUnitOperation):
-        np.subtract(balmy_C, balmy_C)
+        np.multiply(balmy_F, balmy_C)
+    with pytest.raises(InvalidUnitOperation):
+        np.divide(balmy, balmy)
+    with pytest.raises(InvalidUnitOperation):
+        np.divide(balmy_F, balmy_F)
     with pytest.raises(InvalidUnitOperation):
         np.divide(balmy_F, balmy_C)
+    with pytest.raises(InvalidUnitOperation):
+        balmy*km
+    with pytest.raises(InvalidUnitOperation):
+        balmy*balmy
+    with pytest.raises(InvalidUnitOperation):
+        balmy_F*balmy_F
+    with pytest.raises(InvalidUnitOperation):
+        balmy_F*balmy_C
+    with pytest.raises(InvalidUnitOperation):
+        2*balmy_F
+    with pytest.raises(InvalidUnitOperation):
+        balmy/balmy
+    with pytest.raises(InvalidUnitOperation):
+        balmy_F/balmy_F
+    with pytest.raises(InvalidUnitOperation):
+        balmy_F/balmy_C
+    assert_equal(np.add(balmy_F, balmy_F), unyt_quantity(80.33*2, 'degF'))
+    with pytest.raises(InvalidUnitOperation):
+        np.add(balmy_F, balmy_C)
+    with pytest.raises(InvalidUnitOperation):
+        balmy_F + balmy_C
+    assert_equal(np.subtract(balmy_C, balmy_C), unyt_quantity(0, 'degC'))
+    with pytest.raises(InvalidUnitOperation):
+        np.subtract(balmy_F, balmy_C)
+    with pytest.raises(InvalidUnitOperation):
+        balmy_F - balmy_C
 
     # Does CGS conversion from F to K work?
     assert_array_almost_equal(balmy.in_cgs(), unyt_quantity(300, 'K'))
@@ -785,6 +824,10 @@ def test_copy():
     assert_equal(copy.deepcopy(quan), quan)
     assert_array_equal(copy.deepcopy(arr), arr)
 
+    memo = {}
+    assert_equal(copy.deepcopy(quan, memo), quan)
+    assert_array_equal(copy.deepcopy(arr), arr)
+
     assert_equal(quan.copy(), quan)
     assert_array_equal(arr.copy(), arr)
 
@@ -817,11 +860,7 @@ def unary_ufunc_comparison(ufunc, a):
             'isinf', 'isnan', 'signbit', 'sign', 'rint', 'logical_not']):
         # These operations should return identical results compared to numpy.
         with np.errstate(invalid='ignore'):
-            try:
-                ret = ufunc(a, out=out)
-            except UnitOperationError:
-                assert ufunc in (np.deg2rad, np.rad2deg)
-                ret = ufunc(unyt_array(a, '1'))
+            ret = ufunc(a, out=out)
 
             assert_array_equal(ret, out)
             assert_array_equal(ret, ufunc(a_array))
@@ -871,14 +910,21 @@ def unary_ufunc_comparison(ufunc, a):
         assert_array_equal(ret2, npret2)
     elif ufunc is np.invert:
         with pytest.raises(TypeError):
-            ufunc(a)
+            ufunc(a.astype('int64'))
     elif hasattr(np, 'isnat') and ufunc is np.isnat:
         # numpy 1.13 raises ValueError, numpy 1.14 and newer raise TypeError
         with pytest.raises((TypeError, ValueError)):
             ufunc(a)
-    else:
-        # There shouldn't be any untested ufuncs.
-        assert False
+    # no untested ufuncs
+    assert ufunc in yield_np_ufuncs([
+        'isreal', 'iscomplex', 'exp', 'exp2', 'log', 'log2', 'log10', 'expm1',
+        'log1p', 'sin', 'cos', 'tan', 'arcsin', 'arccos', 'arctan', 'sinh',
+        'cosh', 'tanh', 'arccosh', 'arcsinh', 'arctanh', 'deg2rad', 'rad2deg',
+        'isfinite', 'isinf', 'isnan', 'signbit', 'sign', 'rint', 'logical_not',
+        'absolute', 'fabs', 'conjugate', 'floor', 'ceil', 'trunc', 'negative',
+        'spacing', 'positive', 'ones_like', 'square', 'sqrt', 'reciprocal',
+        'invert', 'isnat', 'modf', 'frexp',
+    ])
 
 
 def binary_ufunc_comparison(ufunc, a, b):
@@ -922,15 +968,11 @@ def binary_ufunc_comparison(ufunc, a, b):
 
 def test_ufuncs():
     for ufunc in unary_operators:
-        if ufunc is None:
-            continue
         unary_ufunc_comparison(ufunc, unyt_array([.3, .4, .5], 'cm'))
         unary_ufunc_comparison(ufunc, unyt_array([12, 23, 47], 'g'))
         unary_ufunc_comparison(ufunc, unyt_array([2, 4, -6], 'erg/m**3'))
 
     for ufunc in binary_operators:
-        if ufunc is None:
-            continue
         # arr**arr is undefined for arrays with units because
         # each element of the result would have different units.
         if ufunc is np.power:
@@ -964,6 +1006,12 @@ def test_reductions():
     assert_equal(ev_result, res)
     assert_equal(ev_result.units, res.units)
     assert_isinstance(ev_result, unyt_array)
+
+    qv = unyt_array([1, 2, 3], 'cm').dot(unyt_array([1, 2, 3], 'cm'))
+    qa = unyt_quantity(14, 'cm**2')
+    assert qv == qa
+    assert qv.units == qa.units
+    assert_isinstance(qv, unyt_quantity)
 
     answers = {
         'prod': (unyt_quantity(720, 'cm**6'),
@@ -1077,6 +1125,8 @@ def test_to_value():
 
 
 def test_astropy():
+    if isinstance(_astropy.__version__, NotAModule):
+        return
     ap_arr = np.arange(10)*_astropy.units.km/_astropy.units.hr
     yt_arr = unyt_array(np.arange(10), "km/hr")
     yt_arr2 = unyt_array.from_astropy(ap_arr)
@@ -1098,10 +1148,12 @@ def test_astropy():
 
 
 def test_pint():
+    if isinstance(_pint.UnitRegistry, NotAModule):
+        return
     ureg = _pint.UnitRegistry()
 
-    p_arr = np.arange(10)*ureg.km/ureg.hr
-    yt_arr = unyt_array(np.arange(10), "km/hr")
+    p_arr = np.arange(10)*ureg.km/ureg.year
+    yt_arr = unyt_array(np.arange(10), "km/yr")
     yt_arr2 = unyt_array.from_pint(p_arr)
 
     p_quan = 10.*ureg.g**0.5/(ureg.mm**3)
@@ -1162,8 +1214,14 @@ def test_subclass():
     assert_isinstance(a[:2], unyt_a_subclass)
     assert_isinstance(unyt_a_subclass(yta), unyt_a_subclass)
 
+    with pytest.raises(RuntimeError):
+        a + 'hello'
+
 
 def test_h5_io():
+    if isinstance(_h5py.__version__, NotAModule):
+        return
+
     tmpdir = tempfile.mkdtemp()
     curdir = os.getcwd()
     os.chdir(tmpdir)
@@ -1183,6 +1241,30 @@ def test_h5_io():
     assert_equal(warr.units.registry['code_length'],
                  iarr.units.registry['code_length'])
 
+    # test code to overwrite existing dataset
+
+    warr.write_hdf5('test.h5')
+
+    giarr = unyt_array.from_hdf5('test.h5')
+
+    assert_equal(warr, giarr)
+
+    # test code to overwrite existing dataset with data that has a different
+    # shape
+
+    warr = unyt_array(np.random.random((255, 255)), 'code_length',
+                      registry=reg)
+
+    warr.write_hdf5('test.h5')
+
+    giarr = unyt_array.from_hdf5('test.h5')
+
+    assert_equal(warr, giarr)
+
+    os.remove('test.h5')
+
+    # write to a group that doesn't exist
+
     warr.write_hdf5('test.h5', dataset_name="test_dset",
                     group_name='/arrays/test_group')
 
@@ -1191,12 +1273,51 @@ def test_h5_io():
 
     assert_equal(warr, giarr)
 
+    os.remove('test.h5')
+
+    # write to a group that does exist
+
+    with _h5py.File('test.h5') as f:
+        f.create_group('/arrays/test_group')
+
+    warr.write_hdf5('test.h5', dataset_name="test_dset",
+                    group_name='/arrays/test_group')
+
+    giarr = unyt_array.from_hdf5('test.h5', dataset_name="test_dset",
+                                 group_name='/arrays/test_group')
+
+    assert_equal(warr, giarr)
+
+    os.remove('test.h5')
+
     os.chdir(curdir)
     shutil.rmtree(tmpdir)
 
 
 def test_equivalencies():
     import unyt as u
+
+    # equivalence is ignored if the conversion doesn't need one
+    data = 12*u.g
+    data.convert_to_equivalent('kg', None)
+    assert data.value == .012
+    assert data.units == u.kg
+
+    data = 12*u.g
+    data = data.to_equivalent('kg', None)
+    assert data.value == .012
+    assert data.units == u.kg
+
+    # incorrect usage of an equivalence raises errors
+
+    with pytest.raises(InvalidUnitEquivalence):
+        data.convert_to_equivalent('erg', 'thermal')
+    with pytest.raises(InvalidUnitEquivalence):
+        data.convert_to_equivalent('m', 'mass_energy')
+    with pytest.raises(InvalidUnitEquivalence):
+        data.to_equivalent('erg', 'thermal')
+    with pytest.raises(InvalidUnitEquivalence):
+        data.to_equivalent('m', 'mass_energy')
 
     # Mass-energy
 
@@ -1433,34 +1554,47 @@ def test_electromagnetic():
 
     # Various tests of SI and CGS electromagnetic units
 
-    qp_cgs = u.qp_cgs.in_units("C", "SI")
+    t = 1*u.Tesla
+    g = 1*u.gauss
+    assert t.to('gauss') == 1e4*u.gauss
+    assert g.to('T') == 1e-4*u.Tesla
+
+    qp_cgs = u.qp_cgs.in_units("C")
     assert_equal(qp_cgs.units.dimensions, dimensions.charge_mks)
     assert_almost_equal(qp_cgs.v, 10.0*u.qp.v/speed_of_light_cm_per_s)
     qp = 1*u.qp_cgs
-    qp.convert_to_units("C", "SI")
+    qp.convert_to_units("C")
     assert_equal(qp.units.dimensions, dimensions.charge_mks)
     assert_almost_equal(qp.v, 10*u.qp.v/u.clight.v)
 
-    qp_cgs = u.qp.in_units("esu", "CGS")
+    qp_cgs = u.qp.in_units("esu")
     assert_array_almost_equal(qp_cgs, u.qp_cgs)
     assert_equal(qp_cgs.units.dimensions, u.qp_cgs.units.dimensions)
     qp = u.qp.copy()
-    qp.convert_to_units('esu', 'CGS')
+    qp.convert_to_units('esu')
     assert_almost_equal(qp_cgs, qp_cgs)
     assert qp.units == u.esu.units
-    qp.convert_to_units('C', 'MKS')
+    qp.convert_to_units('C')
     assert_almost_equal(u.qp, qp)
     assert qp.units == u.C.units
 
-    qp_mks_k = u.qp_cgs.in_units("kC", "SI")
+    qp_mks_k = u.qp_cgs.in_units("kC")
     assert_array_almost_equal(
         qp_mks_k.v, 1.0e-2*u.qp_cgs.v/speed_of_light_cm_per_s)
     qp = 1*u.qp_cgs
-    qp.convert_to_units('kC', 'SI')
+    qp.convert_to_units('kC')
     assert_almost_equal(qp, qp_mks_k)
 
     B = 1.0*u.T
-    B_cgs = B.in_units("gauss", "CGS")
+    B_cgs = B.in_units("gauss")
+    assert_equal(B.units.dimensions, dimensions.magnetic_field_mks)
+    assert_equal(B_cgs.units.dimensions, dimensions.magnetic_field_cgs)
+    assert_array_almost_equal(B_cgs, unyt_quantity(1.0e4, "gauss"))
+    B_cgs = B.in_cgs()
+    assert_equal(B.units.dimensions, dimensions.magnetic_field_mks)
+    assert_equal(B_cgs.units.dimensions, dimensions.magnetic_field_cgs)
+    assert_array_almost_equal(B_cgs, unyt_quantity(1.0e4, "gauss"))
+    B_cgs = B.in_base('cgs')
     assert_equal(B.units.dimensions, dimensions.magnetic_field_mks)
     assert_equal(B_cgs.units.dimensions, dimensions.magnetic_field_cgs)
     assert_array_almost_equal(B_cgs, unyt_quantity(1.0e4, "gauss"))
@@ -1477,18 +1611,24 @@ def test_electromagnetic():
     assert_equal(u_mks.units.dimensions, dimensions.pressure)
     u_cgs = B_cgs*B_cgs/(8*np.pi)
     assert_equal(u_cgs.units.dimensions, dimensions.pressure)
-    assert_almost_equal(u_mks.in_cgs(), u_cgs)
+    with pytest.raises(UnitConversionError):
+        u_cgs.to(u_mks.units)
+    with pytest.raises(UnitConversionError):
+        u_mks.to(u_cgs.units)
+    with pytest.raises(UnitsNotReducible):
+        u_mks.in_cgs()
+    with pytest.raises(UnitsNotReducible):
+        u_cgs.in_mks()
 
     current = 1.0*u.A
-    I_cgs = current.in_units("statA", equivalence="CGS")
+    I_cgs = current.in_units("statA")
     assert_array_almost_equal(
         I_cgs, unyt_quantity(0.1*speed_of_light_cm_per_s, "statA"))
-    assert_array_almost_equal(
-        I_cgs.in_units("mA", equivalence="SI"), current.in_units("mA"))
+    assert_array_almost_equal(I_cgs.in_units("mA"), current.in_units("mA"))
     assert_equal(I_cgs.units.dimensions, dimensions.current_cgs)
-    current.convert_to_units('statA', equivalence='CGS')
+    current.convert_to_units('statA')
     assert current.units == u.statA.units
-    current.convert_to_units('A', equivalence='MKS')
+    current.convert_to_units('A')
     assert current.units == u.A.units
     I_cgs2 = current.to('statA')
     assert I_cgs2.units == u.statA.units
@@ -1497,17 +1637,35 @@ def test_electromagnetic():
 
     current = 1.0*u.A
     R = unyt_quantity(1.0, "ohm")
-    R_cgs = R.in_units("statohm", "CGS")
+    R_cgs = R.in_units("statohm")
     P_mks = current*current*R
     P_cgs = I_cgs*I_cgs*R_cgs
     assert_equal(P_mks.units.dimensions, dimensions.power)
     assert_equal(P_cgs.units.dimensions, dimensions.power)
-    assert_array_almost_equal(P_cgs.in_cgs(), P_mks.in_cgs())
-    assert_array_almost_equal(P_cgs.in_mks(), unyt_quantity(1.0, "W"))
+    with pytest.raises(UnitsNotReducible):
+        P_cgs.in_cgs()
+    with pytest.raises(UnitsNotReducible):
+        P_mks.in_cgs()
 
     V = unyt_quantity(1.0, "statV")
-    V_mks = V.in_units("V", "SI")
+    V_mks = V.in_units("V")
     assert_array_almost_equal(V_mks.v, 1.0e8*V.v/speed_of_light_cm_per_s)
+
+    data = 1.0*u.C*u.T*u.V
+    with pytest.raises(UnitConversionError):
+        data.to('statC*G*statV')
+    with pytest.raises(UnitConversionError):
+        data.convert_to_units('statC*G*statV')
+    with pytest.raises(UnitsNotReducible):
+        data.in_cgs()
+
+    data = 1.0*u.statC*u.G*u.statV
+    with pytest.raises(UnitConversionError):
+        data.to('C*T*V')
+    with pytest.raises(UnitConversionError):
+        data.convert_to_units('C*T*V')
+    with pytest.raises(UnitsNotReducible):
+        data.in_mks()
 
 
 def test_ytarray_coercion():
@@ -1525,9 +1683,14 @@ def test_ytarray_coercion():
 def test_numpy_wrappers():
     a1 = unyt_array([1, 2, 3], 'cm')
     a2 = unyt_array([2, 3, 4, 5, 6], 'cm')
+    a3 = unyt_array([[1, 2, 3], [4, 5, 6]], 'cm')
     catenate_answer = [1, 2, 3, 2, 3, 4, 5, 6]
     intersect_answer = [2, 3]
     union_answer = [1, 2, 3, 4, 5, 6]
+    cross_answer = [-2, 4, -2]
+    norm_answer = np.sqrt(1**2 + 2**2 + 3**2)
+    arr_norm_answer = [norm_answer, np.sqrt(4**2 + 5**2 + 6**2)]
+    dot_answer = 14
 
     assert_array_equal(unyt_array(catenate_answer, 'cm'),
                        uconcatenate((a1, a2)))
@@ -1539,6 +1702,23 @@ def test_numpy_wrappers():
 
     assert_array_equal(unyt_array(union_answer, 'cm'), uunion1d(a1, a2))
     assert_array_equal(union_answer, np.union1d(a1, a2))
+
+    assert_array_equal(unyt_array(cross_answer, 'cm**2'),
+                       ucross(a1, a1+(2*a1.units)))
+    assert_array_equal(cross_answer, np.cross(a1.v, a1.v+2))
+
+    assert_array_equal(unorm(a1), unyt_quantity(norm_answer, 'cm'))
+    assert_array_equal(np.linalg.norm(a1), norm_answer)
+    assert_array_equal(unorm(a3, axis=1), unyt_array(arr_norm_answer, 'cm'))
+    assert_array_equal(np.linalg.norm(a3, axis=1), arr_norm_answer)
+
+    assert_array_equal(udot(a1, a1), unyt_quantity(dot_answer, 'cm**2'))
+
+    assert_array_equal(np.array(catenate_answer), uconcatenate((a1.v, a2.v)))
+    with pytest.raises(RuntimeError):
+        uconcatenate((a1, a2.v))
+    with pytest.raises(RuntimeError):
+        uconcatenate((a1.to('m'), a2))
 
 
 def test_dimensionless_conversion():
@@ -1564,7 +1744,7 @@ def test_modified_unit_division():
     assert ret.units.base_value == 1.0
 
 
-def test_load_and_save():
+def test_loadtxt_and_savetxt():
     tmpdir = tempfile.mkdtemp()
     curdir = os.getcwd()
     os.chdir(tmpdir)
@@ -1579,6 +1759,47 @@ def test_load_and_save():
 
     assert_array_equal(b, d)
     assert_array_equal(c, e)
+
+    # adding newlines to the file doesn't matter
+
+    savetxt("arrays.dat", [a, b, c], delimiter=",")
+
+    with open('arrays.dat', 'r+') as f:
+        content = f.read()
+        f.seek(0, 0)
+        f.write('\n' + content)
+
+    d, e = loadtxt("arrays.dat", usecols=(1, 2), delimiter=",")
+
+    assert_array_equal(b, d)
+    assert_array_equal(c, e)
+
+    # data saved by numpy savetxt are loaded without units
+
+    np.savetxt("arrays.dat", np.squeeze(np.transpose([a.v, b.v, c.v])),
+               delimiter=",")
+
+    d, e = loadtxt("arrays.dat", usecols=(1, 2), delimiter=",")
+
+    assert_array_equal(b.v, d)
+    assert_array_equal(c.v, e)
+
+    # save a single array
+
+    savetxt("arrays.dat", a)
+
+    d = loadtxt("arrays.dat")
+
+    assert_array_equal(a, d)
+
+    # save an array with no units and an array with units with a header
+
+    savetxt("arrays.dat", [a.v, b], header='this is a header!')
+
+    d, e = loadtxt("arrays.dat")
+
+    assert_array_equal(a.v, d)
+    assert_array_equal(b, e)
 
     os.chdir(curdir)
     shutil.rmtree(tmpdir)
@@ -1622,3 +1843,62 @@ def test_ones_and_zeros_like():
     assert_equal(zd.units, data.units)
     assert_equal(od, unyt_array([1, 1, 1], 'cm'))
     assert_equal(od.units, data.units)
+
+
+def test_coerce_iterable():
+    from unyt import cm, km
+
+    a = unyt_array([1, 2, 3], 'cm')
+    b = [1*cm, 2*km, 3*cm]
+
+    with pytest.raises(IterableUnitCoercionError):
+        a + b
+    with pytest.raises(IterableUnitCoercionError):
+        b + a
+
+
+def test_bypass_validation():
+    from unyt import unyt_array, cm, UnitRegistry
+
+    obj = unyt_array(np.array([1., 2., 3.]), cm, bypass_validation=True)
+    assert obj.units is cm
+
+    reg = UnitRegistry()
+    obj = unyt_array(np.array([1., 2., 3.]), cm, registry=reg,
+                     bypass_validation=True)
+    assert obj.units == cm
+    assert obj.units.registry is reg
+
+
+def test_creation():
+    from unyt import cm, UnitRegistry
+
+    data = [1, 2, 3]*cm
+
+    new_data = unyt_array(data)
+
+    assert new_data.units is cm
+    assert_array_equal(new_data.v, np.array([1, 2, 3], dtype='float64'))
+
+    reg = UnitRegistry()
+
+    new_data = unyt_array(data, registry=reg)
+    assert_array_equal(new_data.v, np.array([1, 2, 3], dtype='float64'))
+    assert new_data.units is not cm
+    assert new_data.units == cm
+    assert new_data.units.registry is reg
+
+    new_data = unyt_array([1, 2, 3], cm)
+    assert_array_equal(new_data.v, np.array([1, 2, 3], dtype='float64'))
+    assert new_data.units is cm
+
+    new_data = unyt_array([1, 2, 3], cm, registry=reg)
+    assert_array_equal(new_data.v, np.array([1, 2, 3], dtype='float64'))
+    assert new_data.units is not cm
+    assert new_data.units == cm
+    assert new_data.units.registry is reg
+
+    with pytest.raises(RuntimeError):
+        unyt_quantity('hello', 'cm')
+    with pytest.raises(RuntimeError):
+        unyt_quantity(np.array([1, 2, 3]), 'cm')
