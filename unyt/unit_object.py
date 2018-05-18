@@ -718,32 +718,21 @@ em_conversions = {
 def _em_conversion(orig_units, conv_data, to_units=None, unit_system=None):
     """Convert between E&M & MKS base units.
 
-    Along with the _check_em_conversion function, this function facilitates
-    convering between CGS & MKS E&M units. It is passed the original units of
-    the data and a dictionary mapping from the original E&M unit to its
-    equivalent in the unit system we are converting to. In situations where we
-    know the unit we are convering to (to_units) ahead of time, it then
-    converts the data to the required unit. If all we know is a unit system,
-    to_units will be None an we determine the units to conver to based on
-    the unit system we want to convert the data to.
-
-    This function does not do any error checking as that should befully handled
-    by _check_em_conversion.
+    If orig_units is a CGS (or MKS) E&M unit, conv_data contains the
+    corresponding MKS (or CGS) unit and scale factor converting between them.
+    This must be done by replacing the expression of the original unit
+    with the new one in the unit expression and multiplying by the scale
+    factor.
     """
-    new_expr = orig_units.copy().expr
-    inter_expr = orig_units.copy().expr
-    base_value = orig_units.base_value
-    for orig_unit in conv_data:
-        conv_unit, scale = conv_data[orig_unit]
-        new_expr = new_expr.replace(
-            orig_unit.expr, scale*conv_unit.expr)
-        inter_expr = inter_expr.replace(
-            orig_unit.expr, conv_unit.expr)
-        base_value *= float((new_expr.as_coefficient(inter_expr) *
-                             conv_unit.base_value/orig_unit.base_value))
+    conv_unit, scale = conv_data
+    new_expr = orig_units.copy().expr.replace(
+        orig_units.expr, scale*conv_unit.expr)
     if unit_system is not None:
-        to_units = Unit(
-            inter_expr, registry=orig_units.registry)
+        # we don't know the to_units, so we get it directly from the
+        # conv_data
+        inter_expr = orig_units.copy().expr.replace(
+            orig_units.expr, conv_unit.expr)
+        to_units = Unit(inter_expr, registry=orig_units.registry)
     new_units = Unit(new_expr, registry=orig_units.registry)
     conv = new_units.get_conversion_factor(to_units)
     return to_units, conv
@@ -773,13 +762,12 @@ def _check_em_conversion(units, to_units=None):
     simple unit expressions can be readily converted. This function
     to see if the unit is an atomic base unit that is present in the
     em_conversions dict. If it does not contain E&M units, the function
-    returns an empty dict. If it does contain an atomic E&M unit in
-    the em_conversions dict, it returns a dict mapping from the original
-    unit to the unit to convert to. If it contains a more complicated
-    E&M unit and we are trying to convert between CGS & MKS E&M units,
-    it raises an error.
+    returns an empty tuple. If it does contain an atomic E&M unit in
+    the em_conversions dict, it returns a tuple containing the unit to convert
+    to and scale factor. If it contains a more complicated E&M unit and we are
+    trying to convert between CGS & MKS E&M units, it raises an error.
     """
-    em_map = {}
+    em_map = ()
     base_unit = _get_em_base_unit(str(units))
     base_to_unit = _get_em_base_unit(str(to_units))
     if base_unit == base_to_unit:
@@ -788,8 +776,7 @@ def _check_em_conversion(units, to_units=None):
         em_info = em_conversions.get(base_unit, (None,)*2)
         to_unit = Unit(em_info[0], registry=units.registry)
         if to_units is None or to_units.dimensions == to_unit.dimensions:
-            em_map[Unit(base_unit, registry=units.registry)] = (
-                to_unit, em_info[1])
+            em_map = (to_unit, em_info[1])
     if em_map:
         return em_map
     for unit in units.expr.atoms():
