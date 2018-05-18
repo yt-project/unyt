@@ -716,6 +716,20 @@ em_conversions = {
 
 
 def _em_conversion(orig_units, conv_data, to_units=None, unit_system=None):
+    """Convert between E&M & MKS base units.
+
+    Along with the _check_em_conversion function, this function facilitates
+    convering between CGS & MKS E&M units. It is passed the original units of
+    the data and a dictionary mapping from the original E&M unit to its
+    equivalent in the unit system we are converting to. In situations where we
+    know the unit we are convering to (to_units) ahead of time, it then
+    converts the data to the required unit. If all we know is a unit system,
+    to_units will be None an we determine the units to conver to based on
+    the unit system we want to convert the data to.
+
+    This function does not do any error checking as that should befully handled
+    by _check_em_conversion.
+    """
     new_expr = orig_units.copy().expr
     inter_expr = orig_units.copy().expr
     base_value = orig_units.base_value
@@ -752,6 +766,19 @@ def _get_em_base_unit(units):
 
 
 def _check_em_conversion(units, to_units=None):
+    """Check to see if the units contain E&M units
+
+    This function supports unyt's ability to convert data to and from E&M
+    electromagnetic units. However, this support is limited and only very
+    simple unit expressions can be readily converted. This function
+    to see if the unit is an atomic base unit that is present in the
+    em_conversions dict. If it does not contain E&M units, the function
+    returns an empty dict. If it does contain an atomic E&M unit in
+    the em_conversions dict, it returns a dict mapping from the original
+    unit to the unit to convert to. If it contains a more complicated
+    E&M unit and we are trying to convert between CGS & MKS E&M units,
+    it raises an error.
+    """
     em_map = {}
     base_unit = _get_em_base_unit(str(units))
     base_to_unit = _get_em_base_unit(str(to_units))

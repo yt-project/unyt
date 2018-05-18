@@ -1308,7 +1308,7 @@ def test_equivalencies():
     assert data.value == .012
     assert data.units == u.kg
 
-    # incorrect usate of the equivalence raises errors
+    # incorrect usage of an equivalence raises errors
 
     with pytest.raises(InvalidUnitEquivalence):
         data.convert_to_equivalent('erg', 'thermal')
