@@ -14,6 +14,10 @@ A class that represents a unit symbol.
 
 
 import copy
+try:
+    from functools import lru_cache
+except ImportError:
+    from backports.functools_lru_cache import lru_cache
 from keyword import iskeyword as _iskeyword
 import numpy as np
 from numbers import Number as numeric_type
@@ -765,6 +769,7 @@ def _get_em_base_unit(units):
     return base_unit
 
 
+@lru_cache(maxsize=128, typed=False)
 def _check_em_conversion(unit_expr, to_unit_expr=None):
     """Check to see if the units contain E&M units
 
