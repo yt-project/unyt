@@ -633,7 +633,7 @@ class Unit(object):
             unit_system = self.registry.unit_system_id
         unit_system = unit_system_registry[str(unit_system)]
         try:
-            conv_data = _check_em_conversion(self.units)
+            conv_data = _check_em_conversion(self.units.expr)
         except MKSCGSConversionError:
             raise UnitsNotReducible(self.units, unit_system)
         if any(conv_data):
@@ -765,7 +765,7 @@ def _get_em_base_unit(units):
     return base_unit
 
 
-def _check_em_conversion(units, to_units=None):
+def _check_em_conversion(unit_expr, to_unit_expr=None):
     """Check to see if the units contain E&M units
 
     This function supports unyt's ability to convert data to and from E&M
@@ -779,23 +779,24 @@ def _check_em_conversion(units, to_units=None):
     trying to convert between CGS & MKS E&M units, it raises an error.
     """
     em_map = ()
-    base_unit = _get_em_base_unit(str(units))
-    base_to_unit = _get_em_base_unit(str(to_units))
+    base_unit = _get_em_base_unit(str(unit_expr))
+    base_to_unit = _get_em_base_unit(str(to_unit_expr))
     if base_unit == base_to_unit:
         return em_map
     if base_unit in em_conversions:
         em_info = em_conversions.get(base_unit, (None,)*2)
-        to_unit = Unit(em_info[0], registry=units.registry)
-        if to_units is None or to_units.dimensions == to_unit.dimensions:
+        to_unit = Unit(em_info[0])
+        if ((to_unit_expr is None or
+             Unit(to_unit_expr).dimensions == to_unit.dimensions)):
             em_map = (to_unit, em_info[1])
     if em_map:
         return em_map
-    for unit in units.expr.atoms():
+    for unit in unit_expr.atoms():
         if unit.is_Number:
             pass
         base_unit = _get_em_base_unit(str(unit))
         if base_unit in em_conversions:
-            raise MKSCGSConversionError(units)
+            raise MKSCGSConversionError(unit_expr)
     return em_map
 
 
