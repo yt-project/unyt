@@ -33,6 +33,7 @@ class UnitRegistry:
     _unit_system_id = None
 
     def __init__(self, add_default_symbols=True, lut=None):
+        self._unit_object_cache = {}
         if lut:
             self.lut = lut
         else:

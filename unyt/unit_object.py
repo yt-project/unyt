@@ -219,11 +219,16 @@ class Unit(object):
             A string to render the unit as LaTeX
 
         """
-        # Simplest case. If user passes a Unit object, just use the expr.
+        unit_cache_key = None
+        # Parse a text unit representation using sympy's parser
         if isinstance(unit_expr, (str, bytes, text_type)):
             if isinstance(unit_expr, bytes):
                 unit_expr = unit_expr.decode("utf-8")
 
+            # this cache substantially speeds up unit conversions
+            if registry and unit_expr in registry._unit_object_cache:
+                return registry._unit_object_cache[unit_expr]
+            unit_cache_key = unit_expr
             if not unit_expr:
                 # Bug catch...
                 # if unit_expr is an empty string, parse_expr fails hard...
@@ -235,6 +240,7 @@ class Unit(object):
                 msg = ("Unit expression %s raised an error "
                        "during parsing:\n%s" % (unit_expr, repr(e)))
                 raise UnitParseError(msg)
+        # Simplest case. If user passes a Unit object, just use the expr.
         elif isinstance(unit_expr, Unit):
             # grab the unit object's sympy expression.
             unit_expr = unit_expr.expr
@@ -310,6 +316,11 @@ class Unit(object):
         obj.dimensions = dimensions
         obj._latex_repr = latex_repr
         obj.registry = registry
+
+        # if we parsed a string unit expression, cache the result
+        # for faster lookup later
+        if unit_cache_key is not None:
+            registry._unit_object_cache[unit_cache_key] = obj
 
         # Return `obj` so __init__ can handle it.
 
