@@ -763,14 +763,162 @@ As for arrays with different units, for operation between two arrays with units 
 Writing Data with Units to Disk
 -------------------------------
 
-Pickles
-*******
+The :mod:`unyt` library has support for serializing data stored in a
+:class:`unyt.unyt_array <unyt.array.unyt_array>` instance to HDF5 files, text
+files, and via the Python pickle protocol. We give brief examples below, but first describe how to handle saving units manually as string metadata.
+
+Dealing with units as strings
+*****************************
+
+If all you want to do is save data to disk in a physical unit or you are working
+in a physical unit system, then you only need to save the unit name as a string
+and treat the array data you are trying to save as a regular numpy array, as in
+this example:
+
+  >>> import numpy as np
+  >>> from unyt import cm
+  ...
+  >>> data = [1, 2, 3]*cm
+  >>> np.save('my_data_cm.npy', data)
+  >>> new_data = np.load('my_data_cm.npy')
+  >>> new_data
+  array([1., 2., 3.])
+  >>> new_data_with_units = new_data * cm
+
+Of course in this example using ``numpy.save`` we need to hard-code the units because the ``.npy`` format doesn't have a way to store metadata along with the array data. We could have stored metadata in a sidecar file, but this is much more natural with ``hdf5`` via ``h5py``:
+
+  >>> import h5py
+  >>> import os
+  >>> from unyt import cm, Unit
+  ...
+  >>> data = [1, 2, 3]*cm
+  ...
+  >>> if os.path.exists('my_data.h5'):
+  ...     os.remove('my_data.h5')
+  ...
+  >>> with h5py.File('my_data.h5') as f:
+  ...     d = f.create_dataset('my_data', data=data)
+  ...     f['my_data'].attrs['units'] = str(data.units)
+  ...
+  >>> with h5py.File('my_data.h5') as f:
+  ...     new_data = f['my_data'][:]
+  ...     unit_str = f['my_data'].attrs['units']
+  ...
+  >>> unit = Unit(unit_str)
+  >>> new_data = new_data*unit
+  >>> new_data
+  unyt_array([1., 2., 3.], 'cm')
 
 HDF5 Files
 **********
 
+The :mod:`unyt` library provides a hook for writing data both to a new HDF5 file and an existing file and then subsequently reading that data back in to restore the array. This works via the :meth:`unyt_array.write_hdf5 <unyt.array.unyt_array.write_hdf5>` and :meth:`unyt_array.from_hdf5 <unyt.array.unyt_array.from_hdf5>` methods. The simplest way to use these functions is to write data to a file that does not exist yet:
+
+  >>> from unyt import cm, unyt_array
+  >>> data = [1, 2, 3]*cm
+  >>> data.write_hdf5('my_data.h5')
+  ...
+  >>> unyt_array.from_hdf5('my_data.h5')
+  unyt_array([1., 2., 3.], 'cm')
+
+By default the data will be written to the root group of the HDF5 file in a dataset named ``'array_data'``. You can also specify that you would like
+the data to be saved in a particular group or dataset in the file:
+
+  >>> data.write_hdf5('my_data2.h5', dataset_name='my_special_data',
+  ...                 group_name='my_special_group')
+  >>> unyt_array.from_hdf5('my_data2.h5', dataset_name='my_special_data',
+  ...                      group_name='my_special_group')
+  unyt_array([1., 2., 3.], 'cm')
+
+You can even write to files and groups that already exist:
+
+  >>> if os.path.exists('my_data3.h5'):
+  ...     os.remove('my_data3.h5')
+  ...
+  >>> with h5py.File('my_data3.h5') as f:
+  ...     g = f.create_group('my_custom_group')
+  ...
+  >>> data.write_hdf5('my_data3.h5', group_name='my_custom_group')
+  ...
+  >>> with h5py.File('my_data3.h5') as f:
+  ...     print(f['my_custom_group/array_data'][:])
+  [1. 2. 3.]
+
+If the dataset that you would like to write to already exists, :mod:`unyt`
+will clobber that dataset.
+
+Note that with this method of saving data to hdf5 files, the
+:class:`unyt.UnitRegistry <unyt.unit_registry.UnitRegistry>` instance associated
+with the units of the data will be saved in the HDF5 file. This means that if
+you create custom units and save a unit to disk, you will be able to convert
+data to those custom units even if you are dealing with those units later after
+restoring the data from disk. Here is a short example illustrating this:
+
+  >>> from unyt import UnitRegistry
+  >>> reg = UnitRegistry()
+  >>> reg.add("code_length", base_value=10.0, dimensions=length,
+  ...         tex_repr=r"\rm{Code Length}")
+  >>> u = Unit('cm', registry=reg)
+  >>> data = [1, 2, 3]*u
+  >>> data.write_hdf5('my_code_data.h5')
+  >>> read_data = data.from_hdf5('my_code_data.h5')
+  >>> read_data
+  unyt_array([1., 2., 3.], 'cm')
+  >>> read_data.to('code_length')
+  unyt_array([0.001, 0.002, 0.003], 'code_length')
+
+
 Text Files
 **********
 
+The :mod:`unyt` library also has wrappers around ``numpy.savetxt`` and ``numpy.loadtxt`` for saving data as an ASCII table. For example:
+
+  >>> import unyt as u
+  >>> data = [[1, 2, 3]*u.cm, [4, 5, 6]*u.kg]
+  >>> u.savetxt('my_data.txt', data)
+  >>> with open('my_data.txt') as f:
+  ...     print("".join(f.readlines()))    # doctest: +NORMALIZE_WHITESPACE
+  # Units
+  # cm	kg
+  1.000000000000000000e+00	4.000000000000000000e+00
+  2.000000000000000000e+00	5.000000000000000000e+00
+  3.000000000000000000e+00	6.000000000000000000e+00
+  <BLANKLINE>
+
+Pickles
+*******
+
+.. note::
+
+   Pickle files are great for serializing data to disk or over a network for
+   internal usage by a package. They are ill-suited for long-term data storage
+   or for communicating data between different Python installations. If you want
+   to use pickle files for data storage, consider using a format designed for
+   long-term data storage, like HDF5.
+
+Both :class:`unyt.unyt_array <unyt.array.unyt_array>` and :class:`unyt.Unit <unyt.unit_object.Unit>` instances can be saved using the pickle protocol:
+
+  >>> from unyt import kg
+  >>> import pickle
+  >>> import numpy as np
+  ...
+  >>> assert kg == pickle.loads(pickle.dumps(kg))
+  >>> data = [1, 2, 3]*kg
+  >>> reloaded_data = pickle.loads(pickle.dumps(data))
+  >>> assert np.array_equal(data.value, reloaded_data.value)
+  >>> assert data.units == reloaded_data.units
+
+As for HDF5 data, the unit registry associated with the unit object is saved to
+the pickle. If you have custom units defined, the reloaded data will know about
+your custom unit and be able to convert data to and from the custom unit.
+
 Performance Considerations
 --------------------------
+
+Tracking units in an application will inevitably add overhead. Judging where overhead is important or not depends on what real-world workflows look like. Ultimately, profiling code is the best way to find out whether handling units is a performance bottleneck. Optimally handling units will be amortized over the cost of an operation. While this is true for large arrays (bigger than about one million elements), this is *not* true for small arrays that contain only a few elements.
+
+In addition, it is sometimes easy to write code that needlessly checks unit
+consistency when we know ahead of time that data are already in the correct
+units. Often we can get away with only checking unit consistency once and then stripping units after that.
+
+A good rule of thumb is that units should be checked on input, stripped off of data during a calculation, and then re-applied when returning data from a function. In other words, apply or check units at interfaces, but during an internal calculation it is often worth stripping units, especially if the calculation involves many operations on arrays with only a few elements.
