@@ -776,6 +776,7 @@ and treat the array data you are trying to save as a regular numpy array, as in
 this example:
 
   >>> import numpy as np
+  >>> import os
   >>> from unyt import cm
   ...
   >>> data = [1, 2, 3]*cm
@@ -784,6 +785,7 @@ this example:
   >>> new_data
   array([1., 2., 3.])
   >>> new_data_with_units = new_data * cm
+  >>> os.remove('my_data_cm.npy')
 
 Of course in this example using ``numpy.save`` we need to hard-code the units because the ``.npy`` format doesn't have a way to store metadata along with the array data. We could have stored metadata in a sidecar file, but this is much more natural with ``hdf5`` via ``h5py``:
 
@@ -792,9 +794,6 @@ Of course in this example using ``numpy.save`` we need to hard-code the units be
   >>> from unyt import cm, Unit
   ...
   >>> data = [1, 2, 3]*cm
-  ...
-  >>> if os.path.exists('my_data.h5'):
-  ...     os.remove('my_data.h5')
   ...
   >>> with h5py.File('my_data.h5') as f:
   ...     d = f.create_dataset('my_data', data=data)
@@ -808,6 +807,7 @@ Of course in this example using ``numpy.save`` we need to hard-code the units be
   >>> new_data = new_data*unit
   >>> new_data
   unyt_array([1., 2., 3.], 'cm')
+  >>> os.remove('my_data.h5')
 
 HDF5 Files
 **********
@@ -815,34 +815,35 @@ HDF5 Files
 The :mod:`unyt` library provides a hook for writing data both to a new HDF5 file and an existing file and then subsequently reading that data back in to restore the array. This works via the :meth:`unyt_array.write_hdf5 <unyt.array.unyt_array.write_hdf5>` and :meth:`unyt_array.from_hdf5 <unyt.array.unyt_array.from_hdf5>` methods. The simplest way to use these functions is to write data to a file that does not exist yet:
 
   >>> from unyt import cm, unyt_array
+  >>> import os
   >>> data = [1, 2, 3]*cm
   >>> data.write_hdf5('my_data.h5')
   ...
   >>> unyt_array.from_hdf5('my_data.h5')
   unyt_array([1., 2., 3.], 'cm')
+  >>> os.remove('my_data.h5')
 
 By default the data will be written to the root group of the HDF5 file in a dataset named ``'array_data'``. You can also specify that you would like
 the data to be saved in a particular group or dataset in the file:
 
-  >>> data.write_hdf5('my_data2.h5', dataset_name='my_special_data',
+  >>> data.write_hdf5('my_data.h5', dataset_name='my_special_data',
   ...                 group_name='my_special_group')
-  >>> unyt_array.from_hdf5('my_data2.h5', dataset_name='my_special_data',
+  >>> unyt_array.from_hdf5('my_data.h5', dataset_name='my_special_data',
   ...                      group_name='my_special_group')
   unyt_array([1., 2., 3.], 'cm')
+  >>> os.remove('my_data.h5')
 
 You can even write to files and groups that already exist:
 
-  >>> if os.path.exists('my_data3.h5'):
-  ...     os.remove('my_data3.h5')
-  ...
-  >>> with h5py.File('my_data3.h5') as f:
+  >>> with h5py.File('my_data.h5') as f:
   ...     g = f.create_group('my_custom_group')
   ...
-  >>> data.write_hdf5('my_data3.h5', group_name='my_custom_group')
+  >>> data.write_hdf5('my_data.h5', group_name='my_custom_group')
   ...
-  >>> with h5py.File('my_data3.h5') as f:
+  >>> with h5py.File('my_data.h5') as f:
   ...     print(f['my_custom_group/array_data'][:])
   [1. 2. 3.]
+  >>> os.remove('my_data.h5')
 
 If the dataset that you would like to write to already exists, :mod:`unyt`
 will clobber that dataset.
@@ -854,6 +855,7 @@ you create custom units and save a unit to disk, you will be able to convert
 data to those custom units even if you are dealing with those units later after
 restoring the data from disk. Here is a short example illustrating this:
 
+  >>> import os
   >>> from unyt import UnitRegistry
   >>> reg = UnitRegistry()
   >>> reg.add("code_length", base_value=10.0, dimensions=length,
@@ -866,6 +868,7 @@ restoring the data from disk. Here is a short example illustrating this:
   unyt_array([1., 2., 3.], 'cm')
   >>> read_data.to('code_length')
   unyt_array([0.001, 0.002, 0.003], 'code_length')
+  >>> os.remove('my_code_data.h5')
 
 
 Text Files
@@ -874,6 +877,7 @@ Text Files
 The :mod:`unyt` library also has wrappers around ``numpy.savetxt`` and ``numpy.loadtxt`` for saving data as an ASCII table. For example:
 
   >>> import unyt as u
+  >>> import os
   >>> data = [[1, 2, 3]*u.cm, [4, 5, 6]*u.kg]
   >>> u.savetxt('my_data.txt', data)
   >>> with open('my_data.txt') as f:
@@ -884,6 +888,7 @@ The :mod:`unyt` library also has wrappers around ``numpy.savetxt`` and ``numpy.l
   2.000000000000000000e+00	5.000000000000000000e+00
   3.000000000000000000e+00	6.000000000000000000e+00
   <BLANKLINE>
+  >>> os.remove('my_data.txt')
 
 Pickles
 *******
