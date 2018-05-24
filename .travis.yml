@@ -41,7 +41,7 @@ after_success: codecov
 # $ travis encrypt --add deploy.password
 deploy:
   provider: pypi
-  distributions: sdist bdist_wheel
+  distributions: sdist bdist_wheel --universal
   user: nathan.goldbaum
   password:
       secure: "RSHwJlP4iBRcMyVAU8ndpCLler5/Aks1XmtrrOExIE9sJAWGTCUL4mUswRgh/XMTQowrwB8RBed/AJRTRd+pO629os4JntGZ9nFp7stzW93E5oW5Aeca6Q6hRbWQ0wwh1J6rg3t7IjY/4Hd1rVGYVO2KwFn7H1tcRoSsMNjCZ3/HCrXlKhQiOsD4+D1j16KGA9biyABDoNfKxCi45+mQH5wX0qdkVl9KgEB9Bb6EdhflgaWd6XbhuN+UK7zNbH42YyRfUTGgFnmaf574m6SBeI0l30UedA66J9iPwsA6IOUCGwUVSwS8zc3lqwsaqcJQSRwHd0Ey8BhPsE69HjVLfh1tQj+OU8RYNSSgcauZd0+HR0XteEGisXxgKN9sNgFnegyLu0XVjs6vabcqloXAR7R+gSP0k1VZEmE+PFqLEf1CbtjXxDH/bVkmXguf9BGFC30ipP93268cnB/6nnu6bl/5hEoRbaJFjRh6bJGU8BeqFVMk61tHzOGjxGNiJikVV8RUXbRi+iM+WNDyMWfHbQdw46b/nsSLkTXnVuc8uhUo+3eRtcRlZJRcYgTsRJGN/htGs2Zg5z9LAGlzbaQoKuVuFMCAv7pGUkNG9Q/gMkVbCP2uY0/vx4m+Wwfpr2QoGkHHiqxAiQcNsqx7278WmhIx/j4Dvhq2Um+362XFaJw="
