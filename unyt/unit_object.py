@@ -14,6 +14,10 @@ A class that represents a unit symbol.
 
 
 import copy
+try:
+    from functools import lru_cache
+except ImportError:
+    from backports.functools_lru_cache import lru_cache
 from keyword import iskeyword as _iskeyword
 import numpy as np
 from numbers import Number as numeric_type
@@ -219,11 +223,16 @@ class Unit(object):
             A string to render the unit as LaTeX
 
         """
-        # Simplest case. If user passes a Unit object, just use the expr.
+        unit_cache_key = None
+        # Parse a text unit representation using sympy's parser
         if isinstance(unit_expr, (str, bytes, text_type)):
             if isinstance(unit_expr, bytes):
                 unit_expr = unit_expr.decode("utf-8")
 
+            # this cache substantially speeds up unit conversions
+            if registry and unit_expr in registry._unit_object_cache:
+                return registry._unit_object_cache[unit_expr]
+            unit_cache_key = unit_expr
             if not unit_expr:
                 # Bug catch...
                 # if unit_expr is an empty string, parse_expr fails hard...
@@ -235,6 +244,7 @@ class Unit(object):
                 msg = ("Unit expression %s raised an error "
                        "during parsing:\n%s" % (unit_expr, repr(e)))
                 raise UnitParseError(msg)
+        # Simplest case. If user passes a Unit object, just use the expr.
         elif isinstance(unit_expr, Unit):
             # grab the unit object's sympy expression.
             unit_expr = unit_expr.expr
@@ -310,6 +320,11 @@ class Unit(object):
         obj.dimensions = dimensions
         obj._latex_repr = latex_repr
         obj.registry = registry
+
+        # if we parsed a string unit expression, cache the result
+        # for faster lookup later
+        if unit_cache_key is not None:
+            registry._unit_object_cache[unit_cache_key] = obj
 
         # Return `obj` so __init__ can handle it.
 
@@ -622,7 +637,7 @@ class Unit(object):
             unit_system = self.registry.unit_system_id
         unit_system = unit_system_registry[str(unit_system)]
         try:
-            conv_data = _check_em_conversion(self.units)
+            conv_data = _check_em_conversion(self.units.expr)
         except MKSCGSConversionError:
             raise UnitsNotReducible(self.units, unit_system)
         if any(conv_data):
@@ -754,7 +769,8 @@ def _get_em_base_unit(units):
     return base_unit
 
 
-def _check_em_conversion(units, to_units=None):
+@lru_cache(maxsize=128, typed=False)
+def _check_em_conversion(unit_expr, to_unit_expr=None):
     """Check to see if the units contain E&M units
 
     This function supports unyt's ability to convert data to and from E&M
@@ -768,23 +784,24 @@ def _check_em_conversion(units, to_units=None):
     trying to convert between CGS & MKS E&M units, it raises an error.
     """
     em_map = ()
-    base_unit = _get_em_base_unit(str(units))
-    base_to_unit = _get_em_base_unit(str(to_units))
+    base_unit = _get_em_base_unit(str(unit_expr))
+    base_to_unit = _get_em_base_unit(str(to_unit_expr))
     if base_unit == base_to_unit:
         return em_map
     if base_unit in em_conversions:
         em_info = em_conversions.get(base_unit, (None,)*2)
-        to_unit = Unit(em_info[0], registry=units.registry)
-        if to_units is None or to_units.dimensions == to_unit.dimensions:
+        to_unit = Unit(em_info[0])
+        if ((to_unit_expr is None or
+             Unit(to_unit_expr).dimensions == to_unit.dimensions)):
             em_map = (to_unit, em_info[1])
     if em_map:
         return em_map
-    for unit in units.expr.atoms():
+    for unit in unit_expr.atoms():
         if unit.is_Number:
             pass
         base_unit = _get_em_base_unit(str(unit))
         if base_unit in em_conversions:
-            raise MKSCGSConversionError(units)
+            raise MKSCGSConversionError(unit_expr)
     return em_map
 
 

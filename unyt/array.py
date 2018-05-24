@@ -600,7 +600,7 @@ class unyt_array(np.ndarray):
         units = _sanitize_units_convert(units, self.units.registry)
         if equivalence is None:
             try:
-                conv_data = _check_em_conversion(self.units, units)
+                conv_data = _check_em_conversion(self.units.expr, units.expr)
             except MKSCGSConversionError:
                 raise UnitConversionError(self.units, self.units.dimensions,
                                           units, units.dimensions)
@@ -762,7 +762,7 @@ class unyt_array(np.ndarray):
         units = _sanitize_units_convert(units, self.units.registry)
         if equivalence is None:
             try:
-                conv_data = _check_em_conversion(self.units, units)
+                conv_data = _check_em_conversion(self.units.expr, units.expr)
             except MKSCGSConversionError:
                 raise UnitConversionError(self.units, self.units.dimensions,
                                           units, units.dimensions)
@@ -891,7 +891,7 @@ class unyt_array(np.ndarray):
         2.5e-07 W
         """
         try:
-            conv_data = _check_em_conversion(self.units)
+            conv_data = _check_em_conversion(self.units.expr)
         except MKSCGSConversionError:
             raise UnitsNotReducible(self.units, unit_system)
         if any(conv_data):
