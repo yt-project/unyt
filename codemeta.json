@@ -1,0 +1,58 @@
+{
+  "@context": "https://raw.githubusercontent.com/codemeta/codemeta/master/codemeta.jsonld",
+  "@type": "Code",
+  "author": [
+    {
+      "@id": "0000-0001-5557-267X",
+      "@type": "Person",
+      "email": "ngoldbau@illinois.edu",
+      "name": "Nathan Goldbaum",
+      "affiliation": "University of Illinois at Urbana Champaign"
+    },
+    {
+      "@id": "0000-0003-3175-2347",
+      "@type": "Person",
+      "email": "jzuhone@cfa.harvard.edu",
+      "name": "John ZuHone",
+      "affiliation": "Harvard-Smithsonian Center for Astrophysics"
+    },
+    {
+      "@id": "0000-0002-5294-0198",
+      "@type": "Person",
+      "email": "mjturk@illinois.edu",
+      "name": "Matthew Turk",
+      "affiliation": "University of Illinois at Urbana Champaign"
+    },
+    {
+      "@id": "0000-0003-1709-3744",
+      "@type": "Person",
+      "email": "kowalikk@illinois.edu",
+      "name": "Kacper Kowalik",
+      "affiliation": "University of Illinois at Urbana Champaign"
+    },
+    {
+      "@id": "0000-0003-4423-0660",
+      "@type": "Person",
+      "email": "anna.rosen@cfa.harvard.edu",
+      "name": "Anna Rosen",
+      "affiliation": "Harvard-Smithsonian Center for Astrophysics"
+    },
+    {
+      "@id": "0000-0003-4423-0660",
+      "@type": "Person",
+      "email": "anna.rosen@cfa.harvard.edu",
+      "name": "Anna Rosen",
+      "affiliation": "Harvard-Smithsonian Center for Astrophysics"
+    }
+  ],
+  "identifier": "",
+  "codeRepository": "https://github.com/yt-project/unyt",
+  "datePublished": "2018-05-24",
+  "dateModified": "2018-05-24",
+  "dateCreated": "2018-05-24",
+  "description": "Handle, manipulate, and convert data with units in Python",
+  "keywords": "units, python, numpy, sympy, quantities",
+  "license": "BSD",
+  "title": "unyt",
+  "version": "v1.0.0"
+}
