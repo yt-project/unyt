@@ -13,7 +13,7 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    'numpy>"1.13.0"',
+    'numpy>="1.13.0"',
     'sympy',
     'six',
     'backports.functools_lru_cache;python_version<"3.3"'
