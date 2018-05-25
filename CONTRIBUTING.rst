@@ -7,10 +7,22 @@ Contributing
 Contributions are welcome, and they are greatly appreciated! Every little bit
 helps, and credit will always be given.
 
-You can contribute in many ways:
+Code of Conduct
+---------------
+
+The development of ``unyt`` happens in the context of the `yt community code
+of conduct
+<http://yt-project.org/doc/developing/developing.html#yt-community-code-of-conduct>`_.
+If for any reason you feel that the code of conduct has been violated in the
+context of ``unyt`` development, please send an e-mail to
+confidential@yt-project.org with details describing the incident. All emails
+sent to this address will be treated with the strictest confidence by an
+individual who does not normally participate in yt development.
 
 Types of Contributions
 ----------------------
+
+You can contribute in many ways:
 
 Report Bugs
 ~~~~~~~~~~~
@@ -45,7 +57,8 @@ articles, and such.
 Submit Feedback
 ~~~~~~~~~~~~~~~
 
-The best way to send feedback is to file an issue at https://github.com/yt-project/unyt/issues.
+The best way to send feedback is to file an issue at
+https://github.com/yt-project/unyt/issues.
 
 If you are proposing a feature:
 
@@ -57,14 +70,16 @@ If you are proposing a feature:
 Get Started!
 ------------
 
-Ready to contribute? Here's how to set up `unyt` for local development.
+Ready to contribute? Here's how to set up ``unyt`` for local development.
 
-1. Fork the `unyt` repo on GitHub.
+1. Fork the ``unyt`` repo on GitHub.
 2. Clone your fork locally::
 
     $ git clone git@github.com:your_name_here/unyt.git
 
-3. Install your local copy into a virtualenv. Assuming you have virtualenvwrapper installed, this is how you set up your fork for local development::
+3. Install your local copy into a virtualenv. Assuming you have
+   virtualenvwrapper installed, this is how you set up your fork for local
+   development::
 
     $ mkvirtualenv unyt
     $ cd unyt/
@@ -114,8 +129,7 @@ A reminder for the maintainers on how to deploy.
 Make sure all your changes are committed (including an entry in HISTORY.rst).
 Then run::
 
-$ bumpversion patch # possible: major / minor / patch
-$ git push
-$ git push --tags
+$ git tag v1.x.x
+$ git push upstream master --tags
 
 Travis will then deploy to PyPI if tests pass.
