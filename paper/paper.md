@@ -89,11 +89,32 @@ The scientific python ecosystem has a long history of efforts to develop a
 library to handle unit conversions and enforce unit consistency. For a
 relatively recent review of these efforts, see [@bekolay2013]. While we won't
 exhaustively cover extant Python libraries for handling units in this paper, we
-will focus on `Pint` [@pint] and `astropy.units` [@astropy], which both a provide a robust implementation of an array container with units and are commonly used in research software projects. At time of writing a GitHub search for `import astropy.units` returns approximately 10,500 results and a search for `import pint` returns approximately 1,500 results.
+will focus on `Pint` [@Pint] and `astropy.units` [@astropy], which both a
+provide a robust implementation of an array container with units and are
+commonly used in research software projects. At time of writing a GitHub search
+for `import astropy.units` returns approximately 10,500 results and a search for
+`import pint` returns approximately 1,500 results.
 
-While `unyt` provides functionality that overlaps with `astropy.units` and `Pint`, there are important differences which we elaborate on below. In addition, it's worth noting that all three codebases had origins at roughly the same time period. In the case of `unyt`, it originated via Casey Stark's `dimensionful` library [@dimensionful] in 2012. A few years later, the `dimensionful` was elaborated on and improved to become `yt.units`, the unit system for the `yt` library [@yt]  at a `yt` developer workshop in 2013 and was subsequently released as part of `yt 3.0` in 2014. Similarly, `Pint` initially began development in 2012 according to the git repository logs, and `astropy.units` was added in 2012 and was released as part of `astropy 0.2` in 2013, although the initial implementation was adapted from the `pynbody` library [@pynbody], which started in 2010 according to the git repository logs. That is to say, all three libraries began roughly at the same time and are examples in many ways of convergent evolution in software.
+While `unyt` provides functionality that overlaps with `astropy.units` and
+`Pint`, there are important differences which we elaborate on below. In
+addition, it's worth noting that all three codebases had origins at roughly the
+same time period. In the case of `unyt`, it originated via Casey Stark's
+`dimensionful` library [@dimensionful] in 2012. A few years later, the
+`dimensionful` was elaborated on and improved to become `yt.units`, the unit
+system for the `yt` library [@yt] at a `yt` developer workshop in 2013 and was
+subsequently released as part of `yt 3.0` in 2014. Similarly, `Pint` initially
+began development in 2012 according to the git repository logs, and
+`astropy.units` was added in 2012 and was released as part of `astropy 0.2` in
+2013, although the initial implementation was adapted from the `pynbody` library
+[@pynbody], which started in 2010 according to the git repository logs. That is
+to say, all three libraries began roughly at the same time and are examples in
+many ways of convergent evolution in software.
 
-Below we present a table comparing `unyt` with `astropy.units` and `Pint`. Estimates for lines of code in the library were generated using the `cloc` tool [@cloc]; blank and comment lines are excluded from the estimate. Test coverage was estimated using the `coveralls` output for `Pint` and `astropy.units` and using the `codecov` output for `unyt`.
+Below we present a table comparing `unyt` with `astropy.units` and
+`Pint`. Estimates for lines of code in the library were generated using the
+`cloc` tool [@cloc]; blank and comment lines are excluded from the
+estimate. Test coverage was estimated using the `coveralls` output for `Pint`
+and `astropy.units` and using the `codecov` output for `unyt`.
 
 | Library                        | `unyt`         | `astropy.units` | `Pint`     |
 |--------------------------------|----------------|-----------------|------------|
@@ -101,7 +122,14 @@ Below we present a table comparing `unyt` with `astropy.units` and `Pint`. Estim
 | Lines of code excluding tests  | 3195           | 5504            | 4499       |
 | Test Coverage                  | 99.91%         | 93.63%          | 77.44%     |
 
-We offer lines of code as a very rough estimate for the "hackability" of the codebase. In general, smaller codebases with higher test coverage are easier to modify, refactor, and improve. This comparison is a bit unfair in that `astropy.units` only depends on `NumPy` and `Pint` has no dependencies, while `unyt` depends on both `sympy` and `NumPy`. Much of the reduction in the size of the `unyt` library can be attributed to offloading the handling of algebra to `sympy` rather than needing to implement the algebra of unit symbols directly in `unyt`.
+We offer lines of code as a very rough estimate for the "hackability" of the
+codebase. In general, smaller codebases with higher test coverage are easier to
+modify, refactor, and improve. This comparison is a bit unfair in that
+`astropy.units` only depends on `NumPy` and `Pint` has no dependencies, while
+`unyt` depends on both `sympy` and `NumPy`. Much of the reduction in the size of
+the `unyt` library can be attributed to offloading the handling of algebra to
+`sympy` rather than needing to implement the algebra of unit symbols directly in
+`unyt`.
 
 ## Astropy.units
 
@@ -134,9 +162,15 @@ users of the library to think about which system of units they are working with,
 which may be beneficial in some cases, however it also means that users have a
 bit of extra cognitive overhead they need to deal with every time the use Pint.
 
-In addition, the `Quantity` class provided by `Pint` is not a subclass of numpy's ndarray. Instead, it is a wrapper around an internal `ndarray` buffer. This somewhat simplifies the implementation of `Pint` by avoiding the somewhat arcane process for creating an ndarray subclass, although the `Pint` `Quantity` class must also be careful to emulate the full `NumPy` `ndarray` API so that it can be a drop-in replacement for `ndarray`.
+In addition, the `Quantity` class provided by `Pint` is not a subclass of
+numpy's ndarray. Instead, it is a wrapper around an internal `ndarray`
+buffer. This somewhat simplifies the implementation of `Pint` by avoiding the
+somewhat arcane process for creating an ndarray subclass, although the `Pint`
+`Quantity` class must also be careful to emulate the full `NumPy` `ndarray` API
+so that it can be a drop-in replacement for `ndarray`.
 
-Finally, in some cases Pint will unexpectedly strip units. For example, the following code produces an incorrect result:
+Finally, in some cases Pint will unexpectedly strip units. For example, the
+following code produces an incorrect result:
 
 ```python
 import numpy as np
@@ -151,21 +185,34 @@ out = np.zeros(3)
 print(np.add(a, b, out=out))
 ```
 
-using `Pint 0.8.1`, this will print `[2. 4. 6.]`. Interestingly, without the `out` keyword, `Pint` does get the correct answer, so it's possible that this is a bug in `Pint` which we have reported upstream (see https://github.com/hgrecco/pint/issues/644).
+using `Pint 0.8.1`, this will print `[2. 4. 6.]`. Interestingly, without the
+`out` keyword, `Pint` does get the correct answer, so it's possible that this is
+a bug in `Pint` which we have reported upstream (see
+https://github.com/hgrecco/pint/issues/644).
 
 ## Performance Comparison
 
-Checking units in a calculation will always add some overhead. Thus a library that is entrusted with checking units
+Checking units will always add some overhead over using hard-coded unit
+conversion factors. Thus a library that is entrusted with checking units in an
+application should incur as little overhead as possible to avoid triggering
+performance regressions after integrating unit checking into an
+application. Optimally, a unit library will add zero overhead regardless of the
+size of the array. In practice that is not the case for any of the three
+libraries under consideration, and there is a minimum array size above which the
+overhead of doing a mathematical operation exceeds the overhead of checking
+units. It is thus worth benchmarking unit libraries in a fair manner, comparing
+with the same operation implemented using plain `NumPy`.
 
-Intel i5-6300U @ 2.40Ghz
-Dell Latitude E7270
-
-NumPy 1.14.2
-Sympy 1.1.1
-Fastcache 1.0.2
-
-Astropy 3.0.1
-Pint 0.8.1
+Here we present such a benchmark. We made use of the `perf` [@perf] Python
+benchmarking tool, which not only provides facilities for establishing the
+statistical significance of a benchmark run, but also can tune a linux system to
+turn off operating system and hardware features like CPU throttling that might
+introduce variance in a benchmark. We made use of a Dell Latitude E7270 laptop
+equipped with an Intel i5-6300U CPU clocked at 2.4 Ghz. The testing environment
+was based on `Python 3.6.3` and had `NumPy 1.14.2`, `Sympy 1.1.1`, `fastcache
+1.0.2`, `Astropy 3.0.1`, and `Pint 0.8.1` installed. `fastcache` [@fastcache] is
+an optional dependency of `sympy` that provides an optimized LRU cache
+implemented in C that can substantially speed up `sympy`.
 
 # Acknowledgements
 
