@@ -93,6 +93,16 @@ will focus on `Pint` [@pint] and `astropy.units` [@astropy], which both a provid
 
 While `unyt` provides functionality that overlaps with `astropy.units` and `Pint`, there are important differences which we elaborate on below. In addition, it's worth noting that all three codebases had origins at roughly the same time period. In the case of `unyt`, it originated via Casey Stark's `dimensionful` library [@dimensionful] in 2012. A few years later, the `dimensionful` was elaborated on and improved to become `yt.units`, the unit system for the `yt` library [@yt]  at a `yt` developer workshop in 2013 and was subsequently released as part of `yt 3.0` in 2014. Similarly, `Pint` initially began development in 2012 according to the git repository logs, and `astropy.units` was added in 2012 and was released as part of `astropy 0.2` in 2013, although the initial implementation was adapted from the `pynbody` library [@pynbody], which started in 2010 according to the git repository logs. That is to say, all three libraries began roughly at the same time and are examples in many ways of convergent evolution in software.
 
+Below we present a table comparing `unyt` with `astropy.units` and `Pint`. Estimates for lines of code in the library were generated using the `cloc` tool [@cloc]; blank and comment lines are excluded from the estimate. Test coverage was estimated using the `coveralls` output for `Pint` and `astropy.units` and using the `codecov` output for `unyt`.
+
+| Library                        | `unyt`         | `astropy.units` | `Pint`     |
+|--------------------------------|----------------|-----------------|------------|
+| Lines of code                  | 5128           | 10163           | 8908       |
+| Lines of code excluding tests  | 3195           | 5504            | 4499       |
+| Test Coverage                  | 99.91%         | 93.63%          | 77.44%     |
+
+We offer lines of code as a very rough estimate for the "hackability" of the codebase. In general, smaller codebases with higher test coverage are easier to modify, refactor, and improve. This comparison is a bit unfair in that `astropy.units` only depends on `NumPy` and `Pint` has no dependencies, while `unyt` depends on both `sympy` and `NumPy`. Much of the reduction in the size of the `unyt` library can be attributed to offloading the handling of algebra to `sympy` rather than needing to implement the algebra of unit symbols directly in `unyt`.
+
 ## Astropy.units
 
 The `astropy.units` subpackage provides a `PrefixUnit` class, a `Quantity` class
@@ -113,9 +123,39 @@ may be a tough sell.
 
 ## Pint
 
+The `Pint` package provides a somewhat different API compared with `unyt` and
+`astropy.units`. Rather than making units immediately importable from the `Pint`
+namespace, instead `Pint` requires users to instantiate a `UnitRegistry`
+instance (unrelated to the `unyt.UnitRegistry` class), which in turn has `Unit`
+instances as attributes. Just like with `unyt` and `astropy.units`, creating a
+`Quantity` instance requires multiplying an array or scalar by a `Unit`
+instance. Exposing the `UnitRegistry` directly to all users like this does force
+users of the library to think about which system of units they are working with,
+which may be beneficial in some cases, however it also means that users have a
+bit of extra cognitive overhead they need to deal with every time the use Pint.
 
+In addition, the `Quantity` class provided by `Pint` is not a subclass of numpy's ndarray. Instead, it is a wrapper around an internal `ndarray` buffer. This somewhat simplifies the implementation of `Pint` by avoiding the somewhat arcane process for creating an ndarray subclass, although the `Pint` `Quantity` class must also be careful to emulate the full `NumPy` `ndarray` API so that it can be a drop-in replacement for `ndarray`.
+
+Finally, in some cases Pint will unexpectedly strip units. For example, the following code produces an incorrect result:
+
+```python
+import numpy as np
+from pint import UnitRegistry
+
+u = UnitRegistry()
+
+a = [1, 2, 3]*u.g
+b = [1, 2, 3]*u.kg
+out = np.zeros(3)
+
+print(np.add(a, b, out=out))
+```
+
+using `Pint 0.8.1`, this will print `[2. 4. 6.]`. Interestingly, without the `out` keyword, `Pint` does get the correct answer, so it's possible that this is a bug in `Pint` which we have reported upstream (see https://github.com/hgrecco/pint/issues/644).
 
 ## Performance Comparison
+
+Checking units in a calculation will always add some overhead. Thus a library that is entrusted with checking units
 
 Intel i5-6300U @ 2.40Ghz
 Dell Latitude E7270
