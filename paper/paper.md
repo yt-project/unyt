@@ -82,7 +82,9 @@ which ensures that algebraic calculations that include data with units
 automatically check to make sure the units are consistent, and allow automatic
 converting of the final answer of a calculation into a convenient unit.
 
-We direct users interested in usage examples and a guide for integrating `unyt` into an exiting Python installation to the unyt documentation at hosted at http://unyt.readthedocs.io/en/latest/.
+We direct users interested in usage examples and a guide for integrating `unyt`
+into an exiting Python installation to the unyt documentation at hosted at
+http://unyt.readthedocs.io/en/latest/.
 
 # Comparison with ``Pint`` and ``astropy.units``
 
@@ -109,7 +111,10 @@ and was released as part of `astropy 0.2` in 2013, although the initial
 implementation was adapted from the `pynbody` library [@pynbody], which started
 in 2010 according to the git repository logs. That is to say, all three
 libraries began roughly at the same time and are examples in many ways of
-convergent evolution in software. We have decided to repackage and improve `yt.units` in the form of `unyt` to both make it easier to work on and improve the unit system and encourage use of the unit system for scientific python users who do not want to install a heavy-weight dependency like `yt`.
+convergent evolution in software. We have decided to repackage and improve
+`yt.units` in the form of `unyt` to both make it easier to work on and improve
+the unit system and encourage use of the unit system for scientific python users
+who do not want to install a heavy-weight dependency like `yt`.
 
 Below we present a table comparing `unyt` with `astropy.units` and
 `Pint`. Estimates for lines of code in the library were generated using the
@@ -130,7 +135,9 @@ modify, refactor, and improve. This comparison is somewhat unfair in favor of
 dependencies, while `unyt` depends on both `sympy` and `NumPy`. Much of the
 reduction in the size of the `unyt` library can be attributed to offloading the
 handling of algebra to `sympy` rather than needing to implement the algebra of
-unit symbols directly in `unyt`. For potential users who are wary of adding `sympy` as a dependency, that might argue in favor of using `Pint` in favor of `unyt`.
+unit symbols directly in `unyt`. For potential users who are wary of adding
+`sympy` as a dependency, that might argue in favor of using `Pint` in favor of
+`unyt`.
 
 ## Astropy.units
 
