@@ -43,31 +43,6 @@ unintentionally misinterpret the units, and by users of the software who must
 take care to supply data in the correct units or who need to infer the units of
 data returned by the software.
 
-The `unyt` library provides the `unyt.Unit` class that represents a physical
-unit. Physical units in the `unyt` class are defined in terms of the dimensions
-of the unit, a string representation, and a floating point scaling to the MKS
-unit system. Rather than implementing algebra for unit expressions, we rely on
-the `SymPy` symbolic algebra library [@SymPy] to handle symbolic algebraic
-manipulation and the `unyt.Unit` class wraps a SymPy `Expr` object. The
-`unyt.Unit` object can represent arbitrary units formed out of the seven base
-dimensions in the SI unit system: time, length, mass, temperature, luminance,
-electric current, and amount of a substance. In addition, `unyt` supports
-forming quantities defined in other unit systems - in particular CGS Gaussian
-units as well as geometrized "natural" units common in relativistic
-calculations. In addition, `unyt` ships with a number of other useful predefined
-unit systems based, including imperial units, Planck units, a unit system for
-calculations in the solar system, and a galactic unit system.
-
-In addition to the `unyt.Unit` class, `unyt` also provides a two subclasses of
-the NumPy [@NumPy] ndarray [@vanderwalt2011], `unyt.unyt_array` and
-`unyt.unyt_quantity` to represent arrays and scalars with units attached,
-respectively. In addition, `unyt` provides a `unyt.UnitRegistry` class to allow
-custom systems of units, for example to track the internal unit system used in a
-simulation. These subclasses are tightly integrated with the NumPy ufunc system,
-which ensures that algebraic calculations that include data with units
-automatically check to make sure the units are consistent, and allow automatic
-converting of the final answer of a calculation into a convenient unit.
-
 The `unyt` library is designed both to aid quick calculations at an interactive
 python prompt and to be tightly integrated into a larger Python application or
 library. To aid quick calculations, the top-level `unyt` namespace ships with a
@@ -82,6 +57,32 @@ registries containing both predefined physical units as well as user-defined
 units, built-in output to disk via the pickle protocol and to HDF5 files using
 the h5py library [@h5py], and round-trip conversions to create units compatible
 with other popular Python unit libraries.
+
+Physical units in the `unyt` class are defined in terms of the dimensions of the
+unit, a string representation, and a floating point scaling to the MKS unit
+system. Rather than implementing algebra for unit expressions, we rely on the
+`SymPy` symbolic algebra library [@SymPy] to handle symbolic algebraic
+manipulation. The `unyt.Unit` object can represent arbitrary units formed out of
+the seven base dimensions in the SI unit system: time, length, mass,
+temperature, luminance, electric current, and amount of a substance. In
+addition, `unyt` supports forming quantities defined in other unit systems - in
+particular CGS Gaussian units common in astrophysics as well as geometrized
+"natural" units common in relativistic calculations. In addition, `unyt` ships
+with a number of other useful predefined unit systems based, including imperial
+units, Planck units, a unit system for calculations in the solar system, and a
+galactic unit system.
+
+In addition to the `unyt.Unit` class, `unyt` also provides a two subclasses of
+the NumPy [@NumPy] ndarray [@vanderwalt2011], `unyt.unyt_array` and
+`unyt.unyt_quantity` to represent arrays and scalars with units attached,
+respectively. In addition, `unyt` provides a `unyt.UnitRegistry` class to allow
+custom systems of units, for example to track the internal unit system used in a
+simulation. These subclasses are tightly integrated with the NumPy ufunc system,
+which ensures that algebraic calculations that include data with units
+automatically check to make sure the units are consistent, and allow automatic
+converting of the final answer of a calculation into a convenient unit.
+
+We direct users interested in usage examples and a guide for integrating `unyt` into an exiting Python installation to the unyt documentation at hosted at http://unyt.readthedocs.io/en/latest/.
 
 # Comparison with ``Pint`` and ``astropy.units``
 
@@ -98,17 +99,17 @@ for `import astropy.units` returns approximately 10,500 results and a search for
 While `unyt` provides functionality that overlaps with `astropy.units` and
 `Pint`, there are important differences which we elaborate on below. In
 addition, it's worth noting that all three codebases had origins at roughly the
-same time period. In the case of `unyt`, it originated via Casey Stark's
-`dimensionful` library [@dimensionful] in 2012. A few years later, the
-`dimensionful` was elaborated on and improved to become `yt.units`, the unit
-system for the `yt` library [@yt] at a `yt` developer workshop in 2013 and was
-subsequently released as part of `yt 3.0` in 2014. Similarly, `Pint` initially
-began development in 2012 according to the git repository logs, and
-`astropy.units` was added in 2012 and was released as part of `astropy 0.2` in
-2013, although the initial implementation was adapted from the `pynbody` library
-[@pynbody], which started in 2010 according to the git repository logs. That is
-to say, all three libraries began roughly at the same time and are examples in
-many ways of convergent evolution in software.
+same time period. In the case of `unyt`, it originated via the `dimensionful`
+library [@dimensionful] in 2012. A few years later, the `dimensionful` was
+elaborated on and improved to become `yt.units`, the unit system for the `yt`
+library [@yt] at a `yt` developer workshop in 2013 and was subsequently released
+as part of `yt 3.0` in 2014. Similarly, `Pint` initially began development in
+2012 according to the git repository logs, and `astropy.units` was added in 2012
+and was released as part of `astropy 0.2` in 2013, although the initial
+implementation was adapted from the `pynbody` library [@pynbody], which started
+in 2010 according to the git repository logs. That is to say, all three
+libraries began roughly at the same time and are examples in many ways of
+convergent evolution in software. We have decided to repackage and improve `yt.units` in the form of `unyt` to both make it easier to work on and improve the unit system and encourage use of the unit system for scientific python users who do not want to install a heavy-weight dependency like `yt`.
 
 Below we present a table comparing `unyt` with `astropy.units` and
 `Pint`. Estimates for lines of code in the library were generated using the
@@ -124,12 +125,12 @@ and `astropy.units` and using the `codecov` output for `unyt`.
 
 We offer lines of code as a very rough estimate for the "hackability" of the
 codebase. In general, smaller codebases with higher test coverage are easier to
-modify, refactor, and improve. This comparison is a bit unfair in that
-`astropy.units` only depends on `NumPy` and `Pint` has no dependencies, while
-`unyt` depends on both `sympy` and `NumPy`. Much of the reduction in the size of
-the `unyt` library can be attributed to offloading the handling of algebra to
-`sympy` rather than needing to implement the algebra of unit symbols directly in
-`unyt`.
+modify, refactor, and improve. This comparison is somewhat unfair in favor of
+`unyt` in that `astropy.units` only depends on `NumPy` and `Pint` has no
+dependencies, while `unyt` depends on both `sympy` and `NumPy`. Much of the
+reduction in the size of the `unyt` library can be attributed to offloading the
+handling of algebra to `sympy` rather than needing to implement the algebra of
+unit symbols directly in `unyt`. For potential users who are wary of adding `sympy` as a dependency, that might argue in favor of using `Pint` in favor of `unyt`.
 
 ## Astropy.units
 
@@ -139,8 +140,8 @@ number of predefined unit symbols. The preferred way to create `Quantity`
 instances is via multiplication with a `PrefixUnit` instance. Similar to `unyt`,
 the `Quantity` class is implemented via a subclass of the `NumPy` `ndarray`
 class. Indeed, in many ways the everyday usage patterns of `astropy.units` and
-`unyt` are extremely similar, although `unyt` is not quite a drop-in replacement
-for `astropy.units` as there are some API differences. The main functional
+`unyt` are similar, although `unyt` is not quite a drop-in replacement for
+`astropy.units` as there are some API differences. The main functional
 difference between `astropy.units` and `unyt` is that `astropy.units` is a
 subpackage of the larger `astropy` package. This means that depending on
 `astropy.units` requires depending on a large collection of astronomically
@@ -169,32 +170,19 @@ somewhat arcane process for creating an ndarray subclass, although the `Pint`
 `Quantity` class must also be careful to emulate the full `NumPy` `ndarray` API
 so that it can be a drop-in replacement for `ndarray`.
 
-Finally, in some cases Pint will unexpectedly strip units. For example, the
-following code produces an incorrect result:
-
-```python
-import numpy as np
-from pint import UnitRegistry
-
-u = UnitRegistry()
-
-a = [1, 2, 3]*u.g
-b = [1, 2, 3]*u.kg
-out = np.zeros(3)
-
-print(np.add(a, b, out=out))
-```
-
-using `Pint 0.8.1`, this will print `[2. 4. 6.]`. Interestingly, without the
-`out` keyword, `Pint` does get the correct answer, so it's possible that this is
-a bug in `Pint` which we have reported upstream (see
-https://github.com/hgrecco/pint/issues/644).
+Finally, in carefully comparing the output of scripts using `Pint`,
+`astropy.units`, and `unyt`, we found that in-place operations making use of a
+numpy ufunc will unexpectedly strip units. For example, `np.add(a, b, out=out))`
+using `Pint 0.8.1`, this will operate on `a` and `b` as if neither have units
+attached. Interestingly, without the `out` keyword, `Pint` does get the correct
+answer, so it's possible that this is a bug in `Pint` which we have reported
+upstream (see https://github.com/hgrecco/pint/issues/644).
 
 ## Performance Comparison
 
 Checking units will always add some overhead over using hard-coded unit
 conversion factors. Thus a library that is entrusted with checking units in an
-application should incur as little overhead as possible to avoid triggering
+application should incur the minimum possible overhead to avoid triggering
 performance regressions after integrating unit checking into an
 application. Optimally, a unit library will add zero overhead regardless of the
 size of the array. In practice that is not the case for any of the three
