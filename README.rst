@@ -23,9 +23,9 @@ unyt
 
 A package for handling numpy arrays with units
 
-This package only depends on `numpy`, `sympy`, `six` and,on Python 2.7,
-`backports.functools_lru_cache` (a backport of `lru_cache`).  Notably,
-it does *not* depend on `yt`.
+This package only depends on ``numpy``, ``sympy``, ``six`` and, on Python 2.7,
+``backports.functools_lru_cache`` (a backport of ``functools.lru_cache``).
+Notably, it does *not* depend on ``yt``.
 
 
 Features
