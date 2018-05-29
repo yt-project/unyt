@@ -89,12 +89,31 @@ The scientific python ecosystem has a long history of efforts to develop a
 library to handle unit conversions and enforce unit consistency. For a
 relatively recent review of these efforts, see [@bekolay2013]. While we won't
 exhaustively cover extant Python libraries for handling units in this paper, we
-will focus on `Pint` [@pint] and `astropy.units` [@astropy], which are by far
-the most popular libraries at the moment.
+will focus on `Pint` [@pint] and `astropy.units` [@astropy], which both a provide a robust implementation of an array container with units and are commonly used in research software projects. At time of writing a GitHub search for `import astropy.units` returns approximately 10,500 results and a search for `import pint` returns approximately 1,500 results.
+
+While `unyt` provides functionality that overlaps with `astropy.units` and `Pint`, there are important differences which we elaborate on below. In addition, it's worth noting that all three codebases had origins at roughly the same time period. In the case of `unyt`, it originated via Casey Stark's `dimensionful` library [@dimensionful] in 2012. A few years later, the `dimensionful` was elaborated on and improved to become `yt.units`, the unit system for the `yt` library [@yt]  at a `yt` developer workshop in 2013 and was subsequently released as part of `yt 3.0` in 2014. Similarly, `Pint` initially began development in 2012 according to the git repository logs, and `astropy.units` was added in 2012 and was released as part of `astropy 0.2` in 2013, although the initial implementation was adapted from the `pynbody` library [@pynbody], which started in 2010 according to the git repository logs. That is to say, all three libraries began roughly at the same time and are examples in many ways of convergent evolution in software.
+
+## Astropy.units
+
+The `astropy.units` subpackage provides a `PrefixUnit` class, a `Quantity` class
+that represents both scalar and array data with attached units, and a large
+number of predefined unit symbols. The preferred way to create `Quantity`
+instances is via multiplication with a `PrefixUnit` instance. Similar to `unyt`,
+the `Quantity` class is implemented via a subclass of the `NumPy` `ndarray`
+class. Indeed, in many ways the everyday usage patterns of `astropy.units` and
+`unyt` are extremely similar, although `unyt` is not quite a drop-in replacement
+for `astropy.units` as there are some API differences. The main functional
+difference between `astropy.units` and `unyt` is that `astropy.units` is a
+subpackage of the larger `astropy` package. This means that depending on
+`astropy.units` requires depending on a large collection of astronomically
+focused software, including a substantial amount of compiled C code. For users
+who are not astronomers or do not need the observational astronomy capabilities
+provided by `astropy`, depending on all of `astropy` just to use `astropy.units`
+may be a tough sell.
 
 ## Pint
 
-## Astropy.units
+
 
 ## Performance Comparison
 
