@@ -21,34 +21,27 @@ unyt
         :alt: Test Coverage
 
 
-A package for handling numpy arrays with units
-
-This package only depends on ``numpy``, ``sympy``, ``six`` and, on Python 2.7,
-``backports.functools_lru_cache`` (a backport of ``functools.lru_cache``).
-Notably, it does *not* depend on ``yt``.
-
-
-Features
---------
+A package for handling numpy arrays with units.
 
 Often writing code that deals with data that has units can be confusing. A
 function might return an array but at least with plain NumPy arrays, there is no
 way to easily tell what the units of the data are without somehow knowing a
 prioi.
 
-The ``unyt`` package provides a subclass of NumPy's ``ndarray`` class that knows
-about units. For example, one could do:
+The ``unyt`` package (pronounced like "unit") provides a subclass of NumPy's
+``ndarray`` class that knows about units. For example, one could do:
 
-    >>> import unyt
-    ...
-    >>> cars = ['toyota', 'volkswagen', 'honda']
-    >>> distance_traveled = [3.4, 5.8, 7.2] * unyt.mile
-    ...
+    >>> import unyt as u
+    >>> distance_traveled = [3.4, 5.8, 7.2] * u.mile
     >>> print(distance_traveled.to('km'))
     [ 5.4717696  9.3341952 11.5872768] km
 
 And a whole lot more! See `the documentation <http://unyt.readthedocs.io>`_ for
 more examples as well as full API docs.
+
+This package only depends on ``numpy``, ``sympy``, ``six`` and, on Python 2.7,
+``backports.functools_lru_cache`` (a backport of ``functools.lru_cache``).
+Notably, it does *not* depend on ``yt`` and it is written in pure Python.
 
 Code of Conduct
 ---------------
@@ -65,15 +58,9 @@ confidence by an individual who does not normally participate in yt development.
 License
 -------
 
-The unyt package is licensed under the BSD 3-clause license. If you make use of
-unyt in a publication we would appreciate a mention in the text of the paper or
-in the acknowledgements.
+The unyt package is licensed under the BSD 3-clause license.
 
-Credits
--------
+Citation
+--------
 
-This package was created with Cookiecutter_ and the
-`audreyr/cookiecutter-pypackage`_ project template.
-
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+If you make use of unyt in a publication we would appreciate a mention in the text of the paper or in the acknowledgements.
