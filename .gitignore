@@ -107,6 +107,3 @@ docs/modules/
 # benchmark outputs
 benchmarks/*.json
 benchmarks/*.png
-
-# paper output
-paper/paper.pdf
