@@ -97,8 +97,8 @@ make_plot(
 make_plot(
     benchmark_name='Unary operations',
     benchmarks={
-        'sqrt': '(data)**(0.5)',
-        'square': 'data**2',
+        'sqrt': r'$\mathtt{data**0.5}$',
+        'square': r'$\mathtt{data**2}$',
     },
     fig_filename='unary.png'
 )
@@ -106,11 +106,11 @@ make_plot(
 make_plot(
     benchmark_name='Binary operations, different units',
     benchmarks={
-        'kgg_operator.add12': 'a + b',
-        'kgg_operator.sub12': 'a - b',
-        'kgg_operator.mul12': 'a * b',
-        'kgg_operator.truediv12': 'a / b',
-        'kgg_operator.eq12': 'a == b',
+        'kgg_operator.add12': r'$\mathtt{a + b}$',
+        'kgg_operator.sub12': r'$\mathtt{a - b}$',
+        'kgg_operator.mul12': r'$\mathtt{a * b}$',
+        'kgg_operator.truediv12': r'$\mathtt{a / b}$',
+        'kgg_operator.eq12': r'$\mathtt{a == b}$',
     },
     fig_filename='binary_different_units.png'
 )
@@ -118,25 +118,25 @@ make_plot(
 make_plot(
     benchmark_name='Binary operations, same units',
     benchmarks={
-        'gg_operator.add12': 'a + b',
-        'gg_operator.sub12': 'a - b',
-        'gg_operator.mul12': 'a * b',
-        'gg_operator.truediv12': 'a / b',
-        'gg_operator.eq12': 'a == b',
+        'gg_operator.add12': r'$\mathtt{a + b}$',
+        'gg_operator.sub12': r'$\mathtt{a - b}$',
+        'gg_operator.mul12': r'$\mathtt{a * b}$',
+        'gg_operator.truediv12': r'$\mathtt{a / b}$',
+        'gg_operator.eq12': r'$\mathtt{a == b}$',
     },
-    fig_filename='binary_different_units.png'
+    fig_filename='binary_same_units.png'
 )
 
 make_plot(
     benchmark_name="NumPy ufunc",
     benchmarks={
-        'kgg_np.add12': 'np.add(a, b)',
-        'kgg_np.subtract12': 'np.add(a, b)',
-        'kgg_np.multiply12': 'np.multiply(a, b)',
-        'kgg_np.true_divide12': 'np.divide(a, b)',
-        'kgg_np.equal12': 'np.equal(a, b)',
-        'npsqrt': 'np.sqrt(data)',
-        'npsquare': 'np.power(data, 2)',
+        'kgg_np.add12': r'$\mathtt{np.add(a, b)}$',
+        'kgg_np.subtract12': r'$\mathtt{np.subtract(a, b)}$',
+        'kgg_np.multiply12': r'$\mathtt{np.multiply(a, b)}$',
+        'kgg_np.true_divide12': r'$\mathtt{np.divide(a, b)}$',
+        'kgg_np.equal12': r'$\mathtt{np.equal(a, b)}$',
+        'npsqrt': r'$\mathtt{np.sqrt(data)}$',
+        'npsquare': r'$\mathtt{np.power(data, 2)}$',
     },
     fig_filename='ufunc.png'
 )
@@ -144,13 +144,13 @@ make_plot(
 make_plot(
     benchmark_name="In-place ufunc",
     benchmarks={
-        'kgg_np.add12out': 'np.add(a, b, out=out)',
-        'kgg_np.subtract12out': 'np.add(a, b, out=out)',
-        'kgg_np.multiply12out': 'np.multiply(a, b, out=out)',
-        'kgg_np.true_divide12out': 'np.divide(a, b, out=out)',
-        'kgg_np.equal12out': 'np.equal(a, b, out=out)',
-        'npsqrtout': 'np.sqrt(data, out=out)',
-        'npsquareout': 'np.power(data, 2, out=out)',
+        'kgg_np.add12out': r'$\mathtt{np.add(a, b, out=out)}$',
+        'kgg_np.subtract12out': r'$\mathtt{np.subtract(a, b, out=out)}$',
+        'kgg_np.multiply12out': r'$\mathtt{np.multiply(a, b, out=out)}$',
+        'kgg_np.true_divide12out': r'$\mathtt{np.divide(a, b, out=out)}$',
+        'kgg_np.equal12out': r'$\mathtt{np.equal(a, b, out=out)}$',
+        'npsqrtout': r'$\mathtt{np.sqrt(data, out=out)}$',
+        'npsquareout': r'$\mathtt{np.power(data, 2, out=out)}$',
     },
     fig_filename='ufuncout.png'
 )
