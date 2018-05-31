@@ -215,7 +215,10 @@ equipped with an Intel i5-6300U CPU clocked at 2.4 Ghz. The testing environment
 was based on `Python 3.6.3` and had `NumPy 1.14.2`, `sympy 1.1.1`, `fastcache
 1.0.2`, `Astropy 3.0.1`, and `Pint 0.8.1` installed. `fastcache` [@fastcache] is
 an optional dependency of `sympy` that provides an optimized LRU cache
-implemented in C that can substantially speed up `sympy`.
+implemented in C that can substantially speed up `sympy`. The system was
+instrumented using `perf system tune` to turn off CPU features that might
+interfere with stable benchmarks. We did not make any boot-time Linux kernel
+parameter changes.
 
 ![A benchmark comparing the time to perform various binary arithmetic operations on input operands that have the same units. See Figure 1 for a detailed explanation of the plot style.](binary_same_units.png)
 
@@ -319,5 +322,8 @@ library constitutes a smaller codebase with higher test coverage than both
 `Pint` and `astropy.units`.
 
 # Acknowledgements
+
+NJG would like to thank Brandon Carswell and Alex Farthing of the NCSA IT staff
+for providing a laptop with Linux installed for the performance benchmark. This work was supported by NSF grant OAC-1663914 (NJG, MJT) and by NASA through Einstein Postdoctoral Fellowship grant number PF7-180166 awarded by the Chandra X-ray Center, which is operated by the Smithsonian Astrophysical Observatory for NASA under contract NAS8-03060 (ALR).
 
 # References
