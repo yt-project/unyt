@@ -70,7 +70,7 @@ particular CGS Gaussian units common in astrophysics as well as geometrized
 "natural" units common in relativistic calculations. In addition, `unyt` ships
 with a number of other useful predefined unit systems based, including imperial
 units, Planck units, a unit system for calculations in the solar system, and a
-galactic unit system.
+"galactic" unit system based on the solar mass, kiloparsecs, and Myr, a convention common in galactic astronomy.
 
 In addition to the `unyt.Unit` class, `unyt` also provides a two subclasses of
 the NumPy [@NumPy] ndarray [@vanderwalt2011], `unyt.unyt_array` and
@@ -102,7 +102,7 @@ While `unyt` provides functionality that overlaps with `astropy.units` and
 `Pint`, there are important differences which we elaborate on below. In
 addition, it's worth noting that all three codebases had origins at roughly the
 same time period. In the case of `unyt`, it originated via the `dimensionful`
-library [@dimensionful] in 2012. A few years later, the `dimensionful` was
+library [@dimensionful] in 2012. A few years later, `dimensionful` was
 elaborated on and improved to become `yt.units`, the unit system for the `yt`
 library [@yt] at a `yt` developer workshop in 2013 and was subsequently released
 as part of `yt 3.0` in 2014. Similarly, `Pint` initially began development in
@@ -154,10 +154,9 @@ class. Indeed, in many ways the everyday usage patterns of `astropy.units` and
 difference between `astropy.units` and `unyt` is that `astropy.units` is a
 subpackage of the larger `astropy` package. This means that depending on
 `astropy.units` requires depending on a large collection of astronomically
-focused software, including a substantial amount of compiled C code. For users
+focused software, including a substantial amount of compiled C code. This presents a barrier to usage for potential users of `astropy.units`
 who are not astronomers or do not need the observational astronomy capabilities
-provided by `astropy`, depending on all of `astropy` just to use `astropy.units`
-may be a tough sell.
+provided by `astropy`.
 
 ## `Pint`
 
@@ -170,7 +169,7 @@ instances as attributes. Just like with `unyt` and `astropy.units`, creating a
 instance. Exposing the `UnitRegistry` directly to all users like this does force
 users of the library to think about which system of units they are working with,
 which may be beneficial in some cases, however it also means that users have a
-bit of extra cognitive overhead they need to deal with every time the use
+bit of extra cognitive overhead they need to deal with every time the usey
 `Pint`.
 
 ![A benchmark comparing the time to square an array and to take the square root of an array. See Figure 1 for a detailed explanation of the plot style.](unary.png)
@@ -324,6 +323,6 @@ library constitutes a smaller codebase with higher test coverage than both
 # Acknowledgements
 
 NJG would like to thank Brandon Carswell and Alex Farthing of the NCSA IT staff
-for providing a laptop with Linux installed for the performance benchmark. This work was supported by NSF grant OAC-1663914 (NJG, MJT) and by NASA through Einstein Postdoctoral Fellowship grant number PF7-180166 awarded by the Chandra X-ray Center, which is operated by the Smithsonian Astrophysical Observatory for NASA under contract NAS8-03060 (ALR).
+for providing a laptop with Linux installed for the performance benchmark. This work was supported by NSF grant OAC-1663914 (NJG, MJT), by the Gordon and Betty Moore Foundation's Data-Driven Discovery Initiative through Grant GBMF4561 to MT and by NASA through Einstein Postdoctoral Fellowship grant number PF7-180166 awarded by the Chandra X-ray Center, which is operated by the Smithsonian Astrophysical Observatory for NASA under contract NAS8-03060 (ALR).
 
 # References
