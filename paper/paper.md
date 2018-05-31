@@ -88,7 +88,7 @@ http://unyt.readthedocs.io/en/latest/.
 
 # Comparison with `Pint` and ``astropy.units``
 
-The scientific python ecosystem has a long history of efforts to develop a
+The scientific Python ecosystem has a long history of efforts to develop a
 library to handle unit conversions and enforce unit consistency. For a
 relatively recent review of these efforts, see [@bekolay2013]. While we won't
 exhaustively cover extant Python libraries for handling units in this paper, we
@@ -150,7 +150,12 @@ the algebra of unit symbols directly in `unyt`. For potential users who are wary
 of adding `sympy` as a dependency, that might argue in favor of using `Pint` in
 favor of `unyt`.
 
-![A benchmark comparing the time to apply units to lists and NumPy `ndarray` instances. Each test is shown for three different sizes of input data, including inputs with size 3, 1,000, and 1,000,000. The black lines at the top of the bars indicate the sample standard deviation. The $T_{\rm numpy}$ time is calculated by benchmarking the time to perform `np.asarray(data)` where `data` is either a `list` of an `ndarray`.](apply.png)
+![A benchmark comparing the time to apply units to lists and NumPy `ndarray`
+instances. Each test is shown for three different sizes of input data,
+including inputs with size 3, 1,000, and 1,000,000. The black lines at the top
+of the bars indicate the sample standard deviation. The $T_{\rm numpy}$ time is
+calculated by benchmarking the time to perform `np.asarray(data)` where `data`
+is either a `list` of an `ndarray`.](apply.png)
 
 ## Astropy.units
 
@@ -183,7 +188,9 @@ which may be beneficial in some cases, however it also means that users have a
 bit of extra cognitive overhead they need to deal with every time the usey
 `Pint`.
 
-![A benchmark comparing the time to square an array and to take the square root of an array. See Figure 1 for a detailed explanation of the plot style.](unary.png)
+![A benchmark comparing the time to square an array and to take the square root
+of an array. See Figure 1 for a detailed explanation of the plot
+style.](unary.png)
 
 In addition, the `Quantity` class provided by `Pint` is not a subclass of
 NumPy's ndarray. Instead, it is a wrapper around an internal `ndarray`
@@ -192,7 +199,10 @@ somewhat arcane process for creating an ndarray subclass, although the `Pint`
 `Quantity` class must also be careful to emulate the full NumPy `ndarray` API so
 that it can be a drop-in replacement for `ndarray`.
 
-![A benchmark comparing the time to perform various binary arithmetic operations on input operans that have different but dimensionallty compatible units. See Figure 1 for a detailed explanation of the plot style.](binary_different_units.png)
+![A benchmark comparing the time to perform various binary arithmetic
+operations on input operans that have different but dimensionallty compatible
+units. See Figure 1 for a detailed explanation of the plot
+style.](binary_different_units.png)
 
 Finally, in carefully comparing the output of scripts using `Pint`,
 `astropy.units`, and `unyt`, we found that in-place operations making use of a
@@ -230,7 +240,9 @@ instrumented using `perf system tune` to turn off CPU features that might
 interfere with stable benchmarks. We did not make any boot-time Linux kernel
 parameter changes.
 
-![A benchmark comparing the time to perform various binary arithmetic operations on input operands that have the same units. See Figure 1 for a detailed explanation of the plot style.](binary_same_units.png)
+![A benchmark comparing the time to perform various binary arithmetic
+operations on input operands that have the same units. See Figure 1 for a
+detailed explanation of the plot style.](binary_same_units.png)
 
 For each of the benchmarks below, we show the ratio of the time to perform an
 operation with one of `unyt`, `Pint`, and `astopy.units`, $T_{\rm package}$, to
@@ -245,7 +257,9 @@ respective packages calculating the appropriate conversion factor `c`. Thus the
 comparisons below depict very directly the overhead for using a unit library
 over an equivalent operation that uses hard-coded unit-conversion factors.
 
-![A benchmark comparing the overhead for computing various NumPy `ufunc` operations. The operands of all binary ufuncs have the same units. See Figure 1 for a detailed explanation of the plot style.](ufunc.png)
+![A benchmark comparing the overhead for computing various NumPy `ufunc`
+operations. The operands of all binary ufuncs have the same units. See Figure 1
+for a detailed explanation of the plot style.](ufunc.png)
 
 ### Applying units to data
 
@@ -258,7 +272,8 @@ well as NumPy need to first copy the contents of the list into a NumPy array or
 a subclass of `ndarray`. This explains why the overhead is systematically lower
 when starting with a list.
 
-![The same as Figure 5, but with in-place `ufunc` operations. See Figure 1 for a detailed explanation of the plot style.](ufuncout.png)
+![The same as Figure 5, but with in-place `ufunc` operations. See Figure 1 for
+a detailed explanation of the plot style.](ufuncout.png)
 
 In all cases, `unyt` either is fastest by a statistically significant margin, or
 ties with `astropy`. Even for large input arrays, `Pint` still has statistically
