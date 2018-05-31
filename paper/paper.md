@@ -105,16 +105,26 @@ same time period. In the case of `unyt`, it originated via the `dimensionful`
 library [@dimensionful] in 2012. A few years later, `dimensionful` was
 elaborated on and improved to become `yt.units`, the unit system for the `yt`
 library [@yt] at a `yt` developer workshop in 2013 and was subsequently released
-as part of `yt 3.0` in 2014. Similarly, `Pint` initially began development in
-2012 according to the git repository logs, and `astropy.units` was added in 2012
-and was released as part of `astropy 0.2` in 2013, although the initial
-implementation was adapted from the `pynbody` library [@pynbody], which started
-in 2010 according to the git repository logs. That is to say, all three
-libraries began roughly at the same time and are examples in many ways of
-convergent evolution in software. We have decided to repackage and improve
-`yt.units` in the form of `unyt` to both make it easier to work on and improve
-the unit system and encourage use of the unit system for scientific python users
-who do not want to install a heavy-weight dependency like `yt`.
+as part of `yt 3.0` in 2014. One of the design goals for the `yt` unit system
+was the ability to dynamically define "code" units (e.g. units internal to data
+loaded by yt) as well as units that depend on details of the dataset - in
+particular cosmological comoving units and the "little $h$" factor
+[@croton2013]. For cosmology simulation in particular, this can be tricky
+because one might want to compare data from multiple outputs in a time series,
+with each output having a different mapping from internal units to physical
+units, despite each output in the time series representing the same physical
+system. This requirement to manage complex custom units and interoperate between
+custom unit system drove the `yt` community to independently develop a custom
+unit system solution. `Pint` initially began development in 2012 according to
+the git repository logs, and `astropy.units` was added in 2012 and was released
+as part of `astropy 0.2` in 2013, although the initial implementation was
+adapted from the `pynbody` library [@pynbody], which started in 2010 according
+to the git repository logs. That is to say, all three libraries began roughly at
+the same time and are examples in many ways of convergent evolution in
+software. We have decided to repackage and improve `yt.units` in the form of
+`unyt` to both make it easier to work on and improve the unit system and
+encourage use of the unit system for scientific python users who do not want to
+install a heavy-weight dependency like `yt`.
 
 Below we present a table comparing `unyt` with `astropy.units` and
 `Pint`. Estimates for lines of code in the library were generated using the
