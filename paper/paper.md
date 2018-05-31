@@ -129,15 +129,15 @@ and `astropy.units` and using the `codecov.io` output for `unyt`.
 | Test Coverage                  | 99.91%         | 93.63%          | 77.44%     |
 
 We offer lines of code as a very rough estimate for the "hackability" of the
-codebase. In general, smaller codebases with higher test coverage are easier to
-modify, refactor, and improve [@Lipow1982; @Koru2007; @Gopinath2014]. This
-comparison is somewhat unfair in favor of `unyt` in that `astropy.units` only
-depends on `NumPy` and `Pint` has no dependencies, while `unyt` depends on both
-`sympy` and `NumPy`. Much of the reduction in the size of the `unyt` library can
-be attributed to offloading the handling of algebra to `sympy` rather than
-needing to implement the algebra of unit symbols directly in `unyt`. For
-potential users who are wary of adding `sympy` as a dependency, that might argue
-in favor of using `Pint` in favor of `unyt`.
+codebase. In general, smaller codebases with higher test coverage are have fewer
+defects [@Lipow1982; @Koru2007; @Gopinath2014]. This comparison is somewhat
+unfair in favor of `unyt` in that `astropy.units` only depends on `NumPy` and
+`Pint` has no dependencies, while `unyt` depends on both `sympy` and
+`NumPy`. Much of the reduction in the size of the `unyt` library can be
+attributed to offloading the handling of algebra to `sympy` rather than needing
+to implement the algebra of unit symbols directly in `unyt`. For potential users
+who are wary of adding `sympy` as a dependency, that might argue in favor of
+using `Pint` in favor of `unyt`.
 
 ## Astropy.units
 
