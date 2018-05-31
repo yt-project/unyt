@@ -129,7 +129,7 @@ and `astropy.units` and using the `codecov.io` output for `unyt`.
 | Test Coverage                  | 99.91%         | 93.63%          | 77.44%     |
 
 We offer lines of code as a very rough estimate for the "hackability" of the
-codebase. In general, smaller codebases with higher test coverage are have fewer
+codebase. In general, smaller codebases with higher test coverage have fewer
 defects [@Lipow1982; @Koru2007; @Gopinath2014]. This comparison is somewhat
 unfair in favor of `unyt` in that `astropy.units` only depends on NumPy and
 `Pint` has no dependencies, while `unyt` depends on both `sympy` and NumPy. Much
