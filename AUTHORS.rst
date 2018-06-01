@@ -20,3 +20,6 @@ Contributors
 * Matthew Turk <matthewturk@gmail.com>
 * John ZuHone <jzuhone@gmail.com>
 
+This library was adapted from `dimensionful
+<https://github.com/caseywstark/dimensionful>`_ which was written by Casey Stark
+<caseystark@gmail.com>.
