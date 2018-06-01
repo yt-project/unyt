@@ -63,24 +63,28 @@ unit, a string representation, and a floating point scaling to the MKS unit
 system. Rather than implementing algebra for unit expressions, we rely on the
 `SymPy` symbolic algebra library [@SymPy] to handle symbolic algebraic
 manipulation. The `unyt.Unit` object can represent arbitrary units formed out of
-the seven base dimensions in the SI unit system: time, length, mass,
-temperature, luminance, electric current, and amount of a substance. In
-addition, `unyt` supports forming quantities defined in other unit systems - in
-particular CGS Gaussian units common in astrophysics as well as geometrized
-"natural" units common in relativistic calculations. In addition, `unyt` ships
-with a number of other useful predefined unit systems based, including imperial
-units, Planck units, a unit system for calculations in the solar system, and a
-"galactic" unit system based on the solar mass, kiloparsecs, and Myr, a convention common in galactic astronomy.
+base dimensions in the SI unit system: time, length, mass, temperature,
+luminance, and electric current. We currently treat units such as mol with the
+seventh SI base dimension, amount of substance, as dimensionless, although we
+are open to changing this based on feedback from users. In addition, `unyt`
+supports forming quantities defined in other unit systems - in particular CGS
+Gaussian units common in astrophysics as well as geometrized "natural" units
+common in relativistic calculations. In addition, `unyt` ships with a number of
+other useful predefined unit systems based, including imperial units, Planck
+units, a unit system for calculations in the solar system, and a "galactic" unit
+system based on the solar mass, kiloparsecs, and Myr, a convention common in
+galactic astronomy.
 
 In addition to the `unyt.Unit` class, `unyt` also provides a two subclasses of
 the NumPy [@NumPy] ndarray [@vanderwalt2011], `unyt.unyt_array` and
 `unyt.unyt_quantity` to represent arrays and scalars with units attached,
-respectively. In addition, `unyt` provides a `unyt.UnitRegistry` class to allow
-custom systems of units, for example to track the internal unit system used in a
-simulation. These subclasses are tightly integrated with the NumPy ufunc system,
-which ensures that algebraic calculations that include data with units
-automatically check to make sure the units are consistent, and allow automatic
-converting of the final answer of a calculation into a convenient unit.
+respectively. The `unyt` library also provides a `unyt.UnitRegistry` class to
+allow custom systems of units, for example to track the internal unit system
+used in a simulation. These subclasses are tightly integrated with the NumPy
+ufunc system, which ensures that algebraic calculations that include data with
+units automatically check to make sure the units are consistent, and allow
+automatic converting of the final answer of a calculation into a convenient
+unit.
 
 We direct users interested in usage examples and a guide for integrating `unyt`
 into an exiting Python installation to the unyt documentation at hosted at
@@ -185,7 +189,7 @@ instances as attributes. Just like with `unyt` and `astropy.units`, creating a
 instance. Exposing the `UnitRegistry` directly to all users like this does force
 users of the library to think about which system of units they are working with,
 which may be beneficial in some cases, however it also means that users have a
-bit of extra cognitive overhead they need to deal with every time the usey
+bit of extra cognitive overhead they need to deal with every time the use
 `Pint`.
 
 ![A benchmark comparing the time to square an array and to take the square root
@@ -206,7 +210,7 @@ style.](binary_different_units.png)
 
 Finally, in carefully comparing the output of scripts using `Pint`,
 `astropy.units`, and `unyt`, we found that in-place operations making use of a
-NumPy ufunc will unexpectedly strip units. For example, if `a` and `b` are
+NumPy `ufunc` will unexpectedly strip units. For example, if `a` and `b` are
 `Pint` `Quantity` instances, `np.add(a, b, out=out))` will operate on `a` and
 `b` as if neither have units attached. Interestingly, without the `out` keyword,
 `Pint` does get the correct answer, so it's possible that this is a bug in
@@ -249,17 +253,15 @@ operation with one of `unyt`, `Pint`, and `astopy.units`, $T_{\rm package}$, to
 the time it takes for NumPy to perform the equivalent operation, $T_{\rm
 numpy}$. For example, for the comparison of the performance of `np.add(a, b)`
 where `a` and `b` have different units with the same dimension, the
-corresponding benchmark to generate `T_{\rm numpy}` would use the code
+corresponding benchmark to generate $T_{\rm numpy}$ would use the code
 `np.add(a, c*b)` where `a` and `b` would be `ndarray` instances and `c` would be
 the floating point conversion factor between the units of `a` and `b`. Much of
-the time in `T_{\rm package}` relative to `T_{\rm numpy}` is spent in the
+the time in $T_{\rm package}$ relative to $T_{\rm numpy}$ is spent in the
 respective packages calculating the appropriate conversion factor `c`. Thus the
 comparisons below depict very directly the overhead for using a unit library
 over an equivalent operation that uses hard-coded unit-conversion factors.
 
-![A benchmark comparing the overhead for computing various NumPy `ufunc`
-operations. The operands of all binary ufuncs have the same units. See Figure 1
-for a detailed explanation of the plot style.](ufunc.png)
+![A benchmark comparing the overhead for computing various NumPy `ufunc` operations. The operands of all binary `ufuncs` have the same units. See Figure 1 for a detailed explanation of the plot style.](ufunc.png)
 
 ### Applying units to data
 
