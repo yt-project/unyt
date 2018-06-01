@@ -180,17 +180,17 @@ provided by `astropy`.
 
 ## `Pint`
 
-The `Pint` package provides a somewhat different API compared with `unyt` and
-`astropy.units`. Rather than making units immediately importable from the `Pint`
-namespace, instead `Pint` requires users to instantiate a `UnitRegistry`
-instance (unrelated to the `unyt.UnitRegistry` class), which in turn has `Unit`
-instances as attributes. Just like with `unyt` and `astropy.units`, creating a
-`Quantity` instance requires multiplying an array or scalar by a `Unit`
-instance. Exposing the `UnitRegistry` directly to all users like this does force
-users of the library to think about which system of units they are working with,
-which may be beneficial in some cases, however it also means that users have a
-bit of extra cognitive overhead they need to deal with every time they use
-`Pint`.
+The `Pint` package provides a different API for accessing units compared with
+`unyt` and `astropy.units`. Rather than making units immediately importable from
+the `Pint` namespace, instead `Pint` requires users to instantiate a
+`UnitRegistry` instance (unrelated to the `unyt.UnitRegistry` class), which in
+turn has `Unit` instances as attributes. Just like with `unyt` and
+`astropy.units`, creating a `Quantity` instance requires multiplying an array or
+scalar by a `Unit` instance. Exposing the `UnitRegistry` directly to all users
+like this does force users of the library to think about which system of units
+they are working with, which may be beneficial in some cases, however it also
+means that users have a bit of extra cognitive overhead they need to deal with
+every time they use `Pint`.
 
 ![A benchmark comparing the time to square an array and to take the square root
 of an array. See Figure 1 for a detailed explanation of the plot
@@ -198,10 +198,10 @@ style.](unary.png)
 
 In addition, the `Quantity` class provided by `Pint` is not a subclass of
 NumPy's ndarray. Instead, it is a wrapper around an internal `ndarray`
-buffer. This somewhat simplifies the implementation of `Pint` by avoiding the
-somewhat arcane process for creating an ndarray subclass, although the `Pint`
-`Quantity` class must also be careful to emulate the full NumPy `ndarray` API so
-that it can be a drop-in replacement for `ndarray`.
+buffer. This simplifies the implementation of `Pint` by avoiding the somewhat
+arcane process for creating an ndarray subclass, although the `Pint` `Quantity`
+class must also be careful to emulate the full NumPy `ndarray` API so that it
+can be a drop-in replacement for `ndarray`.
 
 ![A benchmark comparing the time to perform various binary arithmetic
 operations on input operans that have different but dimensionallty compatible
