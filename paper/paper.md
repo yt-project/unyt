@@ -189,7 +189,7 @@ instances as attributes. Just like with `unyt` and `astropy.units`, creating a
 instance. Exposing the `UnitRegistry` directly to all users like this does force
 users of the library to think about which system of units they are working with,
 which may be beneficial in some cases, however it also means that users have a
-bit of extra cognitive overhead they need to deal with every time the use
+bit of extra cognitive overhead they need to deal with every time they use
 `Pint`.
 
 ![A benchmark comparing the time to square an array and to take the square root
