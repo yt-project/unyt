@@ -349,6 +349,11 @@ library constitutes a smaller codebase with higher test coverage than both
 # Acknowledgements
 
 NJG would like to thank Brandon Carswell and Alex Farthing of the NCSA IT staff
-for providing a laptop with Linux installed for the performance benchmark. This work was supported by NSF grant OAC-1663914 (NJG, MJT), by the Gordon and Betty Moore Foundation's Data-Driven Discovery Initiative through Grant GBMF4561 to MT and by NASA through Einstein Postdoctoral Fellowship grant number PF7-180166 awarded by the Chandra X-ray Center, which is operated by the Smithsonian Astrophysical Observatory for NASA under contract NAS8-03060 (ALR).
+for providing a laptop with Linux installed for the performance benchmark. This
+work was supported by NSF grant OAC-1663914 (NJG, MJT), by the Gordon and Betty
+Moore Foundation's Data-Driven Discovery Initiative through Grant GBMF4561 to MT
+and by NASA through Einstein Postdoctoral Fellowship grant number PF7-180166
+awarded by the Chandra X-ray Center, which is operated by the Smithsonian
+Astrophysical Observatory for NASA under contract NAS8-03060 (ALR).
 
 # References
