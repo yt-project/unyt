@@ -21,6 +21,11 @@ unyt
         :alt: Test Coverage
 
 
+
+.. raw:: html
+
+   <br/><a href="https://yt-project.org"><img src="docs/_static/yt_logo.png" width="200"></a>
+
 A package for handling numpy arrays with units.
 
 Often writing code that deals with data that has units can be confusing. A
