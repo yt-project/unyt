@@ -30,8 +30,8 @@ A package for handling numpy arrays with units.
 
 Often writing code that deals with data that has units can be confusing. A
 function might return an array but at least with plain NumPy arrays, there is no
-way to easily tell what the units of the data are without somehow knowing a
-prioi.
+way to easily tell what the units of the data are without somehow knowing *a
+prioi*.
 
 The ``unyt`` package (pronounced like "unit") provides a subclass of NumPy's
 ``ndarray`` class that knows about units. For example, one could do:
