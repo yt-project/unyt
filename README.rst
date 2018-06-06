@@ -20,11 +20,11 @@ unyt
         :target: https://codecov.io/gh/yt-project/unyt
         :alt: Test Coverage
 
+|
 
-
-.. raw:: html
-
-   <br/><a href="https://yt-project.org"><img src="docs/_static/yt_logo.png" width="200"></a>
+ .. image:: docs/_static/yt_logo_small.png
+         :target: https://yt-project.org
+         :alt: The yt Projection
 
 A package for handling numpy arrays with units.
 
