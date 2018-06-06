@@ -33,15 +33,14 @@ bibliography: paper.bib
 
 # Summary
 
-Software that processes data with physical units or that models real world
-quantities with physical units must have some way of managing units. This might
-be as simple as the convention that all floating point numbers are understood to
-be in the same physical unit system (for example, the SI MKS units
-system). While simple approaches like this do work in practice, they also are
-fraught with possible error, both by programmers modifying the code who
-unintentionally misinterpret the units, and by users of the software who must
-take care to supply data in the correct units or who need to infer the units of
-data returned by the software.
+Software that processes real-world data or that models a physical system must
+have some way of managing units. This might be as simple as the convention that
+all floating point numbers are understood to be in the same physical unit system
+(for example, the SI MKS units system). While simple approaches like this do
+work in practice, they also are fraught with possible error, both by programmers
+modifying the code who unintentionally misinterpret the units, and by users of
+the software who must take care to supply data in the correct units or who need
+to infer the units of data returned by the software. Famously, NASA lost contact with the Mars Climate Orbiter spacecraft after it crash-landed on the surface of Mars due to the use of English Imperial units rather than metric units in the spacecraft control software [@nasa1999].
 
 The `unyt` library is designed both to aid quick calculations at an interactive
 python prompt and to be tightly integrated into a larger Python application or
@@ -104,11 +103,11 @@ for `import astropy.units` returns approximately 10,500 results and a search for
 
 While `unyt` provides functionality that overlaps with `astropy.units` and
 `Pint`, there are important differences which we elaborate on below. In
-addition, it's worth noting that all three codebases had origins at roughly the
+addition, it is worth noting that all three codebases had origins at roughly the
 same time period. `Pint` initially began development in 2012 according to the
-git repository logs, and `astropy.units` began development 2012 and was released
-as part of `astropy 0.2` in 2013, although the initial implementation was
-adapted from the `pynbody` library [@pynbody], which started its units
+git repository logs. Likewise `astropy.units` began development in 2012 and was
+released as part of `astropy 0.2` in 2013, although the initial implementation
+was adapted from the `pynbody` library [@pynbody], which started its units
 implementation in 2010 according to the git repository logs. In the case of
 `unyt`, it originated via the `dimensionful` library [@dimensionful]
 in 2012. Later, `dimensionful` was elaborated on and improved to become
@@ -117,14 +116,15 @@ workshop in 2013 and was subsequently released as part of `yt 3.0` in 2014. One
 of the design goals for the `yt` unit system was the ability to dynamically
 define "code" units (e.g. units internal to data loaded by yt) as well as units
 that depend on details of the dataset - in particular cosmological comoving
-units and the "little $h$" factor [@croton2013]. For cosmology simulations in
-particular, this can be tricky because one might want to compare data from
-multiple outputs in a time series, with each output having a different mapping
-from internal units to physical units. This despite the fact that each output in
-the time series represents the same physical system and common workflows involve
-combining data from multiple outputs with different custom units. This
-requirement to manage complex custom units and interoperate between custom unit
-systems drove the `yt` community to independently develop a custom unit system
+units and the "little $h$" factor, used to parameterize the Hubble constant in
+cosmology calculations [@croton2013]. For cosmology simulations in particular,
+comparing data with different unit systems can be tricky because one might want
+to use data from multiple outputs in a time series, with each output having a
+different mapping from internal units to physical units. This despite the fact
+that each output in the time series represents the same physical system and
+common workflows involve combining data from multiple outputs. This requirement
+to manage complex custom units and interoperate between custom unit systems
+drove the `yt` community to independently develop a custom unit system
 solution. We have decided to repackage and improve `yt.units` in the form of
 `unyt` to both make it easier to work on and improve the unit system and
 encourage use of the unit system for scientific python users who do not want to
@@ -153,13 +153,6 @@ the algebra of unit symbols directly in `unyt`. For potential users who are wary
 of adding `SymPy` as a dependency, that might argue in favor of using `Pint` in
 favor of `unyt`.
 
-![A benchmark comparing the time to apply units to lists and NumPy `ndarray`
-instances. Each test is shown for three different sizes of input data,
-including inputs with size 3, 1,000, and 1,000,000. The black lines at the top
-of the bars indicate the sample standard deviation. The $T_{\rm numpy}$ time is
-calculated by benchmarking the time to perform `np.asarray(data)` where `data`
-is either a `list` of an `ndarray`.](apply.png)
-
 ## `astropy.units`
 
 The `astropy.units` subpackage provides a `PrefixUnit` class, a `Quantity` class
@@ -182,7 +175,7 @@ astronomers or do not need the observational astronomy capabilities provided by
 
 The `Pint` package provides a different API for accessing units compared with
 `unyt` and `astropy.units`. Rather than making units immediately importable from
-the `Pint` namespace, instead `Pint` requires users to instantiate a
+the `Pint` namespace, `Pint` instead requires users to instantiate a
 `UnitRegistry` instance (unrelated to the `unyt.UnitRegistry` class), which in
 turn has `Unit` instances as attributes. Just like with `unyt` and
 `astropy.units`, creating a `Quantity` instance requires multiplying an array or
@@ -192,9 +185,7 @@ they are working with, which may be beneficial in some cases, however it also
 means that users have a bit of extra cognitive overhead they need to deal with
 every time they use `Pint`.
 
-![A benchmark comparing the time to square an array and to take the square root
-of an array. See Figure 1 for a detailed explanation of the plot
-style.](unary.png)
+![A benchmark comparing the ratio of the time to apply units to lists and NumPy `ndarray` instances to the time to interpret the same list or `ndarray` to an `ndarray`. This ratio, $T_{\rm package}/T_{\rm numpy}$, corresponds to the overhead of converting data to work with one of the three packages. Values close to unity correspond to zero or negligible overhead, while values larger than unity correspond to measureable overhead. Optimally all values would be near zero. In practice, applying units to small arrays incurs substantial overhead. Each test is shown for three different sizes of input data, including inputs with size 3, 1,000, and 1,000,000. The black lines at the top of the bars indicate the sample standard deviation. The $T_{\rm numpy}$ time is calculated by benchmarking the time to perform `np.asarray(data)` where `data` is either a `list` or an `ndarray`.](apply.png)
 
 In addition, the `Quantity` class provided by `Pint` is not a subclass of
 NumPy's ndarray. Instead, it is a wrapper around an internal `ndarray`
@@ -203,17 +194,12 @@ arcane process for creating an ndarray subclass, although the `Pint` `Quantity`
 class must also be careful to emulate the full NumPy `ndarray` API so that it
 can be a drop-in replacement for `ndarray`.
 
-![A benchmark comparing the time to perform various binary arithmetic
-operations on input operans that have different but dimensionallty compatible
-units. See Figure 1 for a detailed explanation of the plot
-style.](binary_different_units.png)
-
 Finally, in comparing the output of our benchmarks of `Pint`, `astropy.units`,
 and `unyt`, we found that in-place operations making use of a NumPy `ufunc` will
 unexpectedly strip units in `Pint`. For example, if `a` and `b` are `Pint`
 `Quantity` instances, `np.add(a, b, out=out))` will operate on `a` and `b` as if
 neither have units attached. Interestingly, without the `out` keyword, `Pint`
-does get the correct answer, so it's possible that this is a bug in `Pint`, and
+does get the correct answer, so it is possible that this is a bug in `Pint`, and
 we have reported it as such upstream (see
 https://github.com/hgrecco/pint/issues/644).
 
@@ -230,6 +216,10 @@ overhead of doing a mathematical operation exceeds the overhead of checking
 units. It is thus worth benchmarking unit libraries in a fair manner, comparing
 with the same operation implemented using plain NumPy.
 
+![A benchmark comparing the time to square an array and to take the square root
+of an array. See Figure 1 for a detailed explanation of the plot
+style.](unary.png)
+
 Here we present such a benchmark. We made use of the `perf` [@perf] Python
 benchmarking tool, which not only provides facilities for establishing the
 statistical significance of a benchmark run, but also can tune a linux system to
@@ -245,8 +235,9 @@ interfere with stable benchmarks. We did not make any boot-time Linux kernel
 parameter changes.
 
 ![A benchmark comparing the time to perform various binary arithmetic
-operations on input operands that have the same units. See Figure 1 for a
-detailed explanation of the plot style.](binary_same_units.png)
+operations on input operans that have different but dimensionallty compatible
+units. See Figure 1 for a detailed explanation of the plot
+style.](binary_different_units.png)
 
 For each of the benchmarks below, we show the ratio of the time to perform an
 operation with one of `unyt`, `Pint`, and `astopy.units`, $T_{\rm package}$, to
@@ -261,9 +252,9 @@ respective packages calculating the appropriate conversion factor `c`. Thus the
 comparisons below depict very directly the overhead for using a unit library
 over an equivalent operation that uses hard-coded unit-conversion factors.
 
-![A benchmark comparing the overhead for computing various NumPy `ufunc`
-operations. The operands of all binary `ufuncs` have the same units. See Figure
-1 for a detailed explanation of the plot style.](ufunc.png)
+![A benchmark comparing the time to perform various binary arithmetic
+operations on input operands that have the same units. See Figure 1 for a
+detailed explanation of the plot style.](binary_same_units.png)
 
 ### Applying units to data
 
@@ -276,8 +267,9 @@ well as NumPy need to first copy the contents of the list into a NumPy array or
 a subclass of `ndarray`. This explains why the overhead is systematically lower
 when starting with a list.
 
-![The same as Figure 5, but with in-place `ufunc` operations. See Figure 1 for
-a detailed explanation of the plot style.](ufuncout.png)
+![A benchmark comparing the overhead for computing various NumPy `ufunc`
+operations. The operands of all binary `ufuncs` have the same units. See Figure
+1 for a detailed explanation of the plot style.](ufunc.png)
 
 In all cases, `unyt` either is fastest by a statistically significant margin, or
 ties with `astropy`. Even for large input arrays, `Pint` still has statistically
@@ -306,19 +298,22 @@ with different units but the same dimensions. In most cases, `unyt` has less
 overhead than both `astropy` and `Pint`, although there are a few anomalies that
 are worth explaining in more detail. For comparison operations, `Pint` exhibits
 a slowdown even on large input arrays. This is not present for other binary
-operations, so it's possible that this overhead might be eliminated with a code
+operations, so it is possible that this overhead might be eliminated with a code
 change in `Pint`. For multiplication on large arrays, all three libraries have
-measured overhead of $\sim 0.5$ that of the "equivalent" Numpy operation. That
-is because all three libraries produce a results with units given by the product
-of the input units, that is, there is no need to multiply the result of the
-multiplication operation by an additional constant, while a pure NumPy
-implementation would need to multiply the result by a constant to ensure both
-operands of the operation are in the same units. Finally, for division, both
-`Pint` and `astropy.units` exhibit the same behavior as for multiplication, and
-for similar reasons: the result of the division operation is output with units
-given by the ratio of the input units. On the other hand, `unyt` will
-automatically cancel the dimensionally compatible units in the ratio and return
-a result with dimensionless units.
+measured overhead of $\sim 0.5$ than that of the "equivalent" Numpy
+operation. That is because all three libraries produce results with units
+given by the product of the input units. That is, there is no need to multiply
+the result of the multiplication operation by an additional constant, while a
+pure NumPy implementation would need to multiply the result by a constant to
+ensure both operands of the operation are in the same units. Finally, for
+division, both `Pint` and `astropy.units` exhibit the same behavior as for
+multiplication, and for similar reasons: the result of the division operation is
+output with units given by the ratio of the input units. On the other hand,
+`unyt` will automatically cancel the dimensionally compatible units in the ratio
+and return a result with dimensionless units.
+
+![The same as Figure 5, but with in-place `ufunc` operations. See Figure 1 for
+a detailed explanation of the plot style.](ufuncout.png)
 
 ### NumPy `ufunc` performance
 
