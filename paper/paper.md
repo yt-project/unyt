@@ -168,11 +168,11 @@ class. Indeed, in many ways the everyday usage patterns of `astropy.units` and
 `astropy.units` as there are some API differences. The main functional
 difference between `astropy.units` and `unyt` is that `astropy.units` is a
 subpackage of the larger `astropy` package. This means that depending on
-`astropy.units` requires depending on a large collection of astronomically
-focused software, including a substantial amount of compiled C code. This
-presents a barrier to usage for potential users of `astropy.units` who are not
-astronomers or do not need the observational astronomy capabilities provided by
-`astropy`.
+`astropy.units` requires installing a large collection of astronomically focused
+software included in the `astropy` package, including a substantial amount of
+compiled C code. This presents a barrier to usage for potential users of
+`astropy.units` who are not astronomers or do not need the observational
+astronomy capabilities provided by `astropy`.
 
 ## `Pint`
 
