@@ -284,7 +284,7 @@ ties with `astropy`. Even for large input arrays, `Pint` still has statistically
 significant overhead, while both `unyt` and `astropy.units` have negligible
 overhead once the input array size reaches $10^6$ elements.
 
-### Unary arithmetical operations
+### Unary arithmetic operations
 
 Expressions involving powers of data with units, including integer and
 fractional powers, are very common in the physical sciences. It is therefore
@@ -295,12 +295,12 @@ and `astropy.units` for the squaring and square root operation. In all cases,
 `astropy.units` trailing. Note that the y-axis is plotted on a log scale, so
 `astropy` is as much as 4 times slower than `unyt` for these operations.
 
-### Binary arithmetical operations
+### Binary arithmetic operations
 
 Binary operations form the core of arithmetic. It is vital for a library that
 handles unit manipulation to both transparently convert units when necessary and
 to ensure that expressions involving quantities with units are dimensionally
-consistent. In Figure 3 and 4 we present benchmarks for binary arithmetical
+consistent. In Figure 3 and 4 we present benchmarks for binary arithmetic
 expressions, both with input data that has the same units and with input data
 with different units but the same dimensions. In most cases, `unyt` has less
 overhead than both `astropy` and `Pint`, although there are a few anomalies that
@@ -324,7 +324,7 @@ a result with dimensionless units.
 
 Lastly, In Figures 4 and 5, we present benchmarks of NumPy `ufunc` operations. A
 NumPy `ufunc` is a fast C implementation of a basic mathematical operation. This
-includes arithmetical operators as well as trigonometric and special
+includes arithmetic operators as well as trigonometric and special
 functions. By using a `ufunc` directly, one bypasses the Python object protocol
 and short-circuits directly to the low-level NumPy math kernels. We show both
 directly using the NumPy `ufunc` operators (Figure 4) as well as using the same
