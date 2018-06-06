@@ -47,5 +47,5 @@
   "keywords": "units, python, numpy, sympy, quantities",
   "license": "BSD",
   "title": "unyt",
-  "version": "v1.0.2"
+  "version": "v1.0.3"
 }

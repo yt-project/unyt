@@ -6,6 +6,11 @@ unyt began life as a submodule of yt named yt.units.
 
 It was separated from yt.units as its own package in 2018.
 
+1.0.3 (2018-06-06)
+------------------
+
+* Fix readme rendering on pypi
+
 1.0.2 (2018-06-06)
 ------------------
 
