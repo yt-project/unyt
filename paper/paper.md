@@ -40,7 +40,10 @@ all floating point numbers are understood to be in the same physical unit system
 work in practice, they also are fraught with possible error, both by programmers
 modifying the code who unintentionally misinterpret the units, and by users of
 the software who must take care to supply data in the correct units or who need
-to infer the units of data returned by the software. Famously, NASA lost contact with the Mars Climate Orbiter spacecraft after it crash-landed on the surface of Mars due to the use of English Imperial units rather than metric units in the spacecraft control software [@nasa1999].
+to infer the units of data returned by the software. Famously, NASA lost contact
+with the Mars Climate Orbiter spacecraft after it crash-landed on the surface of
+Mars due to the use of English Imperial units rather than metric units in the
+spacecraft control software [@nasa1999].
 
 The `unyt` library is designed both to aid quick calculations at an interactive
 python prompt and to be tightly integrated into a larger Python application or

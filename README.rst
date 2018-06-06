@@ -68,4 +68,11 @@ The unyt package is licensed under the BSD 3-clause license.
 Citation
 --------
 
-If you make use of unyt in a publication we would appreciate a mention in the text of the paper or in the acknowledgements.
+If you make use of unyt in a publication we would appreciate a mention in the
+text of the paper or in the acknowledgements.
+
+We have `submitted a paper
+<https://joss.theoj.org/papers/dbc27acb614dd33eb02b029ef20e7fe7>`_ to the
+Journal of Open Source Software. When the paper is accepted we would appreciate
+a citation to the paper if you make use of ``unyt`` for work that leads to a
+publication.
