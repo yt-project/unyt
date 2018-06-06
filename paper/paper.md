@@ -86,9 +86,9 @@ units automatically check to make sure the units are consistent, and allow
 automatic converting of the final answer of a calculation into a convenient
 unit.
 
-We direct users interested in usage examples and a guide for integrating `unyt`
-into an exiting Python installation to the unyt documentation at hosted at
-http://unyt.readthedocs.io/en/latest/.
+We direct readers interested in usage examples and a guide for integrating
+`unyt` into an existing Python application or workflow to the unyt documentation
+hosted at http://unyt.readthedocs.io/en/latest/.
 
 # Comparison with `Pint` and ``astropy.units``
 
