@@ -119,6 +119,7 @@ default_unit_symbol_lut = {
     "BTU": (1055.0559, dimensions.energy, 0.0, r"\rm{BTU}"),
     "psi": (kg_per_pound*standard_gravity_m_per_s2/m_per_inch**2,
             dimensions.pressure, 0.0, r"\rm{psi}"),
+    "smoot": (1.7018, dimensions.length, 0.0, r"\rm{smoot}"),
 
     # dimensionless stuff
     "h": (1.0, dimensions.dimensionless, 0.0, r"h"),
