@@ -6,6 +6,10 @@ unyt
 .. image:: https://img.shields.io/pypi/v/unyt.svg
         :target: https://pypi.python.org/pypi/unyt
 
+.. image:: https://img.shields.io/conda/vn/conda-forge/unyt.svg
+        :target: https://anaconda.org/conda-forge/unyt
+        :alt: conda-forge
+
 .. image:: https://img.shields.io/travis/yt-project/unyt.svg
         :target: https://travis-ci.org/yt-project/unyt
 
@@ -24,7 +28,7 @@ unyt
 
  .. image:: docs/_static/yt_logo_small.png
          :target: https://yt-project.org
-         :alt: The yt Projection
+         :alt: The yt Project
 
 A package for handling numpy arrays with units.
 
