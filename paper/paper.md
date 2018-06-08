@@ -19,7 +19,7 @@ authors:
   - name: Kacper Kowalik
     orcid: 0000-0003-1709-3744
     affiliation: 1
-  - name: Anna Rosen
+  - name: Anna L. Rosen
     orcid: 0000-0003-4423-0660
     affiliation: 2
 affiliations:
