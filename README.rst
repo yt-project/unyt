@@ -77,6 +77,8 @@ text of the paper or in the acknowledgements.
 
 We have `submitted a paper
 <https://joss.theoj.org/papers/dbc27acb614dd33eb02b029ef20e7fe7>`_ to the
-Journal of Open Source Software. When the paper is accepted we would appreciate
-a citation to the paper if you make use of ``unyt`` for work that leads to a
-publication.
+Journal of Open Source Software. A `preprint
+<https://arxiv.org/abs/1806.02417>`_ is available on the arxiv. We would
+appreciate a citation (`BibTeX
+<http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2018arXiv180602417G&data_type=BIBTEX>`_)
+to the paper if you make use of ``unyt`` for work that leads to a publication.
