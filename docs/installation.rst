@@ -14,14 +14,27 @@ To install unyt, run this command in your terminal:
 
     $ pip install unyt
 
-This is the preferred method to install unyt, as it will always install the most recent stable release.
+If you have a C compiler available, we also suggest installing `fastcache`_,
+which will improve the performance of `SymPy`_.
 
 If you don't have `pip`_ installed, this `Python installation guide`_ can guide
 you through the process.
 
+If you use `conda`_, ``unyt`` is available via `conda-forge`_:
+
+.. code-block:: console
+
+   $ conda install -c conda-forge unyt
+
+It is not necessary to explicitly install ``fastcache`` if you use ``conda``
+because it will be installed automatically as a dependency of ``SymPy``.
+
 .. _pip: https://pip.pypa.io
 .. _Python installation guide: http://docs.python-guide.org/en/latest/starting/installation/
-
+.. _fastcache: https://github.com/pbrady/fastcache
+.. _SymPy: http://sympy.org/
+.. _conda: https://conda.io/
+.. _conda-forge: https://conda-forge.org/
 
 From source
 -----------
