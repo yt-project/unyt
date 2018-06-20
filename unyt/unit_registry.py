@@ -69,9 +69,36 @@ class UnitRegistry:
             self._unit_system_id = str(m.hexdigest())
         return self._unit_system_id
 
-    def add(self, symbol, base_value, dimensions, tex_repr=None, offset=None):
+    @property
+    def prefixable_units(self):
+        return [u for u in self.lut if self.lut[u][4]]
+
+    def add(self, symbol, base_value, dimensions, tex_repr=None, offset=None,
+            prefixable=False):
         """
         Add a symbol to this registry.
+
+        Parameters
+        ----------
+
+        symbol : str
+           The name of the unit
+        base_value : float
+           The scaling from the units value to the equivalent SI unit
+           with the same dimensions
+        dimensions : expr
+           The dimensions of the unit
+        tex_repr : str, optional
+           The LaTeX representation of the unit. If not provided a LaTeX
+           representation is automatically generated from the name of
+           the unit.
+        offset : float, optional
+           If set, the zero-point offset to apply to the unit to convert
+           to SI. This is mostly used for units like Farhenheit and
+           Celcius that are not defined on an absolute scale.
+        prefixable : bool
+           If True, then SI-prefix versions of the unit will be created
+           along with the unit itself.
 
         """
         from unyt.unit_object import _validate_dimensions
@@ -98,11 +125,18 @@ class UnitRegistry:
             tex_repr = r"\rm{" + symbol.replace('_', '\ ') + "}"
 
         # Add to lut
-        self.lut.update({symbol: (base_value, dimensions, offset, tex_repr)})
+        self.lut[symbol] = (
+            base_value, dimensions, offset, tex_repr, prefixable)
 
     def remove(self, symbol):
         """
         Remove the entry for the unit matching `symbol`.
+
+        Parameters
+        ----------
+
+        symbol : str
+           The name of the unit symbol to remove from the registry.
 
         """
         self._unit_system_id = None
@@ -118,6 +152,14 @@ class UnitRegistry:
         """
         Change the base value of a unit symbol.  Useful for adjusting code
         units after parsing parameters.
+
+        Parameters
+        ----------
+
+        symbol : str
+           The name of the symbol to modify
+        base_value : float
+           The new base_value for the symbol.
 
         """
         self._unit_system_id = None
@@ -161,6 +203,12 @@ class UnitRegistry:
     def from_json(cls, json_text):
         """
         Returns a UnitRegistry object from a json-serialized unit registry
+
+        Parameters
+        ----------
+
+        json_text : str
+           A string containing a json represention of a UnitRegistry
         """
         data = json.loads(json_text)
         lut = {}

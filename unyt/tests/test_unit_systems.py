@@ -53,7 +53,7 @@ def test_unit_system_id():
     reg1 = UnitRegistry()
     reg1.remove('g')
     assert reg1.unit_system_id != reg2.unit_system_id
-    reg1.add('g', 1.0e-3, dimensions.mass)
+    reg1.add('g', 1.0e-3, dimensions.mass, prefixable=True)
     assert reg1.unit_system_id == reg2.unit_system_id
 
 

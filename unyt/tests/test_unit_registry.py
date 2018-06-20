@@ -21,6 +21,7 @@ from unyt.exceptions import (
     SymbolNotFoundError,
     UnitParseError,
 )
+from unyt.unit_object import Unit
 from unyt.unit_registry import UnitRegistry
 
 
@@ -52,3 +53,16 @@ def test_add_modify_error():
 def test_keys():
     ureg = UnitRegistry()
     assert sorted(ureg.keys()) == sorted(ureg.lut.keys())
+
+
+def test_prefixable_units():
+    ureg = UnitRegistry()
+    pu = ureg.prefixable_units
+    assert 'm' in pu
+    assert 'pc' in pu
+    assert 'mol' in pu
+    ureg.add('foobar', 1.0, length, prefixable=True)
+    assert 'foobar' in ureg.prefixable_units
+    mfoobar = Unit('mfoobar', registry=ureg)
+    foobar = Unit('foobar', registry=ureg)
+    assert (1*foobar)/(1*mfoobar) == 1000
