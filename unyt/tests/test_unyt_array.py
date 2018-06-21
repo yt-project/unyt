@@ -1906,3 +1906,15 @@ def test_creation():
         unyt_quantity('hello', 'cm')
     with pytest.raises(RuntimeError):
         unyt_quantity(np.array([1, 2, 3]), 'cm')
+
+
+def test_round():
+    from unyt import km
+
+    assert_equal(round(3.3*km), 3.)
+    assert_equal(round(3.5*km), 4.)
+    assert_equal(round(3*km), 3)
+    assert_equal(round(3.7*km), 4)
+
+    with pytest.raises(TypeError):
+        round([1, 2, 3]*km)

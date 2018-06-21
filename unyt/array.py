@@ -1843,6 +1843,9 @@ class unyt_quantity(unyt_array):
             raise RuntimeError("unyt_quantity instances must be scalars")
         return ret
 
+    def __round__(self):
+        return type(self)(round(float(self)), self.units)
+
 
 def _validate_numpy_wrapper_units(v, arrs):
     if not any(isinstance(a, unyt_array) for a in arrs):
