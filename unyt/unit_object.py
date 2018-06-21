@@ -799,9 +799,16 @@ def _check_em_conversion(unit_expr, to_unit_expr=None):
     for unit in unit_expr.atoms():
         if unit.is_Number:
             pass
-        base_unit = _get_em_base_unit(str(unit))
-        if base_unit in em_conversions:
-            raise MKSCGSConversionError(unit_expr)
+        bu = _get_em_base_unit(str(unit))
+        if bu in em_conversions:
+            conv_unit = em_conversions[bu][0]
+            if to_unit_expr is not None:
+                for ounit in to_unit_expr.atoms():
+                    bou = _get_em_base_unit(str(ounit))
+                    if bou == conv_unit:
+                        raise MKSCGSConversionError(unit_expr)
+            else:
+                raise MKSCGSConversionError(unit_expr)
     return em_map
 
 

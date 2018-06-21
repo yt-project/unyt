@@ -17,6 +17,7 @@ Test ndarray subclass that handles symbolic units.
 import copy
 from six.moves import cPickle as pickle
 import itertools
+import math
 import numpy as np
 import operator
 import os
@@ -1610,7 +1611,6 @@ def test_electromagnetic():
     u_mks = B*B/(2*u.mu_0)
     assert_equal(u_mks.units.dimensions, dimensions.pressure)
     u_cgs = B_cgs*B_cgs/(8*np.pi)
-    assert_equal(u_cgs.units.dimensions, dimensions.pressure)
     with pytest.raises(UnitConversionError):
         u_cgs.to(u_mks.units)
     with pytest.raises(UnitConversionError):
@@ -1666,6 +1666,10 @@ def test_electromagnetic():
         data.convert_to_units('C*T*V')
     with pytest.raises(UnitsNotReducible):
         data.in_mks()
+
+    mu_0 = 4.0e-7*math.pi*u.N/u.A**2
+    eps_0 = 8.85418781782e-12*u.m**-3/u.kg*u.s**4*u.A**2
+    assert_almost_equal((1.0/(u.clight**2*mu_0)).in_units(eps_0.units), eps_0)
 
 
 def test_ytarray_coercion():
