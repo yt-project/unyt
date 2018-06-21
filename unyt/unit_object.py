@@ -64,7 +64,6 @@ from unyt.exceptions import (
 from unyt._physical_ratios import speed_of_light_cm_per_s
 from unyt._unit_lookup_table import (
     unit_prefixes,
-    prefixable_units,
     latex_prefixes,
 )
 from unyt.unit_registry import (
@@ -926,6 +925,9 @@ def _lookup_unit_symbol(symbol_str, unit_symbol_lut):
             symbol_wo_pref = symbol_str[2:]
             possible_prefix = 'da'
 
+        prefixable_units = [u for u in unit_symbol_lut
+                            if unit_symbol_lut[u][4]]
+
         unit_is_si_prefixable = (symbol_wo_pref in unit_symbol_lut and
                                  symbol_wo_pref in prefixable_units)
 
@@ -954,7 +956,7 @@ def _lookup_unit_symbol(symbol_str, unit_symbol_lut):
             # Leave offset and dimensions the same, but adjust scale factor and
             # LaTeX representation
             ret = (unit_data[0] * prefix_value, unit_data[1], unit_data[2],
-                   latex_repr)
+                   latex_repr, False)
 
             unit_symbol_lut[symbol_str] = ret
 
@@ -1064,10 +1066,8 @@ def define_unit(symbol, value, tex_repr=None, offset=None, prefixable=False,
                                "(value, unit) tuple!")
     base_value = float(value.in_base(unit_system='mks'))
     dimensions = value.units.dimensions
-    registry.add(symbol, base_value, dimensions, tex_repr=tex_repr,
-                 offset=offset)
-    if prefixable:
-        prefixable_units.append(symbol)
+    registry.add(symbol, base_value, dimensions, prefixable=prefixable,
+                 tex_repr=tex_repr, offset=offset)
     if registry is default_unit_registry:
         u = Unit(symbol, registry=registry)
         setattr(unyt, symbol, u)

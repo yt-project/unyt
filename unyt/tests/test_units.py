@@ -52,8 +52,7 @@ from unyt.unit_object import (
 from unyt.unit_systems import UnitSystem
 from unyt._unit_lookup_table import (
     default_unit_symbol_lut,
-    unit_prefixes,
-    prefixable_units
+    unit_prefixes
 )
 import unyt.unit_symbols as unit_symbols
 from unyt._physical_ratios import (
@@ -74,7 +73,7 @@ def test_no_conflicting_symbols():
 
     # go through all possible prefix combos
     for symbol in default_unit_symbol_lut.keys():
-        if symbol in prefixable_units:
+        if default_unit_symbol_lut[symbol][4]:
             keys = unit_prefixes.keys()
         else:
             keys = [symbol]
@@ -493,7 +492,7 @@ def test_latex_repr():
 
     # create a fake comoving unit
     registry.add('pccm', registry.lut['pc'][0]/(1+2), length,
-                 "\\rm{pc}/(1+z)")
+                 "\\rm{pc}/(1+z)", prefixable=True)
 
     test_unit = Unit('Mpccm', registry=registry)
     assert_almost_equal(test_unit.base_value, m_per_mpc/3)
@@ -656,3 +655,8 @@ def test_define_unit_error():
         define_unit('foobar', 'baz')
     with pytest.raises(RuntimeError):
         define_unit('foobar', 12)
+
+
+def test_symbol_lut_length():
+    for v in default_unit_symbol_lut.values():
+        assert len(v) == 5
