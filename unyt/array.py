@@ -1577,16 +1577,17 @@ class unyt_array(np.ndarray):
                 u1 = Unit(registry=getattr(u0, 'registry', None))
             elif ufunc is power:
                 u1 = inp1
-                if isinstance(u1, np.ndarray):
-                    if isinstance(u1, unyt_array):
-                        if u1.units.is_dimensionless:
-                            pass
-                        else:
-                            raise UnitOperationError(ufunc, u0, u1)
-                    try:
-                        u1 = float(u1)
-                    except TypeError:
+                if inp0.shape != () and inp1.shape != ():
+                    raise UnitOperationError(ufunc, u0, u1)
+                if isinstance(u1, unyt_array):
+                    if u1.units.is_dimensionless:
+                        pass
+                    else:
                         raise UnitOperationError(ufunc, u0, u1)
+                if u1.shape == ():
+                    u1 = float(u1)
+                else:
+                    u1 = 1.0
             unit_operator = self._ufunc_registry[ufunc]
             if unit_operator in (_preserve_units, _comparison_unit,
                                  _arctan2_unit):
