@@ -600,7 +600,8 @@ class unyt_array(np.ndarray):
         units = _sanitize_units_convert(units, self.units.registry)
         if equivalence is None:
             try:
-                conv_data = _check_em_conversion(self.units.expr, units.expr)
+                conv_data = _check_em_conversion(
+                    self.units, units, registry=self.units.registry)
             except MKSCGSConversionError:
                 raise UnitConversionError(self.units, self.units.dimensions,
                                           units, units.dimensions)
@@ -762,7 +763,8 @@ class unyt_array(np.ndarray):
         units = _sanitize_units_convert(units, self.units.registry)
         if equivalence is None:
             try:
-                conv_data = _check_em_conversion(self.units.expr, units.expr)
+                conv_data = _check_em_conversion(
+                    self.units, units, registry=self.units.registry)
             except MKSCGSConversionError:
                 raise UnitConversionError(self.units, self.units.dimensions,
                                           units, units.dimensions)
@@ -890,13 +892,20 @@ class unyt_array(np.ndarray):
         >>> print(E.in_base("mks"))
         2.5e-07 W
         """
+        from unyt.unit_systems import unit_system_registry
+        if hasattr(unit_system, "unit_registry"):
+            unit_system = unit_system.unit_registry.unit_system_id
+        elif unit_system == "code":
+            unit_system = self.registry.unit_system_id
+        us = unit_system_registry[str(unit_system)]
         try:
-            conv_data = _check_em_conversion(self.units.expr)
+            conv_data = _check_em_conversion(
+                self.units, unit_system=us, registry=self.units.registry)
         except MKSCGSConversionError:
             raise UnitsNotReducible(self.units, unit_system)
         if any(conv_data):
             to_units, (conv, offset) = _em_conversion(
-                self.units, conv_data, unit_system=unit_system)
+                self.units, conv_data, unit_system=us)
         else:
             to_units = self.units.get_base_equivalent(unit_system)
             conv, offset = self.units.get_conversion_factor(to_units)

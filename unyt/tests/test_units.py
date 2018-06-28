@@ -36,6 +36,7 @@ from unyt.dimensions import (
     temperature,
     energy,
     magnetic_field_cgs,
+    magnetic_field_mks,
     power,
     rate
 )
@@ -602,11 +603,16 @@ def test_code_unit():
 
     ureg = UnitRegistry()
     ureg.add('code_length', 10., length)
+    ureg.add('code_magnetic_field', 2.0, magnetic_field_mks)
     u = Unit('code_length', registry=ureg)
     assert u.is_code_unit is True
     assert u.get_base_equivalent() == Unit('m')
     u = Unit('cm')
     assert u.is_code_unit is False
+
+    u = Unit('code_magnetic_field', registry=ureg)
+    assert u.get_base_equivalent('mks') == Unit('T')
+    assert u.get_base_equivalent('cgs') == Unit('gauss')
 
     UnitSystem(ureg.unit_system_id, 'code_length', 'kg', 's', registry=ureg)
 
