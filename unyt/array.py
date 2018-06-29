@@ -132,6 +132,7 @@ from unyt._pint_conversions import convert_pint_units
 from unyt.unit_object import (
     _check_em_conversion,
     _em_conversion,
+    _sanitize_unit_system,
     Unit,
 )
 from unyt.unit_registry import UnitRegistry
@@ -892,12 +893,7 @@ class unyt_array(np.ndarray):
         >>> print(E.in_base("mks"))
         2.5e-07 W
         """
-        from unyt.unit_systems import unit_system_registry
-        if hasattr(unit_system, "unit_registry"):
-            unit_system = unit_system.unit_registry.unit_system_id
-        elif unit_system == "code":
-            unit_system = self.registry.unit_system_id
-        us = unit_system_registry[str(unit_system)]
+        us = _sanitize_unit_system(unit_system, self)
         try:
             conv_data = _check_em_conversion(
                 self.units, unit_system=us, registry=self.units.registry)

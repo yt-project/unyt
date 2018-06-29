@@ -86,6 +86,15 @@ global_dict = {
 }
 
 
+def _sanitize_unit_system(unit_system, obj):
+    from unyt.unit_systems import unit_system_registry
+    if hasattr(unit_system, "unit_registry"):
+        unit_system = unit_system.unit_registry.unit_system_id
+    elif unit_system == "code":
+        unit_system = obj.registry.unit_system_id
+    return unit_system_registry[str(unit_system)]
+
+
 def _auto_positive_symbol(tokens, local_dict, global_dict):
     """
     Inserts calls to ``Symbol`` for undefined variables.
@@ -632,12 +641,7 @@ class Unit(object):
         >>> (g/cm**3).get_base_equivalent('solar')
         Mearth/AU**3
         """
-        from unyt.unit_systems import unit_system_registry
-        if hasattr(unit_system, "unit_registry"):
-            unit_system = unit_system.unit_registry.unit_system_id
-        elif unit_system == "code":
-            unit_system = self.registry.unit_system_id
-        unit_system = unit_system_registry[str(unit_system)]
+        unit_system = _sanitize_unit_system(unit_system, self)
         try:
             conv_data = _check_em_conversion(
                 self.units, registry=self.registry, unit_system=unit_system)
