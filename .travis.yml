@@ -1,34 +1,44 @@
 # Config file for automatic testing at travis-ci.org
 
-language: python
 sudo: false
 cache:
   pip: true
-
-python:
-  - 3.6
-  - 3.5
-  - 3.4
-  - 2.7
+  directories:
+    - $HOME/.pyenv_cache
+    - $HOME/.pyenv
 
 matrix:
   include:
     - os: osx
       language: generic
+    - os: linux
+      language: python
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew upgrade python ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install python@2 ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew link --overwrite python2; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew link --overwrite python; fi
-
-# Command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-install:
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]];
-      then pip3 install -U tox-travis codecov;
-      else pip install -U tox-travis codecov;
+  - export PYTHON_BUILD_CACHE_PATH="$HOME/.pyenv_cache"
+  - rm -rf /opt/pyenv
+  - |
+      if [ ! -d $HOME/.pyenv/.git ]; then
+        git clone https://github.com/pyenv/pyenv.git $HOME/.pyenv
+      else
+        pushd $HOME/.pyenv
+        git pull https://github.com/pyenv/pyenv.git
+        popd
       fi
+  - export PYENV_ROOT="$HOME/.pyenv"
+  - export PATH="$HOME/.pyenv/bin:$PATH"
+  - eval "$(pyenv init -)"
+  - pyenv install -s 2.7.15
+  - pyenv install -s 3.4.8
+  - pyenv install -s 3.5.5
+  - pyenv install -s 3.6.5
+  - pyenv local 2.7.15 3.4.8 3.5.5 3.6.5
+  - |
+      if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+        brew install python
+        brew link --overwrite python
+      fi
+  - pip install tox tox-pyenv codecov
 
 # Command to run tests, e.g. python setup.py test
 script: tox -vvv
