@@ -58,4 +58,4 @@ deploy:
   on:
     tags: true
     repo: yt-project/unyt
-    python: 3.6
+    os: linux
