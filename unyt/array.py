@@ -132,6 +132,7 @@ from unyt._pint_conversions import convert_pint_units
 from unyt.unit_object import (
     _check_em_conversion,
     _em_conversion,
+    _sanitize_unit_system,
     Unit,
 )
 from unyt.unit_registry import UnitRegistry
@@ -600,7 +601,8 @@ class unyt_array(np.ndarray):
         units = _sanitize_units_convert(units, self.units.registry)
         if equivalence is None:
             try:
-                conv_data = _check_em_conversion(self.units.expr, units.expr)
+                conv_data = _check_em_conversion(
+                    self.units, units, registry=self.units.registry)
             except MKSCGSConversionError:
                 raise UnitConversionError(self.units, self.units.dimensions,
                                           units, units.dimensions)
@@ -762,7 +764,8 @@ class unyt_array(np.ndarray):
         units = _sanitize_units_convert(units, self.units.registry)
         if equivalence is None:
             try:
-                conv_data = _check_em_conversion(self.units.expr, units.expr)
+                conv_data = _check_em_conversion(
+                    self.units, units, registry=self.units.registry)
             except MKSCGSConversionError:
                 raise UnitConversionError(self.units, self.units.dimensions,
                                           units, units.dimensions)
@@ -890,13 +893,15 @@ class unyt_array(np.ndarray):
         >>> print(E.in_base("mks"))
         2.5e-07 W
         """
+        us = _sanitize_unit_system(unit_system, self)
         try:
-            conv_data = _check_em_conversion(self.units.expr)
+            conv_data = _check_em_conversion(
+                self.units, unit_system=us, registry=self.units.registry)
         except MKSCGSConversionError:
             raise UnitsNotReducible(self.units, unit_system)
         if any(conv_data):
             to_units, (conv, offset) = _em_conversion(
-                self.units, conv_data, unit_system=unit_system)
+                self.units, conv_data, unit_system=us)
         else:
             to_units = self.units.get_base_equivalent(unit_system)
             conv, offset = self.units.get_conversion_factor(to_units)

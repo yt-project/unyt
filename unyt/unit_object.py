@@ -53,13 +53,15 @@ from unyt.dimensions import (
     base_dimensions,
     dimensionless,
     temperature,
+    current_mks,
 )
+import unyt.dimensions as dims
 from unyt.equivalencies import equivalence_registry
 from unyt.exceptions import (
     InvalidUnitOperation,
     MKSCGSConversionError,
     UnitConversionError,
-    UnitsNotReducible
+    UnitsNotReducible,
 )
 from unyt._physical_ratios import speed_of_light_cm_per_s
 from unyt._unit_lookup_table import (
@@ -81,6 +83,15 @@ global_dict = {
     'Rational': Rational,
     'sqrt': sqrt
 }
+
+
+def _sanitize_unit_system(unit_system, obj):
+    from unyt.unit_systems import unit_system_registry
+    if hasattr(unit_system, "unit_registry"):
+        unit_system = unit_system.unit_registry.unit_system_id
+    elif unit_system == "code":
+        unit_system = obj.registry.unit_system_id
+    return unit_system_registry[str(unit_system)]
 
 
 def _auto_positive_symbol(tokens, local_dict, global_dict):
@@ -629,14 +640,10 @@ class Unit(object):
         >>> (g/cm**3).get_base_equivalent('solar')
         Mearth/AU**3
         """
-        from unyt.unit_systems import unit_system_registry
-        if hasattr(unit_system, "unit_registry"):
-            unit_system = unit_system.unit_registry.unit_system_id
-        elif unit_system == "code":
-            unit_system = self.registry.unit_system_id
-        unit_system = unit_system_registry[str(unit_system)]
+        unit_system = _sanitize_unit_system(unit_system, self)
         try:
-            conv_data = _check_em_conversion(self.units.expr)
+            conv_data = _check_em_conversion(
+                self.units, registry=self.registry, unit_system=unit_system)
         except MKSCGSConversionError:
             raise UnitsNotReducible(self.units, unit_system)
         if any(conv_data):
@@ -710,22 +717,26 @@ class Unit(object):
 #
 
 
+# map from dimensions in one unit system to dimensions in other system,
+# canonical unit to convert to in that system, and floating point
+# conversion factor
 em_conversions = {
-    "C": ("esu", 0.1*speed_of_light_cm_per_s, "cgs"),
-    "T": ("gauss", 1.0e4, "cgs"),
-    "Wb": ("Mx", 1.0e8, "cgs"),
-    "A": ("statA", 0.1*speed_of_light_cm_per_s, "cgs"),
-    "V": ("statV", 1.0e-8*speed_of_light_cm_per_s, "cgs"),
-    "ohm": ("statohm", 1.0e9/(speed_of_light_cm_per_s**2), "cgs"),
-    "esu": ("C", 10.0/speed_of_light_cm_per_s, "mks"),
-    "Fr": ("C", 10.0/speed_of_light_cm_per_s, "mks"),
-    "statC": ("C", 10.0/speed_of_light_cm_per_s, "mks"),
-    "gauss": ("T", 1.0e-4, "mks"),
-    "G": ("T", 1.0e-4, "mks"),
-    "Mx": ("Wb", 1.0e-8, "mks"),
-    "statA": ("A", 10.0/speed_of_light_cm_per_s, "mks"),
-    "statV": ("V", 1.0e8/speed_of_light_cm_per_s, "mks"),
-    "statohm": ("ohm", speed_of_light_cm_per_s**2*1.0e-9, "mks"),
+    dims.charge_mks: (dims.charge_cgs, "esu", 0.1*speed_of_light_cm_per_s),
+    dims.charge_cgs: (dims.charge_mks, "C", 10.0/speed_of_light_cm_per_s),
+    dims.magnetic_field_mks: (dims.magnetic_field_cgs, "gauss", 1.0e4),
+    dims.magnetic_field_cgs: (dims.magnetic_field_mks, "T", 1.0e-4),
+    dims.current_mks: (
+        dims.current_cgs, "statA", 0.1*speed_of_light_cm_per_s),
+    dims.current_cgs: (dims.current_mks, "A", 10.0/speed_of_light_cm_per_s),
+    dims.electric_potential_mks: (
+        dims.electric_potential_cgs, "statV",
+        1.0e-8*speed_of_light_cm_per_s),
+    dims.electric_potential_cgs: (
+        dims.electric_potential_mks, "V", 1.0e8/speed_of_light_cm_per_s),
+    dims.resistance_mks: (
+        dims.resistance_cgs, "statohm", 1.0e9/(speed_of_light_cm_per_s**2)),
+    dims.resistance_cgs: (
+        dims.resistance_mks, "ohm", 1.0e-9*speed_of_light_cm_per_s**2)
 }
 
 
@@ -738,9 +749,11 @@ def _em_conversion(orig_units, conv_data, to_units=None, unit_system=None):
     with the new one in the unit expression and multiplying by the scale
     factor.
     """
-    conv_unit, scale = conv_data
+    conv_unit, canonical_unit, scale = conv_data
+    if conv_unit is None:
+        conv_unit = canonical_unit
     new_expr = orig_units.copy().expr.replace(
-        orig_units.expr, scale*conv_unit.expr)
+        orig_units.expr, scale*canonical_unit.expr)
     if unit_system is not None:
         # we don't know the to_units, so we get it directly from the
         # conv_data
@@ -752,24 +765,9 @@ def _em_conversion(orig_units, conv_data, to_units=None, unit_system=None):
     return to_units, conv
 
 
-def _get_em_base_unit(units):
-    unit_str = str(units)
-    if len(unit_str) == 1:
-        return unit_str
-    possible_prefix = unit_str[0]
-    prefix_len = 1
-    if unit_str[:2] == 'da':
-        possible_prefix = 'da'
-        prefix_len += 1
-    if possible_prefix in unit_prefixes:
-        base_unit = unit_str[prefix_len:]
-    else:
-        base_unit = unit_str
-    return base_unit
-
-
 @lru_cache(maxsize=128, typed=False)
-def _check_em_conversion(unit_expr, to_unit_expr=None):
+def _check_em_conversion(unit, to_unit=None, unit_system=None,
+                         registry=None):
     """Check to see if the units contain E&M units
 
     This function supports unyt's ability to convert data to and from E&M
@@ -783,31 +781,37 @@ def _check_em_conversion(unit_expr, to_unit_expr=None):
     trying to convert between CGS & MKS E&M units, it raises an error.
     """
     em_map = ()
-    base_unit = _get_em_base_unit(str(unit_expr))
-    base_to_unit = _get_em_base_unit(str(to_unit_expr))
-    if base_unit == base_to_unit:
+    if unit == to_unit:
         return em_map
-    if base_unit in em_conversions:
-        em_info = em_conversions.get(base_unit, (None,)*2)
-        to_unit = Unit(em_info[0])
-        if ((to_unit_expr is None or
-             Unit(to_unit_expr).dimensions == to_unit.dimensions)):
-            em_map = (to_unit, em_info[1])
+    if unit.dimensions in em_conversions:
+        em_info = em_conversions[unit.dimensions]
+        em_unit = Unit(em_info[1], registry=registry)
+        if to_unit is None:
+            cmks_in_unit = current_mks in unit.dimensions.atoms()
+            cmks_in_unit_system = unit_system.units_map[current_mks]
+            cmks_in_unit_system = cmks_in_unit_system is not None
+            if cmks_in_unit and cmks_in_unit_system:
+                em_map = (unit_system[unit.dimensions], unit, 1.0)
+            else:
+                em_map = (None, em_unit, em_info[2])
+        elif to_unit.dimensions == em_unit.dimensions:
+            em_map = (to_unit, em_unit, em_info[2])
     if em_map:
         return em_map
-    for unit in unit_expr.atoms():
-        if unit.is_Number:
+    for unit_atom in unit.expr.atoms():
+        if unit_atom.is_Number:
             pass
-        bu = _get_em_base_unit(str(unit))
-        if bu in em_conversions:
-            conv_unit = em_conversions[bu][0]
-            if to_unit_expr is not None:
-                for ounit in to_unit_expr.atoms():
-                    bou = _get_em_base_unit(str(ounit))
+        bu = str(unit_atom)
+        budims = Unit(bu, registry=registry).dimensions
+        if budims in em_conversions:
+            conv_unit = em_conversions[budims][1]
+            if to_unit is not None:
+                for to_unit_atom in to_unit.expr.atoms():
+                    bou = str(to_unit_atom)
                     if bou == conv_unit:
-                        raise MKSCGSConversionError(unit_expr)
+                        raise MKSCGSConversionError(unit)
             else:
-                raise MKSCGSConversionError(unit_expr)
+                raise MKSCGSConversionError(unit)
     return em_map
 
 
