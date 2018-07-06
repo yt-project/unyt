@@ -929,7 +929,7 @@ def unary_ufunc_comparison(ufunc, a):
 
 
 def binary_ufunc_comparison(ufunc, a, b):
-    out = a.copy()
+    out = b.copy()
     if ufunc in yield_np_ufuncs([
             'add', 'subtract', 'remainder', 'fmod', 'mod', 'arctan2', 'hypot',
             'greater', 'greater_equal', 'less', 'less_equal', 'equal',
@@ -987,6 +987,7 @@ def test_ufuncs():
                 ufunc(a, c)
             with pytest.raises(UnitOperationError):
                 ufunc(a, d)
+            binary_ufunc_comparison(ufunc, np.array(2.0), b)
             continue
 
         a = unyt_array([.3, .4, .5], 'cm')
