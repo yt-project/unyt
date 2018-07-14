@@ -74,7 +74,7 @@ g = gram = Unit("g")
 #: kilogram
 kg = kilogram = Unit("kg")
 #: megagram
-Mg = megagramme = tonne = metric_ton = Unit("kg")
+Mg = megagramme = tonne = metric_ton = Unit("Mg")
 
 #
 # second
