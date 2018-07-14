@@ -66,3 +66,13 @@ def test_prefixable_units():
     mfoobar = Unit('mfoobar', registry=ureg)
     foobar = Unit('foobar', registry=ureg)
     assert (1*foobar)/(1*mfoobar) == 1000
+
+
+def test_registry_contains():
+    ureg = UnitRegistry()
+    assert 'm' in ureg
+    assert 'cm' in ureg
+    assert 'erg' in ureg
+    assert 'Merg' in ureg
+    assert 'foobar' not in ureg
+    assert Unit('m', registry=ureg) in ureg
