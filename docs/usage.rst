@@ -732,10 +732,15 @@ Sometimes it is convenient to create a unit registry containing new units that a
   >>> reg = UnitRegistry()
   >>> reg.add("code_length", base_value=10.0, dimensions=length,
   ...         tex_repr=r"\rm{Code Length}")
+  >>> 'code_length' in reg
+  True
   >>> u = Unit('code_length', registry=reg)
   >>> data = 3*u
   >>> print(data)
   3.0 code_length
+
+As you can see, you can test whether a unit name is in a registry using the
+Python ``in`` operator.
 
 In an application that depends on ``unyt``, it is often convenient to define
 methods or functions to automatically attach the correct unit registry to a set
