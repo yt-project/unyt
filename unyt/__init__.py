@@ -42,23 +42,24 @@ try:
     import numpy as np
     try:
         from pkg_resource import parse_version
-        if parse_version(np.__version__) < parse_version('1.13.0'):
+        npv = np.__version__
+        if parse_version(npv) < parse_version('1.13.0'):   # pragma: no cover
             raise RuntimeError(
                 'The unyt package requires NumPy 1.13 or newer but NumPy %s '
-                'is installed' % np.__version__)
-        del parse_version
-    except ImportError:
+                'is installed' % npv)
+        del parse_version, npv
+    except ImportError:    # pragma: no cover
         # setuptools isn't installed so we don't try to check version numbers
         pass
     del np
-except ImportError:
+except ImportError:   # pragma: no cover
     raise RuntimeError(
         'The unyt package requires numpy but numpy is not installed.')
 
 try:
     import sympy
     del sympy
-except ImportError:
+except ImportError:   # pragma: no cover
     raise RuntimeError(
         'The unyt package requires sympy but sympy is not installed.')
 
