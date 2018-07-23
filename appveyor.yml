@@ -2,16 +2,16 @@ build: false  # Not a C# project
 environment:
   matrix:
     - TOXENV: py27
-    - TOXENV: py36
+    - TOXENV: py37
 
 matrix:
   fast_finish: true
 
 install:
-  - C:\Python36\python -m pip install --pre -U tox
+  - C:\Python37\python -m pip install --pre -U tox
 
 test_script:
-  - C:\Python36\scripts\tox -vvv
+  - C:\Python37\scripts\tox -vvv
 
 cache:
   - '%LOCALAPPDATA%\pip\cache'
