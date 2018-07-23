@@ -41,7 +41,7 @@ top-level ``unyt`` namespace:
 try:
     import numpy as np
     try:
-        from pkg_resource import parse_version
+        from pkg_resources import parse_version
         npv = np.__version__
         if parse_version(npv) < parse_version('1.13.0'):   # pragma: no cover
             raise RuntimeError(
