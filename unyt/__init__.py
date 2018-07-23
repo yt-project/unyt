@@ -38,12 +38,36 @@ top-level ``unyt`` namespace:
 # The full license is in the LICENSE file, distributed with this software.
 # -----------------------------------------------------------------------------
 
+try:
+    import numpy as np
+    try:
+        from pkg_resource import parse_version
+        if parse_version(np.__version__) < parse_version('1.13.0'):
+            raise RuntimeError(
+                'The unyt package requires NumPy 1.13 or newer but NumPy %s '
+                'is installed' % np.__version__)
+        del parse_version
+    except ImportError:
+        # setuptools isn't installed so we don't try to check version numbers
+        pass
+    del np
+except ImportError:
+    raise RuntimeError(
+        'The unyt package requires numpy but numpy is not installed.')
+
+try:
+    import sympy
+    del sympy
+except ImportError:
+    raise RuntimeError(
+        'The unyt package requires sympy but sympy is not installed.')
+
 from ._version import get_versions
 
 from unyt import unit_symbols
 from unyt import physical_constants
 
-from unyt.array import (  # NOQA
+from unyt.array import (  # NOQA: F401
     loadtxt,
     savetxt,
     uconcatenate,
@@ -58,12 +82,12 @@ from unyt.array import (  # NOQA
     unyt_array,
     unyt_quantity
 )
-from unyt.unit_object import (  # NOQA
+from unyt.unit_object import (  # NOQA: F401
     Unit,
     define_unit
 )
-from unyt.unit_registry import UnitRegistry  # NOQA
-from unyt.unit_systems import UnitSystem  # NOQA
+from unyt.unit_registry import UnitRegistry  # NOQA: F401
+from unyt.unit_systems import UnitSystem  # NOQA: F401
 
 
 # function to only import quantities into this namespace
