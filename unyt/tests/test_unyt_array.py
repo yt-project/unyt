@@ -719,7 +719,7 @@ def test_temperature_conversions():
         balmy_F/balmy_F
     with pytest.raises(InvalidUnitOperation):
         balmy_F/balmy_C
-    assert_equal(np.add(balmy_F, balmy_F), unyt_quantity(80.33*2, 'degF'))
+    assert np.add(balmy_F, balmy_F) == unyt_quantity(80.33*2, 'degF')
     with pytest.raises(InvalidUnitOperation):
         np.add(balmy_F, balmy_C)
     with pytest.raises(InvalidUnitOperation):
