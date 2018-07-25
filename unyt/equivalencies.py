@@ -214,7 +214,7 @@ class SpectralEquivalence(Equivalence):
             elif x.units.dimensions == rate:
                 return np.multiply(x, pc.hmks, out=self._get_out(x))
             elif x.units.dimensions == spatial_frequency:
-                return np.divide(x, pc.clight*pc.hmks, out=self._get_out(x))
+                return np.multiply(x, pc.hmks*pc.clight, out=self._get_out(x))
         elif new_dims == length:
             if x.units.dimensions == rate:
                 return np.divide(pc.clight, x, out=self._get_out(x))
@@ -228,17 +228,18 @@ class SpectralEquivalence(Equivalence):
             elif x.units.dimensions == energy:
                 return np.divide(x, pc.hmks, out=self._get_out(x))
             elif x.units.dimensions == spatial_frequency:
-                return np.divide(x, pc.clight, out=self._get_out(x))
+                return np.multiply(x, pc.clight, out=self._get_out(x))
         elif new_dims == spatial_frequency:
             if x.units.dimensions == length:
                 return np.divide(1, x, out=self._get_out(x))
             elif x.units.dimensions == energy:
-                return np.divide(x, pc.hmks*pc.clight, out=self._get_out(x))
+                return np.divide(x, pc.clight*pc.hmks, out=self._get_out(x))
             elif x.units.dimensions == rate:
                 return np.divide(x, pc.clight, out=self._get_out(x))
 
     def __str__(self):
-        return "spectral: length <-> spatial_frequency <-> frequency <-> energy"
+        return ("spectral: length <-> spatial_frequency <-> frequency "
+                + "<-> energy")
 
 
 class SoundSpeedEquivalence(Equivalence):

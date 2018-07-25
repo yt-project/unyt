@@ -1365,6 +1365,16 @@ def test_equivalencies():
     assert lam.units == u.eV.units
     assert hnu.units == u.erg.units
 
+    # wavelength to spatial frequency
+
+    lam = 4000*u.angstrom
+    nubar = lam.in_units('1/angstrom', 'spectral')
+    assert_allclose_units(nubar, 1/lam)
+    lam.convert_to_units('1/cm', 'spectral')
+    assert_allclose_units(lam, nubar)
+    assert lam.units == (1 / u.cm).units
+    assert nubar.units == (1 / u.angstrom).units
+
     # frequency to wavelength
 
     nu = 1*u.MHz
@@ -1374,6 +1384,16 @@ def test_equivalencies():
     assert_allclose_units(lam, nu)
     assert lam.units == u.km.units
     assert nu.units == u.m.units
+
+    # frequency to spatial frequency
+
+    nu = 1*u.MHz
+    nubar = nu.to('1/km', 'spectral')
+    assert_allclose_units(nubar, nu/u.clight)
+    nu.convert_to_units('1/m', 'spectral')
+    assert_allclose_units(nubar, nu)
+    assert nubar.units == (1 / u.km).units
+    assert nu.units == (1 / u.m).units
 
     # frequency to photon energy
 
@@ -1404,6 +1424,46 @@ def test_equivalencies():
     assert_allclose_units(E, lam)
     assert E.units == u.angstrom.units
     assert lam.units == u.nm.units
+
+    # photon energy to spatial frequency
+
+    E = 13.6*u.eV
+    nubar = E.to('1/nm', 'spectral')
+    assert_allclose_units(nubar, E/(u.hmks*u.clight))
+    E.convert_to_units('1/angstrom', 'spectral')
+    assert_allclose_units(E, nubar)
+    assert E.units == (1 / u.angstrom).units
+    assert nubar.units == (1 / u.nm).units
+
+    # spatial frequency to frequency
+
+    nubar = 1500. / u.cm
+    nu = nubar.to('Hz', 'spectral')
+    assert_allclose_units(nu, nubar*u.clight)
+    nubar.convert_to_units('MHz', 'spectral')
+    assert_allclose_units(nu, nubar)
+    assert nubar.units == u.MHz.units
+    assert nu.units == u.Hz.units
+
+    # spatial frequency to wavelength
+
+    nubar = 1500. / u.cm
+    lam = nubar.to('nm', 'spectral')
+    assert_allclose_units(lam, 1/nubar)
+    nubar.convert_to_units('angstrom', 'spectral')
+    assert_allclose_units(nubar, lam)
+    assert nubar.units == u.angstrom.units
+    assert lam.units == u.nm.units
+
+    # spatial frequency to photon energy
+
+    nubar = 1500. / u.cm
+    E = nubar.to('erg', 'spectral')
+    assert_allclose_units(E, u.hmks*u.clight*nubar)
+    nubar.convert_to_units('J', 'spectral')
+    assert_allclose_units(nubar, E)
+    assert nubar.units == u.J.units
+    assert E.units == u.erg.units
 
     # Sound-speed
 
