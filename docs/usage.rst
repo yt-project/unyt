@@ -450,7 +450,8 @@ for the problem you are working on.
 The :mod:`unyt` library implements the following equivalencies:
 
 * "thermal": conversions between temperature and energy (:math:`E = k_BT`)
-* "spectral": conversions between wavelength, frequency, and energy for photons
+* "spectral": conversions between wavelength, spatial frequency, frequency, and
+  energy for photons
   (:math:`E = h\nu = hc/\lambda`, :math:`c = \lambda\nu`)
 * "mass_energy": conversions between mass and energy (:math:`E = mc^2`)
 * "lorentz": conversions between velocity and Lorentz factor
@@ -471,7 +472,7 @@ array, use the :meth:`unit_array.list_equivalencies
   schwarzschild: mass <-> length
   compton: mass <-> length
   >>> km.list_equivalencies()
-  spectral: length <-> frequency <-> energy
+  spectral: length <-> spatial_frequency <-> frequency <-> energy
   schwarzschild: mass <-> length
   compton: mass <-> length
 
