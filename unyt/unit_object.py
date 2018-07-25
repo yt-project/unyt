@@ -600,7 +600,7 @@ class Unit(object):
         --------
         >>> from unyt import km
         >>> km.units.list_equivalencies()
-        spectral: length <-> frequency <-> energy
+        spectral: length <-> spatial_frequency <-> frequency <-> energy
         schwarzschild: mass <-> length
         compton: mass <-> length
         """
