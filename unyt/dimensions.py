@@ -45,6 +45,9 @@ rate = 1 / time
 # frequency (alias for rate)
 frequency = rate
 
+# spatial frequency
+spatial_frequency = 1 / length
+
 #: solid_angle
 solid_angle = angle * angle
 #: velocity
@@ -135,7 +138,7 @@ derived_dimensions = [
     luminous_flux, area, current_cgs, charge_mks, electric_field_mks,
     magnetic_field_mks, electric_potential_cgs, electric_potential_mks,
     resistance_cgs, resistance_mks, magnetic_flux_mks, magnetic_flux_cgs,
-    luminance]
+    luminance, spatial_frequency]
 
 
 #: a list containing all dimensions
