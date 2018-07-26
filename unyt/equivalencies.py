@@ -189,7 +189,7 @@ class SpectralEquivalence(Equivalence):
 
     .. math::
 
-      E = h \\nu = h c / \\lambda
+      E = h \\nu = h c / \\lambda = h c \\bar\\nu
 
     where :math:`h` is Planck's constant and :math:`c` is the speed of light.
 
