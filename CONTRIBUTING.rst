@@ -116,16 +116,16 @@ We use the ``pytest`` test runner as well as the ``tox`` test wrapper to manage 
 the ``unyt`` repository, simply run ``pytest`` in the root of the repository::
 
    $ cd unyt/
-   $ py.test
+   $ py.test --doctest-modules --doctest-glob='*.rst' --doctest-plus
 
-Some tests depend on ``h5py``, ``Pint``, ``astropy``, and ``flake8`` being installed.
+You will need to install ``pytest`` and ``pytest-doctestplus`` from ``pip`` to run this command. Some tests depend on ``h5py``, ``Pint``, ``astropy``, and ``flake8`` being installed.
 
 If you would like to run the tests on multiple python versions, first ensure that you have multiple python versions visible on your ``$PATH``, then simply execute ``tox`` in the root of the ``unyt`` repository::
 
    $ cd unyt
    $ tox
 
-The ``tox`` package itself can be installed using the ``pip`` associated with one of the python installations. See the ``tox.ini`` file in the root of the repository for more details about our ``tox`` setup.
+The ``tox`` package itself can be installed using the ``pip`` associated with one of the python installations. See the ``tox.ini`` file in the root of the repository for more details about our ``tox`` setup. Note that you do not need to install anything besides ``tox`` and ``python`` for this to work, ``tox`` will handle setting up the test environment, including installing any necessary dependencies via ``pip``.
 
 Pull Request Guidelines
 -----------------------
