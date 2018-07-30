@@ -109,16 +109,36 @@ Ready to contribute? Here's how to set up ``unyt`` for local development.
 
 7. Submit a pull request through the GitHub website.
 
+Testing unyt
+------------
+
+We use the ``pytest`` test runner as well as the ``tox`` test wrapper to manage running tests on various versions of python. To run the tests on your copy of
+the ``unyt`` repository, simply run ``pytest`` in the root of the repository::
+
+   $ cd unyt/
+   $ py.test
+
+Some tests depend on ``h5py``, ``Pint``, ``astropy``, and ``flake8`` being installed.
+
+If you would like to run the tests on multiple python versions, first ensure that you have multiple python versions visible on your ``$PATH``, then simply execute ``tox`` in the root of the ``unyt`` repository::
+
+   $ cd unyt
+   $ tox
+
+The ``tox`` package itself can be installed using the ``pip`` associated with one of the python installations. See the ``tox.ini`` file in the root of the repository for more details about our ``tox`` setup.
+
 Pull Request Guidelines
 -----------------------
 
 Before you submit a pull request, check that it meets these guidelines:
 
-1. The pull request should include tests.
+1. The pull request should include tests functionality that is not already
+   tested. We strive for 100% test coverage and pull requests should not add any
+   new untested code.
 2. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
-3. The pull request should work for Python 2.7, 3.4, 3.5 and 3.6. Check
+3. The pull request should work for Python 2.7, 3.4, 3.5, 3.6, and 3.7. Check
    https://travis-ci.org/yt-project/unyt/pull_requests
    and make sure that the tests pass for all supported Python versions.
 
@@ -129,7 +149,7 @@ A reminder for the maintainers on how to deploy.
 Make sure all your changes are committed (including an entry in HISTORY.rst).
 Then run::
 
-$ git tag v1.x.x
-$ git push upstream master --tags
+  $ git tag v1.x.x
+  $ git push upstream master --tags
 
 Travis will then deploy to PyPI if tests pass.
