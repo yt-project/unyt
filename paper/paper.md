@@ -326,12 +326,12 @@ a detailed explanation of the plot style.](ufuncout.png)
 
 ### NumPy `ufunc` performance
 
-Lastly, In Figures 4 and 5, we present benchmarks of NumPy `ufunc` operations. A
+Lastly, In Figures 5 and 6, we present benchmarks of NumPy `ufunc` operations. A
 NumPy `ufunc` is a fast C implementation of a basic mathematical operation. This
 includes arithmetic operators as well as trigonometric and special
 functions. By using a `ufunc` directly, one bypasses the Python object protocol
 and short-circuits directly to the low-level NumPy math kernels. We show both
-directly using the NumPy `ufunc` operators (Figure 4) as well as using the same
+directly using the NumPy `ufunc` operators (Figure 5) as well as using the same
 operators with a pre-allocated output array to benchmark in-place operations.
 
 As for the other benchmarks, `unyt` tends to have the lowest amount of overhead,
