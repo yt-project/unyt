@@ -50,7 +50,7 @@ The ``unyt`` package (pronounced like "unit") provides a subclass of NumPy's
     [ 5.4717696  9.3341952 11.5872768] km
 
 And a whole lot more! See `the documentation <http://unyt.readthedocs.io>`_ for
-more examples as well as full API docs.
+installation instructions, more examples, and full API reference.
 
 This package only depends on ``numpy``, ``sympy``, ``six`` and, on Python 2.7,
 ``backports.functools_lru_cache`` (a backport of ``functools.lru_cache``).
