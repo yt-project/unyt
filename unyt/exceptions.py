@@ -15,6 +15,20 @@ Exception classes defined by unyt
 
 
 class UnitOperationError(ValueError):
+    """An exception that is raised when unit operations are not allowed
+
+    Example
+    -------
+
+    >>> import unyt as u
+    >>> 3*u.g + 4*u.m  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+    Traceback (most recent call last):
+    ...
+    unyt.exceptions.UnitOperationError: The <ufunc 'add'> operator for
+    unyt_arrays with units "g" (dimensions "(mass)") and
+    "m" (dimensions "(length)") is not well defined.
+
+    """
     def __init__(self, operation, unit1, unit2=None):
         self.operation = operation
         self.unit1 = unit1
@@ -33,6 +47,19 @@ class UnitOperationError(ValueError):
 
 
 class UnitConversionError(Exception):
+    """An error raised when converting to a unit with different dimensions.
+
+    Example
+    -------
+
+    >>> import unyt as u
+    >>> data = 3*u.g
+    >>> data.to('m')  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+    Traceback (most recent call last):
+    ...
+    unyt.exceptions.UnitConversionError: Cannot convert between g (dim (mass))
+    and m (dim (length)).
+    """
     def __init__(self, unit1, dimension1, unit2, dimension2):
         self.unit1 = unit1
         self.unit2 = unit2
@@ -47,6 +74,26 @@ class UnitConversionError(Exception):
 
 
 class MissingMKSCurrent(Exception):
+    """Raised when querying a unit system for MKS current dimensions
+
+    Since current is a base dimension for SI or SI-like unit systems but not in
+    CGS or CGS-like unit systems, dimensions that include the MKS current
+    dimension (the dimension of ampere) are not representable in CGS-like unit
+    systems. When a CGS-like unit system is queried for such a dimension, this
+    error is raised.
+
+    Example
+    -------
+
+    >>> from unyt.unit_systems import cgs_unit_system as us
+    >>> from unyt import ampere
+    >>> us[ampere.dimensions]  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+    Traceback (most recent call last):
+    ...
+    unyt.exceptions.MissingMKSCurrent: The cgs unit system does not have a MKS
+    current base unit
+
+    """
     def __init__(self, unit_system_name):
         self.unit_system_name = unit_system_name
 
@@ -57,6 +104,12 @@ class MissingMKSCurrent(Exception):
 
 
 class MKSCGSConversionError(Exception):
+    """Raised when conversion between MKS and CGS units cannot be performed
+
+    This error is raised and caught internally and will expose itself
+    to the level of a user as part of a chained exception leading to a
+    UnitConversionError.
+    """
     def __init__(self, unit):
         self.unit = unit
 
@@ -66,13 +119,27 @@ class MKSCGSConversionError(Exception):
 
 
 class UnitsNotReducible(Exception):
+    """Raised when a unit cannot be safely represented in a unit system
+
+    Example
+    -------
+
+    >>> from unyt import A, cm
+    >>> data = 12*A/cm
+    >>> data.in_cgs()  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+    Traceback (most recent call last):
+    ...
+    unyt.exceptions.UnitsNotReducible: The unit "A/cm" (dimensions
+    "(current_mks)/(length)") cannot be reduced to an expression within
+    the cgs system of units.
+    """
     def __init__(self, unit, units_base):
         self.unit = unit
         self.units_base = units_base
         Exception.__init__(self)
 
     def __str__(self):
-        err = ("The unit \"%s\" (dimensions \"%s\" cannot be reduced to an "
+        err = ("The unit \"%s\" (dimensions \"%s\") cannot be reduced to an "
                "expression within the %s system of units." %
                (self.unit, self.unit.dimensions, self.units_base))
         return err

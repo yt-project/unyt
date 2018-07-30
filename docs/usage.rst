@@ -364,7 +364,7 @@ But converting a more complicated compound unit will raise an error:
   Traceback (most recent call last):
   ...
   unyt.exceptions.UnitsNotReducible: The unit "C*T*V" (dimensions
-  "(length)**2*(mass)**2/((current_mks)*(time)**4)" cannot be reduced to
+  "(length)**2*(mass)**2/((current_mks)*(time)**4)") cannot be reduced to
   an expression within the cgs system of units.
 
 If you need to work with complex expressions involving electromagnetic units, we
