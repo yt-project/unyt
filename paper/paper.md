@@ -304,18 +304,22 @@ overhead than both `astropy` and `Pint`, although there are a few anomalies that
 are worth explaining in more detail. For comparison operations, `Pint` exhibits
 a slowdown even on large input arrays. This is not present for other binary
 operations, so it is possible that this overhead might be eliminated with a code
-change in `Pint`. For multiplication on large arrays, all three libraries have
-measured overhead of $\sim 0.5$ than that of the "equivalent" Numpy
-operation. That is because all three libraries produce results with units
-given by the product of the input units. That is, there is no need to multiply
-the result of the multiplication operation by an additional constant, while a
-pure NumPy implementation would need to multiply the result by a constant to
-ensure both operands of the operation are in the same units. Finally, for
-division, both `Pint` and `astropy.units` exhibit the same behavior as for
-multiplication, and for similar reasons: the result of the division operation is
-output with units given by the ratio of the input units. On the other hand,
-`unyt` will automatically cancel the dimensionally compatible units in the ratio
-and return a result with dimensionless units.
+change in `Pint`.
+
+For multiplication on large arrays, all three libraries have measured overhead
+of $\sim 0.5$ than that of the "equivalent" Numpy operation. See the discussion
+in the "Performance Comparison" section above for why this happens, but briefly,
+in all three libraries there is no need to multiply the result of a
+multiplication operation by an additional constant to ensure the result has a
+well-defined unit, while a pure NumPy implementation would need to multiply the
+result by a constant to ensure both operands of the operation are in the same
+units.
+
+For division, both `Pint` and `astropy.units` exhibit the same
+behavior as for multiplication, and for similar reasons: the result of the
+division operation is output with units given by the ratio of the input
+units. On the other hand, `unyt` will automatically cancel the dimensionally
+compatible units in the ratio and return a result with dimensionless units. To make that concrete, in `astropy` and `Pint`, the result of `(4*g) / (2*kg)` is `2 g/kg` while `unyt` would report `.002`.
 
 ![The same as Figure 5, but with in-place `ufunc` operations. See Figure 1 for
 a detailed explanation of the plot style.](ufuncout.png)
