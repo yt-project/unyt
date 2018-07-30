@@ -255,6 +255,8 @@ respective packages calculating the appropriate conversion factor `c`. Thus the
 comparisons below depict very directly the overhead for using a unit library
 over an equivalent operation that uses hard-coded unit-conversion factors.
 
+In some cases when the operands of an operation have different dimensionally compatible units, using a unit library will produce a result *faster* than a pure-numpy implementation. In cases where this happens, the resulting $T_{\rm package}/T_{\rm numpy}$ measurement will come out less than unity. As an example, consider the operation of one milligram multiplied by 3 kilograms. In this case one could write down the answer as e.g. `3000 mg`, `0.003 kg`, or `3 kg*g`. In the former two cases, one of the operands needs to be scaled by a floating point conversion factor to ensure that both operands have the same unit before the pure-numpy implementation can actually evaluate the result, since each array can only have one unit. In the latter case the conversion factor is implicitly handled by the unit metadata. Note that this effect will only happen if the operands of an operation have different units. If the units are the same there is no need to calculate a conversion factor to convert the operands to the same unit system, so the pure-numpy operation avoids the extra cost that a unit library avoids in all cases.
+
 ![A benchmark comparing the time to perform various binary arithmetic
 operations on input operands that have the same units. See Figure 1 for a
 detailed explanation of the plot style.](binary_same_units.png)
