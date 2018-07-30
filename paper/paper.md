@@ -223,16 +223,16 @@ with the same operation implemented using plain NumPy.
 of an array. See Figure 1 for a detailed explanation of the plot
 style.](unary.png)
 
-Here we present such a benchmark. We made use of the `perf` [@perf] Python
-benchmarking tool, which not only provides facilities for establishing the
-statistical significance of a benchmark run, but also can tune a linux system to
-turn off operating system and hardware features like CPU throttling that might
-introduce variance in a benchmark. We made use of a Dell Latitude E7270 laptop
-equipped with an Intel i5-6300U CPU clocked at 2.4 Ghz. The testing environment
-was based on `Python 3.6.3` and had `NumPy 1.14.2`, `sympy 1.1.1`, `fastcache
-1.0.2`, `Astropy 3.0.1`, and `Pint 0.8.1` installed. `fastcache` [@fastcache] is
-an optional dependency of `SymPy` that provides an optimized LRU cache
-implemented in C that can substantially speed up `SymPy`. The system was
+Here we present such a set of benchmarks. We made use of the `perf` [@perf]
+Python benchmarking tool, which not only provides facilities for establishing
+the statistical significance of a benchmark run, but also can tune a linux
+system to turn off operating system and hardware features like CPU throttling
+that might introduce variance in a benchmark. We made use of a Dell Latitude
+E7270 laptop equipped with an Intel i5-6300U CPU clocked at 2.4 GHz. The testing
+environment was based on `Python 3.6.3` and had `NumPy 1.14.2`, `sympy 1.1.1`,
+`fastcache 1.0.2`, `Astropy 3.0.1`, and `Pint 0.8.1` installed. `fastcache`
+[@fastcache] is an optional dependency of `SymPy` that provides an optimized LRU
+cache implemented in C that can substantially speed up `SymPy`. The system was
 instrumented using `perf system tune` to turn off CPU features that might
 interfere with stable benchmarks. We did not make any boot-time Linux kernel
 parameter changes.
