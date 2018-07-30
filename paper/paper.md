@@ -242,7 +242,7 @@ operations on input operans that have different but dimensionallty compatible
 units. See Figure 1 for a detailed explanation of the plot
 style.](binary_different_units.png)
 
-For each of the benchmarks below, we show the ratio of the time to perform an
+For each of the benchmarks we show the ratio of the time to perform an
 operation with one of `unyt`, `Pint`, and `astopy.units`, $T_{\rm package}$, to
 the time it takes for NumPy to perform the equivalent operation, $T_{\rm
 numpy}$. For example, for the comparison of the performance of `np.add(a, b)`
