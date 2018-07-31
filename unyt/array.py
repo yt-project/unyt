@@ -221,7 +221,7 @@ def _bitop_units(unit1, unit2):
         "Bit-twiddling operators are not defined for unyt_array instances")
 
 
-def _coerce_iterable_units(input_object):
+def _coerce_iterable_units(input_object, registry=None):
     if isinstance(input_object, np.ndarray):
         return input_object
     if _iterable(input_object):
@@ -231,7 +231,7 @@ def _coerce_iterable_units(input_object):
                     for _ in input_object]):
                 raise IterableUnitCoercionError(input_object)
             # This will create a copy of the data in the iterable.
-            return unyt_array(input_object)
+            return unyt_array(np.array(input_object), ff, registry=registry)
     return np.asarray(input_object)
 
 
@@ -522,8 +522,7 @@ class unyt_array(np.ndarray):
             pass
         elif _iterable(input_array) and input_array:
             if isinstance(input_array[0], unyt_array):
-                return unyt_array(np.array(input_array, dtype=dtype),
-                                  input_array[0].units, registry=registry)
+                return _coerce_iterable_units(input_array, registry)
 
         # Input array is an already formed ndarray instance
         # We first cast to be our class type

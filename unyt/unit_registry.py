@@ -47,7 +47,12 @@ class UnitRegistry:
             self.lut.update(default_unit_symbol_lut)
 
     def __getitem__(self, key):
-        return self.lut[key]
+        try:
+            ret = self.lut[key]
+        except KeyError:
+            raise SymbolNotFoundError(
+                "The symbol '%s' does not exist in this registry." % key)
+        return ret
 
     def __contains__(self, item):
         if str(item) in self.lut:
