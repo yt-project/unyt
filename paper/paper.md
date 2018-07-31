@@ -289,7 +289,7 @@ very important for a library that handles units to be able to track this case in
 a performant way. In Figure 2 we present a benchmark comparing `Pint`, `unyt`,
 and `astropy.units` for the squaring and square root operation. In all cases,
 `unyt` has the lowest overhead, with `Pint` coming in second, and
-`astropy.units` trailing. Note that the y-axis is plotted on a log scale, so
+`astropy.units` trailing. Note that the x-axis is plotted on a log scale, so
 `astropy` is as much as 4 times slower than `unyt` for these operations.
 
 ### Binary arithmetic operations
