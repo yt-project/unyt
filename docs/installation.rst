@@ -8,7 +8,7 @@ Installation
 Stable release
 --------------
 
-To install unyt, run this command in your terminal:
+To install :mod:`unyt`, run this command in your terminal:
 
 .. code-block:: console
 
@@ -20,7 +20,7 @@ which will improve the performance of `SymPy`_.
 If you don't have `pip`_ installed, this `Python installation guide`_ can guide
 you through the process.
 
-If you use `conda`_, ``unyt`` is available via `conda-forge`_:
+If you use `conda`_, :mod:`unyt` is available via `conda-forge`_:
 
 .. code-block:: console
 
@@ -39,7 +39,7 @@ because it will be installed automatically as a dependency of ``SymPy``.
 From source
 -----------
 
-The sources for unyt can be downloaded from the `Github repo`_.
+The sources for :mod:`unyt` can be downloaded from the `Github repo`_.
 
 You can either clone the public repository:
 
@@ -68,3 +68,14 @@ Python source files of the installed version of ``unyt``, then you can do:
 
 .. _Github repo: https://github.com/yt-project/unyt
 .. _tarball: https://github.com/yt-project/unyt/tarball/master
+
+Running the tests
+-----------------
+
+You can check that :mod:`unyt` is working properly by running the unit tests
+on your intalled copy:
+
+.. doctest::
+
+  >>> import unyt
+  >>> unyt.test()  # doctest: +SKIP

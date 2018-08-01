@@ -13,6 +13,7 @@ top-level ``unyt`` namespace:
 
 * :func:`unyt.array.loadtxt`
 * :func:`unyt.array.savetxt`
+* :func:`unyt.test`
 * :func:`unyt.array.uconcatenate`
 * :func:`unyt.array.ucross`
 * :func:`unyt.array.udot`
@@ -108,3 +109,14 @@ del import_quantities
 
 __version__ = get_versions()['version']
 del get_versions
+
+
+def test():  # pragma: no cover
+    """Execute the unit tests on an installed copy of unyt.
+
+    Note that this function requires pytest to run. If pytest is not
+    installed this function will raise ImportError.
+    """
+    import pytest
+    import os
+    pytest.main([os.path.dirname(os.path.abspath(__file__))])
