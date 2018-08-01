@@ -1920,6 +1920,8 @@ def test_coerce_iterable():
         a + b
     with pytest.raises(IterableUnitCoercionError):
         b + a
+    with pytest.raises(IterableUnitCoercionError):
+        unyt_array(b)
 
 
 def test_bypass_validation():

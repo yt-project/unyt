@@ -248,7 +248,7 @@ class Unit(object):
                 unit_expr = parse_expr(unit_expr, global_dict=global_dict,
                                        transformations=unit_text_transform)
             except SyntaxError as e:
-                msg = ("Unit expression %s raised an error "
+                msg = ("Unit expression '%s' raised an error "
                        "during parsing:\n%s" % (unit_expr, repr(e)))
                 raise UnitParseError(msg)
         # Simplest case. If user passes a Unit object, just use the expr.
@@ -269,7 +269,7 @@ class Unit(object):
         # Make sure we have an Expr at this point.
         if not isinstance(unit_expr, Expr):
             raise UnitParseError("Unit representation must be a string or "
-                                 "sympy Expr. %s has type %s."
+                                 "sympy Expr. '%s' has type '%s'."
                                  % (unit_expr, type(unit_expr)))
 
         # this is slightly faster if unit_expr is the same object as
@@ -299,7 +299,7 @@ class Unit(object):
                 base_value = float(base_value)
             except ValueError:
                 raise UnitParseError("Could not use base_value as a float. "
-                                     "base_value is '%s' (type %s)."
+                                     "base_value is '%s' (type '%s')."
                                      % (base_value, type(base_value)))
 
             # check that dimensions is valid

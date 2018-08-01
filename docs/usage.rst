@@ -257,8 +257,8 @@ raise an error:
   >>> (1.0*mile).to('lb')  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   Traceback (most recent call last):
   ...
-  unyt.exceptions.UnitConversionError: Cannot convert between mile (dim
-  (length)) and lb (dim (mass)).
+  unyt.exceptions.UnitConversionError: Cannot convert between 'mile' (dim
+  '(length)') and 'lb' (dim '(mass)').
 
 While we recommend using :meth:`unyt_array.to <unyt.array.unyt_array.to>` in
 most cases to convert arrays or quantities to different units, if you would like
@@ -364,7 +364,7 @@ But converting a more complicated compound unit will raise an error:
   Traceback (most recent call last):
   ...
   unyt.exceptions.UnitsNotReducible: The unit "C*T*V" (dimensions
-  "(length)**2*(mass)**2/((current_mks)*(time)**4)" cannot be reduced to
+  "(length)**2*(mass)**2/((current_mks)*(time)**4)") cannot be reduced to
   an expression within the cgs system of units.
 
 If you need to work with complex expressions involving electromagnetic units, we
