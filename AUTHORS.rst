@@ -10,12 +10,14 @@ Contributors
 * Nathan Goldbaum <ngoldbau@illinois.edu>
 * David Hannasch <David.A.Hannasch@gmail.com>
 * Cameron Hummels <chummels@gmail.com>
+* Paul Ivanov <pivanov5@bloomberg.net>
 * Suoqing Ji <jisuoqing@gmail.com>
 * Kacper Kowalik <xarthisius.kk@gmail.com>
 * Andrew Myers <atmyers2@gmail.com>
 * Sam Skillman <samskillman@gmail.com>
 * Britton Smith <brittonsmith@gmail.com>
 * Josh Soref
+* Kyle Sunden <sunden@wisc.edu>
 * Ben Thompson
 * Matthew Turk <matthewturk@gmail.com>
 * John ZuHone <jzuhone@gmail.com>

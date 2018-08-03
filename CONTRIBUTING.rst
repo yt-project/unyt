@@ -151,9 +151,9 @@ Before you submit a pull request, check that it meets these guidelines:
 Deploying
 ---------
 
-A reminder for the maintainers on how to deploy.
-Make sure all your changes are committed (including an entry in HISTORY.rst).
-Then run::
+A reminder for the maintainers on how to deploy.  Make sure all your changes are
+committed (including an entry in HISTORY.rst and adding any new contributors to
+AUTHORS.rst).  Then run::
 
   $ git tag v1.x.x
   $ git push upstream master --tags
