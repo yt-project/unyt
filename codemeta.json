@@ -40,12 +40,12 @@
   ],
   "identifier": "",
   "codeRepository": "https://github.com/yt-project/unyt",
-  "datePublished": "2018-06-06",
-  "dateModified": "2018-06-06",
-  "dateCreated": "2018-06-06",
+  "datePublished": "2018-08-13",
+  "dateModified": "2018-08-13",
+  "dateCreated": "2018-08-13",
   "description": "Handle, manipulate, and convert data with units in Python",
   "keywords": "units, python, numpy, sympy, quantities",
   "license": "BSD",
   "title": "unyt",
-  "version": "v1.0.3"
+  "version": "v1.0.6"
 }

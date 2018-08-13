@@ -23,9 +23,9 @@ authors:
     orcid: 0000-0003-4423-0660
     affiliation: 2
 affiliations:
-  - name: National Center for Supercomputing Applications, University of Illinois at Urbana-Champaign
+  - name: National Center for Supercomputing Applications, University of Illinois at Urbana-Champaign. 1205 W Clark St, Urbana, IL USA 61801
     index: 1
-  - name: Harvard-Smithsonian Center for Astrophysics
+  - name: Harvard-Smithsonian Center for Astrophysics. 60 Garden St, Cambridge, MA USA 02138
     index: 2
 date: 24 May 2018
 bibliography: paper.bib
@@ -46,19 +46,19 @@ Mars due to the use of English Imperial units rather than metric units in the
 spacecraft control software [@nasa1999].
 
 The `unyt` library is designed both to aid quick calculations at an interactive
-python prompt and to be tightly integrated into a larger Python application or
+Python prompt and to be tightly integrated into a larger Python application or
 library. The top-level `unyt` namespace ships with a large number of predefined
 units and physical constants to aid setting up quick calculations without
 needing to look up unit data or the value of a physical constant. Using the
 `unyt` library as an interactive calculation aid only requires knowledge of
 basic Python syntax and awareness of a few of the methods of the `unyt_array`
-class - for example, the `unyt_array.to()` method to convert data to a different
+class — for example, the `unyt_array.to()` method to convert data to a different
 unit. As the complexity of the usage increases, `unyt` provides a number of
 optional features to aid these cases, including custom unit registries
 containing both predefined physical units as well as user-defined units,
-built-in output to disk via the pickle protocol and to HDF5 files using the h5py
-library [@h5py], and round-trip converters for unit objects defined by other
-popular Python unit libraries.
+built-in output to disk via the pickle protocol and to HDF5 files using the
+`h5py` library [@h5py], and round-trip converters for unit objects defined by
+other popular Python unit libraries.
 
 Physical units in the `unyt` class are defined in terms of the dimensions of the
 unit, a string representation, and a floating point scaling to the MKS unit
@@ -68,17 +68,17 @@ manipulation. The `unyt.Unit` object can represent arbitrary units formed out of
 base dimensions in the SI unit system: time, length, mass, temperature,
 luminance, and electric current. We currently treat units such as mol with the
 seventh SI base dimension, amount of substance, as dimensionless, although we
-are open to changing this based on feedback from users. In addition, `unyt`
-supports forming quantities defined in other unit systems - in particular CGS
+are open to changing this based on feedback from users. The `unyt` library
+supports forming quantities defined in other unit systems — in particular CGS
 Gaussian units common in astrophysics as well as geometrized "natural" units
 common in relativistic calculations. In addition, `unyt` ships with a number of
-other useful predefined unit systems based, including imperial units, Planck
-units, a unit system for calculations in the solar system, and a "galactic" unit
+other useful predefined unit systems including imperial units; Planck
+units; a unit system for calculations in the solar system; and a "galactic" unit
 system based on the solar mass, kiloparsecs, and Myr, a convention common in
 galactic astronomy.
 
 In addition to the `unyt.Unit` class, `unyt` also provides a two subclasses of
-the NumPy [@NumPy] ndarray [@vanderwalt2011], `unyt.unyt_array` and
+the NumPy [@NumPy] `ndarray` [@vanderwalt2011], `unyt.unyt_array` and
 `unyt.unyt_quantity` to represent arrays and scalars with units attached,
 respectively. The `unyt` library also provides a `unyt.UnitRegistry` class to
 allow custom systems of units, for example to track the internal unit system
@@ -118,7 +118,7 @@ in 2012. Later, `dimensionful` was elaborated on and improved to become
 workshop in 2013 and was subsequently released as part of `yt 3.0` in 2014. One
 of the design goals for the `yt` unit system was the ability to dynamically
 define "code" units (e.g. units internal to data loaded by yt) as well as units
-that depend on details of the dataset - in particular cosmological comoving
+that depend on details of the dataset — in particular cosmological comoving
 units and the "little $h$" factor, used to parameterize the Hubble constant in
 cosmology calculations [@croton2013]. For cosmology simulations in particular,
 comparing data with different unit systems can be tricky because one might want
@@ -130,7 +130,7 @@ to manage complex custom units and interoperate between custom unit systems
 drove the `yt` community to independently develop a custom unit system
 solution. We have decided to repackage and improve `yt.units` in the form of
 `unyt` to both make it easier to work on and improve the unit system and
-encourage use of the unit system for scientific python users who do not want to
+encourage use of the unit system for scientific Python users who do not want to
 install a heavy-weight dependency like `yt`.
 
 Below we present a table comparing `unyt` with `astropy.units` and
@@ -191,11 +191,11 @@ every time they use `Pint`.
 ![A benchmark comparing the ratio of the time to apply units to lists and NumPy `ndarray` instances to the time to interpret the same list or `ndarray` to an `ndarray`. This ratio, $T_{\rm package}/T_{\rm numpy}$, corresponds to the overhead of converting data to work with one of the three packages. Values close to unity correspond to zero or negligible overhead, while values larger than unity correspond to measureable overhead. Optimally all values would be near unity. In practice, applying units to small arrays incurs substantial overhead. Each test is shown for three different sizes of input data, including inputs with size 3, 1,000, and 1,000,000. The black lines at the top of the bars indicate the sample standard deviation. The $T_{\rm numpy}$ time is calculated by benchmarking the time to perform `np.asarray(data)` where `data` is either a `list` or an `ndarray`.](apply.png)
 
 In addition, the `Quantity` class provided by `Pint` is not a subclass of
-NumPy's ndarray. Instead, it is a wrapper around an internal `ndarray`
+NumPy's `ndarray`. Instead, it is a wrapper around an internal `ndarray`
 buffer. This simplifies the implementation of `Pint` by avoiding the somewhat
-arcane process for creating an ndarray subclass, although the `Pint` `Quantity`
-class must also be careful to emulate the full NumPy `ndarray` API so that it
-can be a drop-in replacement for `ndarray`.
+arcane process for creating an `ndarray` subclass, although the `Pint`
+`Quantity` class must also be careful to emulate the full NumPy `ndarray` API so
+that it can be a drop-in replacement for `ndarray`.
 
 Finally, in comparing the output of our benchmarks of `Pint`, `astropy.units`,
 and `unyt`, we found that in-place operations making use of a NumPy `ufunc` will
@@ -326,7 +326,7 @@ a detailed explanation of the plot style.](ufuncout.png)
 
 ### NumPy `ufunc` performance
 
-Lastly, In Figures 5 and 6, we present benchmarks of NumPy `ufunc` operations. A
+Lastly, in Figures 5 and 6, we present benchmarks of NumPy `ufunc` operations. A
 NumPy `ufunc` is a fast C implementation of a basic mathematical operation. This
 includes arithmetic operators as well as trigonometric and special
 functions. By using a `ufunc` directly, one bypasses the Python object protocol

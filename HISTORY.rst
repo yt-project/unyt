@@ -6,6 +6,11 @@ unyt began life as a submodule of yt named yt.units.
 
 It was separated from yt.units as its own package in 2018.
 
+1.0.6 (2018-08-13)
+------------------
+
+Minor paper updates to finalize JOSS submission.
+
 1.0.5 (2018-08-03)
 ------------------
 
