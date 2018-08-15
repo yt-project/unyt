@@ -30,6 +30,7 @@ that can be directly imported from from the ``unyt`` namespace:
    usage
    API Documentation <modules/unyt>
    contributing
+   citation
    authors
    history
 
