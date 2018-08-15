@@ -86,6 +86,8 @@ fs = femtoseconds = Unit("fs")
 ps = picosecond = Unit("ps")
 #: nanosecond
 ns = nanosecond = Unit("ns")
+#: microsecond
+us = microsecond = Unit("us")
 #: millisecond
 ms = millisecond = Unit("ms")
 #: second
