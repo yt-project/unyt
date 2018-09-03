@@ -1110,10 +1110,10 @@ class unyt_array(np.ndarray):
         -------
         >>> from unyt import km
         >>> data = [3, 8, 7]*km
-        >>> np.argsort(data)
-        array([0, 2, 1])
-        >>> data.argsort()
-        array([0, 2, 1])
+        >>> print(np.argsort(data))
+        [0 2 1]
+        >>> print(data.argsort())
+        [0 2 1]
         """
         return self.view(np.ndarray).argsort(axis, kind, order)
 

@@ -4,8 +4,6 @@ environment:
     - TOXENV: py27
     - TOXENV: py37
 
-platform: x64
-
 matrix:
   fast_finish: true
 
