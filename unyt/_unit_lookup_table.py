@@ -58,7 +58,7 @@ import numpy as np
 # Lookup a unit symbol with the symbol string, and provide a tuple with the
 # conversion factor to cgs and dimensionality.
 
-default_unit_symbol_lut = {
+default_unit_symbol_lut = {  # noqa: W605
     # base
     "m": (1.0, dimensions.length, 0.0, r"\rm{m}", True),
     "g":  (1.0e-3, dimensions.mass, 0.0, r"\rm{g}", True),

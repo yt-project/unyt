@@ -137,7 +137,7 @@ class UnitRegistry:
 
         if tex_repr is None:
             # make educated guess that will look nice in most cases
-            tex_repr = r"\rm{" + symbol.replace('_', '\ ') + "}"
+            tex_repr = r"\rm{" + symbol.replace('_', r'\ ') + "}"
 
         # Add to lut
         self.lut[symbol] = (

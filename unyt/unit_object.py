@@ -147,7 +147,7 @@ def _get_latex_representation(expr, registry):
         try:
             symbol_table[ex] = registry.lut[str(ex)][3]
         except KeyError:
-            symbol_table[ex] = r"\rm{" + str(ex).replace('_', '\ ') + "}"
+            symbol_table[ex] = r"\rm{" + str(ex).replace('_', r'\ ') + "}"
 
     # invert the symbol table dict to look for keys with identical values
     invert_symbols = {}
