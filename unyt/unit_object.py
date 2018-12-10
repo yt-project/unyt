@@ -85,9 +85,7 @@ global_dict = {
 
 def _sanitize_unit_system(unit_system, obj):
     from unyt.unit_systems import unit_system_registry
-    if unit_system is None:
-        unit_system = "mks"
-    elif hasattr(unit_system, "unit_registry"):
+    if hasattr(unit_system, "unit_registry"):
         unit_system = unit_system.unit_registry.unit_system_id
     elif unit_system == "code":
         unit_system = obj.registry.unit_system_id
@@ -983,9 +981,9 @@ def define_unit(symbol, value, tex_repr=None, offset=None, prefixable=False,
     >>> from unyt import day
     >>> two_weeks = 14.0*day
     >>> one_day = 1.0*day
-    >>> define_unit("fortnight", two_weeks)
-    >>> from unyt import fortnight
-    >>> print((3*fortnight)/one_day)
+    >>> define_unit("two_weeks", two_weeks)
+    >>> from unyt import two_weeks
+    >>> print((3*two_weeks)/one_day)
     42.0 dimensionless
     """
     from unyt.array import unyt_quantity, _iterable

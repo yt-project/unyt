@@ -21,7 +21,8 @@ class UnitOperationError(ValueError):
     -------
 
     >>> import unyt as u
-    >>> 3*u.g + 4*u.m  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+    >>> 3*u.g + 4*u.m\
+ # doctest: +IGNORE_EXCEPTION_DETAIL +NORMALIZE_WHITESPACE
     Traceback (most recent call last):
     ...
     unyt.exceptions.UnitOperationError: The <ufunc 'add'> operator
@@ -53,7 +54,7 @@ class UnitConversionError(Exception):
 
     >>> import unyt as u
     >>> data = 3*u.g
-    >>> data.to('m')  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+    >>> data.to('m')  # doctest: +IGNORE_EXCEPTION_DETAIL +NORMALIZE_WHITESPACE
     Traceback (most recent call last):
     ...
     unyt.exceptions.UnitConversionError: Cannot convert between 'g'
@@ -87,7 +88,8 @@ class MissingMKSCurrent(Exception):
 
     >>> from unyt.unit_systems import cgs_unit_system as us
     >>> from unyt import ampere
-    >>> us[ampere.dimensions]  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+    >>> us[ampere.dimensions]\
+ # doctest: +IGNORE_EXCEPTION_DETAIL +NORMALIZE_WHITESPACE
     Traceback (most recent call last):
     ...
     unyt.exceptions.MissingMKSCurrent: The cgs unit system does not
@@ -126,7 +128,8 @@ class UnitsNotReducible(Exception):
 
     >>> from unyt import A, cm
     >>> data = 12*A/cm
-    >>> data.in_cgs()  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+    >>> data.in_cgs()\
+  # doctest: +IGNORE_EXCEPTION_DETAIL +NORMALIZE_WHITESPACE
     Traceback (most recent call last):
     ...
     unyt.exceptions.UnitsNotReducible: The unit "A/cm" (dimensions
@@ -153,7 +156,8 @@ class IterableUnitCoercionError(Exception):
 
     >>> from unyt import km, cm, unyt_array
     >>> data = [2*cm, 3*km]
-    >>> unyt_array(data)  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+    >>> unyt_array(data)\
+  # doctest: +IGNORE_EXCEPTION_DETAIL +NORMALIZE_WHITESPACE
     Traceback (most recent call last):
     ...
     unyt.exceptions.IterableUnitCoercionError: Received a list or
@@ -178,7 +182,7 @@ class InvalidUnitEquivalence(Exception):
     >>> import unyt as u
     >>> data = 12*u.g
     >>> data.to('erg', equivalence='thermal')\
- # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+ # doctest: +IGNORE_EXCEPTION_DETAIL +NORMALIZE_WHITESPACE
     Traceback (most recent call last):
     ...
     unyt.exceptions.InvalidUnitEquivalence: The unit equivalence
@@ -207,7 +211,7 @@ class InvalidUnitOperation(Exception):
     -------
 
     >>> from unyt import cm, g
-    >>> cm + g  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+    >>> cm + g  # doctest: +IGNORE_EXCEPTION_DETAIL +NORMALIZE_WHITESPACE
     Traceback (most recent call last):
     ...
     unyt.exceptions.InvalidUnitOperation: addition with unit objects
@@ -224,7 +228,7 @@ class SymbolNotFoundError(Exception):
 
     >>> from unyt.unit_registry import default_unit_registry
     >>> default_unit_registry['made_up_unit']\
-  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  # doctest: +IGNORE_EXCEPTION_DETAIL +NORMALIZE_WHITESPACE
     Traceback (most recent call last):
     ...
     unyt.exceptions.SymbolNotFoundError: The symbol 'made_up_unit'
@@ -240,7 +244,8 @@ class UnitParseError(Exception):
     -------
 
     >>> from unyt import Unit
-    >>> Unit('hello')  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+    >>> Unit('hello')\
+  # doctest: +IGNORE_EXCEPTION_DETAIL +NORMALIZE_WHITESPACE
     Traceback (most recent call last):
     ...
     unyt.exceptions.UnitParseError: Could not find unit symbol
@@ -258,7 +263,7 @@ class IllDefinedUnitSystem(Exception):
 
     >>> from unyt.unit_systems import UnitSystem
     >>> UnitSystem('atomic', 'nm', 'fs', 'nK', 'rad')\
-  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  # doctest: +IGNORE_EXCEPTION_DETAIL +NORMALIZE_WHITESPACE
     Traceback (most recent call last):
     ...
     unyt.exceptions.IllDefinedUnitSystem: Cannot create unit system

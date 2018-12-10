@@ -95,7 +95,7 @@ Ready to contribute? Here's how to set up ``unyt`` for local development.
    tests, including testing other Python versions with tox::
 
     $ flake8 unyt
-    $ pytest --doctest-modules --doctest-glob='*.rst' --doctest-plus
+    $ pytest --doctest-modules --doctest-rst --doctest-plus
     $ tox
 
    To get flake8, pytest, pytest-doctestplus, and tox, just pip install them
@@ -116,7 +116,7 @@ We use the ``pytest`` test runner as well as the ``tox`` test wrapper to manage 
 the ``unyt`` repository, simply run ``pytest`` in the root of the repository::
 
    $ cd unyt/
-   $ py.test --doctest-modules --doctest-glob='*.rst' --doctest-plus
+   $ py.test --doctest-modules --doctest-rst --doctest-plus
 
 You will need to install ``pytest`` and ``pytest-doctestplus`` from ``pip`` to run this command. Some tests depend on ``h5py``, ``Pint``, ``astropy``, and ``flake8`` being installed.
 
