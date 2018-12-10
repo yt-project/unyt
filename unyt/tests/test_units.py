@@ -654,15 +654,6 @@ def test_em_unit_base_equivalent():
         (A/cm).get_base_equivalent('cgs')
 
 
-def test_define_unit_error():
-    from unyt import define_unit
-
-    with pytest.raises(RuntimeError):
-        define_unit('foobar', 'baz')
-    with pytest.raises(RuntimeError):
-        define_unit('foobar', 12)
-
-
 def test_symbol_lut_length():
     for v in default_unit_symbol_lut.values():
         assert len(v) == 5

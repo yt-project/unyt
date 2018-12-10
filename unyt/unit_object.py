@@ -59,6 +59,7 @@ import unyt.dimensions as dims
 from unyt.equivalencies import equivalence_registry
 from unyt.exceptions import (
     InvalidUnitOperation,
+    MissingMKSCurrent,
     MKSCGSConversionError,
     UnitConversionError,
     UnitsNotReducible,
@@ -84,7 +85,9 @@ global_dict = {
 
 def _sanitize_unit_system(unit_system, obj):
     from unyt.unit_systems import unit_system_registry
-    if hasattr(unit_system, "unit_registry"):
+    if unit_system is None:
+        unit_system = "mks"
+    elif hasattr(unit_system, "unit_registry"):
         unit_system = unit_system.unit_registry.unit_system_id
     elif unit_system == "code":
         unit_system = obj.registry.unit_system_id
@@ -769,7 +772,7 @@ def _check_em_conversion(unit, to_unit=None, unit_system=None,
 
     This function supports unyt's ability to convert data to and from E&M
     electromagnetic units. However, this support is limited and only very
-    simple unit expressions can be readily converted. This function
+    simple unit expressions can be readily converted. This function tries
     to see if the unit is an atomic base unit that is present in the
     em_conversions dict. If it does not contain E&M units, the function
     returns an empty tuple. If it does contain an atomic E&M unit in
@@ -795,11 +798,22 @@ def _check_em_conversion(unit, to_unit=None, unit_system=None,
             em_map = (to_unit, em_unit, em_info[2])
     if em_map:
         return em_map
+    if unit_system is None:
+        if to_unit.dimensions != unit.dimensions:
+            raise MKSCGSConversionError(unit)
+        else:
+            from unyt.unit_systems import unit_system_registry
+            unit_system = unit_system_registry['mks']
     for unit_atom in unit.expr.atoms():
         if unit_atom.is_Number:
-            pass
+            continue
         bu = str(unit_atom)
         budims = Unit(bu, registry=registry).dimensions
+        try:
+            if str(unit_system[budims]) == bu:
+                continue
+        except MissingMKSCurrent:
+            raise MKSCGSConversionError(unit)
         if budims in em_conversions:
             conv_unit = em_conversions[budims][1]
             if to_unit is not None:
@@ -979,7 +993,9 @@ def define_unit(symbol, value, tex_repr=None, offset=None, prefixable=False,
     if registry is None:
         registry = default_unit_registry
     if symbol in registry:
-        registry.pop(symbol)
+        raise RuntimeError(
+            "Unit symbol '%s' already exists in the provided "
+            "registry" % symbol)
     if not isinstance(value, unyt_quantity):
         if _iterable(value) and len(value) == 2:
             value = unyt_quantity(value[0], value[1])

@@ -145,9 +145,15 @@ mks_unit_system["energy"] = "J"
 mks_unit_system["specific_energy"] = "J/kg"
 mks_unit_system["pressure"] = "Pa"
 mks_unit_system["force"] = "N"
-mks_unit_system["magnetic_field_mks"] = "T"
-mks_unit_system["charge_mks"] = "C"
+mks_unit_system["magnetic_field"] = "T"
+mks_unit_system["charge"] = "C"
+mks_unit_system["frequency"] = "Hz"
 mks_unit_system["power"] = "W"
+mks_unit_system["electric_potential"] = "V"
+mks_unit_system["capacitance"] = "F"
+mks_unit_system["resistance"] = "ohm"
+mks_unit_system["magnetic_flux"] = "Wb"
+mks_unit_system["luminous_flux"] = "lx"
 
 #: The imperial unit system
 imperial_unit_system = UnitSystem("imperial", "ft", "lb", "s",

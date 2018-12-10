@@ -336,6 +336,8 @@ T = tesla = Tesla = Unit("T")
 A = ampere = Ampere = Unit("A")
 #: Volt
 V = volt = Volt = Unit("V")
+#: Farad
+F = farad = Farad = Unit("F")
 #: Ohm
 ohm = Ohm = Unit("ohm")
 #: Weber

@@ -1674,8 +1674,7 @@ def test_electromagnetic():
     u_cgs = B_cgs*B_cgs/(8*np.pi)
     with pytest.raises(UnitConversionError):
         u_cgs.to(u_mks.units)
-    with pytest.raises(UnitConversionError):
-        u_mks.to(u_cgs.units)
+    assert_equal(u_mks.to(u_cgs.units), u_cgs)
     with pytest.raises(UnitsNotReducible):
         u_mks.in_cgs()
     with pytest.raises(UnitsNotReducible):
