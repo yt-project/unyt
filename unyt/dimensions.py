@@ -117,17 +117,19 @@ resistance_cgs = electric_potential_cgs / current_cgs
 magnetic_flux_cgs = magnetic_field_cgs * area
 
 # SI electromagnetic units
-#: charge_mks
+#: charge
 charge = charge_mks = current_mks * time
-#: electric_field_mks
+#: electric_field
 electric_field = electric_field_mks = force / charge_mks
-#: magnetic_field_mks
+#: magnetic_field
 magnetic_field = magnetic_field_mks = electric_field_mks / velocity
-#: electric_potential_mks
+#: electric_potential
 electric_potential = electric_potential_mks = energy / charge_mks
-#: resistance_mks
+#: resistance
 resistance = resistance_mks = electric_potential_mks / current_mks
-#: magnetic_flux_mks
+#: capacitance
+capacitance = capacitance_mks = charge / electric_potential
+#: magnetic_flux
 magnetic_flux = magnetic_flux_mks = magnetic_field_mks * area
 
 #: a list containing all derived_dimensions
