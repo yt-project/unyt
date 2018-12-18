@@ -164,7 +164,7 @@ If you make a mistake by adding two things that have different dimensions,
 code:
 
   >>> from unyt import kg, m
-  >>> 3*kg + 5*m  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> 3*kg + 5*m  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE +IGNORE_EXCEPTION_DETAIL
   Traceback (most recent call last):
   ...
   unyt.exceptions.UnitOperationError: The <ufunc 'add'> operator for
@@ -182,7 +182,7 @@ the :class:`unyt.unyt_array <unyt.array.unyt_array>` class to quickly apply unit
 
   >>> from unyt import cm, s
   >>> velocities = [10, 20, 30] * cm/s
-  >>> velocities + 12  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> velocities + 12  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE +IGNORE_EXCEPTION_DETAIL
   Traceback (most recent call last):
   ...
   unyt.exceptions.UnitOperationError: The <ufunc 'add'> operator for
@@ -254,7 +254,7 @@ If you try to convert to a unit with different dimensions, :mod:`unyt` will
 raise an error:
 
   >>> from unyt import mile
-  >>> (1.0*mile).to('lb')  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> (1.0*mile).to('lb')  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE +IGNORE_EXCEPTION_DETAIL
   Traceback (most recent call last):
   ...
   unyt.exceptions.UnitConversionError: Cannot convert between 'mile' (dim
@@ -360,7 +360,7 @@ dimensionally equivalent. The :mod:`unyt` library does have limited support for 
 But converting a more complicated compound unit will raise an error:
 
   >>> from unyt import C, T, V
-  >>> (1.0*C*T*V).in_cgs()  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> (1.0*C*T*V).in_cgs()  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE +IGNORE_EXCEPTION_DETAIL
   Traceback (most recent call last):
   ...
   unyt.exceptions.UnitsNotReducible: The unit "C*T*V" (dimensions
@@ -717,7 +717,7 @@ In practice, the unit metadata for a unit object is contained in an instance of 
 
   >>> from unyt import g
   >>> g.registry  # doctest: +ELLIPSIS
-  <unyt.unit_registry.UnitRegistry object at ...>
+  <unyt.unit_registry.UnitRegistry ...>
 
 All the unit objects in the :mod:`unyt` namespace make use of the default unit
 registry, importable as :data:`unyt.unit_registry.default_unit_registry`. This

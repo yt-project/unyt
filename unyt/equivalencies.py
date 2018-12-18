@@ -11,6 +11,8 @@ Equivalencies between different kinds of units
 # The full license is in the LICENSE file, distributed with this software.
 # -----------------------------------------------------------------------------
 
+from __future__ import division
+
 from collections import OrderedDict
 
 from unyt.dimensions import (
@@ -95,7 +97,7 @@ class NumberDensityEquivalence(Equivalence):
     def _convert(self, x, new_dims, mu=0.6):
         from unyt import physical_constants as pc
         if new_dims == number_density:
-            return np.divide(x, mu*pc.mh, out=self._get_out(x))
+            return np.true_divide(x, mu*pc.mh, out=self._get_out(x))
         elif new_dims == density:
             return np.multiply(x, mu*pc.mh, out=self._get_out(x))
 
@@ -139,7 +141,7 @@ class ThermalEquivalence(Equivalence):
         if new_dims == energy:
             return np.multiply(x, pc.kboltz, out=self._get_out(x))
         elif new_dims == temperature:
-            return np.divide(x, pc.kboltz, out=self._get_out(x))
+            return np.true_divide(x, pc.kboltz, out=self._get_out(x))
 
     def __str__(self):
         return "thermal: temperature <-> energy"
@@ -174,7 +176,7 @@ class MassEnergyEquivalence(Equivalence):
         if new_dims == energy:
             return np.multiply(x, pc.clight*pc.clight, out=self._get_out(x))
         elif new_dims == mass:
-            return np.divide(x, pc.clight*pc.clight, out=self._get_out(x))
+            return np.true_divide(x, pc.clight*pc.clight, out=self._get_out(x))
 
     def __str__(self):
         return "mass_energy: mass <-> energy"
@@ -210,32 +212,35 @@ class SpectralEquivalence(Equivalence):
         from unyt import physical_constants as pc
         if new_dims == energy:
             if x.units.dimensions == length:
-                return np.divide(pc.clight*pc.hmks, x, out=self._get_out(x))
+                return np.true_divide(
+                    pc.clight*pc.hmks, x, out=self._get_out(x))
             elif x.units.dimensions == rate:
                 return np.multiply(x, pc.hmks, out=self._get_out(x))
             elif x.units.dimensions == spatial_frequency:
                 return np.multiply(x, pc.hmks*pc.clight, out=self._get_out(x))
         elif new_dims == length:
             if x.units.dimensions == rate:
-                return np.divide(pc.clight, x, out=self._get_out(x))
+                return np.true_divide(pc.clight, x, out=self._get_out(x))
             elif x.units.dimensions == energy:
-                return np.divide(pc.hmks*pc.clight, x, out=self._get_out(x))
+                return np.true_divide(
+                    pc.hmks*pc.clight, x, out=self._get_out(x))
             elif x.units.dimensions == spatial_frequency:
-                return np.divide(1, x, out=self._get_out(x))
+                return np.true_divide(1, x, out=self._get_out(x))
         elif new_dims == rate:
             if x.units.dimensions == length:
-                return np.divide(pc.clight, x, out=self._get_out(x))
+                return np.true_divide(pc.clight, x, out=self._get_out(x))
             elif x.units.dimensions == energy:
-                return np.divide(x, pc.hmks, out=self._get_out(x))
+                return np.true_divide(x, pc.hmks, out=self._get_out(x))
             elif x.units.dimensions == spatial_frequency:
                 return np.multiply(x, pc.clight, out=self._get_out(x))
         elif new_dims == spatial_frequency:
             if x.units.dimensions == length:
-                return np.divide(1, x, out=self._get_out(x))
+                return np.true_divide(1, x, out=self._get_out(x))
             elif x.units.dimensions == energy:
-                return np.divide(x, pc.clight*pc.hmks, out=self._get_out(x))
+                return np.true_divide(
+                    x, pc.clight*pc.hmks, out=self._get_out(x))
             elif x.units.dimensions == rate:
-                return np.divide(x, pc.clight, out=self._get_out(x))
+                return np.true_divide(x, pc.clight, out=self._get_out(x))
 
     def __str__(self):
         return ("spectral: length <-> spatial_frequency <-> frequency "
@@ -304,9 +309,9 @@ class SoundSpeedEquivalence(Equivalence):
             if x.units.dimensions == velocity:
                 v2 = np.multiply(x, x, out=self._get_out(x))
                 kT = np.multiply(v2, mu*pc.mh/gamma, out=self._get_out(x))
-                return np.divide(kT, pc.kboltz, out=self._get_out(x))
+                return np.true_divide(kT, pc.kboltz, out=self._get_out(x))
             else:
-                return np.divide(x, pc.kboltz, out=self._get_out(x))
+                return np.true_divide(x, pc.kboltz, out=self._get_out(x))
         else:
             if x.units.dimensions == velocity:
                 v2 = np.multiply(x, x, out=self._get_out(x))
@@ -356,15 +361,15 @@ class LorentzEquivalence(Equivalence):
     def _convert(self, x, new_dims):
         from unyt import physical_constants as pc
         if new_dims == dimensionless:
-            beta = np.divide(x, pc.clight, out=self._get_out(x))
+            beta = np.true_divide(x, pc.clight, out=self._get_out(x))
             beta2 = np.multiply(beta, beta, out=self._get_out(x))
             inv_gamma_2 = np.subtract(1, beta2, out=self._get_out(x))
             inv_gamma = np.sqrt(inv_gamma_2, out=self._get_out(x))
-            gamma = np.divide(1., inv_gamma, out=self._get_out(x))
+            gamma = np.true_divide(1., inv_gamma, out=self._get_out(x))
             return gamma
         elif new_dims == velocity:
             gamma2 = np.multiply(x, x, out=self._get_out(x))
-            inv_gamma_2 = np.divide(1, gamma2, out=self._get_out(x))
+            inv_gamma_2 = np.true_divide(1, gamma2, out=self._get_out(x))
             beta2 = np.subtract(1, inv_gamma_2, out=self._get_out(x))
             beta = np.sqrt(beta2, out=self._get_out(x))
             return np.multiply(pc.clight, beta, out=self._get_out(x))
@@ -440,7 +445,7 @@ class ComptonEquivalence(Equivalence):
 
     def _convert(self, x, new_dims):
         from unyt import physical_constants as pc
-        return np.divide(pc.hmks/pc.clight, x, out=self._get_out(x))
+        return np.true_divide(pc.hmks/pc.clight, x, out=self._get_out(x))
 
     def __str__(self):
         return "compton: mass <-> length"
@@ -479,7 +484,7 @@ class EffectiveTemperatureEquivalence(Equivalence):
             return np.multiply(
                 pc.stefan_boltzmann_constant_mks, x4, out=self._get_out(x))
         elif new_dims == temperature:
-            T4 = np.divide(
+            T4 = np.true_divide(
                 x, pc.stefan_boltzmann_constant_mks, out=self._get_out(x))
             return np.power(T4, 0.25, out=self._get_out(x))
 

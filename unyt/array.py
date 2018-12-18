@@ -109,6 +109,7 @@ from numpy import (
 )
 from numpy.core.umath import _ones_like
 from sympy import Rational
+import sys
 import warnings
 
 from unyt.dimensions import (
@@ -1798,6 +1799,15 @@ class unyt_array(np.ndarray):
         # this needs to be defined for all numpy versions, see
         # numpy issue #9081
         return type(self)(super(unyt_array, self).__pos__(), self.units)
+
+    # ensure we always use float division on python2 to avoid truncation for
+    # operations on int arrays
+    if sys.version_info < (3, 0, 0):
+        def __div__(self, other):
+            return self.__truediv__(other)
+
+        def __rdiv__(self, other):
+            return self.__rtruediv__(other)
 
     @_return_arr
     def dot(self, b, out=None):
