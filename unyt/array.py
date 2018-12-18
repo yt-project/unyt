@@ -355,6 +355,11 @@ trigonometric_operators = (
     tan,
 )
 
+LARGE_INPUT = {
+    4: 16777217,
+    8: 9007199254740993
+}
+
 
 class unyt_array(np.ndarray):
     """
@@ -633,7 +638,13 @@ class unyt_array(np.ndarray):
                 # create a copy of the original data in floating point
                 # form, it's possible this may lose precision for very
                 # large integers
-                new_dtype = 'f' + str(values.dtype.itemsize)
+                dsize = values.dtype.itemsize
+                new_dtype = 'f' + str(dsize)
+                large = LARGE_INPUT.get(dsize, 0)
+                if large and np.any(np.abs(values) > large):
+                    warnings.warn(
+                        "Overflow encountered while converting to units '%s'" %
+                        new_units, RuntimeWarning, stacklevel=2)
                 float_values = values.astype(new_dtype)
                 # change the dtypes in-place, this does not change the
                 # underlying memory buffer
@@ -803,7 +814,14 @@ class unyt_array(np.ndarray):
                 new_units = _unit_repr_check_same(self.units, units)
                 (conversion_factor, offset) = self.units.get_conversion_factor(
                     new_units, self.dtype)
-            new_dtype = np.dtype('f' + str(self.dtype.itemsize))
+            dsize = self.dtype.itemsize
+            if self.dtype.kind in ('u', 'i'):
+                large = LARGE_INPUT.get(dsize, 0)
+                if large and np.any(np.abs(self.d) > large):
+                    warnings.warn(
+                        "Overflow encountered while converting to units '%s'" %
+                        new_units, RuntimeWarning, stacklevel=2)
+            new_dtype = np.dtype('f' + str(dsize))
             conversion_factor = new_dtype.type(conversion_factor)
             ret = np.asarray(self.ndview * conversion_factor, dtype=new_dtype)
             if offset:

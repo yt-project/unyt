@@ -24,6 +24,7 @@ import os
 import pytest
 import shutil
 import tempfile
+import warnings
 
 from numpy.testing import (
     assert_array_equal,
@@ -2030,3 +2031,27 @@ def test_integer_arrays():
     assert (arr1 + arr2).dtype.name == 'int64'
     assert (arr1 * arr2).dtype.name == 'int64'
     assert (arr1 / arr2).dtype.name == 'float64'
+
+
+def test_overflow_warnings():
+    from unyt import km
+
+    data = [2**53, 2**54]*km
+
+    def process_warning(op, message, arg=None):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter('always')
+
+            if arg:
+                op(arg)
+            else:
+                op()
+
+            assert len(w) == 1
+            assert issubclass(w[0].category, RuntimeWarning)
+            assert str(w[0].message) == message
+
+    message = "Overflow encountered while converting to units 'mile'"
+    process_warning(data.to, message, 'mile')
+    process_warning(data.in_units, message, 'mile')
+    process_warning(data.convert_to_units, message, 'mile')

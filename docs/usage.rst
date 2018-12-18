@@ -782,7 +782,10 @@ possible.
 Dealing with data types
 -----------------------
 
-The :mod:`unyt` library supports creating :class:`unyt.unyt_array <unyt.array.unyt_array>` and :class:`unyt.unyt_quantity <unyt.array.unyt_quantity>` instances with arbitrary integer or floating point data types:
+The :mod:`unyt` library supports creating :class:`unyt.unyt_array
+<unyt.array.unyt_array>` and :class:`unyt.unyt_quantity
+<unyt.array.unyt_quantity>` instances with arbitrary integer or floating point
+data types:
 
    >>> import numpy as np
    >>> from unyt import km
@@ -805,6 +808,22 @@ the ``unyt_array`` initializer directly:
    unyt_array([1., 2., 3.], 'km')
    >>> unyt_array([1, 2, 3], 'km', dtype='int32')
    unyt_array([1, 2, 3], dtype=int32, units='km')
+
+Operations that convert an integer array to a new unit will convert the array to the floating point type with an equivalent size. For example, Calling ``in_units`` on a 32 bit integer array with units of kilometers will return a 32 bit floating point array.
+
+   >>> data = np.array([1, 2, 3], dtype='int32')*km
+   >>> data.in_units('mile')
+   unyt_array([0.62137121, 1.24274242, 1.86411357], dtype=float32, units='mile')
+
+In-place operations will also mutate the dtype from float to integer in these cases, again in away that will preserve the byte size of the data.
+
+   >>> data
+   unyt_array([1, 2, 3], dtype=int32, units='km')
+   >>> data.convert_to_units('mile')
+   >>> data
+   unyt_array([0.62137121, 1.24274242, 1.86411357], dtype=float32, units='mile')
+
+It is possible that arrays containing large integers (16777217 for 32 bit and 9007199254740993 for 64 bit) will lose precision when converting data to a different unit. In these cases a warning message will be printed.
 
 Writing Data with Units to Disk
 -------------------------------

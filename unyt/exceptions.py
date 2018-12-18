@@ -293,12 +293,12 @@ class UnitDtypeError(Exception):
     Traceback (most recent call last):
     ...
     unyt.exceptions.UnitDtypeError: Cannot apply units to object
-    '['hello' 'world' {}]' with dtype 'object'
+    '['hello' 'world' {}]' with inferred dtype 'object'
     """
     def __init__(self, obj, dtype):
         self.obj = obj
         self.dtype = dtype
 
     def __str__(self):
-        return ("Cannot apply units to object '%s' with dtype '%s'" %
+        return ("Cannot apply units to object '%s' with inferred dtype '%s'" %
                 (self.obj, self.dtype))
