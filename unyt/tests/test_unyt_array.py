@@ -1980,3 +1980,53 @@ def test_round():
 
     with pytest.raises(TypeError):
         round([1, 2, 3]*km)
+
+
+def test_integer_arrays():
+    from unyt import km, m, mile
+
+    def integer_semantics(inp):
+        arr = inp*km
+        assert arr.dtype.name == 'int64'
+
+        arr = np.array(inp, dtype='int32')*km
+        assert arr.dtype.name == 'int32'
+
+        ret = arr.in_units('mile')
+
+        assert arr.dtype.name == 'int32'
+        answer = (inp*km).astype('int32').to('mile')
+        assert_array_equal(ret, answer)
+        assert ret.dtype.name == 'float32'
+
+        ret = arr.in_units('m')
+        assert arr.dtype != ret.dtype
+        assert ret.dtype.name == 'float32'
+
+        arr.convert_to_units('m')
+        assert arr.dtype.name == 'float32'
+
+        arr = inp*km
+        arr.convert_to_units('mile')
+        assert arr.dtype.name == 'float64'
+
+    for foo in [[1, 2, 3], 12, -8, 0, [1, -2, 3]]:
+        integer_semantics(foo)
+
+    arr1 = [1, 2, 3]*km
+    arr2 = [4, 5, 6]*mile
+    assert (arr1 + arr2).dtype.name == 'float64'
+    assert (arr1 * arr2).dtype.name == 'int64'
+    assert (arr1 / arr2).dtype.name == 'float64'
+
+    arr1 = [1, 2, 3]*km
+    arr2 = [4, 5, 6]*m
+    assert (arr1 + arr2).dtype.name == 'float64'
+    assert (arr1 * arr2).dtype.name == 'int64'
+    assert (arr1 / arr2).dtype.name == 'float64'
+
+    arr1 = [1, 2, 3]*km
+    arr2 = [4, 5, 6]*km
+    assert (arr1 + arr2).dtype.name == 'int64'
+    assert (arr1 * arr2).dtype.name == 'int64'
+    assert (arr1 / arr2).dtype.name == 'float64'

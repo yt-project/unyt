@@ -62,6 +62,7 @@ from unyt.exceptions import (
     MissingMKSCurrent,
     MKSCGSConversionError,
     UnitConversionError,
+    UnitDtypeError,
     UnitsNotReducible,
 )
 from unyt._physical_ratios import speed_of_light_cm_per_s
@@ -434,7 +435,9 @@ class Unit(object):
                     units = u.units*self
                 except AttributeError:
                     units = self
-                data = np.array(u, dtype='float64')
+                data = np.array(u)
+                if data.dtype.kind not in ('f', 'u', 'i', 'c'):
+                    raise UnitDtypeError(data, data.dtype)
                 if data.shape == ():
                     return self._uq(data, units, bypass_validation=True)
                 return self._ua(data, units, bypass_validation=True)
@@ -673,13 +676,16 @@ class Unit(object):
         """
         return self.get_base_equivalent(unit_system="mks")
 
-    def get_conversion_factor(self, other_units):
-        """Get the conversion factor and offset (if any) from one unit to another
+    def get_conversion_factor(self, other_units, dtype=None):
+        """Get the conversion factor and offset (if any) from one unit
+        to another
 
         Parameters
         ----------
         other_units: unit object
            The units we want the conversion factor for
+        dtype: numpy dtype
+           The dtype to return the conversion factor as
 
         Returns
         -------
@@ -697,7 +703,7 @@ class Unit(object):
         >>> degree_celsius.get_conversion_factor(degree_fahrenheit)
         (1.7999999999999998, -31.999999999999886)
         """
-        return _get_conversion_factor(self, other_units)
+        return _get_conversion_factor(self, other_units, dtype)
 
     def latex_representation(self):
         """A LaTeX representation for the unit
@@ -824,7 +830,7 @@ def _check_em_conversion(unit, to_unit=None, unit_system=None,
     return em_map
 
 
-def _get_conversion_factor(old_units, new_units):
+def _get_conversion_factor(old_units, new_units, dtype):
     """
     Get the conversion factor between two units of equivalent dimensions. This
     is the number you multiply data by to convert from values in `old_units` to
@@ -836,6 +842,8 @@ def _get_conversion_factor(old_units, new_units):
         The current units.
     new_units : str or Unit object
         The units we want.
+    dtype: NumPy dtype
+        The dtype of the conversion factor
 
     Returns
     -------
