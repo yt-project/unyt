@@ -36,11 +36,11 @@ into :mod:`unyt`) and the semimajor axis of the orbits of Jupiter's moons, which
 we can look up from `Wikipedia
 <https://en.wikipedia.org/wiki/Moons_of_Jupiter#List>`_ and enter by hand::
 
-  >>> from unyt import Mjup, G, km
+  >>> from unyt import Mjup, G, AU
   >>> from math import pi
   ...
   >>> moons = ['Io', 'Europa', 'Ganymede', 'Callisto']
-  >>> semimajor_axis = [421700, 671034, 1070412, 1882709]*km
+  >>> semimajor_axis = [.002819, .0044856, .00715526, .01258513]*AU
   ...
   >>> period = 2*pi*(semimajor_axis**3/(G*Mjup))**0.5
   >>> period = period.to('d')
@@ -61,9 +61,9 @@ The :mod:`unyt` namespace has a large number of units and physical constants you
 can import to apply units to data in your own code. You can see how that works
 in the example::
 
-  >>> semimajor_axis = [421700, 671034, 1070412, 1882709]*km
+  >>> semimajor_axis = [.002819, .0044856, .00715526, .01258513]*AU
   >>> semimajor_axis
-  unyt_array([ 421700,  671034, 1070412, 1882709], 'km')
+  unyt_array([0.002819  , 0.0044856 , 0.00715526, 0.01258513], 'AU')
 
 By multiplying by ``km``, we converted the python list into a
 :class:`unyt.unyt_array <unyt.array.unyt_array>` instance. This is a class
@@ -71,11 +71,11 @@ that's built into :mod:`unyt`, has units attached to it, and knows how to
 convert itself into different dimensionally equivalent units::
 
   >>> semimajor_axis.value
-  array([ 421700,  671034, 1070412, 1882709])
+  array([0.002819  , 0.0044856 , 0.00715526, 0.01258513])
   >>> semimajor_axis.units
-  km
-  >>> print(semimajor_axis.to('AU'))
-  [0.00281889 0.00448559 0.00715526 0.01258513] AU
+  AU
+  >>> print(semimajor_axis.to('km'))
+  [ 421716.39764641  671036.20903964 1070411.66066813 1882708.6511216 ] km
 
 Next, we calculated the orbital period by translating the orbital period
 formula to Python and then converting the answer to the units we want in the
@@ -83,9 +83,10 @@ end, days::
 
   >>> period = 2*pi*(semimajor_axis**3/(G*Mjup))**0.5
   >>> period
-  unyt_array([ 4.83380797,  9.70288268, 19.54836529, 45.5993645 ], 'km**(3/2)*s/m**(3/2)')
+  unyt_array([2.64196224e-12, 5.30291672e-12, 1.06837107e-11,
+              2.49212918e-11], 'AU**(3/2)*s/m**(3/2)')
   >>> period.to('d')
-  unyt_array([ 1.76919479,  3.55129736,  7.1547869 , 16.68956617], 'd')
+  unyt_array([ 1.76929798,  3.55131489,  7.1547835 , 16.68956153], 'd')
 
 Note that we haven't added any conversion factors between different units,
 that's all handled internally by :mod:`unyt`. Also note how the intermediate
@@ -98,7 +99,7 @@ python syntax. This means you must use `**` and not `^`, even when writing a
 unit as a string:
 
   >>> from unyt import kg, m
-  >>> print((10*kg/m**3).to('g/cm**3'))
+  >>> print((10.*kg/m**3).to('g/cm**3'))
   0.01 g/cm**3
 
 Arithmetic and units
@@ -111,7 +112,7 @@ mistake in your units in a mathematical formula. To see what I mean by that,
 let's take a look at the following examples::
 
   >>> from unyt import cm, m, ft, yard
-  >>> print(3*cm + 4*m - 5*ft + 6*yard)
+  >>> print(3.*cm + 4.*m - 5.*ft + 6.*yard)
   799.24 cm
 
 Despite the fact that the four unit symbols used in the above example correspond
@@ -126,7 +127,7 @@ returns data in the units of the leftmost object in an expression::
 One can also form more complex units out of atomic unit symbols. For example, here is how we'd create an array with units of meters per second and print out the values in the array in miles per hour::
 
   >>> from unyt import m, s
-  >>> velocities = [20, 22, 25]*m/s
+  >>> velocities = [20., 22., 25.]*m/s
   >>> print(velocities.to('mile/hr'))
   [44.73872584 49.21259843 55.9234073 ] mile/hr
 
@@ -209,10 +210,10 @@ The one exception to this rule is for trigonometric functions applied to data wi
 
   >>> from unyt import degree, radian
   >>> import numpy as np
-  >>> print(np.sin(np.pi/4*radian))
-  0.7071067811865475
-  >>> print(np.sin(45*degree))
-  0.7071067811865475
+  >>> np.sin(np.pi/4*radian)
+  array(0.70710678)
+  >>> np.sin(45.*degree)
+  array(0.70710678)
 
 Printing Units
 --------------
@@ -278,9 +279,9 @@ accomplished with the :meth:`unyt_array.convert_to_units
 <unyt.array.unyt_array.convert_to_units>` function:
 
   >>> from unyt import mile
-  >>> data = [1, 2, 3]*mile
+  >>> data = [1., 2., 3.]*mile
   >>> data
-  unyt_array([1, 2, 3], 'mile')
+  unyt_array([1., 2., 3.], 'mile')
   >>> data.convert_to_units('km')
   >>> data
   unyt_array([1.609344, 3.218688, 4.828032], 'km')
@@ -384,9 +385,9 @@ methods:
   >>> from unyt import g, cm, horsepower
   >>> (1e-9*g/cm**2).in_base('galactic')
   unyt_quantity(4.78843804, 'Msun/kpc**2')
-  >>> data = [100, 500, 700]*horsepower
+  >>> data = [100., 500., 700.]*horsepower
   >>> data
-  unyt_array([100, 500, 700], 'hp')
+  unyt_array([100., 500., 700.], 'hp')
   >>> data.convert_to_base('mks')
   >>> data
   unyt_array([ 74569.98715823, 372849.93579114, 521989.91010759], 'W')
@@ -542,28 +543,28 @@ To obtain a new array containing a copy of the original data, use either the
 
   >>> from unyt import g
   >>> import numpy as np
-  >>> data = [1, 2, 3]*g
+  >>> data = [1., 2., 3.]*g
   >>> data
-  unyt_array([1, 2, 3], 'g')
+  unyt_array([1., 2., 3.], 'g')
   >>> np.array(data)
-  array([1, 2, 3])
+  array([1., 2., 3.])
   >>> data.to_value('kg')
   array([0.001, 0.002, 0.003])
   >>> data.value
-  array([1, 2, 3])
+  array([1., 2., 3.])
   >>> data.v
-  array([1, 2, 3])
+  array([1., 2., 3.])
 
 Similarly, to obtain a ndarray containing a view of the data in the original
 array, use either the :attr:`unyt_array.ndview <unyt.array.unyt_array.ndview>`
 or the :attr:`unyt_array.d <unyt.array.unyt_array.d>` properties:
 
   >>> data.view(np.ndarray)
-  array([1, 2, 3])
+  array([1., 2., 3.])
   >>> data.ndview
-  array([1, 2, 3])
+  array([1., 2., 3.])
   >>> data.d
-  array([1, 2, 3])
+  array([1., 2., 3.])
 
 Applying units to data
 ----------------------
@@ -793,8 +794,6 @@ data types:
    >>> int_data = [1, 2, 3]*km
    >>> int_data
    unyt_array([1, 2, 3], 'km')
-   >>> data.dtype
-   dtype('int64')
    >>> float32_data = np.array([1, 2, 3], dtype='float32')*km
    >>> float32_data
    unyt_array([1., 2., 3.], dtype=float32, units='km')
@@ -806,24 +805,26 @@ the ``unyt_array`` initializer directly:
 
    >>> np.array([1, 2, 3], dtype='float64')*km
    unyt_array([1., 2., 3.], 'km')
-   >>> unyt_array([1, 2, 3], 'km', dtype='int32')
-   unyt_array([1, 2, 3], dtype=int32, units='km')
 
-Operations that convert an integer array to a new unit will convert the array to the floating point type with an equivalent size. For example, Calling ``in_units`` on a 32 bit integer array with units of kilometers will return a 32 bit floating point array.
+Operations that convert an integer array to a new unit will convert the array to
+the floating point type with an equivalent size. For example, Calling
+``in_units`` on a 32 bit integer array with units of kilometers will return a 32
+bit floating point array.
 
    >>> data = np.array([1, 2, 3], dtype='int32')*km
    >>> data.in_units('mile')
    unyt_array([0.62137121, 1.24274242, 1.86411357], dtype=float32, units='mile')
 
-In-place operations will also mutate the dtype from float to integer in these cases, again in away that will preserve the byte size of the data.
+In-place operations will also mutate the dtype from float to integer in these
+cases, again in away that will preserve the byte size of the data.
 
-   >>> data
-   unyt_array([1, 2, 3], dtype=int32, units='km')
    >>> data.convert_to_units('mile')
    >>> data
    unyt_array([0.62137121, 1.24274242, 1.86411357], dtype=float32, units='mile')
 
-It is possible that arrays containing large integers (16777217 for 32 bit and 9007199254740993 for 64 bit) will lose precision when converting data to a different unit. In these cases a warning message will be printed.
+It is possible that arrays containing large integers (16777217 for 32 bit and
+9007199254740993 for 64 bit) will lose precision when converting data to a
+different unit. In these cases a warning message will be printed.
 
 Writing Data with Units to Disk
 -------------------------------
@@ -926,11 +927,11 @@ restoring the data from disk. Here is a short example illustrating this:
   >>> reg.add("code_length", base_value=10.0, dimensions=length,
   ...         tex_repr=r"\rm{Code Length}")
   >>> u = Unit('cm', registry=reg)
-  >>> data = [1, 2, 3]*u
+  >>> data = [1., 2., 3.]*u
   >>> data.write_hdf5('my_code_data.h5')
   >>> read_data = data.from_hdf5('my_code_data.h5')
   >>> read_data
-  unyt_array([1, 2, 3], 'cm')
+  unyt_array([1., 2., 3.], 'cm')
   >>> read_data.to('code_length')
   unyt_array([0.001, 0.002, 0.003], 'code_length')
   >>> os.remove('my_code_data.h5')

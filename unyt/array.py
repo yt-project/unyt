@@ -721,7 +721,7 @@ class unyt_array(np.ndarray):
         Examples
         --------
         >>> from unyt import Newton
-        >>> data = [1, 2, 3]*Newton
+        >>> data = [1., 2., 3.]*Newton
         >>> data.convert_to_cgs()
         >>> data
         unyt_array([100000., 200000., 300000.], 'dyne')
@@ -754,9 +754,9 @@ class unyt_array(np.ndarray):
         Examples
         --------
         >>> from unyt import dyne, erg
-        >>> data = [1, 2, 3]*erg
+        >>> data = [1., 2., 3.]*erg
         >>> data
-        unyt_array([1, 2, 3], 'erg')
+        unyt_array([1., 2., 3.], 'erg')
         >>> data.convert_to_mks()
         >>> data
         unyt_array([1.e-07, 2.e-07, 3.e-07], 'J')
@@ -988,7 +988,7 @@ class unyt_array(np.ndarray):
         Example
         -------
         >>> from unyt import mile
-        >>> print((1*mile).in_mks())
+        >>> print((1.*mile).in_mks())
         1609.344 m
         """
         return self.in_base("mks")
@@ -1896,8 +1896,8 @@ class unyt_quantity(unyt_array):
     Examples
     --------
 
-    >>> a = unyt_quantity(3, 'cm')
-    >>> b = unyt_quantity(2, 'm')
+    >>> a = unyt_quantity(3., 'cm')
+    >>> b = unyt_quantity(2., 'm')
     >>> print(a + b)
     203.0 cm
     >>> print(b + a)
