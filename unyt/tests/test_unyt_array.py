@@ -56,7 +56,10 @@ from unyt.exceptions import (
     UnitParseError,
     UnitsNotReducible,
 )
-from unyt._testing import assert_allclose_units
+from unyt._testing import (
+    assert_allclose_units,
+    process_warning,
+)
 from unyt.unit_symbols import (
     cm,
     m,
@@ -2040,20 +2043,23 @@ def test_overflow_warnings():
 
     data = [2**53, 2**54]*km
 
-    def process_warning(op, message, arg=None):
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter('always')
-
-            if arg:
-                op(arg)
-            else:
-                op()
-
-            assert len(w) == 1
-            assert issubclass(w[0].category, RuntimeWarning)
-            assert str(w[0].message) == message
-
     message = "Overflow encountered while converting to units 'mile'"
-    process_warning(data.to, message, 'mile')
-    process_warning(data.in_units, message, 'mile')
-    process_warning(data.convert_to_units, message, 'mile')
+    process_warning(data.to, message, RuntimeWarning, ('mile',))
+    process_warning(data.in_units, message, RuntimeWarning, ('mile',))
+    process_warning(data.convert_to_units, message, RuntimeWarning, ('mile',))
+
+
+def test_input_units_deprecation():
+    from unyt.array import unyt_array, unyt_quantity
+    message = "input_units has been deprecated, please use units instead"
+
+    process_warning(unyt_array, message, DeprecationWarning, ([1, 2, 3],),
+                    {'input_units': 'mile'})
+    process_warning(unyt_quantity, message, DeprecationWarning, (3,),
+                    {'input_units': 'mile'})
+
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        assert_array_equal(unyt_array([1, 2, 3], 'mile'),
+                           unyt_array([1, 2, 3], input_units='mile'))
+        assert unyt_quantity(3, 'mile') == unyt_quantity(3, input_units='mile')

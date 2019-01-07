@@ -142,6 +142,11 @@ from unyt.unit_registry import UnitRegistry
 NULL_UNIT = Unit()
 POWER_SIGN_MAPPING = {multiply: 1, divide: -1}
 
+__doctest_requires__ = {
+    ('unyt_array.from_pint', 'unyt_array.to_pint'): ['pint'],
+    ('unyt_array.from_astropy', 'unyt_array.to_astropy'): ['astropy'],
+}
+
 
 def _iterable(obj):
     try:
@@ -235,20 +240,6 @@ def _coerce_iterable_units(input_object, registry=None):
             # This will create a copy of the data in the iterable.
             return unyt_array(np.array(input_object), ff, registry=registry)
     return np.asarray(input_object)
-
-
-@lru_cache(maxsize=128, typed=False)
-def _unit_repr_check_same(my_units, other_units):
-    """
-    Takes a Unit object, or string of known unit symbol, and check that it
-    is compatible with this quantity. Returns Unit object.
-
-    """
-    if not my_units.same_dimensions_as(other_units):
-        raise UnitConversionError(
-            my_units, my_units.dimensions, other_units, other_units.dimensions)
-
-    return other_units
 
 
 def _sanitize_units_convert(possible_units, registry):
@@ -626,7 +617,7 @@ class unyt_array(np.ndarray):
                 new_units, (conv_factor, offset) = _em_conversion(
                     self.units, conv_data, units)
             else:
-                new_units = _unit_repr_check_same(self.units, units)
+                new_units = units
                 (conv_factor, offset) = self.units.get_conversion_factor(
                     new_units, self.dtype)
 
@@ -812,7 +803,7 @@ class unyt_array(np.ndarray):
                     self.units, conv_data, units)
                 offset = 0
             else:
-                new_units = _unit_repr_check_same(self.units, units)
+                new_units = units
                 (conversion_factor, offset) = self.units.get_conversion_factor(
                     new_units, self.dtype)
             dsize = self.dtype.itemsize
