@@ -1017,7 +1017,7 @@ class unyt_array(np.ndarray):
             this_equiv.convert(self, conv_unit.dimensions, **kwargs)
             self.convert_to_units(conv_unit)
         else:
-            raise InvalidUnitEquivalence(equivalence, self.units, unit)
+            raise InvalidUnitEquivalence(equivalence, self.units, conv_unit)
 
     def to_equivalent(self, unit, equivalence, **kwargs):
         """

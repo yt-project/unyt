@@ -52,7 +52,7 @@ class Equivalence(object):
         if x.units.dimensions in self._dims and new_dims in self._dims:
             return self._convert(x, new_dims, **kwargs)
         else:
-            raise InvalidUnitEquivalence(self, x, new_dims)
+            raise InvalidUnitEquivalence(self, x.units, new_dims)
 
     def _get_out(self, x):
         if self.in_place:

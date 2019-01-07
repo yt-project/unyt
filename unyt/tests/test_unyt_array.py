@@ -1320,8 +1320,12 @@ def test_equivalencies():
 
     with pytest.raises(InvalidUnitEquivalence):
         data.convert_to_equivalent('erg', 'thermal')
-    with pytest.raises(InvalidUnitEquivalence):
+    with pytest.raises(InvalidUnitEquivalence) as excinfo:
         data.convert_to_equivalent('m', 'mass_energy')
+    assert (str(excinfo.value) ==
+            "The unit equivalence 'mass_energy: mass <-> energy' does not "
+            "exist for units 'kg' to convert to a new unit with dimensions "
+            "'(length)'.")
     with pytest.raises(InvalidUnitEquivalence):
         data.to_equivalent('erg', 'thermal')
     with pytest.raises(InvalidUnitEquivalence):

@@ -63,10 +63,6 @@ class UnitRegistry:
         except UnitParseError:
             return False
 
-    def pop(self, item):
-        if item in self.lut:
-            del self.lut[item]
-
     @property
     def unit_system_id(self):
         """
