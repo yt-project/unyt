@@ -36,11 +36,11 @@ into :mod:`unyt`) and the semimajor axis of the orbits of Jupiter's moons, which
 we can look up from `Wikipedia
 <https://en.wikipedia.org/wiki/Moons_of_Jupiter#List>`_ and enter by hand::
 
-  >>> from unyt import Mjup, G, km
+  >>> from unyt import Mjup, G, AU
   >>> from math import pi
   ...
   >>> moons = ['Io', 'Europa', 'Ganymede', 'Callisto']
-  >>> semimajor_axis = [421700, 671034, 1070412, 1882709]*km
+  >>> semimajor_axis = [.002819, .0044856, .00715526, .01258513]*AU
   ...
   >>> period = 2*pi*(semimajor_axis**3/(G*Mjup))**0.5
   >>> period = period.to('d')
@@ -61,9 +61,9 @@ The :mod:`unyt` namespace has a large number of units and physical constants you
 can import to apply units to data in your own code. You can see how that works
 in the example::
 
-  >>> semimajor_axis = [421700, 671034, 1070412, 1882709]*km
+  >>> semimajor_axis = [.002819, .0044856, .00715526, .01258513]*AU
   >>> semimajor_axis
-  unyt_array([ 421700.,  671034., 1070412., 1882709.], 'km')
+  unyt_array([0.002819  , 0.0044856 , 0.00715526, 0.01258513], 'AU')
 
 By multiplying by ``km``, we converted the python list into a
 :class:`unyt.unyt_array <unyt.array.unyt_array>` instance. This is a class
@@ -71,11 +71,11 @@ that's built into :mod:`unyt`, has units attached to it, and knows how to
 convert itself into different dimensionally equivalent units::
 
   >>> semimajor_axis.value
-  array([ 421700.,  671034., 1070412., 1882709.])
+  array([0.002819  , 0.0044856 , 0.00715526, 0.01258513])
   >>> semimajor_axis.units
-  km
-  >>> print(semimajor_axis.to('AU'))
-  [0.00281889 0.00448559 0.00715526 0.01258513] AU
+  AU
+  >>> print(semimajor_axis.to('km'))
+  [ 421716.39764641  671036.20903964 1070411.66066813 1882708.6511216 ] km
 
 Next, we calculated the orbital period by translating the orbital period
 formula to Python and then converting the answer to the units we want in the
@@ -83,9 +83,10 @@ end, days::
 
   >>> period = 2*pi*(semimajor_axis**3/(G*Mjup))**0.5
   >>> period
-  unyt_array([ 4.83380797,  9.70288268, 19.54836529, 45.5993645 ], 'km**(3/2)*s/m**(3/2)')
+  unyt_array([2.64196224e-12, 5.30291672e-12, 1.06837107e-11,
+              2.49212918e-11], 'AU**(3/2)*s/m**(3/2)')
   >>> period.to('d')
-  unyt_array([ 1.76919479,  3.55129736,  7.1547869 , 16.68956617], 'd')
+  unyt_array([ 1.76929798,  3.55131489,  7.1547835 , 16.68956153], 'd')
 
 Note that we haven't added any conversion factors between different units,
 that's all handled internally by :mod:`unyt`. Also note how the intermediate
@@ -98,7 +99,7 @@ python syntax. This means you must use `**` and not `^`, even when writing a
 unit as a string:
 
   >>> from unyt import kg, m
-  >>> print((10*kg/m**3).to('g/cm**3'))
+  >>> print((10.*kg/m**3).to('g/cm**3'))
   0.01 g/cm**3
 
 Arithmetic and units
@@ -111,7 +112,7 @@ mistake in your units in a mathematical formula. To see what I mean by that,
 let's take a look at the following examples::
 
   >>> from unyt import cm, m, ft, yard
-  >>> print(3*cm + 4*m - 5*ft + 6*yard)
+  >>> print(3.*cm + 4.*m - 5.*ft + 6.*yard)
   799.24 cm
 
 Despite the fact that the four unit symbols used in the above example correspond
@@ -126,7 +127,7 @@ returns data in the units of the leftmost object in an expression::
 One can also form more complex units out of atomic unit symbols. For example, here is how we'd create an array with units of meters per second and print out the values in the array in miles per hour::
 
   >>> from unyt import m, s
-  >>> velocities = [20, 22, 25]*m/s
+  >>> velocities = [20., 22., 25.]*m/s
   >>> print(velocities.to('mile/hr'))
   [44.73872584 49.21259843 55.9234073 ] mile/hr
 
@@ -135,7 +136,7 @@ Similarly one can multiply two units together to create new compound units::
   >>> from unyt import N, m
   >>> energy = 3*N * 4*m
   >>> print(energy)
-  12.0 N*m
+  12 N*m
   >>> print(energy.to('erg'))
   120000000.0 erg
 
@@ -164,7 +165,7 @@ If you make a mistake by adding two things that have different dimensions,
 code:
 
   >>> from unyt import kg, m
-  >>> 3*kg + 5*m  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> 3*kg + 5*m  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE +IGNORE_EXCEPTION_DETAIL
   Traceback (most recent call last):
   ...
   unyt.exceptions.UnitOperationError: The <ufunc 'add'> operator for
@@ -182,14 +183,14 @@ the :class:`unyt.unyt_array <unyt.array.unyt_array>` class to quickly apply unit
 
   >>> from unyt import cm, s
   >>> velocities = [10, 20, 30] * cm/s
-  >>> velocities + 12  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> velocities + 12  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE +IGNORE_EXCEPTION_DETAIL
   Traceback (most recent call last):
   ...
   unyt.exceptions.UnitOperationError: The <ufunc 'add'> operator for
   unyt_arrays with units "cm/s" (dimensions "(length)/(time)") and
   "dimensionless" (dimensions "1") is not well defined.
   >>> velocities + 12*velocities.units
-  unyt_array([22., 32., 42.], 'cm/s')
+  unyt_array([22, 32, 42], 'cm/s')
 
 Logarithms, Exponentials, and Trigonometric Functions
 -----------------------------------------------------
@@ -209,10 +210,10 @@ The one exception to this rule is for trigonometric functions applied to data wi
 
   >>> from unyt import degree, radian
   >>> import numpy as np
-  >>> print(np.sin(np.pi/4*radian))
-  0.7071067811865475
-  >>> print(np.sin(45*degree))
-  0.7071067811865475
+  >>> np.sin(np.pi/4*radian)
+  array(0.70710678)
+  >>> np.sin(45.*degree)
+  array(0.70710678)
 
 Printing Units
 --------------
@@ -254,7 +255,7 @@ If you try to convert to a unit with different dimensions, :mod:`unyt` will
 raise an error:
 
   >>> from unyt import mile
-  >>> (1.0*mile).to('lb')  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> (1.0*mile).to('lb')  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE +IGNORE_EXCEPTION_DETAIL
   Traceback (most recent call last):
   ...
   unyt.exceptions.UnitConversionError: Cannot convert between 'mile' (dim
@@ -278,7 +279,7 @@ accomplished with the :meth:`unyt_array.convert_to_units
 <unyt.array.unyt_array.convert_to_units>` function:
 
   >>> from unyt import mile
-  >>> data = [1, 2, 3]*mile
+  >>> data = [1., 2., 3.]*mile
   >>> data
   unyt_array([1., 2., 3.], 'mile')
   >>> data.convert_to_units('km')
@@ -360,7 +361,7 @@ dimensionally equivalent. The :mod:`unyt` library does have limited support for 
 But converting a more complicated compound unit will raise an error:
 
   >>> from unyt import C, T, V
-  >>> (1.0*C*T*V).in_cgs()  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> (1.0*C*T*V).in_cgs()  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE +IGNORE_EXCEPTION_DETAIL
   Traceback (most recent call last):
   ...
   unyt.exceptions.UnitsNotReducible: The unit "C*T*V" (dimensions
@@ -384,7 +385,7 @@ methods:
   >>> from unyt import g, cm, horsepower
   >>> (1e-9*g/cm**2).in_base('galactic')
   unyt_quantity(4.78843804, 'Msun/kpc**2')
-  >>> data = [100, 500, 700]*horsepower
+  >>> data = [100., 500., 700.]*horsepower
   >>> data
   unyt_array([100., 500., 700.], 'hp')
   >>> data.convert_to_base('mks')
@@ -542,7 +543,7 @@ To obtain a new array containing a copy of the original data, use either the
 
   >>> from unyt import g
   >>> import numpy as np
-  >>> data = [1, 2, 3]*g
+  >>> data = [1., 2., 3.]*g
   >>> data
   unyt_array([1., 2., 3.], 'g')
   >>> np.array(data)
@@ -597,7 +598,7 @@ with the same units:
 
   >>> more_data = [4, 5, 6]*data_with_units.units
   >>> more_data
-  unyt_array([4., 5., 6.], 'g')
+  unyt_array([4, 5, 6], 'g')
 
 Working with code that uses ``astropy.units``
 ---------------------------------------------
@@ -643,7 +644,7 @@ instances. To convert data from ``Pint`` to :mod:`unyt`, use the :func:`unyt_arr
   <Quantity([0 1 2 3], 'erg / centimeter ** 3')>
   >>> c = unyt_array.from_pint(b)
   >>> c
-  unyt_array([0., 1., 2., 3.], 'erg/cm**3')
+  unyt_array([0, 1, 2, 3], 'erg/cm**3')
 
 And to convert data contained in a :class:`unyt_array <unyt.array.unyt_array>`
 instance, use the :meth:`unyt_array.to_pint <unyt.array.unyt_array.to_pint>`
@@ -652,12 +653,12 @@ method:
   >>> from unyt import cm, s
   >>> a = 4*cm**2/s
   >>> print(a)
-  4.0 cm**2/s
+  4 cm**2/s
   >>> a.to_pint()
-  <Quantity(4.0, 'centimeter ** 2 / second')>
+  <Quantity(4, 'centimeter ** 2 / second')>
   >>> b = [1, 2, 3]*cm
   >>> b.to_pint()
-  <Quantity([1. 2. 3.], 'centimeter')>
+  <Quantity([1 2 3], 'centimeter')>
 
 
 Integrating :mod:`unyt` Into a Python Library
@@ -717,7 +718,7 @@ In practice, the unit metadata for a unit object is contained in an instance of 
 
   >>> from unyt import g
   >>> g.registry  # doctest: +ELLIPSIS
-  <unyt.unit_registry.UnitRegistry object at ...>
+  <unyt.unit_registry.UnitRegistry ...>
 
 All the unit objects in the :mod:`unyt` namespace make use of the default unit
 registry, importable as :data:`unyt.unit_registry.default_unit_registry`. This
@@ -738,33 +739,92 @@ Sometimes it is convenient to create a unit registry containing new units that a
   >>> u = Unit('code_length', registry=reg)
   >>> data = 3*u
   >>> print(data)
-  3.0 code_length
+  3 code_length
 
 As you can see, you can test whether a unit name is in a registry using the
 Python ``in`` operator.
 
 In an application that depends on ``unyt``, it is often convenient to define
-methods or functions to automatically attach the correct unit registry to a set
-unit object. For example, consider a ``Simulation`` class. Let's give this class
-two methods named ``quantitity`` and ``array`` to create new :mod:`unyt_array
-<unyt.array.unyt_array>` and :mod:`unyt_quantity <unyt.array.unyt_quantity>`
-instances, respectively:
+methods or functions to automatically attach the correct unit registry to unit
+objects associated with an object. For example, consider a ``Simulation``
+class. Let's give this class two methods named ``array`` and ``quantity`` to
+create new :mod:`unyt_array <unyt.array.unyt_array>` and :mod:`unyt_quantity
+<unyt.array.unyt_quantity>` instances, respectively:
 
   >>> class Simulation(object):
   ...     def __init__(self, registry):
   ...         self.registry = registry
   ...
-  ...     def quan(self, value, units):
-  ...         return unyt_quantity(value, units, registry=self.registry)
-  ...
   ...     def array(self, value, units):
   ...         return unyt_array(value, units, registry=self.registry)
   ...
-  >>> s = Simulation(reg)
+  ...     def quantity(self, value, units):
+  ...         return unyt_quantity(value, units, registry=self.registry)
+  ...
+  >>> registry = UnitRegistry()
+  >>> registry.add("code_length", base_value=3.2, dimensions=length)
+  >>> s = Simulation(registry)
   >>> s.array([1, 2, 3], 'code_length')
-  unyt_array([1., 2., 3.], 'code_length')
+  unyt_array([1, 2, 3], 'code_length')
 
-As for arrays with different units, for operation between two arrays with units that have references to different unit registries, the result of the operation will have the same unit registry as the leftmost unit. This can sometimes lead to surprising behaviors where data will seem to "forget" about custom units. In this situation it is important to make sure ahead of time that all data are created with units using the same unit registry. If for some reason that is not possible (for example, when comparing data from two different simulations with different internal units), then care must be taken when working with custom units. To avoid these sorts of ambiguities it is best to do work in physical units as much as possible.
+We can create an array with ``"code_length"`` here because ``s.registry``, the ``UnitRegistry`` instance associated with our Simulation instance has a ``"code_length"`` unit defined.
+
+As for arrays with different units, for operations between arrays created with
+different unit registries, the result of the operation will use the same unit
+registry as the leftmost unit. This can sometimes lead to surprising behaviors
+where data will seem to "forget" about custom units. In this situation it is
+important to make sure ahead of time that all data are created with units using
+the same unit registry. If for some reason that is not possible (for example,
+when comparing data from two different simulations with different internal
+units), then care must be taken when working with custom units. To avoid these
+sorts of ambiguities it is best to do work in physical units as much as
+possible.
+
+Dealing with data types
+-----------------------
+
+The :mod:`unyt` library supports creating :class:`unyt.unyt_array
+<unyt.array.unyt_array>` and :class:`unyt.unyt_quantity
+<unyt.array.unyt_quantity>` instances with arbitrary integer or floating point
+data types:
+
+   >>> import numpy as np
+   >>> from unyt import km
+   ...
+   >>> int_data = [1, 2, 3]*km
+   >>> int_data
+   unyt_array([1, 2, 3], 'km')
+   >>> float32_data = np.array([1, 2, 3], dtype='float32')*km
+   >>> float32_data
+   unyt_array([1., 2., 3.], dtype=float32, units='km')
+
+The ``dtype`` of a ``unyt_array`` instance created by multiplying an iterable by
+a unit will be the same as passing the iterable to ``np.array()``. You can also
+manually specify the ``dtype`` by calling ``np.array()`` yourself or by using
+the ``unyt_array`` initializer directly:
+
+   >>> np.array([1, 2, 3], dtype='float64')*km
+   unyt_array([1., 2., 3.], 'km')
+
+Operations that convert an integer array to a new unit will convert the array to
+the floating point type with an equivalent size. For example, Calling
+``in_units`` on a 32 bit integer array with units of kilometers will return a 32
+bit floating point array.
+
+   >>> data = np.array([1, 2, 3], dtype='int32')*km
+   >>> data.in_units('mile')
+   unyt_array([0.62137121, 1.24274242, 1.86411357], dtype=float32, units='mile')
+
+In-place operations will also mutate the dtype from float to integer in these
+cases, again in away that will preserve the byte size of the data.
+
+   >>> data.convert_to_units('mile')
+   >>> data
+   unyt_array([0.62137121, 1.24274242, 1.86411357], dtype=float32, units='mile')
+
+It is possible that arrays containing large integers (16777217 for 32 bit and
+9007199254740993 for 64 bit) will lose precision when converting data to a
+different unit. In these cases a warning message will be printed.
 
 Writing Data with Units to Disk
 -------------------------------
@@ -789,7 +849,7 @@ this example:
   >>> np.save('my_data_cm.npy', data)
   >>> new_data = np.load('my_data_cm.npy')
   >>> new_data
-  array([1., 2., 3.])
+  array([1, 2, 3])
   >>> new_data_with_units = new_data * cm
   >>> os.remove('my_data_cm.npy')
 
@@ -812,7 +872,7 @@ Of course in this example using ``numpy.save`` we need to hard-code the units be
   >>> unit = Unit(unit_str)
   >>> new_data = new_data*unit
   >>> new_data
-  unyt_array([1., 2., 3.], 'cm')
+  unyt_array([1, 2, 3], 'cm')
   >>> os.remove('my_data.h5')
 
 HDF5 Files
@@ -826,7 +886,7 @@ The :mod:`unyt` library provides a hook for writing data both to a new HDF5 file
   >>> data.write_hdf5('my_data.h5')
   ...
   >>> unyt_array.from_hdf5('my_data.h5')
-  unyt_array([1., 2., 3.], 'cm')
+  unyt_array([1, 2, 3], 'cm')
   >>> os.remove('my_data.h5')
 
 By default the data will be written to the root group of the HDF5 file in a dataset named ``'array_data'``. You can also specify that you would like
@@ -836,7 +896,7 @@ the data to be saved in a particular group or dataset in the file:
   ...                 group_name='my_special_group')
   >>> unyt_array.from_hdf5('my_data.h5', dataset_name='my_special_data',
   ...                      group_name='my_special_group')
-  unyt_array([1., 2., 3.], 'cm')
+  unyt_array([1, 2, 3], 'cm')
   >>> os.remove('my_data.h5')
 
 You can even write to files and groups that already exist:
@@ -848,7 +908,7 @@ You can even write to files and groups that already exist:
   ...
   >>> with h5py.File('my_data.h5') as f:
   ...     print(f['my_custom_group/array_data'][:])
-  [1. 2. 3.]
+  [1 2 3]
   >>> os.remove('my_data.h5')
 
 If the dataset that you would like to write to already exists, :mod:`unyt`
@@ -867,7 +927,7 @@ restoring the data from disk. Here is a short example illustrating this:
   >>> reg.add("code_length", base_value=10.0, dimensions=length,
   ...         tex_repr=r"\rm{Code Length}")
   >>> u = Unit('cm', registry=reg)
-  >>> data = [1, 2, 3]*u
+  >>> data = [1., 2., 3.]*u
   >>> data.write_hdf5('my_code_data.h5')
   >>> read_data = data.from_hdf5('my_code_data.h5')
   >>> read_data

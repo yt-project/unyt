@@ -11,6 +11,8 @@ Utilities for writing tests
 # The full license is in the LICENSE file, distributed with this software.
 # -----------------------------------------------------------------------------
 
+import warnings
+
 from numpy.testing import assert_allclose
 
 from unyt.array import (
@@ -82,3 +84,16 @@ def assert_allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
     at = at.value
 
     return assert_allclose(act, des, rt, at, **kwargs)
+
+
+def process_warning(op, message, warning_class, args=(), kwargs=None):
+    if kwargs is None:
+        kwargs = {}
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter('always')
+
+        op(*args, **kwargs)
+
+        assert len(w) == 1
+        assert issubclass(w[0].category, warning_class)
+        assert str(w[0].message) == message

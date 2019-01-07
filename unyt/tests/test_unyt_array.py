@@ -24,11 +24,11 @@ import os
 import pytest
 import shutil
 import tempfile
+import warnings
 
 from numpy.testing import (
     assert_array_equal,
     assert_equal,
-    assert_array_almost_equal_nulp,
     assert_array_almost_equal,
     assert_almost_equal
 )
@@ -56,7 +56,10 @@ from unyt.exceptions import (
     UnitParseError,
     UnitsNotReducible,
 )
-from unyt._testing import assert_allclose_units
+from unyt._testing import (
+    assert_allclose_units,
+    process_warning,
+)
 from unyt.unit_symbols import (
     cm,
     m,
@@ -79,7 +82,7 @@ from unyt import dimensions
 
 def operate_and_compare(a, b, op, answer):
     # Test generator for unyt_arrays tests
-    assert_array_equal(op(a, b), answer)
+    assert_array_almost_equal(op(a, b), answer)
 
 
 def assert_isinstance(a, type):
@@ -564,7 +567,7 @@ def test_unit_conversions():
     from unyt.array import unyt_quantity
     from unyt.unit_object import Unit
 
-    km = unyt_quantity(1, 'km')
+    km = unyt_quantity(1., 'km', dtype='float64')
     km_in_cm = km.in_units('cm')
     cm_unit = Unit('cm')
     kpc_unit = Unit('kpc')
@@ -586,9 +589,9 @@ def test_unit_conversions():
     km.convert_to_units('kpc')
     assert km_view.base is km.base
 
-    assert_array_almost_equal_nulp(km, unyt_quantity(1, 'km'))
-    assert_array_almost_equal_nulp(km.in_cgs(), unyt_quantity(1e5, 'cm'))
-    assert_array_almost_equal_nulp(km.in_mks(), unyt_quantity(1e3, 'm'))
+    assert_array_almost_equal(km, unyt_quantity(1, 'km'))
+    assert_array_almost_equal(km.in_cgs(), unyt_quantity(1e5, 'cm'))
+    assert_array_almost_equal(km.in_mks(), unyt_quantity(1e3, 'm'))
     assert_equal(km.units, kpc_unit)
 
     assert_isinstance(km.to_ndarray(), np.ndarray)
@@ -658,8 +661,8 @@ def test_temperature_conversions():
     """
     from unyt.unit_object import InvalidUnitOperation
 
-    km = unyt_quantity(1, 'km')
-    balmy = unyt_quantity(300, 'K')
+    km = unyt_quantity(1, 'km', dtype='float64')
+    balmy = unyt_quantity(300, 'K', dtype='float64')
     balmy_F = unyt_quantity(80.33, 'degF')
     balmy_C = unyt_quantity(26.85, 'degC')
     balmy_R = unyt_quantity(540, 'R')
@@ -969,9 +972,12 @@ def binary_ufunc_comparison(ufunc, a, b):
 
 def test_ufuncs():
     for ufunc in unary_operators:
-        unary_ufunc_comparison(ufunc, unyt_array([.3, .4, .5], 'cm'))
-        unary_ufunc_comparison(ufunc, unyt_array([12, 23, 47], 'g'))
-        unary_ufunc_comparison(ufunc, unyt_array([2, 4, -6], 'erg/m**3'))
+        unary_ufunc_comparison(
+            ufunc, unyt_array([.3, .4, .5], 'cm', dtype='float64'))
+        unary_ufunc_comparison(
+            ufunc, unyt_array([12, 23, 47], 'g', dtype='float64'))
+        unary_ufunc_comparison(
+            ufunc, unyt_array([2, 4, -6], 'erg/m**3', dtype='float64'))
 
     for ufunc in binary_operators:
         # arr**arr is undefined for arrays with units because
@@ -1300,12 +1306,12 @@ def test_equivalencies():
     import unyt as u
 
     # equivalence is ignored if the conversion doesn't need one
-    data = 12*u.g
+    data = 12.*u.g
     data.convert_to_equivalent('kg', None)
     assert data.value == .012
     assert data.units == u.kg
 
-    data = 12*u.g
+    data = 12.*u.g
     data = data.to_equivalent('kg', None)
     assert data.value == .012
     assert data.units == u.kg
@@ -1314,8 +1320,12 @@ def test_equivalencies():
 
     with pytest.raises(InvalidUnitEquivalence):
         data.convert_to_equivalent('erg', 'thermal')
-    with pytest.raises(InvalidUnitEquivalence):
+    with pytest.raises(InvalidUnitEquivalence) as excinfo:
         data.convert_to_equivalent('m', 'mass_energy')
+    assert (str(excinfo.value) ==
+            "The unit equivalence 'mass_energy: mass <-> energy' does not "
+            "exist for units 'kg' to convert to a new unit with dimensions "
+            "'(length)'.")
     with pytest.raises(InvalidUnitEquivalence):
         data.to_equivalent('erg', 'thermal')
     with pytest.raises(InvalidUnitEquivalence):
@@ -1377,7 +1387,7 @@ def test_equivalencies():
 
     # frequency to wavelength
 
-    nu = 1*u.MHz
+    nu = 1.*u.MHz
     lam = nu.to('km', 'spectral')
     assert_allclose_units(lam, u.clight/nu)
     nu.convert_to_units('m', 'spectral')
@@ -1387,7 +1397,7 @@ def test_equivalencies():
 
     # frequency to spatial frequency
 
-    nu = 1*u.MHz
+    nu = 1.*u.MHz
     nubar = nu.to('1/km', 'spectral')
     assert_allclose_units(nubar, nu/u.clight)
     nu.convert_to_units('1/m', 'spectral')
@@ -1397,7 +1407,7 @@ def test_equivalencies():
 
     # frequency to photon energy
 
-    nu = 1*u.MHz
+    nu = 1.*u.MHz
     E = nu.to('erg', 'spectral')
     assert_allclose_units(E, u.hmks*nu)
     nu.convert_to_units('J', 'spectral')
@@ -1535,7 +1545,7 @@ def test_equivalencies():
 
     # Schwarzschild
 
-    msun = 1*u.Msun
+    msun = 1.*u.Msun
     msun.convert_to_equivalent('km', 'schwarzschild')
     R = u.mass_sun_mks.in_units("kpc", "schwarzschild")
     assert_allclose_units(msun, R)
@@ -1548,7 +1558,7 @@ def test_equivalencies():
 
     # Compton
 
-    me = 1*u.me
+    me = 1.*u.me
     me.convert_to_units('nm', 'compton')
     length = u.me.in_units("angstrom", "compton")
     assert_allclose_units(length, me)
@@ -1616,15 +1626,15 @@ def test_electromagnetic():
 
     # Various tests of SI and CGS electromagnetic units
 
-    t = 1*u.Tesla
-    g = 1*u.gauss
+    t = 1.*u.Tesla
+    g = 1.*u.gauss
     assert t.to('gauss') == 1e4*u.gauss
     assert g.to('T') == 1e-4*u.Tesla
 
     qp_cgs = u.qp_cgs.in_units("C")
     assert_equal(qp_cgs.units.dimensions, dimensions.charge_mks)
     assert_almost_equal(qp_cgs.v, 10.0*u.qp.v/speed_of_light_cm_per_s)
-    qp = 1*u.qp_cgs
+    qp = 1.*u.qp_cgs
     qp.convert_to_units("C")
     assert_equal(qp.units.dimensions, dimensions.charge_mks)
     assert_almost_equal(qp.v, 10*u.qp.v/u.clight.v)
@@ -1643,7 +1653,7 @@ def test_electromagnetic():
     qp_mks_k = u.qp_cgs.in_units("kC")
     assert_array_almost_equal(
         qp_mks_k.v, 1.0e-2*u.qp_cgs.v/speed_of_light_cm_per_s)
-    qp = 1*u.qp_cgs
+    qp = 1.*u.qp_cgs
     qp.convert_to_units('kC')
     assert_almost_equal(qp, qp_mks_k)
 
@@ -1980,3 +1990,80 @@ def test_round():
 
     with pytest.raises(TypeError):
         round([1, 2, 3]*km)
+
+
+def test_integer_arrays():
+    from unyt import km, m, mile
+
+    def integer_semantics(inp):
+        arr = inp*km
+        assert arr.dtype == np.int_
+
+        arr = np.array(inp, dtype='int32')*km
+        assert arr.dtype.name == 'int32'
+
+        ret = arr.in_units('mile')
+
+        assert arr.dtype.name == 'int32'
+        answer = (inp*km).astype('int32').to('mile')
+        assert_array_equal(ret, answer)
+        assert ret.dtype.name == 'float32'
+
+        ret = arr.in_units('m')
+        assert arr.dtype != ret.dtype
+        assert ret.dtype.name == 'float32'
+
+        arr.convert_to_units('m')
+        assert arr.dtype.name == 'float32'
+
+        arr = inp*km
+        arr.convert_to_units('mile')
+        assert arr.dtype.name == 'float' + str(np.int_().dtype.itemsize*8)
+
+    for foo in [[1, 2, 3], 12, -8, 0, [1, -2, 3]]:
+        integer_semantics(foo)
+
+    arr1 = [1, 2, 3]*km
+    arr2 = [4, 5, 6]*mile
+    assert (arr1 + arr2).dtype.name == 'float64'
+    assert (arr1 * arr2).dtype == np.int_
+    assert (arr1 / arr2).dtype.name == 'float64'
+
+    arr1 = [1, 2, 3]*km
+    arr2 = [4, 5, 6]*m
+    assert (arr1 + arr2).dtype.name == 'float64'
+    assert (arr1 * arr2).dtype == np.int_
+    assert (arr1 / arr2).dtype.name == 'float64'
+
+    arr1 = [1, 2, 3]*km
+    arr2 = [4, 5, 6]*km
+    assert (arr1 + arr2).dtype == np.int_
+    assert (arr1 * arr2).dtype == np.int_
+    assert (arr1 / arr2).dtype.name == 'float64'
+
+
+def test_overflow_warnings():
+    from unyt import km
+
+    data = [2**53, 2**54]*km
+
+    message = "Overflow encountered while converting to units 'mile'"
+    process_warning(data.to, message, RuntimeWarning, ('mile',))
+    process_warning(data.in_units, message, RuntimeWarning, ('mile',))
+    process_warning(data.convert_to_units, message, RuntimeWarning, ('mile',))
+
+
+def test_input_units_deprecation():
+    from unyt.array import unyt_array, unyt_quantity
+    message = "input_units has been deprecated, please use units instead"
+
+    process_warning(unyt_array, message, DeprecationWarning, ([1, 2, 3],),
+                    {'input_units': 'mile'})
+    process_warning(unyt_quantity, message, DeprecationWarning, (3,),
+                    {'input_units': 'mile'})
+
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        assert_array_equal(unyt_array([1, 2, 3], 'mile'),
+                           unyt_array([1, 2, 3], input_units='mile'))
+        assert unyt_quantity(3, 'mile') == unyt_quantity(3, input_units='mile')

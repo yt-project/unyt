@@ -7,7 +7,7 @@ For example::
     >>> from unyt import cm, g, s
     >>> data = [3, 4, 5]*g*cm/s
     >>> print(data)
-    [3. 4. 5.] cm*g/s
+    [3 4 5] cm*g/s
 
 """
 

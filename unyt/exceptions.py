@@ -279,3 +279,26 @@ class IllDefinedUnitSystem(Exception):
     def __str__(self):
         return ("Cannot create unit system with inconsistent mapping from "
                 "dimensions to units. Received:\n%s" % self.units_map)
+
+
+class UnitDtypeError(Exception):
+    """Raised when applying units to invalid data
+
+    Example
+    -------
+
+    >>> from unyt import km
+    >>> ['hello', 'world', {}]*km\
+  # doctest: +IGNORE_EXCEPTION_DETAIL +NORMALIZE_WHITESPACE
+    Traceback (most recent call last):
+    ...
+    unyt.exceptions.UnitDtypeError: Cannot apply units to object
+    '['hello' 'world' {}]' with inferred dtype 'object'
+    """
+    def __init__(self, obj, dtype):
+        self.obj = obj
+        self.dtype = dtype
+
+    def __str__(self):
+        return ("Cannot apply units to object '%s' with inferred dtype '%s'" %
+                (self.obj, self.dtype))

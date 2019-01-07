@@ -109,6 +109,8 @@ from numpy import (
 )
 from numpy.core.umath import _ones_like
 from sympy import Rational
+import sys
+import warnings
 
 from unyt.dimensions import (
     angle,
@@ -139,6 +141,11 @@ from unyt.unit_registry import UnitRegistry
 
 NULL_UNIT = Unit()
 POWER_SIGN_MAPPING = {multiply: 1, divide: -1}
+
+__doctest_requires__ = {
+    ('unyt_array.from_pint', 'unyt_array.to_pint'): ['pint'],
+    ('unyt_array.from_astropy', 'unyt_array.to_astropy'): ['astropy'],
+}
 
 
 def _iterable(obj):
@@ -233,20 +240,6 @@ def _coerce_iterable_units(input_object, registry=None):
             # This will create a copy of the data in the iterable.
             return unyt_array(np.array(input_object), ff, registry=registry)
     return np.asarray(input_object)
-
-
-@lru_cache(maxsize=128, typed=False)
-def _unit_repr_check_same(my_units, other_units):
-    """
-    Takes a Unit object, or string of known unit symbol, and check that it
-    is compatible with this quantity. Returns Unit object.
-
-    """
-    if not my_units.same_dimensions_as(other_units):
-        raise UnitConversionError(
-            my_units, my_units.dimensions, other_units, other_units.dimensions)
-
-    return other_units
 
 
 def _sanitize_units_convert(possible_units, registry):
@@ -354,6 +347,11 @@ trigonometric_operators = (
     tan,
 )
 
+LARGE_INPUT = {
+    4: 16777217,
+    8: 9007199254740993
+}
+
 
 class unyt_array(np.ndarray):
     """
@@ -397,7 +395,7 @@ class unyt_array(np.ndarray):
     >>> import numpy as np
     >>> a = (np.arange(8) - 4)*g/cm**3
     >>> np.abs(a)
-    unyt_array([4., 3., 2., 1., 0., 1., 2., 3.], 'g/cm**3')
+    unyt_array([4, 3, 2, 1, 0, 1, 2, 3], 'g/cm**3')
 
     and strip them when it would be annoying to deal with them.
 
@@ -495,11 +493,18 @@ class unyt_array(np.ndarray):
 
     __array_priority__ = 2.0
 
-    def __new__(cls, input_array, input_units=None, registry=None, dtype=None,
-                bypass_validation=False):
-        if dtype is None:
-            dtype = np.float64
+    def __new__(cls, input_array, units=None, registry=None, dtype=None,
+                bypass_validation=False, input_units=None):
+        # deprecate input_units in favor of units
+        if input_units is not None:
+            warnings.warn(
+                "input_units has been deprecated, please use units instead",
+                DeprecationWarning, stacklevel=2)
+        if units is not None:
+            input_units = units
         if bypass_validation is True:
+            if dtype is None:
+                dtype = input_array.dtype
             obj = input_array.view(type=cls, dtype=dtype)
             obj.units = input_units
             if registry is not None:
@@ -552,7 +557,10 @@ class unyt_array(np.ndarray):
     def __repr__(self):
         rep = super(unyt_array, self).__repr__()
         units_repr = self.units.__repr__()
-        return rep[:-1] + ', \'' + units_repr + '\')'
+        if "=" in rep:
+            return rep[:-1] + ', units=\'' + units_repr + '\')'
+        else:
+            return rep[:-1] + ', \'' + units_repr + '\')'
 
     def __str__(self):
         return str(self.view(np.ndarray)) + ' ' + str(self.units)
@@ -606,16 +614,38 @@ class unyt_array(np.ndarray):
                 raise UnitConversionError(self.units, self.units.dimensions,
                                           units, units.dimensions)
             if any(conv_data):
-                new_units, (conversion_factor, offset) = _em_conversion(
+                new_units, (conv_factor, offset) = _em_conversion(
                     self.units, conv_data, units)
             else:
-                new_units = _unit_repr_check_same(self.units, units)
-                (conversion_factor, offset) = self.units.get_conversion_factor(
-                    new_units)
+                new_units = units
+                (conv_factor, offset) = self.units.get_conversion_factor(
+                    new_units, self.dtype)
 
             self.units = new_units
             values = self.d
-            values *= conversion_factor
+            # if our dtype is an integer do the following somewhat awkward
+            # dance to change the dtype in-place. We can't use astype
+            # directly because that will create a copy and not update self
+            if self.dtype.kind in ('u', 'i'):
+                # create a copy of the original data in floating point
+                # form, it's possible this may lose precision for very
+                # large integers
+                dsize = values.dtype.itemsize
+                new_dtype = 'f' + str(dsize)
+                large = LARGE_INPUT.get(dsize, 0)
+                if large and np.any(np.abs(values) > large):
+                    warnings.warn(
+                        "Overflow encountered while converting to units '%s'" %
+                        new_units, RuntimeWarning, stacklevel=2)
+                float_values = values.astype(new_dtype)
+                # change the dtypes in-place, this does not change the
+                # underlying memory buffer
+                values.dtype = new_dtype
+                self.dtype = new_dtype
+                # actually fill in the new float values now that our
+                # dtype is correct
+                np.copyto(values, float_values)
+            values *= conv_factor
 
             if offset:
                 np.subtract(values, offset, values)
@@ -682,7 +712,7 @@ class unyt_array(np.ndarray):
         Examples
         --------
         >>> from unyt import Newton
-        >>> data = [1, 2, 3]*Newton
+        >>> data = [1., 2., 3.]*Newton
         >>> data.convert_to_cgs()
         >>> data
         unyt_array([100000., 200000., 300000.], 'dyne')
@@ -715,7 +745,7 @@ class unyt_array(np.ndarray):
         Examples
         --------
         >>> from unyt import dyne, erg
-        >>> data = [1, 2, 3]*erg
+        >>> data = [1., 2., 3.]*erg
         >>> data
         unyt_array([1., 2., 3.], 'erg')
         >>> data.convert_to_mks()
@@ -773,11 +803,19 @@ class unyt_array(np.ndarray):
                     self.units, conv_data, units)
                 offset = 0
             else:
-                new_units = _unit_repr_check_same(self.units, units)
+                new_units = units
                 (conversion_factor, offset) = self.units.get_conversion_factor(
-                    new_units)
-
-            ret = np.asarray(self.ndview * conversion_factor)
+                    new_units, self.dtype)
+            dsize = self.dtype.itemsize
+            if self.dtype.kind in ('u', 'i'):
+                large = LARGE_INPUT.get(dsize, 0)
+                if large and np.any(np.abs(self.d) > large):
+                    warnings.warn(
+                        "Overflow encountered while converting to units '%s'" %
+                        new_units, RuntimeWarning, stacklevel=2)
+            new_dtype = np.dtype('f' + str(dsize))
+            conversion_factor = new_dtype.type(conversion_factor)
+            ret = np.asarray(self.ndview * conversion_factor, dtype=new_dtype)
             if offset:
                 np.subtract(ret, offset, ret)
 
@@ -903,7 +941,10 @@ class unyt_array(np.ndarray):
                 self.units, conv_data, unit_system=us)
         else:
             to_units = self.units.get_base_equivalent(unit_system)
-            conv, offset = self.units.get_conversion_factor(to_units)
+            conv, offset = self.units.get_conversion_factor(
+                to_units, self.dtype)
+        new_dtype = np.dtype('f' + str(self.dtype.itemsize))
+        conv = new_dtype.type(conv)
         ret = self.v*conv
         if offset:
             ret = ret - offset
@@ -938,7 +979,7 @@ class unyt_array(np.ndarray):
         Example
         -------
         >>> from unyt import mile
-        >>> print((1*mile).in_mks())
+        >>> print((1.*mile).in_mks())
         1609.344 m
         """
         return self.in_base("mks")
@@ -976,7 +1017,7 @@ class unyt_array(np.ndarray):
             this_equiv.convert(self, conv_unit.dimensions, **kwargs)
             self.convert_to_units(conv_unit)
         else:
-            raise InvalidUnitEquivalence(equivalence, self.units, unit)
+            raise InvalidUnitEquivalence(equivalence, self.units, conv_unit)
 
     def to_equivalent(self, unit, equivalence, **kwargs):
         """
@@ -1058,9 +1099,9 @@ class unyt_array(np.ndarray):
         >>> from unyt import km
         >>> a = [3, 4, 5]*km
         >>> a
-        unyt_array([3., 4., 5.], 'km')
+        unyt_array([3, 4, 5], 'km')
         >>> a.ndarray_view()
-        array([3., 4., 5.])
+        array([3, 4, 5])
 
         This function returns a view that shares the same underlying memory
         as the original array.
@@ -1070,9 +1111,9 @@ class unyt_array(np.ndarray):
         True
         >>> b[2] = 4
         >>> b
-        array([3., 4., 4.])
+        array([3, 4, 4])
         >>> a
-        unyt_array([3., 4., 4.], 'km')
+        unyt_array([3, 4, 4], 'km')
         """
         return self.view(np.ndarray)
 
@@ -1085,10 +1126,10 @@ class unyt_array(np.ndarray):
         >>> from unyt import km
         >>> a = [3, 4, 5]*km
         >>> a
-        unyt_array([3., 4., 5.], 'km')
+        unyt_array([3, 4, 5], 'km')
         >>> b = a.to_ndarray()
         >>> b
-        array([3., 4., 5.])
+        array([3, 4, 5])
 
         The returned array will contain a copy of the data contained in
         the original array.
@@ -1199,7 +1240,7 @@ class unyt_array(np.ndarray):
         <Quantity([0 1 2 3], 'erg / centimeter ** 3')>
         >>> c = unyt_array.from_pint(b)
         >>> c
-        unyt_array([0., 1., 2., 3.], 'erg/cm**3')
+        unyt_array([0, 1, 2, 3], 'erg/cm**3')
         """
         p_units = []
         for base, exponent in arr._units.items():
@@ -1207,11 +1248,10 @@ class unyt_array(np.ndarray):
             p_units.append("%s**(%s)" % (bs, Rational(exponent)))
         p_units = "*".join(p_units)
         if isinstance(arr.magnitude, np.ndarray):
-            return unyt_array(arr.magnitude, p_units, registry=unit_registry,
-                              dtype='float64')
+            return unyt_array(arr.magnitude, p_units, registry=unit_registry)
         else:
-            return unyt_quantity(arr.magnitude, p_units,
-                                 registry=unit_registry, dtype='float64')
+            return unyt_quantity(
+                arr.magnitude, p_units, registry=unit_registry)
 
     def to_pint(self, unit_registry=None):
         """
@@ -1231,9 +1271,9 @@ class unyt_array(np.ndarray):
         >>> from unyt import cm, s
         >>> a = 4*cm**2/s
         >>> print(a)
-        4.0 cm**2/s
+        4 cm**2/s
         >>> a.to_pint()
-        <Quantity(4.0, 'centimeter ** 2 / second')>
+        <Quantity(4, 'centimeter ** 2 / second')>
         """
         if unit_registry is None:
             unit_registry = _pint.UnitRegistry()
@@ -1368,10 +1408,10 @@ class unyt_array(np.ndarray):
         >>> from unyt import km
         >>> a = [3, 4, 5]*km
         >>> a
-        unyt_array([3., 4., 5.], 'km')
+        unyt_array([3, 4, 5], 'km')
         >>> b = a.value
         >>> b
-        array([3., 4., 5.])
+        array([3, 4, 5])
 
         The returned array will contain a copy of the data contained in
         the original array.
@@ -1392,10 +1432,10 @@ class unyt_array(np.ndarray):
         >>> from unyt import km
         >>> a = [3, 4, 5]*km
         >>> a
-        unyt_array([3., 4., 5.], 'km')
+        unyt_array([3, 4, 5], 'km')
         >>> b = a.v
         >>> b
-        array([3., 4., 5.])
+        array([3, 4, 5])
 
         The returned array will contain a copy of the data contained in
         the original array.
@@ -1421,9 +1461,9 @@ class unyt_array(np.ndarray):
         >>> from unyt import km
         >>> a = [3, 4, 5]*km
         >>> a
-        unyt_array([3., 4., 5.], 'km')
+        unyt_array([3, 4, 5], 'km')
         >>> a.ndview
-        array([3., 4., 5.])
+        array([3, 4, 5])
 
         This function returns a view that shares the same underlying memory
         as the original array.
@@ -1433,9 +1473,9 @@ class unyt_array(np.ndarray):
         True
         >>> b[2] = 4
         >>> b
-        array([3., 4., 4.])
+        array([3, 4, 4])
         >>> a
-        unyt_array([3., 4., 4.], 'km')
+        unyt_array([3, 4, 4], 'km')
 
         """
         return self.view(np.ndarray)
@@ -1455,9 +1495,9 @@ class unyt_array(np.ndarray):
         >>> from unyt import km
         >>> a = [3, 4, 5]*km
         >>> a
-        unyt_array([3., 4., 5.], 'km')
+        unyt_array([3, 4, 5], 'km')
         >>> a.d
-        array([3., 4., 5.])
+        array([3, 4, 5])
 
         This function returns a view that shares the same underlying memory
         as the original array.
@@ -1467,9 +1507,9 @@ class unyt_array(np.ndarray):
         True
         >>> b[2] = 4
         >>> b
-        array([3., 4., 4.])
+        array([3, 4, 4])
         >>> a
-        unyt_array([3., 4., 4.], 'km')
+        unyt_array([3, 4, 4], 'km')
         """
         return self.view(np.ndarray)
 
@@ -1483,11 +1523,11 @@ class unyt_array(np.ndarray):
         >>> from unyt import km
         >>> a = [4, 5, 6]*km
         >>> a.unit_quantity
-        unyt_quantity(1., 'km')
+        unyt_quantity(1, 'km')
         >>> print(a + 7*a.unit_quantity)
-        [11. 12. 13.] km
+        [11 12 13] km
         """
-        return unyt_quantity(1.0, self.units)
+        return unyt_quantity(1, self.units)
 
     @property
     def uq(self):
@@ -1499,11 +1539,11 @@ class unyt_array(np.ndarray):
         >>> from unyt import km
         >>> a = [4, 5, 6]*km
         >>> a.uq
-        unyt_quantity(1., 'km')
+        unyt_quantity(1, 'km')
         >>> print(a + 7*a.uq)
-        [11. 12. 13.] km
+        [11 12 13] km
         """
-        return unyt_quantity(1.0, self.units)
+        return unyt_quantity(1, self.units)
 
     @property
     def unit_array(self):
@@ -1515,9 +1555,9 @@ class unyt_array(np.ndarray):
         >>> from unyt import km
         >>> a = [4, 5, 6]*km
         >>> a.unit_array
-        unyt_array([1., 1., 1.], 'km')
+        unyt_array([1, 1, 1], 'km')
         >>> print(a + 7*a.unit_array)
-        [11. 12. 13.] km
+        [11 12 13] km
         """
         return np.ones_like(self)
 
@@ -1531,9 +1571,9 @@ class unyt_array(np.ndarray):
         >>> from unyt import km
         >>> a = [4, 5, 6]*km
         >>> a.unit_array
-        unyt_array([1., 1., 1.], 'km')
+        unyt_array([1, 1, 1], 'km')
         >>> print(a + 7*a.unit_array)
-        [11. 12. 13.] km
+        [11 12 13] km
         """
         return np.ones_like(self)
 
@@ -1559,6 +1599,11 @@ class unyt_array(np.ndarray):
             # we need to get both the actual "out" object and a view onto it
             # in case we need to do in-place operations
             out = kwargs.pop('out')[0]
+            if out.dtype.kind in ('u', 'i'):
+                new_dtype = 'f' + str(out.dtype.itemsize)
+                float_values = out.astype(new_dtype)
+                out.dtype = new_dtype
+                np.copyto(out, float_values)
             out_func = out.view(np.ndarray)
         if len(inputs) == 1:
             # Unary ufuncs
@@ -1642,7 +1687,9 @@ class unyt_array(np.ndarray):
                                 raise UnitOperationError(ufunc, u0, u1)
                         else:
                             raise UnitOperationError(ufunc, u0, u1)
-                    conv, offset = u1.get_conversion_factor(u0)
+                    conv, offset = u1.get_conversion_factor(u0, inp1.dtype)
+                    new_dtype = np.dtype('f' + str(inp1.dtype.itemsize))
+                    conv = new_dtype.type(conv)
                     if offset is not None:
                         raise InvalidUnitOperation(
                             "Quantities with units of Fahrenheit or Celsius "
@@ -1663,8 +1710,9 @@ class unyt_array(np.ndarray):
                                     out_arr.view(np.ndarray),
                                     unit.base_value, out=out_func)
                             else:
-                                out_arr = np.multiply(out_arr.view(np.ndarray),
-                                                      unit.base_value, out=out)
+                                out_arr = np.multiply(
+                                    out_arr.view(np.ndarray), unit.base_value,
+                                    out=out_func)
                             unit = Unit(registry=unit.registry)
                 if ((u0.base_offset and u0.dimensions is temperature or
                      u1.base_offset and u1.dimensions is temperature)):
@@ -1724,12 +1772,12 @@ class unyt_array(np.ndarray):
         >>> y = x.copy()
         >>> x.fill(0)
         >>> print(x)
-        [[0. 0. 0.]
-         [0. 0. 0.]] km
+        [[0 0 0]
+         [0 0 0]] km
 
         >>> print(y)
-        [[1. 2. 3.]
-         [4. 5. 6.]] km
+        [[1 2 3]
+         [4 5 6]] km
 
         """
         return type(self)(np.copy(np.asarray(self)), self.units)
@@ -1742,6 +1790,15 @@ class unyt_array(np.ndarray):
         # this needs to be defined for all numpy versions, see
         # numpy issue #9081
         return type(self)(super(unyt_array, self).__pos__(), self.units)
+
+    # ensure we always use float division on python2 to avoid truncation for
+    # operations on int arrays
+    if sys.version_info < (3, 0, 0):
+        def __div__(self, other):
+            return self.__truediv__(other)
+
+        def __rdiv__(self, other):
+            return self.__rtruediv__(other)
 
     @_return_arr
     def dot(self, b, out=None):
@@ -1830,8 +1887,8 @@ class unyt_quantity(unyt_array):
     Examples
     --------
 
-    >>> a = unyt_quantity(3, 'cm')
-    >>> b = unyt_quantity(2, 'm')
+    >>> a = unyt_quantity(3., 'cm')
+    >>> b = unyt_quantity(2., 'm')
     >>> print(a + b)
     203.0 cm
     >>> print(b + a)
@@ -1843,7 +1900,7 @@ class unyt_quantity(unyt_array):
     >>> from unyt import g, cm
     >>> a = 12*g/cm**3
     >>> print(np.abs(a))
-    12.0 g/cm**3
+    12 g/cm**3
 
     and strip them when it would be annoying to deal with them.
 
@@ -1851,8 +1908,14 @@ class unyt_quantity(unyt_array):
     1.0791812460476249
 
     """
-    def __new__(cls, input_scalar, input_units=None, registry=None,
-                dtype=np.float64, bypass_validation=False):
+    def __new__(cls, input_scalar, units=None, registry=None,
+                dtype=None, bypass_validation=False, input_units=None):
+        if input_units is not None:
+            warnings.warn(
+                "input_units has been deprecated, please use units instead",
+                DeprecationWarning, stacklevel=2)
+        if units is not None:
+            input_units = units
         if not isinstance(input_scalar, (numeric_type, np.number, np.ndarray)):
             raise RuntimeError("unyt_quantity values must be numeric")
         if input_units is None:
@@ -1895,7 +1958,7 @@ def uconcatenate(arrs, axis=0):
     >>> A = [1, 2, 3]*cm
     >>> B = [2, 3, 4]*cm
     >>> uconcatenate((A, B))
-    unyt_array([1., 2., 3., 2., 3., 4.], 'cm')
+    unyt_array([1, 2, 3, 2, 3, 4], 'cm')
 
     """
     v = np.concatenate(arrs, axis=axis)
@@ -1929,7 +1992,7 @@ def uintersect1d(arr1, arr2, assume_unique=False):
     >>> A = [1, 2, 3]*cm
     >>> B = [2, 3, 4]*cm
     >>> uintersect1d(A, B)
-    unyt_array([2., 3.], 'cm')
+    unyt_array([2, 3], 'cm')
 
     """
     v = np.intersect1d(arr1, arr2, assume_unique=assume_unique)
@@ -1950,7 +2013,7 @@ def uunion1d(arr1, arr2):
     >>> A = [1, 2, 3]*cm
     >>> B = [2, 3, 4]*cm
     >>> uunion1d(A, B)
-    unyt_array([1., 2., 3., 4.], 'cm')
+    unyt_array([1, 2, 3, 4], 'cm')
 
     """
     v = np.union1d(arr1, arr2)
@@ -2010,8 +2073,8 @@ def uvstack(arrs):
     >>> a = [1, 2, 3]*km
     >>> b = [2, 3, 4]*km
     >>> print(uvstack([a, b]))
-    [[1. 2. 3.]
-     [2. 3. 4.]] km
+    [[1 2 3]
+     [2 3 4]] km
     """
     v = np.vstack(arrs)
     v = _validate_numpy_wrapper_units(v, arrs)
@@ -2029,13 +2092,13 @@ def uhstack(arrs):
     >>> a = [1, 2, 3]*km
     >>> b = [2, 3, 4]*km
     >>> print(uhstack([a, b]))
-    [1. 2. 3. 2. 3. 4.] km
+    [1 2 3 2 3 4] km
     >>> a = [[1],[2],[3]]*km
     >>> b = [[2],[3],[4]]*km
     >>> print(uhstack([a, b]))
-    [[1. 2.]
-     [2. 3.]
-     [3. 4.]] km
+    [[1 2]
+     [2 3]
+     [3 4]] km
     """
     v = np.hstack(arrs)
     v = _validate_numpy_wrapper_units(v, arrs)
@@ -2058,8 +2121,8 @@ def ustack(arrs, axis=0):
     >>> a = [1, 2, 3]*km
     >>> b = [2, 3, 4]*km
     >>> print(ustack([a, b]))
-    [[1. 2. 3.]
-     [2. 3. 4.]] km
+    [[1 2 3]
+     [2 3 4]] km
     """
     v = np.stack(arrs)
     v = _validate_numpy_wrapper_units(v, arrs)
