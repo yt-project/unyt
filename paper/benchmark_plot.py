@@ -59,7 +59,7 @@ def make_plot(benchmark_name, benchmarks, fig_filename):
                 all_yticks.append(ytick)
                 if package == "astropy" and size == "medium":
                     yticks.append(ytick)
-            static_offset += .01
+            static_offset += 0.01
 
     legend_patches = [Patch(color=c) for c in COLOR_MAP.values()]
     leg = ax.legend(legend_patches, COLOR_MAP.keys(), loc=1)

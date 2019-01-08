@@ -597,7 +597,7 @@ def test_code_unit():
     from unyt import UnitRegistry
 
     ureg = UnitRegistry()
-    ureg.add("code_length", 10., length)
+    ureg.add("code_length", 10.0, length)
     ureg.add("code_magnetic_field", 2.0, magnetic_field_mks)
     u = Unit("code_length", registry=ureg)
     assert u.is_code_unit is True

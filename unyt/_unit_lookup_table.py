@@ -176,29 +176,29 @@ default_unit_symbol_lut = {  # noqa: W605
     "ly": (m_per_ly, dimensions.length, 0.0, r"\rm{ly}", False),
     "pc": (m_per_pc, dimensions.length, 0.0, r"\rm{pc}", True),
     # angles
-    "degree": (np.pi / 180., dimensions.angle, 0.0, r"\rm{deg}", False),
+    "degree": (np.pi / 180.0, dimensions.angle, 0.0, r"\rm{deg}", False),
     "arcmin": (
-        np.pi / 10800.,
+        np.pi / 10800.0,
         dimensions.angle,
         0.0,
         r"\rm{arcmin}",
         False,
     ),  # arcminutes
     "arcsec": (
-        np.pi / 648000.,
+        np.pi / 648000.0,
         dimensions.angle,
         0.0,
         r"\rm{arcsec}",
         False,
     ),  # arcseconds
     "mas": (
-        np.pi / 648000000.,
+        np.pi / 648000000.0,
         dimensions.angle,
         0.0,
         r"\rm{mas}",
         False,
     ),  # milliarcseconds
-    "hourangle": (np.pi / 12., dimensions.angle, 0.0, r"\rm{HA}", False),
+    "hourangle": (np.pi / 12.0, dimensions.angle, 0.0, r"\rm{HA}", False),
     "steradian": (1.0, dimensions.solid_angle, 0.0, r"\rm{sr}", False),
     "lat": (-np.pi / 180.0, dimensions.angle, 90.0, r"\rm{Latitude}", False),
     "lon": (np.pi / 180.0, dimensions.angle, -180.0, r"\rm{Longitude}", False),
@@ -222,7 +222,7 @@ default_unit_symbol_lut = {  # noqa: W605
     "dyn": (1.0e-5, dimensions.force, 0.0, r"\rm{dyn}", False),
     "sr": (1.0, dimensions.solid_angle, 0.0, r"\rm{sr}", False),
     "rad": (1.0, dimensions.angle, 0.0, r"\rm{rad}", False),
-    "deg": (np.pi / 180., dimensions.angle, 0.0, r"\rm{deg}", False),
+    "deg": (np.pi / 180.0, dimensions.angle, 0.0, r"\rm{deg}", False),
     "Fr": (1.0e-3 ** 1.5, dimensions.charge_cgs, 0.0, r"\rm{Fr}", False),
     "G": (0.1 ** 0.5, dimensions.magnetic_field_cgs, 0.0, r"\rm{G}", True),
     "Angstrom": (m_per_ang, dimensions.length, 0.0, r"\AA", False),

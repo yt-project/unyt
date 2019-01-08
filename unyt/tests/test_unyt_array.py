@@ -326,7 +326,7 @@ def test_multiplication():
     a2 = unyt_array([4, 5, 6], "m")
     a3 = [4 * m, 5 * m, 6 * m]
     answer1 = unyt_array([400, 1000, 1800], "cm**2")
-    answer2 = unyt_array([.04, .10, .18], "m**2")
+    answer2 = unyt_array([0.04, 0.10, 0.18], "m**2")
     answer3 = unyt_array([4, 10, 18], "cm*m")
 
     operate_and_compare(a1, a2, operator.mul, answer1)
@@ -391,8 +391,8 @@ def test_division():
     """
 
     # Same units
-    a1 = unyt_array([1., 2., 3.], "cm")
-    a2 = unyt_array([4., 5., 6.], "cm")
+    a1 = unyt_array([1.0, 2.0, 3.0], "cm")
+    a2 = unyt_array([4.0, 5.0, 6.0], "cm")
     a3 = [4 * cm, 5 * cm, 6 * cm]
     answer1 = unyt_array([0.25, 0.4, 0.5])
     answer2 = unyt_array([4, 2.5, 2])
@@ -411,10 +411,10 @@ def test_division():
     operate_and_compare(a3, a1, np.divide, answer2)
 
     # different units, same dimension
-    a1 = unyt_array([1., 2., 3.], "cm")
-    a2 = unyt_array([4., 5., 6.], "m")
+    a1 = unyt_array([1.0, 2.0, 3.0], "cm")
+    a2 = unyt_array([4.0, 5.0, 6.0], "m")
     a3 = [4 * m, 5 * m, 6 * m]
-    answer1 = unyt_array([.0025, .004, .005])
+    answer1 = unyt_array([0.0025, 0.004, 0.005])
     answer2 = unyt_array([400, 250, 200])
 
     operate_and_compare(a1, a2, op, answer1)
@@ -427,8 +427,8 @@ def test_division():
     operate_and_compare(a3, a1, np.divide, answer2)
 
     # different dimensions
-    a1 = unyt_array([1., 2., 3.], "cm")
-    a2 = unyt_array([4., 5., 6.], "g")
+    a1 = unyt_array([1.0, 2.0, 3.0], "cm")
+    a2 = unyt_array([4.0, 5.0, 6.0], "g")
     a3 = [4 * g, 5 * g, 6 * g]
     answer1 = unyt_array([0.25, 0.4, 0.5], "cm/g")
     answer2 = unyt_array([4, 2.5, 2], "g/cm")
@@ -443,8 +443,8 @@ def test_division():
     operate_and_compare(a3, a1, np.divide, answer2)
 
     # One dimensionless, one unitful
-    a1 = unyt_array([1., 2., 3.], "cm")
-    a2 = array([4., 5., 6.])
+    a1 = unyt_array([1.0, 2.0, 3.0], "cm")
+    a2 = array([4.0, 5.0, 6.0])
     a3 = [4, 5, 6]
     answer1 = unyt_array([0.25, 0.4, 0.5], "cm")
     answer2 = unyt_array([4, 2.5, 2], "1/cm")
@@ -459,8 +459,8 @@ def test_division():
     operate_and_compare(a3, a1, np.divide, answer2)
 
     # Both dimensionless quantities
-    a1 = unyt_array([1., 2., 3.])
-    a2 = array([4., 5., 6.])
+    a1 = unyt_array([1.0, 2.0, 3.0])
+    a2 = array([4.0, 5.0, 6.0])
     a3 = [4, 5, 6]
     answer1 = unyt_array([0.25, 0.4, 0.5])
     answer2 = unyt_array([4, 2.5, 2])
@@ -509,7 +509,7 @@ def test_comparisons():
 
     a1 = unyt_array([1, 2, 3], "cm")
     a2 = unyt_array([2, 1, 3], "cm")
-    a3 = unyt_array([.02, .01, .03], "m")
+    a3 = unyt_array([0.02, 0.01, 0.03], "m")
     dimless = np.array([2, 1, 3])
 
     ops = (np.less, np.less_equal, np.greater, np.greater_equal, np.equal, np.not_equal)
@@ -552,7 +552,7 @@ def test_unit_conversions():
     from unyt.array import unyt_quantity
     from unyt.unit_object import Unit
 
-    km = unyt_quantity(1., "km", dtype="float64")
+    km = unyt_quantity(1.0, "km", dtype="float64")
     km_in_cm = km.in_units("cm")
     cm_unit = Unit("cm")
     kpc_unit = Unit("kpc")
@@ -1068,7 +1068,9 @@ def binary_ufunc_comparison(ufunc, a, b):
 
 def test_ufuncs():
     for ufunc in unary_operators:
-        unary_ufunc_comparison(ufunc, unyt_array([.3, .4, .5], "cm", dtype="float64"))
+        unary_ufunc_comparison(
+            ufunc, unyt_array([0.3, 0.4, 0.5], "cm", dtype="float64")
+        )
         unary_ufunc_comparison(ufunc, unyt_array([12, 23, 47], "g", dtype="float64"))
         unary_ufunc_comparison(
             ufunc, unyt_array([2, 4, -6], "erg/m**3", dtype="float64")
@@ -1078,10 +1080,10 @@ def test_ufuncs():
         # arr**arr is undefined for arrays with units because
         # each element of the result would have different units.
         if ufunc is np.power:
-            a = unyt_array([.3, .4, .5], "cm")
-            b = unyt_array([.1, .2, .3], "dimensionless")
+            a = unyt_array([0.3, 0.4, 0.5], "cm")
+            b = unyt_array([0.1, 0.2, 0.3], "dimensionless")
             c = np.array(b)
-            d = unyt_array([1., 2., 3.], "g")
+            d = unyt_array([1.0, 2.0, 3.0], "g")
             with pytest.raises(UnitOperationError):
                 ufunc(a, b)
             with pytest.raises(UnitOperationError):
@@ -1091,11 +1093,11 @@ def test_ufuncs():
             binary_ufunc_comparison(ufunc, np.array(2.0), b)
             continue
 
-        a = unyt_array([.3, .4, .5], "cm")
-        b = unyt_array([.1, .2, .3], "cm")
-        c = unyt_array([.1, .2, .3], "m")
-        d = unyt_array([.1, .2, .3], "g")
-        e = unyt_array([.1, .2, .3], "erg/m**3")
+        a = unyt_array([0.3, 0.4, 0.5], "cm")
+        b = unyt_array([0.1, 0.2, 0.3], "cm")
+        c = unyt_array([0.1, 0.2, 0.3], "m")
+        d = unyt_array([0.1, 0.2, 0.3], "g")
+        e = unyt_array([0.1, 0.2, 0.3], "erg/m**3")
 
         for pair in itertools.product([a, b, c, d, e], repeat=2):
             binary_ufunc_comparison(ufunc, pair[0], pair[1])
@@ -1105,7 +1107,7 @@ def test_reductions():
     arr = unyt_array([[1, 2, 3], [4, 5, 6]], "cm")
 
     ev_result = arr.dot(unyt_array([1, 2, 3], "cm"))
-    res = unyt_array([14., 32.], "cm**2")
+    res = unyt_array([14.0, 32.0], "cm**2")
     assert_equal(ev_result, res)
     assert_equal(ev_result.units, res.units)
     assert_isinstance(ev_result, unyt_array)
@@ -1124,7 +1126,7 @@ def test_reductions():
         ),
         "sum": (
             unyt_quantity(21, "cm"),
-            unyt_array([5., 7., 9.], "cm"),
+            unyt_array([5.0, 7.0, 9.0], "cm"),
             unyt_array([6, 15], "cm"),
         ),
         "mean": (
@@ -1153,17 +1155,17 @@ def test_reductions():
 def test_convenience():
 
     for orig in [
-        [1., 2., 3.],
-        (1., 2., 3.),
-        np.array([1., 2., 3.]),
-        [[1.], [2.], [3.]],
-        np.array([[1.], [2.], [3.]]),
-        [[1., 2., 3.]],
-        np.array([[1., 2., 3.]]),
+        [1.0, 2.0, 3.0],
+        (1.0, 2.0, 3.0),
+        np.array([1.0, 2.0, 3.0]),
+        [[1.0], [2.0], [3.0]],
+        np.array([[1.0], [2.0], [3.0]]),
+        [[1.0, 2.0, 3.0]],
+        np.array([[1.0, 2.0, 3.0]]),
     ]:
         arr = unyt_array(orig, "cm")
         arrou = unyt_array(orig, "1/cm")
-        uoarr = unyt_array(1. / np.array(orig), "cm")
+        uoarr = unyt_array(1.0 / np.array(orig), "cm")
 
         assert_equal(arr.unit_quantity, unyt_quantity(1, "cm"))
         assert_equal(arr.uq, unyt_quantity(1, "cm"))
@@ -1246,8 +1248,8 @@ def test_astropy():
     yt_arr = unyt_array(np.arange(10), "km/hr")
     yt_arr2 = unyt_array.from_astropy(ap_arr)
 
-    ap_quan = 10. * _astropy.units.Msun ** 0.5 / (_astropy.units.kpc ** 3)
-    yt_quan = unyt_quantity(10., "sqrt(Msun)/kpc**3")
+    ap_quan = 10.0 * _astropy.units.Msun ** 0.5 / (_astropy.units.kpc ** 3)
+    yt_quan = unyt_quantity(10.0, "sqrt(Msun)/kpc**3")
     yt_quan2 = unyt_quantity.from_astropy(ap_quan)
 
     assert_array_equal(ap_arr, yt_arr.to_astropy())
@@ -1271,8 +1273,8 @@ def test_pint():
     yt_arr = unyt_array(np.arange(10), "km/yr")
     yt_arr2 = unyt_array.from_pint(p_arr)
 
-    p_quan = 10. * ureg.g ** 0.5 / (ureg.mm ** 3)
-    yt_quan = unyt_quantity(10., "sqrt(g)/mm**3")
+    p_quan = 10.0 * ureg.g ** 0.5 / (ureg.mm ** 3)
+    yt_quan = unyt_quantity(10.0, "sqrt(g)/mm**3")
     yt_quan2 = unyt_quantity.from_pint(p_quan)
 
     assert_array_equal(p_arr, yt_arr.to_pint())
@@ -1412,14 +1414,14 @@ def test_equivalencies():
     import unyt as u
 
     # equivalence is ignored if the conversion doesn't need one
-    data = 12. * u.g
+    data = 12.0 * u.g
     data.convert_to_equivalent("kg", None)
-    assert data.value == .012
+    assert data.value == 0.012
     assert data.units == u.kg
 
-    data = 12. * u.g
+    data = 12.0 * u.g
     data = data.to_equivalent("kg", None)
-    assert data.value == .012
+    assert data.value == 0.012
     assert data.units == u.kg
 
     # incorrect usage of an equivalence raises errors
@@ -1495,7 +1497,7 @@ def test_equivalencies():
 
     # frequency to wavelength
 
-    nu = 1. * u.MHz
+    nu = 1.0 * u.MHz
     lam = nu.to("km", "spectral")
     assert_allclose_units(lam, u.clight / nu)
     nu.convert_to_units("m", "spectral")
@@ -1505,7 +1507,7 @@ def test_equivalencies():
 
     # frequency to spatial frequency
 
-    nu = 1. * u.MHz
+    nu = 1.0 * u.MHz
     nubar = nu.to("1/km", "spectral")
     assert_allclose_units(nubar, nu / u.clight)
     nu.convert_to_units("1/m", "spectral")
@@ -1515,7 +1517,7 @@ def test_equivalencies():
 
     # frequency to photon energy
 
-    nu = 1. * u.MHz
+    nu = 1.0 * u.MHz
     E = nu.to("erg", "spectral")
     assert_allclose_units(E, u.hmks * nu)
     nu.convert_to_units("J", "spectral")
@@ -1555,7 +1557,7 @@ def test_equivalencies():
 
     # spatial frequency to frequency
 
-    nubar = 1500. / u.cm
+    nubar = 1500.0 / u.cm
     nu = nubar.to("Hz", "spectral")
     assert_allclose_units(nu, nubar * u.clight)
     nubar.convert_to_units("MHz", "spectral")
@@ -1565,7 +1567,7 @@ def test_equivalencies():
 
     # spatial frequency to wavelength
 
-    nubar = 1500. / u.cm
+    nubar = 1500.0 / u.cm
     lam = nubar.to("nm", "spectral")
     assert_allclose_units(lam, 1 / nubar)
     nubar.convert_to_units("angstrom", "spectral")
@@ -1575,7 +1577,7 @@ def test_equivalencies():
 
     # spatial frequency to photon energy
 
-    nubar = 1500. / u.cm
+    nubar = 1500.0 / u.cm
     E = nubar.to("erg", "spectral")
     assert_allclose_units(E, u.hmks * u.clight * nubar)
     nubar.convert_to_units("J", "spectral")
@@ -1588,7 +1590,7 @@ def test_equivalencies():
     # tempearature <-> velocity
 
     mu = 0.6
-    gg = 5. / 3.
+    gg = 5.0 / 3.0
     T = 1e8 * u.K
     c_s = T.in_units("km/s", equivalence="sound_speed")
     assert_allclose_units(c_s, np.sqrt(gg * u.kboltz * T / (mu * u.mh)))
@@ -1599,7 +1601,7 @@ def test_equivalencies():
     assert c_s.units == u.km.units / u.s.units
 
     mu = 0.5
-    gg = 4. / 3.
+    gg = 4.0 / 3.0
     T = 1e8 * u.K
     c_s = T.in_units("km/s", "sound_speed", mu=mu, gamma=gg)
     assert_allclose_units(c_s, np.sqrt(gg * u.kboltz * T / (mu * u.mh)))
@@ -1612,7 +1614,7 @@ def test_equivalencies():
     # tempearture <-> energy
 
     mu = 0.5
-    gg = 4. / 3.
+    gg = 4.0 / 3.0
     T = 1e8 * u.K
     kT = T.in_units("eV", "sound_speed", mu=mu, gamma=gg)
     assert_allclose_units(kT, u.kboltz * T)
@@ -1643,7 +1645,7 @@ def test_equivalencies():
 
     v = 0.8 * u.clight
     g = v.in_units("dimensionless", "lorentz")
-    g2 = unyt_quantity(1. / np.sqrt(1. - 0.8 * 0.8), "dimensionless")
+    g2 = unyt_quantity(1.0 / np.sqrt(1.0 - 0.8 * 0.8), "dimensionless")
     assert_allclose_units(g, g2)
     v.convert_to_units("", "lorentz")
     assert_allclose_units(v, g2)
@@ -1653,7 +1655,7 @@ def test_equivalencies():
 
     # Schwarzschild
 
-    msun = 1. * u.Msun
+    msun = 1.0 * u.Msun
     msun.convert_to_equivalent("km", "schwarzschild")
     R = u.mass_sun_mks.in_units("kpc", "schwarzschild")
     assert_allclose_units(msun, R)
@@ -1666,7 +1668,7 @@ def test_equivalencies():
 
     # Compton
 
-    me = 1. * u.me
+    me = 1.0 * u.me
     me.convert_to_units("nm", "compton")
     length = u.me.in_units("angstrom", "compton")
     assert_allclose_units(length, me)
@@ -1734,15 +1736,15 @@ def test_electromagnetic():
 
     # Various tests of SI and CGS electromagnetic units
 
-    t = 1. * u.Tesla
-    g = 1. * u.gauss
+    t = 1.0 * u.Tesla
+    g = 1.0 * u.gauss
     assert t.to("gauss") == 1e4 * u.gauss
     assert g.to("T") == 1e-4 * u.Tesla
 
     qp_cgs = u.qp_cgs.in_units("C")
     assert_equal(qp_cgs.units.dimensions, dimensions.charge_mks)
     assert_almost_equal(qp_cgs.v, 10.0 * u.qp.v / speed_of_light_cm_per_s)
-    qp = 1. * u.qp_cgs
+    qp = 1.0 * u.qp_cgs
     qp.convert_to_units("C")
     assert_equal(qp.units.dimensions, dimensions.charge_mks)
     assert_almost_equal(qp.v, 10 * u.qp.v / u.clight.v)
@@ -1760,7 +1762,7 @@ def test_electromagnetic():
 
     qp_mks_k = u.qp_cgs.in_units("kC")
     assert_array_almost_equal(qp_mks_k.v, 1.0e-2 * u.qp_cgs.v / speed_of_light_cm_per_s)
-    qp = 1. * u.qp_cgs
+    qp = 1.0 * u.qp_cgs
     qp.convert_to_units("kC")
     assert_almost_equal(qp, qp_mks_k)
 
@@ -1921,7 +1923,7 @@ def test_modified_unit_division():
     b = unyt_quantity(3, "g", registry=reg2)
 
     ret = a / b
-    assert ret == 50000.
+    assert ret == 50000.0
     assert ret.units.is_dimensionless
     assert ret.units.base_value == 1.0
 
@@ -2043,11 +2045,13 @@ def test_coerce_iterable():
 def test_bypass_validation():
     from unyt import unyt_array, cm, UnitRegistry
 
-    obj = unyt_array(np.array([1., 2., 3.]), cm, bypass_validation=True)
+    obj = unyt_array(np.array([1.0, 2.0, 3.0]), cm, bypass_validation=True)
     assert obj.units is cm
 
     reg = UnitRegistry()
-    obj = unyt_array(np.array([1., 2., 3.]), cm, registry=reg, bypass_validation=True)
+    obj = unyt_array(
+        np.array([1.0, 2.0, 3.0]), cm, registry=reg, bypass_validation=True
+    )
     assert obj.units == cm
     assert obj.units.registry is reg
 
@@ -2089,8 +2093,8 @@ def test_creation():
 def test_round():
     from unyt import km
 
-    assert_equal(round(3.3 * km), 3.)
-    assert_equal(round(3.5 * km), 4.)
+    assert_equal(round(3.3 * km), 3.0)
+    assert_equal(round(3.5 * km), 4.0)
     assert_equal(round(3 * km), 3)
     assert_equal(round(3.7 * km), 4)
 

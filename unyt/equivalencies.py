@@ -301,7 +301,7 @@ class SoundSpeedEquivalence(Equivalence):
     type_name = "sound_speed"
     _dims = (velocity, temperature, energy)
 
-    def _convert(self, x, new_dims, mu=0.6, gamma=5. / 3.):
+    def _convert(self, x, new_dims, mu=0.6, gamma=5.0 / 3.0):
         from unyt import physical_constants as pc
 
         if new_dims == velocity:
@@ -374,7 +374,7 @@ class LorentzEquivalence(Equivalence):
             beta2 = np.multiply(beta, beta, out=self._get_out(x))
             inv_gamma_2 = np.subtract(1, beta2, out=self._get_out(x))
             inv_gamma = np.sqrt(inv_gamma_2, out=self._get_out(x))
-            gamma = np.true_divide(1., inv_gamma, out=self._get_out(x))
+            gamma = np.true_divide(1.0, inv_gamma, out=self._get_out(x))
             return gamma
         elif new_dims == velocity:
             gamma2 = np.multiply(x, x, out=self._get_out(x))
@@ -424,7 +424,7 @@ class SchwarzschildEquivalence(Equivalence):
 
         if new_dims == length:
             return np.multiply(
-                2. * pc.G / (pc.clight * pc.clight), x, out=self._get_out(x)
+                2.0 * pc.G / (pc.clight * pc.clight), x, out=self._get_out(x)
             )
         elif new_dims == mass:
             return np.multiply(

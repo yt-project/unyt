@@ -110,7 +110,7 @@ K_per_keV = J_per_keV / boltzmann_constant_J_per_K
 keV_per_K = 1.0 / K_per_keV
 keV_per_erg = 1.0 / erg_per_keV
 eV_per_erg = 1.0 / erg_per_eV
-kelvin_per_rankine = 5. / 9.
+kelvin_per_rankine = 5.0 / 9.0
 watt_per_horsepower = 745.69987158227022
 erg_per_s_per_watt = 1e7
 
