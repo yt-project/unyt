@@ -15,14 +15,8 @@ import warnings
 
 from numpy.testing import assert_allclose
 
-from unyt.array import (
-    unyt_array,
-    unyt_quantity
-)
-from unyt.exceptions import (
-    UnitConversionError,
-    UnitOperationError,
-)
+from unyt.array import unyt_array, unyt_quantity
+from unyt.exceptions import UnitConversionError, UnitOperationError
 
 
 def assert_allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
@@ -60,12 +54,12 @@ def assert_allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
     except (UnitOperationError, UnitConversionError):
         raise AssertionError(
             "Units of actual (%s) and desired (%s) do not have "
-            "equivalent dimensions" % (act.units, des.units))
+            "equivalent dimensions" % (act.units, des.units)
+        )
 
     rt = unyt_array(rtol)
     if not rt.units.is_dimensionless:
-        raise AssertionError("Units of rtol (%s) are not "
-                             "dimensionless" % rt.units)
+        raise AssertionError("Units of rtol (%s) are not " "dimensionless" % rt.units)
 
     if not isinstance(atol, unyt_array):
         at = unyt_quantity(atol, des.units)
@@ -73,8 +67,10 @@ def assert_allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
     try:
         at = at.in_units(act.units)
     except UnitOperationError:
-        raise AssertionError("Units of atol (%s) and actual (%s) do not have "
-                             "equivalent dimensions" % (at.units, act.units))
+        raise AssertionError(
+            "Units of atol (%s) and actual (%s) do not have "
+            "equivalent dimensions" % (at.units, act.units)
+        )
 
     # units have been validated, so we strip units before calling numpy
     # to avoid spurious errors
@@ -90,7 +86,7 @@ def process_warning(op, message, warning_class, args=(), kwargs=None):
     if kwargs is None:
         kwargs = {}
     with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter('always')
+        warnings.simplefilter("always")
 
         op(*args, **kwargs)
 

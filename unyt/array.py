@@ -15,6 +15,7 @@ unyt_array class.
 
 import copy
 from functools import wraps
+
 try:
     from functools import lru_cache
 except ImportError:
@@ -112,10 +113,7 @@ from sympy import Rational
 import sys
 import warnings
 
-from unyt.dimensions import (
-    angle,
-    temperature
-)
+from unyt.dimensions import angle, temperature
 from unyt.exceptions import (
     IterableUnitCoercionError,
     InvalidUnitEquivalence,
@@ -126,10 +124,7 @@ from unyt.exceptions import (
     UnitsNotReducible,
 )
 from unyt.equivalencies import equivalence_registry
-from unyt._on_demand_imports import (
-    _astropy,
-    _pint,
-)
+from unyt._on_demand_imports import _astropy, _pint
 from unyt._pint_conversions import convert_pint_units
 from unyt.unit_object import (
     _check_em_conversion,
@@ -143,8 +138,8 @@ NULL_UNIT = Unit()
 POWER_SIGN_MAPPING = {multiply: 1, divide: -1}
 
 __doctest_requires__ = {
-    ('unyt_array.from_pint', 'unyt_array.to_pint'): ['pint'],
-    ('unyt_array.from_astropy', 'unyt_array.to_astropy'): ['astropy'],
+    ("unyt_array.from_pint", "unyt_array.to_pint"): ["pint"],
+    ("unyt_array.from_astropy", "unyt_array.to_astropy"): ["astropy"],
 }
 
 
@@ -165,12 +160,13 @@ def _return_arr(func):
         else:
             # This could be a subclass, so don't call unyt_array directly.
             return type(args[0])(ret, units)
+
     return wrapped
 
 
 @lru_cache(maxsize=128, typed=False)
 def _sqrt_unit(unit):
-    return unit**0.5
+    return unit ** 0.5
 
 
 @lru_cache(maxsize=128, typed=False)
@@ -184,22 +180,22 @@ def _preserve_units(unit1, unit2=None):
 
 @lru_cache(maxsize=128, typed=False)
 def _power_unit(unit, power):
-    return unit**power
+    return unit ** power
 
 
 @lru_cache(maxsize=128, typed=False)
 def _square_unit(unit):
-    return unit*unit
+    return unit * unit
 
 
 @lru_cache(maxsize=128, typed=False)
 def _divide_units(unit1, unit2):
-    return unit1/unit2
+    return unit1 / unit2
 
 
 @lru_cache(maxsize=128, typed=False)
 def _reciprocal_unit(unit):
-    return unit**-1
+    return unit ** -1
 
 
 def _passthrough_unit(unit, unit2=None):
@@ -219,13 +215,11 @@ def _comparison_unit(unit1, unit2=None):
 
 
 def _invert_units(unit):
-    raise TypeError(
-        "Bit-twiddling operators are not defined for unyt_array instances")
+    raise TypeError("Bit-twiddling operators are not defined for unyt_array instances")
 
 
 def _bitop_units(unit1, unit2):
-    raise TypeError(
-        "Bit-twiddling operators are not defined for unyt_array instances")
+    raise TypeError("Bit-twiddling operators are not defined for unyt_array instances")
 
 
 def _coerce_iterable_units(input_object, registry=None):
@@ -233,9 +227,8 @@ def _coerce_iterable_units(input_object, registry=None):
         return input_object
     if _iterable(input_object):
         if any([isinstance(o, unyt_array) for o in input_object]):
-            ff = getattr(input_object[0], 'units', NULL_UNIT, )
-            if any([ff != getattr(_, 'units', NULL_UNIT)
-                    for _ in input_object]):
+            ff = getattr(input_object[0], "units", NULL_UNIT)
+            if any([ff != getattr(_, "units", NULL_UNIT) for _ in input_object]):
                 raise IterableUnitCoercionError(input_object)
             # This will create a copy of the data in the iterable.
             return unyt_array(np.array(input_object), ff, registry=registry)
@@ -338,19 +331,12 @@ binary_operators = (
     ldexp,
     fmod,
     divmod_,
-    heaviside
+    heaviside,
 )
 
-trigonometric_operators = (
-    sin,
-    cos,
-    tan,
-)
+trigonometric_operators = (sin, cos, tan)
 
-LARGE_INPUT = {
-    4: 16777217,
-    8: 9007199254740993
-}
+LARGE_INPUT = {4: 16777217, 8: 9007199254740993}
 
 
 class unyt_array(np.ndarray):
@@ -404,6 +390,7 @@ class unyt_array(np.ndarray):
            0.77815125, 0.84509804, 0.90308999])
 
     """
+
     _ufunc_registry = {
         add: _preserve_units,
         subtract: _preserve_units,
@@ -493,13 +480,22 @@ class unyt_array(np.ndarray):
 
     __array_priority__ = 2.0
 
-    def __new__(cls, input_array, units=None, registry=None, dtype=None,
-                bypass_validation=False, input_units=None):
+    def __new__(
+        cls,
+        input_array,
+        units=None,
+        registry=None,
+        dtype=None,
+        bypass_validation=False,
+        input_units=None,
+    ):
         # deprecate input_units in favor of units
         if input_units is not None:
             warnings.warn(
                 "input_units has been deprecated, please use units instead",
-                DeprecationWarning, stacklevel=2)
+                DeprecationWarning,
+                stacklevel=2,
+            )
         if units is not None:
             input_units = units
         if bypass_validation is True:
@@ -558,16 +554,16 @@ class unyt_array(np.ndarray):
         rep = super(unyt_array, self).__repr__()
         units_repr = self.units.__repr__()
         if "=" in rep:
-            return rep[:-1] + ', units=\'' + units_repr + '\')'
+            return rep[:-1] + ", units='" + units_repr + "')"
         else:
-            return rep[:-1] + ', \'' + units_repr + '\')'
+            return rep[:-1] + ", '" + units_repr + "')"
 
     def __str__(self):
-        return str(self.view(np.ndarray)) + ' ' + str(self.units)
+        return str(self.view(np.ndarray)) + " " + str(self.units)
 
     def __format__(self, format_spec):
         ret = super(unyt_array, self).__format__(format_spec)
-        return ret + ' {}'.format(self.units)
+        return ret + " {}".format(self.units)
 
     #
     # Start unit conversion methods
@@ -609,34 +605,41 @@ class unyt_array(np.ndarray):
         if equivalence is None:
             try:
                 conv_data = _check_em_conversion(
-                    self.units, units, registry=self.units.registry)
+                    self.units, units, registry=self.units.registry
+                )
             except MKSCGSConversionError:
-                raise UnitConversionError(self.units, self.units.dimensions,
-                                          units, units.dimensions)
+                raise UnitConversionError(
+                    self.units, self.units.dimensions, units, units.dimensions
+                )
             if any(conv_data):
                 new_units, (conv_factor, offset) = _em_conversion(
-                    self.units, conv_data, units)
+                    self.units, conv_data, units
+                )
             else:
                 new_units = units
                 (conv_factor, offset) = self.units.get_conversion_factor(
-                    new_units, self.dtype)
+                    new_units, self.dtype
+                )
 
             self.units = new_units
             values = self.d
             # if our dtype is an integer do the following somewhat awkward
             # dance to change the dtype in-place. We can't use astype
             # directly because that will create a copy and not update self
-            if self.dtype.kind in ('u', 'i'):
+            if self.dtype.kind in ("u", "i"):
                 # create a copy of the original data in floating point
                 # form, it's possible this may lose precision for very
                 # large integers
                 dsize = values.dtype.itemsize
-                new_dtype = 'f' + str(dsize)
+                new_dtype = "f" + str(dsize)
                 large = LARGE_INPUT.get(dsize, 0)
                 if large and np.any(np.abs(values) > large):
                     warnings.warn(
-                        "Overflow encountered while converting to units '%s'" %
-                        new_units, RuntimeWarning, stacklevel=2)
+                        "Overflow encountered while converting to units '%s'"
+                        % new_units,
+                        RuntimeWarning,
+                        stacklevel=2,
+                    )
                 float_values = values.astype(new_dtype)
                 # change the dtypes in-place, this does not change the
                 # underlying memory buffer
@@ -685,8 +688,11 @@ class unyt_array(np.ndarray):
         >>> E
         unyt_quantity(2.5e-07, 'W')
         """
-        self.convert_to_units(self.units.get_base_equivalent(unit_system),
-                              equivalence=equivalence, **kwargs)
+        self.convert_to_units(
+            self.units.get_base_equivalent(unit_system),
+            equivalence=equivalence,
+            **kwargs
+        )
 
     def convert_to_cgs(self, equivalence=None, **kwargs):
         """
@@ -719,7 +725,8 @@ class unyt_array(np.ndarray):
 
         """
         self.convert_to_units(
-            self.units.get_cgs_equivalent(), equivalence=equivalence, **kwargs)
+            self.units.get_cgs_equivalent(), equivalence=equivalence, **kwargs
+        )
 
     def convert_to_mks(self, equivalence=None, **kwargs):
         """
@@ -752,8 +759,7 @@ class unyt_array(np.ndarray):
         >>> data
         unyt_array([1.e-07, 2.e-07, 3.e-07], 'J')
         """
-        self.convert_to_units(
-            self.units.get_mks_equivalent(), equivalence, **kwargs)
+        self.convert_to_units(self.units.get_mks_equivalent(), equivalence, **kwargs)
 
     def in_units(self, units, equivalence=None, **kwargs):
         """
@@ -794,26 +800,33 @@ class unyt_array(np.ndarray):
         if equivalence is None:
             try:
                 conv_data = _check_em_conversion(
-                    self.units, units, registry=self.units.registry)
+                    self.units, units, registry=self.units.registry
+                )
             except MKSCGSConversionError:
-                raise UnitConversionError(self.units, self.units.dimensions,
-                                          units, units.dimensions)
+                raise UnitConversionError(
+                    self.units, self.units.dimensions, units, units.dimensions
+                )
             if any(conv_data):
                 new_units, (conversion_factor, offset) = _em_conversion(
-                    self.units, conv_data, units)
+                    self.units, conv_data, units
+                )
                 offset = 0
             else:
                 new_units = units
                 (conversion_factor, offset) = self.units.get_conversion_factor(
-                    new_units, self.dtype)
+                    new_units, self.dtype
+                )
             dsize = self.dtype.itemsize
-            if self.dtype.kind in ('u', 'i'):
+            if self.dtype.kind in ("u", "i"):
                 large = LARGE_INPUT.get(dsize, 0)
                 if large and np.any(np.abs(self.d) > large):
                     warnings.warn(
-                        "Overflow encountered while converting to units '%s'" %
-                        new_units, RuntimeWarning, stacklevel=2)
-            new_dtype = np.dtype('f' + str(dsize))
+                        "Overflow encountered while converting to units '%s'"
+                        % new_units,
+                        RuntimeWarning,
+                        stacklevel=2,
+                    )
+            new_dtype = np.dtype("f" + str(dsize))
             conversion_factor = new_dtype.type(conversion_factor)
             ret = np.asarray(self.ndview * conversion_factor, dtype=new_dtype)
             if offset:
@@ -933,19 +946,20 @@ class unyt_array(np.ndarray):
         us = _sanitize_unit_system(unit_system, self)
         try:
             conv_data = _check_em_conversion(
-                self.units, unit_system=us, registry=self.units.registry)
+                self.units, unit_system=us, registry=self.units.registry
+            )
         except MKSCGSConversionError:
             raise UnitsNotReducible(self.units, unit_system)
         if any(conv_data):
             to_units, (conv, offset) = _em_conversion(
-                self.units, conv_data, unit_system=us)
+                self.units, conv_data, unit_system=us
+            )
         else:
             to_units = self.units.get_base_equivalent(unit_system)
-            conv, offset = self.units.get_conversion_factor(
-                to_units, self.dtype)
-        new_dtype = np.dtype('f' + str(self.dtype.itemsize))
+            conv, offset = self.units.get_conversion_factor(to_units, self.dtype)
+        new_dtype = np.dtype("f" + str(self.dtype.itemsize))
         conv = new_dtype.type(conv)
-        ret = self.v*conv
+        ret = self.v * conv
         if offset:
             ret = ret - offset
         return type(self)(ret, to_units)
@@ -1047,8 +1061,7 @@ class unyt_array(np.ndarray):
             return self.in_units(conv_unit)
         this_equiv = equivalence_registry[equivalence]()
         if self.has_equivalent(equivalence):
-            new_arr = this_equiv.convert(
-                self, conv_unit.dimensions, **kwargs)
+            new_arr = this_equiv.convert(self, conv_unit.dimensions, **kwargs)
             return new_arr.in_units(conv_unit)
         else:
             raise InvalidUnitEquivalence(equivalence, self.units, unit)
@@ -1140,7 +1153,7 @@ class unyt_array(np.ndarray):
         """
         return np.array(self)
 
-    def argsort(self, axis=-1, kind='quicksort', order=None):
+    def argsort(self, axis=-1, kind="quicksort", order=None):
         """
         Returns the indices that would sort the array.
 
@@ -1188,7 +1201,7 @@ class unyt_array(np.ndarray):
             _arr = arr
         except AttributeError:
             u = arr
-            _arr = 1.0*u
+            _arr = 1.0 * u
         ap_units = []
         for base, exponent in zip(u.bases, u.powers):
             unit_str = base.to_string()
@@ -1214,7 +1227,7 @@ class unyt_array(np.ndarray):
         >>> data.to_astropy()
         <Quantity [3., 4., 5.] g / cm3>
         """
-        return self.value*_astropy.units.Unit(str(self.units), **kwargs)
+        return self.value * _astropy.units.Unit(str(self.units), **kwargs)
 
     @classmethod
     def from_pint(cls, arr, unit_registry=None):
@@ -1250,8 +1263,7 @@ class unyt_array(np.ndarray):
         if isinstance(arr.magnitude, np.ndarray):
             return unyt_array(arr.magnitude, p_units, registry=unit_registry)
         else:
-            return unyt_quantity(
-                arr.magnitude, p_units, registry=unit_registry)
+            return unyt_quantity(arr.magnitude, p_units, registry=unit_registry)
 
     def to_pint(self, unit_registry=None):
         """
@@ -1292,8 +1304,7 @@ class unyt_array(np.ndarray):
     # End unit conversion methods
     #
 
-    def write_hdf5(self, filename, dataset_name=None, info=None,
-                   group_name=None):
+    def write_hdf5(self, filename, dataset_name=None, info=None, group_name=None):
         r"""Writes a unyt_array to hdf5 file.
 
         Parameters
@@ -1322,14 +1333,15 @@ class unyt_array(np.ndarray):
         """
         from unyt._on_demand_imports import _h5py as h5py
         from six.moves import cPickle as pickle
+
         if info is None:
             info = {}
 
-        info['units'] = str(self.units)
-        info['unit_registry'] = np.void(pickle.dumps(self.units.registry.lut))
+        info["units"] = str(self.units)
+        info["unit_registry"] = np.void(pickle.dumps(self.units.registry.lut))
 
         if dataset_name is None:
-            dataset_name = 'array_data'
+            dataset_name = "array_data"
 
         f = h5py.File(filename)
         if group_name is not None:
@@ -1379,7 +1391,7 @@ class unyt_array(np.ndarray):
         from six.moves import cPickle as pickle
 
         if dataset_name is None:
-            dataset_name = 'array_data'
+            dataset_name = "array_data"
 
         f = h5py.File(filename)
         if group_name is not None:
@@ -1388,8 +1400,8 @@ class unyt_array(np.ndarray):
             g = f
         dataset = g[dataset_name]
         data = dataset[:]
-        units = dataset.attrs.get('units', '')
-        unit_lut = pickle.loads(dataset.attrs['unit_registry'].tostring())
+        units = dataset.attrs.get("units", "")
+        unit_lut = pickle.loads(dataset.attrs["unit_registry"].tostring())
         f.close()
         registry = UnitRegistry(lut=unit_lut, add_default_symbols=False)
         return cls(data, units, registry=registry)
@@ -1582,7 +1594,7 @@ class unyt_array(np.ndarray):
         if ret.shape == ():
             return unyt_quantity(ret, self.units, bypass_validation=True)
         else:
-            if hasattr(self, 'units'):
+            if hasattr(self, "units"):
                 ret.units = self.units
             return ret
 
@@ -1592,15 +1604,15 @@ class unyt_array(np.ndarray):
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
         func = getattr(ufunc, method)
-        if 'out' not in kwargs:
+        if "out" not in kwargs:
             out = None
             out_func = None
         else:
             # we need to get both the actual "out" object and a view onto it
             # in case we need to do in-place operations
-            out = kwargs.pop('out')[0]
-            if out.dtype.kind in ('u', 'i'):
-                new_dtype = 'f' + str(out.dtype.itemsize)
+            out = kwargs.pop("out")[0]
+            if out.dtype.kind in ("u", "i"):
+                new_dtype = "f" + str(out.dtype.itemsize)
                 float_values = out.astype(new_dtype)
                 out.dtype = new_dtype
                 np.copyto(out, float_values)
@@ -1608,20 +1620,20 @@ class unyt_array(np.ndarray):
         if len(inputs) == 1:
             # Unary ufuncs
             inp = inputs[0]
-            u = getattr(inp, 'units', None)
+            u = getattr(inp, "units", None)
             if u.dimensions is angle and ufunc in trigonometric_operators:
                 # ensure np.sin(90*degrees) works as expected
-                inp = inp.in_units('radian').v
+                inp = inp.in_units("radian").v
             # evaluate the ufunc
             out_arr = func(np.asarray(inp), out=out_func, **kwargs)
-            if ufunc in (multiply, divide) and method == 'reduce':
+            if ufunc in (multiply, divide) and method == "reduce":
                 # a reduction of a multiply or divide corresponds to
                 # a repeated product which we implement as an exponent
                 power_sign = POWER_SIGN_MAPPING[ufunc]
-                if 'axis' in kwargs and kwargs['axis'] is not None:
-                    unit = u**(power_sign*inp.shape[kwargs['axis']])
+                if "axis" in kwargs and kwargs["axis"] is not None:
+                    unit = u ** (power_sign * inp.shape[kwargs["axis"]])
                 else:
-                    unit = u**(power_sign*inp.size)
+                    unit = u ** (power_sign * inp.size)
             else:
                 # get unit of result
                 unit = self._ufunc_registry[ufunc](u)
@@ -1635,13 +1647,13 @@ class unyt_array(np.ndarray):
             # coerce inputs to be ndarrays if they aren't already
             inp0 = _coerce_iterable_units(i0)
             inp1 = _coerce_iterable_units(i1)
-            u0 = getattr(i0, 'units', None) or getattr(inp0, 'units', None)
-            u1 = getattr(i1, 'units', None) or getattr(inp1, 'units', None)
+            u0 = getattr(i0, "units", None) or getattr(inp0, "units", None)
+            u1 = getattr(i1, "units", None) or getattr(inp1, "units", None)
             ret_class = _get_binary_op_return_class(type(i0), type(i1))
             if u0 is None:
-                u0 = Unit(registry=getattr(u1, 'registry', None))
+                u0 = Unit(registry=getattr(u1, "registry", None))
             if u1 is None and ufunc is not power:
-                u1 = Unit(registry=getattr(u0, 'registry', None))
+                u1 = Unit(registry=getattr(u0, "registry", None))
             elif ufunc is power:
                 u1 = inp1
                 if inp0.shape != () and inp1.shape != ():
@@ -1656,8 +1668,7 @@ class unyt_array(np.ndarray):
                 else:
                     u1 = 1.0
             unit_operator = self._ufunc_registry[ufunc]
-            if unit_operator in (_preserve_units, _comparison_unit,
-                                 _arctan2_unit):
+            if unit_operator in (_preserve_units, _comparison_unit, _arctan2_unit):
                 # check "is" equality first for speed
                 if u0 is not u1 and u0 != u1:
                     # we allow adding, multiplying, comparisons with
@@ -1667,10 +1678,8 @@ class unyt_array(np.ndarray):
                     # binary operation would need to scan over all the
                     # elements of both arrays to check for arrays filled
                     # with zeros
-                    if ((not isinstance(i0, unyt_array) or
-                         not isinstance(i1, unyt_array))):
-                        any_nonzero = [np.count_nonzero(i0),
-                                       np.count_nonzero(i1)]
+                    if not isinstance(i0, unyt_array) or not isinstance(i1, unyt_array):
+                        any_nonzero = [np.count_nonzero(i0), np.count_nonzero(i1)]
                         if any_nonzero[0] == 0:
                             u0 = u1
                         elif any_nonzero[1] == 0:
@@ -1688,19 +1697,21 @@ class unyt_array(np.ndarray):
                         else:
                             raise UnitOperationError(ufunc, u0, u1)
                     conv, offset = u1.get_conversion_factor(u0, inp1.dtype)
-                    new_dtype = np.dtype('f' + str(inp1.dtype.itemsize))
+                    new_dtype = np.dtype("f" + str(inp1.dtype.itemsize))
                     conv = new_dtype.type(conv)
                     if offset is not None:
                         raise InvalidUnitOperation(
                             "Quantities with units of Fahrenheit or Celsius "
                             "cannot by multiplied, divided, subtracted or "
-                            "added with data that has different units.")
-                    inp1 = np.asarray(inp1)*conv
+                            "added with data that has different units."
+                        )
+                    inp1 = np.asarray(inp1) * conv
             # get the unit of the result
             unit = unit_operator(u0, u1)
             # actually evaluate the ufunc
-            out_arr = func(inp0.view(np.ndarray), inp1.view(np.ndarray),
-                           out=out_func, **kwargs)
+            out_arr = func(
+                inp0.view(np.ndarray), inp1.view(np.ndarray), out=out_func, **kwargs
+            )
             if unit_operator in (_multiply_units, _divide_units):
                 if unit.is_dimensionless and unit.base_value != 1.0:
                     if not u0.is_dimensionless:
@@ -1708,21 +1719,31 @@ class unyt_array(np.ndarray):
                             if out_func is not None:
                                 out_arr = np.multiply(
                                     out_arr.view(np.ndarray),
-                                    unit.base_value, out=out_func)
+                                    unit.base_value,
+                                    out=out_func,
+                                )
                             else:
                                 out_arr = np.multiply(
-                                    out_arr.view(np.ndarray), unit.base_value,
-                                    out=out_func)
+                                    out_arr.view(np.ndarray),
+                                    unit.base_value,
+                                    out=out_func,
+                                )
                             unit = Unit(registry=unit.registry)
-                if ((u0.base_offset and u0.dimensions is temperature or
-                     u1.base_offset and u1.dimensions is temperature)):
+                if (
+                    u0.base_offset
+                    and u0.dimensions is temperature
+                    or u1.base_offset
+                    and u1.dimensions is temperature
+                ):
                     raise InvalidUnitOperation(
                         "Quantities with units of Fahrenheit or Celsius "
-                        "cannot by multiplied, divide, subtracted or added.")
+                        "cannot by multiplied, divide, subtracted or added."
+                    )
         else:
             raise RuntimeError(
                 "Support for the %s ufunc with %i inputs has not been"
-                "added to unyt_array." % (str(ufunc), len(inputs)))
+                "added to unyt_array." % (str(ufunc), len(inputs))
+            )
         if unit is None:
             out_arr = np.array(out_arr, copy=False)
         elif ufunc in (modf, divmod_):
@@ -1743,10 +1764,10 @@ class unyt_array(np.ndarray):
                     out.units = out_arr.units
                 except AttributeError:
                     # out_arr is an ndarray
-                    out.units = Unit('', registry=self.units.registry)
+                    out.units = Unit("", registry=self.units.registry)
         return out_arr
 
-    def copy(self, order='C'):
+    def copy(self, order="C"):
         """
         Return a copy of the array.
 
@@ -1783,7 +1804,7 @@ class unyt_array(np.ndarray):
         return type(self)(np.copy(np.asarray(self)), self.units)
 
     def __array_finalize__(self, obj):
-        self.units = getattr(obj, 'units', NULL_UNIT)
+        self.units = getattr(obj, "units", NULL_UNIT)
 
     def __pos__(self):
         """ Posify the data. """
@@ -1794,6 +1815,7 @@ class unyt_array(np.ndarray):
     # ensure we always use float division on python2 to avoid truncation for
     # operations on int arrays
     if sys.version_info < (3, 0, 0):
+
         def __div__(self, other):
             return self.__truediv__(other)
 
@@ -1825,7 +1847,7 @@ class unyt_array(np.ndarray):
         [[8. 8.]
          [8. 8.]] km*s**2
         """
-        return super(unyt_array, self).dot(b), self.units*b.units
+        return super(unyt_array, self).dot(b), self.units * b.units
 
     def __reduce__(self):
         """Pickle reduction method
@@ -1839,8 +1861,7 @@ class unyt_array(np.ndarray):
         """
         np_ret = super(unyt_array, self).__reduce__()
         obj_state = np_ret[2]
-        unit_state = ((((str(self.units), self.units.registry.lut),) +
-                       obj_state[:],))
+        unit_state = (((str(self.units), self.units.registry.lut),) + obj_state[:],)
         new_ret = np_ret[:2] + unit_state + np_ret[3:]
         return new_ret
 
@@ -1908,23 +1929,38 @@ class unyt_quantity(unyt_array):
     1.0791812460476249
 
     """
-    def __new__(cls, input_scalar, units=None, registry=None,
-                dtype=None, bypass_validation=False, input_units=None):
+
+    def __new__(
+        cls,
+        input_scalar,
+        units=None,
+        registry=None,
+        dtype=None,
+        bypass_validation=False,
+        input_units=None,
+    ):
         if input_units is not None:
             warnings.warn(
                 "input_units has been deprecated, please use units instead",
-                DeprecationWarning, stacklevel=2)
+                DeprecationWarning,
+                stacklevel=2,
+            )
         if units is not None:
             input_units = units
         if not isinstance(input_scalar, (numeric_type, np.number, np.ndarray)):
             raise RuntimeError("unyt_quantity values must be numeric")
         if input_units is None:
-            units = getattr(input_scalar, 'units', None)
+            units = getattr(input_scalar, "units", None)
         else:
             units = input_units
         ret = unyt_array.__new__(
-            cls, np.asarray(input_scalar), units, registry, dtype=dtype,
-            bypass_validation=bypass_validation)
+            cls,
+            np.asarray(input_scalar),
+            units,
+            registry,
+            dtype=dtype,
+            bypass_validation=bypass_validation,
+        )
         if ret.size > 1:
             raise RuntimeError("unyt_quantity instances must be scalars")
         return ret
@@ -2056,7 +2092,7 @@ def udot(op1, op2):
      [2. 2.]] km*s
     """
     dot = np.dot(op1.d, op2.d)
-    units = op1.units*op2.units
+    units = op1.units * op2.units
     if dot.shape == ():
         return unyt_quantity(dot, units)
     return unyt_array(dot, units)
@@ -2132,11 +2168,13 @@ def ustack(arrs, axis=0):
 def _get_binary_op_return_class(cls1, cls2):
     if cls1 is cls2:
         return cls1
-    if ((cls1 in (Unit, np.ndarray, np.matrix, np.ma.masked_array) or
-         issubclass(cls1, (numeric_type, np.number, list, tuple)))):
+    if cls1 in (Unit, np.ndarray, np.matrix, np.ma.masked_array) or issubclass(
+        cls1, (numeric_type, np.number, list, tuple)
+    ):
         return cls2
-    if ((cls2 in (Unit, np.ndarray, np.matrix, np.ma.masked_array) or
-         issubclass(cls2, (numeric_type, np.number, list, tuple)))):
+    if cls2 in (Unit, np.ndarray, np.matrix, np.ma.masked_array) or issubclass(
+        cls2, (numeric_type, np.number, list, tuple)
+    ):
         return cls1
     if issubclass(cls1, unyt_quantity):
         return cls2
@@ -2149,10 +2187,11 @@ def _get_binary_op_return_class(cls1, cls2):
     else:
         raise RuntimeError(
             "Undefined operation for a unyt_array subclass. "
-            "Received operand types (%s) and (%s)" % (cls1, cls2))
+            "Received operand types (%s) and (%s)" % (cls1, cls2)
+        )
 
 
-def loadtxt(fname, dtype='float', delimiter='\t', usecols=None, comments='#'):
+def loadtxt(fname, dtype="float", delimiter="\t", usecols=None, comments="#"):
     r"""
     Load unyt_arrays with unit information from a text file. Each row in the
     text file must have the same number of values.
@@ -2179,7 +2218,7 @@ def loadtxt(fname, dtype='float', delimiter='\t', usecols=None, comments='#'):
     >>> temp, velx = loadtxt(
     ...    "sphere.dat", usecols=(1,2), delimiter="\t")  # doctest: +SKIP
     """
-    f = open(fname, 'r')
+    f = open(fname, "r")
     next_one = False
     units = []
     num_cols = -1
@@ -2201,10 +2240,17 @@ def loadtxt(fname, dtype='float', delimiter='\t', usecols=None, comments='#'):
             break
     f.close()
     if len(units) != num_cols:
-        units = ["dimensionless"]*num_cols
-    arrays = np.loadtxt(fname, dtype=dtype, comments=comments,
-                        delimiter=delimiter, converters=None,
-                        unpack=True, usecols=usecols, ndmin=0)
+        units = ["dimensionless"] * num_cols
+    arrays = np.loadtxt(
+        fname,
+        dtype=dtype,
+        comments=comments,
+        delimiter=delimiter,
+        converters=None,
+        unpack=True,
+        usecols=usecols,
+        ndmin=0,
+    )
     if len(arrays.shape) < 2:
         arrays = [arrays]
     if usecols is not None:
@@ -2215,8 +2261,9 @@ def loadtxt(fname, dtype='float', delimiter='\t', usecols=None, comments='#'):
     return ret
 
 
-def savetxt(fname, arrays, fmt='%.18e', delimiter='\t', header='',
-            footer='', comments='#'):
+def savetxt(
+    fname, arrays, fmt="%.18e", delimiter="\t", header="", footer="", comments="#"
+):
     r"""
     Write unyt_arrays with unit information to a text file.
 
@@ -2257,9 +2304,16 @@ def savetxt(fname, arrays, fmt='%.18e', delimiter='\t', header='',
             units.append(str(array.units))
         else:
             units.append("dimensionless")
-    if header != '' and not header.endswith('\n'):
-        header += '\n'
-    header += " Units\n " + '\t'.join(units)
-    np.savetxt(fname, np.transpose(arrays), header=header,
-               fmt=fmt, delimiter=delimiter, footer=footer,
-               newline='\n', comments=comments)
+    if header != "" and not header.endswith("\n"):
+        header += "\n"
+    header += " Units\n " + "\t".join(units)
+    np.savetxt(
+        fname,
+        np.transpose(arrays),
+        header=header,
+        fmt=fmt,
+        delimiter=delimiter,
+        footer=footer,
+        newline="\n",
+        comments=comments,
+    )

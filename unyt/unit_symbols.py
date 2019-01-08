@@ -186,9 +186,9 @@ cd = Candela = candela = Unit("cd")
 #: lumen
 lm = Lumen = lumen = Unit("lm")
 #: lux
-lx = Lux = lux = Unit('lx')
+lx = Lux = lux = Unit("lx")
 #: lambert
-lambert = Lambert = Unit('lambert')
+lambert = Lambert = Unit("lambert")
 #: nit
 nt = nit = Nit = Unit("nt")
 
@@ -255,13 +255,13 @@ au = Unit("au")
 #: Light year
 ly = light_year = Unit("ly")
 #: Radius of the Earth
-Rearth = R_earth = earth_radius = Unit('R_earth')
+Rearth = R_earth = earth_radius = Unit("R_earth")
 #: Radius of the Earth
-rearth = r_earth = Unit('r_earth')
+rearth = r_earth = Unit("r_earth")
 #: Radius of Jupiter
-Rjup = R_jup = jupiter_radius = Unit('R_jup')
+Rjup = R_jup = jupiter_radius = Unit("R_jup")
 #: Radius of Jupiter
-rjup = r_jup = Unit('r_jup')
+rjup = r_jup = Unit("r_jup")
 #: Jansky
 Jy = jansky = Unit("Jy")
 
@@ -357,8 +357,8 @@ longitude = lon = Unit("lon")
 #
 
 #: Count of something
-counts = count = Unit('counts')
+counts = count = Unit("counts")
 #: Number of photons
-photons = photon = Unit('photons')
+photons = photon = Unit("photons")
 #: dimensionless
-_ = dimensionless = Unit('')
+_ = dimensionless = Unit("")

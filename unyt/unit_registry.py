@@ -15,10 +15,7 @@ A registry for units that can be added to and modified.
 
 import json
 
-from unyt.exceptions import (
-    SymbolNotFoundError,
-    UnitParseError,
-)
+from unyt.exceptions import SymbolNotFoundError, UnitParseError
 from unyt._unit_lookup_table import (
     default_unit_symbol_lut,
     unit_prefixes,
@@ -26,14 +23,12 @@ from unyt._unit_lookup_table import (
 )
 from hashlib import md5
 import six
-from sympy import (
-    sympify,
-    srepr,
-)
+from sympy import sympify, srepr
 
 
 class UnitRegistry:
     """A registry for unit symbols"""
+
     _unit_system_id = None
 
     def __init__(self, add_default_symbols=True, lut=None):
@@ -51,7 +46,8 @@ class UnitRegistry:
             ret = self.lut[key]
         except KeyError:
             raise SymbolNotFoundError(
-                "The symbol '%s' does not exist in this registry." % key)
+                "The symbol '%s' does not exist in this registry." % key
+            )
         return ret
 
     def __contains__(self, item):
@@ -73,8 +69,8 @@ class UnitRegistry:
         if self._unit_system_id is None:
             hash_data = bytearray()
             for k, v in sorted(self.lut.items()):
-                hash_data.extend(k.encode('ascii'))
-                hash_data.extend(repr(v).encode('ascii'))
+                hash_data.extend(k.encode("ascii"))
+                hash_data.extend(repr(v).encode("ascii"))
             m = md5()
             m.update(hash_data)
             self._unit_system_id = str(m.hexdigest())
@@ -84,8 +80,15 @@ class UnitRegistry:
     def prefixable_units(self):
         return [u for u in self.lut if self.lut[u][4]]
 
-    def add(self, symbol, base_value, dimensions, tex_repr=None, offset=None,
-            prefixable=False):
+    def add(
+        self,
+        symbol,
+        base_value,
+        dimensions,
+        tex_repr=None,
+        offset=None,
+        prefixable=False,
+    ):
         """
         Add a symbol to this registry.
 
@@ -118,14 +121,17 @@ class UnitRegistry:
 
         # Validate
         if not isinstance(base_value, float):
-            raise UnitParseError("base_value (%s) must be a float, got a %s."
-                                 % (base_value, type(base_value)))
+            raise UnitParseError(
+                "base_value (%s) must be a float, got a %s."
+                % (base_value, type(base_value))
+            )
 
         if offset is not None:
             if not isinstance(offset, float):
                 raise UnitParseError(
                     "offset value (%s) must be a float, got a %s."
-                    % (offset, type(offset)))
+                    % (offset, type(offset))
+                )
         else:
             offset = 0.0
 
@@ -133,11 +139,10 @@ class UnitRegistry:
 
         if tex_repr is None:
             # make educated guess that will look nice in most cases
-            tex_repr = r"\rm{" + symbol.replace('_', r'\ ') + "}"
+            tex_repr = r"\rm{" + symbol.replace("_", r"\ ") + "}"
 
         # Add to lut
-        self.lut[symbol] = (
-            base_value, dimensions, offset, tex_repr, prefixable)
+        self.lut[symbol] = (base_value, dimensions, offset, tex_repr, prefixable)
 
     def remove(self, symbol):
         """
@@ -155,7 +160,8 @@ class UnitRegistry:
         if symbol not in self.lut:
             raise SymbolNotFoundError(
                 "Tried to remove the symbol '%s', but it does not exist "
-                "in this registry." % symbol)
+                "in this registry." % symbol
+            )
 
         del self.lut[symbol]
 
@@ -178,17 +184,17 @@ class UnitRegistry:
         if symbol not in self.lut:
             raise SymbolNotFoundError(
                 "Tried to modify the symbol '%s', but it does not exist "
-                "in this registry." % symbol)
+                "in this registry." % symbol
+            )
 
         if hasattr(base_value, "in_base"):
             new_dimensions = base_value.units.dimensions
-            base_value = base_value.in_base('mks')
+            base_value = base_value.in_base("mks")
             base_value = base_value.value
         else:
             new_dimensions = self.lut[symbol][1]
 
-        self.lut[symbol] = ((float(base_value), new_dimensions) +
-                            self.lut[symbol][2:])
+        self.lut[symbol] = (float(base_value), new_dimensions) + self.lut[symbol][2:]
 
     def keys(self):
         """
@@ -235,8 +241,7 @@ class UnitRegistry:
         Return a list of base unit names that this registry knows about that
         are of equivalent dimensions to *unit_object*.
         """
-        equiv = [k for k, v in self.lut.items()
-                 if v[1] is unit_object.dimensions]
+        equiv = [k for k, v in self.lut.items() if v[1] is unit_object.dimensions]
         equiv = list(sorted(set(equiv)))
         return equiv
 
@@ -260,23 +265,23 @@ def _lookup_unit_symbol(symbol_str, unit_symbol_lut):
     # could still be a known symbol with a prefix
     possible_prefix = symbol_str[0]
 
-    if symbol_str[:2] == 'da':
-        possible_prefix = 'da'
+    if symbol_str[:2] == "da":
+        possible_prefix = "da"
 
     if possible_prefix in unit_prefixes:
         # the first character could be a prefix, check the rest of the symbol
         symbol_wo_pref = symbol_str[1:]
 
         # deca is the only prefix with length 2
-        if symbol_str[:2] == 'da':
+        if symbol_str[:2] == "da":
             symbol_wo_pref = symbol_str[2:]
-            possible_prefix = 'da'
+            possible_prefix = "da"
 
-        prefixable_units = [u for u in unit_symbol_lut
-                            if unit_symbol_lut[u][4]]
+        prefixable_units = [u for u in unit_symbol_lut if unit_symbol_lut[u][4]]
 
-        unit_is_si_prefixable = (symbol_wo_pref in unit_symbol_lut and
-                                 symbol_wo_pref in prefixable_units)
+        unit_is_si_prefixable = (
+            symbol_wo_pref in unit_symbol_lut and symbol_wo_pref in prefixable_units
+        )
 
         if unit_is_si_prefixable is True:
             # lookup successful, it's a symbol with a prefix
@@ -285,33 +290,40 @@ def _lookup_unit_symbol(symbol_str, unit_symbol_lut):
 
             if possible_prefix in latex_prefixes:
                 latex_repr = symbol_str.replace(
-                    possible_prefix, '{'+latex_prefixes[possible_prefix]+'}')
+                    possible_prefix, "{" + latex_prefixes[possible_prefix] + "}"
+                )
             else:
                 # Need to add some special handling for comoving units
                 # this is fine for now, but it wouldn't work for a general
                 # unit that has an arbitrary LaTeX representation
-                if symbol_wo_pref != 'cm' and symbol_wo_pref.endswith('cm'):
+                if symbol_wo_pref != "cm" and symbol_wo_pref.endswith("cm"):
                     sub_symbol_wo_prefix = symbol_wo_pref[:-2]
                     sub_symbol_str = symbol_str[:-2]
                 else:
                     sub_symbol_wo_prefix = symbol_wo_pref
                     sub_symbol_str = symbol_str
                 latex_repr = unit_data[3].replace(
-                    '{' + sub_symbol_wo_prefix + '}',
-                    '{' + sub_symbol_str + '}')
+                    "{" + sub_symbol_wo_prefix + "}", "{" + sub_symbol_str + "}"
+                )
 
             # Leave offset and dimensions the same, but adjust scale factor and
             # LaTeX representation
-            ret = (unit_data[0] * prefix_value, unit_data[1], unit_data[2],
-                   latex_repr, False)
+            ret = (
+                unit_data[0] * prefix_value,
+                unit_data[1],
+                unit_data[2],
+                latex_repr,
+                False,
+            )
 
             unit_symbol_lut[symbol_str] = ret
 
             return ret
 
     # no dice
-    raise UnitParseError("Could not find unit symbol '%s' in the provided "
-                         "symbols." % symbol_str)
+    raise UnitParseError(
+        "Could not find unit symbol '%s' in the provided " "symbols." % symbol_str
+    )
 
 
 #: The default unit registry

@@ -91,15 +91,17 @@ class NumberDensityEquivalence(Equivalence):
     >>> rho.to_equivalent('cm**-3', 'number_density', mu=1.4)
     unyt_quantity(86.64869896, 'cm**(-3)')
     """
+
     type_name = "number_density"
-    _dims = (density, number_density,)
+    _dims = (density, number_density)
 
     def _convert(self, x, new_dims, mu=0.6):
         from unyt import physical_constants as pc
+
         if new_dims == number_density:
-            return np.true_divide(x, mu*pc.mh, out=self._get_out(x))
+            return np.true_divide(x, mu * pc.mh, out=self._get_out(x))
         elif new_dims == density:
-            return np.multiply(x, mu*pc.mh, out=self._get_out(x))
+            return np.multiply(x, mu * pc.mh, out=self._get_out(x))
 
     def __str__(self):
         return "number density: density <-> number density"
@@ -133,11 +135,13 @@ class ThermalEquivalence(Equivalence):
     >>> temp.to_equivalent('keV', 'thermal')
     unyt_quantity(0.08617332, 'keV')
     """
+
     type_name = "thermal"
-    _dims = (temperature, energy,)
+    _dims = (temperature, energy)
 
     def _convert(self, x, new_dims):
         from unyt import physical_constants as pc
+
         if new_dims == energy:
             return np.multiply(x, pc.kboltz, out=self._get_out(x))
         elif new_dims == temperature:
@@ -168,15 +172,17 @@ class MassEnergyEquivalence(Equivalence):
     unyt_quantity(3.14564313e+14, 'J')
 
     """
+
     type_name = "mass_energy"
-    _dims = (mass, energy,)
+    _dims = (mass, energy)
 
     def _convert(self, x, new_dims):
         from unyt import physical_constants as pc
+
         if new_dims == energy:
-            return np.multiply(x, pc.clight*pc.clight, out=self._get_out(x))
+            return np.multiply(x, pc.clight * pc.clight, out=self._get_out(x))
         elif new_dims == mass:
-            return np.true_divide(x, pc.clight*pc.clight, out=self._get_out(x))
+            return np.true_divide(x, pc.clight * pc.clight, out=self._get_out(x))
 
     def __str__(self):
         return "mass_energy: mass <-> energy"
@@ -205,25 +211,25 @@ class SpectralEquivalence(Equivalence):
     >>> (1*km).to_equivalent('MHz', 'spectral')
     unyt_quantity(0.29979246, 'MHz')
     """
+
     type_name = "spectral"
     _dims = (length, rate, energy, spatial_frequency)
 
     def _convert(self, x, new_dims):
         from unyt import physical_constants as pc
+
         if new_dims == energy:
             if x.units.dimensions == length:
-                return np.true_divide(
-                    pc.clight*pc.hmks, x, out=self._get_out(x))
+                return np.true_divide(pc.clight * pc.hmks, x, out=self._get_out(x))
             elif x.units.dimensions == rate:
                 return np.multiply(x, pc.hmks, out=self._get_out(x))
             elif x.units.dimensions == spatial_frequency:
-                return np.multiply(x, pc.hmks*pc.clight, out=self._get_out(x))
+                return np.multiply(x, pc.hmks * pc.clight, out=self._get_out(x))
         elif new_dims == length:
             if x.units.dimensions == rate:
                 return np.true_divide(pc.clight, x, out=self._get_out(x))
             elif x.units.dimensions == energy:
-                return np.true_divide(
-                    pc.hmks*pc.clight, x, out=self._get_out(x))
+                return np.true_divide(pc.hmks * pc.clight, x, out=self._get_out(x))
             elif x.units.dimensions == spatial_frequency:
                 return np.true_divide(1, x, out=self._get_out(x))
         elif new_dims == rate:
@@ -237,14 +243,12 @@ class SpectralEquivalence(Equivalence):
             if x.units.dimensions == length:
                 return np.true_divide(1, x, out=self._get_out(x))
             elif x.units.dimensions == energy:
-                return np.true_divide(
-                    x, pc.clight*pc.hmks, out=self._get_out(x))
+                return np.true_divide(x, pc.clight * pc.hmks, out=self._get_out(x))
             elif x.units.dimensions == rate:
                 return np.true_divide(x, pc.clight, out=self._get_out(x))
 
     def __str__(self):
-        return ("spectral: length <-> spatial_frequency <-> frequency "
-                + "<-> energy")
+        return "spectral: length <-> spatial_frequency <-> frequency " + "<-> energy"
 
 
 class SoundSpeedEquivalence(Equivalence):
@@ -293,29 +297,32 @@ class SoundSpeedEquivalence(Equivalence):
     >>> cs.to_equivalent('keV', 'sound_speed')
     unyt_quantity(0.03760788, 'keV')
     """
-    type_name = "sound_speed"
-    _dims = (velocity, temperature, energy,)
 
-    def _convert(self, x, new_dims, mu=0.6, gamma=5./3.):
+    type_name = "sound_speed"
+    _dims = (velocity, temperature, energy)
+
+    def _convert(self, x, new_dims, mu=0.6, gamma=5. / 3.):
         from unyt import physical_constants as pc
+
         if new_dims == velocity:
             if x.units.dimensions == temperature:
                 v2 = np.multiply(
-                    pc.kboltz*gamma/(mu*pc.mh), x, out=self._get_out(x))
+                    pc.kboltz * gamma / (mu * pc.mh), x, out=self._get_out(x)
+                )
             elif x.units.dimensions == energy:
-                v2 = np.multiply(gamma/(mu*pc.mh), x, out=self._get_out(x))
+                v2 = np.multiply(gamma / (mu * pc.mh), x, out=self._get_out(x))
             return np.sqrt(v2, out=self._get_out(x))
         elif new_dims == temperature:
             if x.units.dimensions == velocity:
                 v2 = np.multiply(x, x, out=self._get_out(x))
-                kT = np.multiply(v2, mu*pc.mh/gamma, out=self._get_out(x))
+                kT = np.multiply(v2, mu * pc.mh / gamma, out=self._get_out(x))
                 return np.true_divide(kT, pc.kboltz, out=self._get_out(x))
             else:
                 return np.true_divide(x, pc.kboltz, out=self._get_out(x))
         else:
             if x.units.dimensions == velocity:
                 v2 = np.multiply(x, x, out=self._get_out(x))
-                return np.multiply(mu*pc.mh/gamma, v2, out=self._get_out(x))
+                return np.multiply(mu * pc.mh / gamma, v2, out=self._get_out(x))
             else:
                 return np.multiply(x, pc.kboltz, out=self._get_out(x))
 
@@ -355,11 +362,13 @@ class LorentzEquivalence(Equivalence):
     >>> fast.to_equivalent('km/s', 'lorentz')
     unyt_quantity(299777.43797656, 'km/s')
     """
+
     type_name = "lorentz"
-    _dims = (dimensionless, velocity,)
+    _dims = (dimensionless, velocity)
 
     def _convert(self, x, new_dims):
         from unyt import physical_constants as pc
+
         if new_dims == dimensionless:
             beta = np.true_divide(x, pc.clight, out=self._get_out(x))
             beta2 = np.multiply(beta, beta, out=self._get_out(x))
@@ -406,17 +415,21 @@ class SchwarzschildEquivalence(Equivalence):
     >>> (1*AU).to_equivalent('Msun', 'schwarzschild')
     unyt_quantity(50658673.46804734, 'Msun')
     """
+
     type_name = "schwarzschild"
-    _dims = (mass, length,)
+    _dims = (mass, length)
 
     def _convert(self, x, new_dims):
         from unyt import physical_constants as pc
+
         if new_dims == length:
             return np.multiply(
-                2.*pc.G/(pc.clight*pc.clight), x, out=self._get_out(x))
+                2. * pc.G / (pc.clight * pc.clight), x, out=self._get_out(x)
+            )
         elif new_dims == mass:
             return np.multiply(
-                0.5*pc.clight*pc.clight/pc.G, x, out=self._get_out(x))
+                0.5 * pc.clight * pc.clight / pc.G, x, out=self._get_out(x)
+            )
 
     def __str__(self):
         return "schwarzschild: mass <-> length"
@@ -440,12 +453,14 @@ class ComptonEquivalence(Equivalence):
     >>> (10*fm).to_equivalent('me', 'compton')
     unyt_quantity(242.63102371, 'me')
     """
+
     type_name = "compton"
-    _dims = (mass, length,)
+    _dims = (mass, length)
 
     def _convert(self, x, new_dims):
         from unyt import physical_constants as pc
-        return np.true_divide(pc.hmks/pc.clight, x, out=self._get_out(x))
+
+        return np.true_divide(pc.hmks / pc.clight, x, out=self._get_out(x))
 
     def __str__(self):
         return "compton: mass <-> length"
@@ -474,18 +489,22 @@ class EffectiveTemperatureEquivalence(Equivalence):
     >>> (100.*W/m**2).to_equivalent('K', 'effective_temperature')
     unyt_quantity(204.92601414, 'K')
     """
+
     type_name = "effective_temperature"
-    _dims = (flux, temperature,)
+    _dims = (flux, temperature)
 
     def _convert(self, x, new_dims):
         from unyt import physical_constants as pc
+
         if new_dims == flux:
             x4 = np.power(x, 4, out=self._get_out(x))
             return np.multiply(
-                pc.stefan_boltzmann_constant_mks, x4, out=self._get_out(x))
+                pc.stefan_boltzmann_constant_mks, x4, out=self._get_out(x)
+            )
         elif new_dims == temperature:
             T4 = np.true_divide(
-                x, pc.stefan_boltzmann_constant_mks, out=self._get_out(x))
+                x, pc.stefan_boltzmann_constant_mks, out=self._get_out(x)
+            )
             return np.power(T4, 0.25, out=self._get_out(x))
 
     def __str__(self):

@@ -33,8 +33,16 @@ luminous_intensity = Symbol("(luminous_intensity)", positive=True)
 dimensionless = sympify(1)
 
 #: A list of all of the base dimensions
-base_dimensions = [mass, length, time, temperature, angle, current_mks,
-                   dimensionless, luminous_intensity]
+base_dimensions = [
+    mass,
+    length,
+    time,
+    temperature,
+    angle,
+    current_mks,
+    dimensionless,
+    luminous_intensity,
+]
 
 #
 # Derived dimensions
@@ -53,15 +61,15 @@ solid_angle = angle * angle
 #: velocity
 velocity = length / time
 #: acceleration
-acceleration = length / time**2
+acceleration = length / time ** 2
 #: jerk
-jerk = length / time**3
+jerk = length / time ** 3
 #: snap
-snap = length / time**4
+snap = length / time ** 4
 #: crackle
-crackle = length / time**5
+crackle = length / time ** 5
 #: pop
-pop = length / time**6
+pop = length / time ** 6
 
 #: area
 area = length * length
@@ -82,17 +90,17 @@ flux = power / area
 #: specific_flux
 specific_flux = flux / rate
 #: number_density
-number_density = 1/(length*length*length)
+number_density = 1 / (length * length * length)
 #: density
 density = mass * number_density
 #: angular_momentum
-angular_momentum = mass*length*velocity
+angular_momentum = mass * length * velocity
 #: specific_angular_momentum
 specific_angular_momentum = angular_momentum / mass
 #: specific_energy
 specific_energy = energy / mass
 #: count_flux
-count_flux = 1 / (area*time)
+count_flux = 1 / (area * time)
 #: count_intensity
 count_intensity = count_flux / solid_angle
 #: luminous_flux
@@ -102,11 +110,11 @@ luminance = luminous_intensity / area
 
 # Gaussian electromagnetic units
 #: charge_cgs
-charge_cgs = (energy * length)**Rational(1, 2)  # proper 1/2 power
+charge_cgs = (energy * length) ** Rational(1, 2)  # proper 1/2 power
 #: current_cgs
 current_cgs = charge_cgs / time
 #: electric_field_cgs
-electric_field_cgs = charge_cgs / length**2
+electric_field_cgs = charge_cgs / length ** 2
 #: magnetic_field_cgs
 magnetic_field_cgs = electric_field_cgs
 #: electric_potential_cgs
@@ -134,13 +142,39 @@ magnetic_flux = magnetic_flux_mks = magnetic_field_mks * area
 
 #: a list containing all derived_dimensions
 derived_dimensions = [
-    rate, velocity, acceleration, jerk, snap, crackle, pop,
-    momentum, force, energy, power, charge_cgs, electric_field_cgs,
-    magnetic_field_cgs, solid_angle, flux, specific_flux, volume,
-    luminous_flux, area, current_cgs, charge_mks, electric_field_mks,
-    magnetic_field_mks, electric_potential_cgs, electric_potential_mks,
-    resistance_cgs, resistance_mks, magnetic_flux_mks, magnetic_flux_cgs,
-    luminance, spatial_frequency]
+    rate,
+    velocity,
+    acceleration,
+    jerk,
+    snap,
+    crackle,
+    pop,
+    momentum,
+    force,
+    energy,
+    power,
+    charge_cgs,
+    electric_field_cgs,
+    magnetic_field_cgs,
+    solid_angle,
+    flux,
+    specific_flux,
+    volume,
+    luminous_flux,
+    area,
+    current_cgs,
+    charge_mks,
+    electric_field_mks,
+    magnetic_field_mks,
+    electric_potential_cgs,
+    electric_potential_mks,
+    resistance_cgs,
+    resistance_mks,
+    magnetic_flux_mks,
+    magnetic_flux_cgs,
+    luminance,
+    spatial_frequency,
+]
 
 
 #: a list containing all dimensions
@@ -148,12 +182,14 @@ dimensions = base_dimensions + derived_dimensions
 
 #: a dict containing a bidirectional mapping from
 #: mks dimension to cgs dimension
-em_dimensions = {magnetic_field_mks: magnetic_field_cgs,
-                 magnetic_flux_mks: magnetic_flux_cgs,
-                 charge_mks: charge_cgs,
-                 current_mks: current_cgs,
-                 electric_potential_mks: electric_potential_cgs,
-                 resistance_mks: resistance_cgs}
+em_dimensions = {
+    magnetic_field_mks: magnetic_field_cgs,
+    magnetic_flux_mks: magnetic_flux_cgs,
+    charge_mks: charge_cgs,
+    current_mks: current_cgs,
+    electric_potential_mks: electric_potential_cgs,
+    resistance_mks: resistance_cgs,
+}
 
 for k, v in list(em_dimensions.items()):
     em_dimensions[v] = k
