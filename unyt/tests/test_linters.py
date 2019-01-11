@@ -33,7 +33,7 @@ def test_black():
         stderr=subprocess.PIPE,
     )
     output = p.communicate()
-    if p.returncode and "No module named black" not in output[1]:
+    if p.returncode and b"No module named black" not in output[1]:
         raise AssertionError(
             "Black would make code changes, please run black and commit those changes. "
             "Output from black was:\n%s\n%s" % (output[0].decode(), output[1].decode())
