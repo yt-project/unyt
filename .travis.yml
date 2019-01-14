@@ -30,11 +30,10 @@ before_install:
   - export PATH="$HOME/.pyenv/bin:$PATH"
   - eval "$(pyenv init -)"
   - pyenv install -s 2.7.15
-  - pyenv install -s 3.4.8
   - pyenv install -s 3.5.5
   - pyenv install -s 3.6.5
-  - pyenv install -s 3.7.0
-  - pyenv local 2.7.15 3.4.8 3.5.5 3.6.5 3.7.0
+  - pyenv install -s 3.7.1
+  - pyenv local 2.7.15 3.5.5 3.6.5 3.7.1
   - |
       if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         brew install python
