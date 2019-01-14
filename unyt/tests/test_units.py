@@ -20,7 +20,7 @@ from numpy.testing import (
     assert_almost_equal,
     assert_allclose,
     assert_array_almost_equal_nulp,
-    assert_equal
+    assert_equal,
 )
 import operator
 import pytest
@@ -38,30 +38,19 @@ from unyt.dimensions import (
     magnetic_field_cgs,
     magnetic_field_mks,
     power,
-    rate
+    rate,
 )
-from unyt.exceptions import (
-    InvalidUnitOperation,
-    UnitsNotReducible,
-    UnitConversionError,
-)
-from unyt.unit_object import (
-    default_unit_registry,
-    Unit,
-    UnitParseError,
-)
+from unyt.exceptions import InvalidUnitOperation, UnitsNotReducible, UnitConversionError
+from unyt.unit_object import default_unit_registry, Unit, UnitParseError
 from unyt.unit_systems import UnitSystem
-from unyt._unit_lookup_table import (
-    default_unit_symbol_lut,
-    unit_prefixes
-)
+from unyt._unit_lookup_table import default_unit_symbol_lut, unit_prefixes
 import unyt.unit_symbols as unit_symbols
 from unyt._physical_ratios import (
     m_per_pc,
     sec_per_year,
     m_per_km,
     m_per_mpc,
-    mass_sun_kg
+    mass_sun_kg,
 )
 
 
@@ -82,8 +71,7 @@ def test_no_conflicting_symbols():
             new_symbol = "%s%s" % (prefix, symbol)
 
             # test if we have seen this symbol
-            assert new_symbol not in full_set, ("Duplicate symbol: %s" %
-                                                new_symbol)
+            assert new_symbol not in full_set, "Duplicate symbol: %s" % new_symbol
 
             full_set.add(new_symbol)
 
@@ -99,8 +87,8 @@ def test_dimensionless():
     assert u1.expr == 1
     assert u1.base_value == 1
     assert u1.dimensions == 1
-    assert u1 != 'hello!'
-    assert (u1 == 'hello') is False
+    assert u1 != "hello!"
+    assert (u1 == "hello") is False
 
     u2 = Unit("")
 
@@ -109,8 +97,8 @@ def test_dimensionless():
     assert u2.base_value == 1
     assert u2.dimensions == 1
 
-    assert_equal(u1.latex_repr, '')
-    assert_equal(u2.latex_repr, '')
+    assert_equal(u1.latex_repr, "")
+    assert_equal(u2.latex_repr, "")
 
 
 def test_create_from_string():
@@ -145,23 +133,24 @@ def test_create_from_string():
 
     # nonzero CGS conversion factor
     u6 = Unit("Msun/pc**3")
-    assert u6.dimensions == mass/length**3
-    assert_array_almost_equal_nulp(np.array([u6.base_value]),
-                                   np.array([mass_sun_kg/m_per_pc**3]))
+    assert u6.dimensions == mass / length ** 3
+    assert_array_almost_equal_nulp(
+        np.array([u6.base_value]), np.array([mass_sun_kg / m_per_pc ** 3])
+    )
 
     with pytest.raises(UnitParseError):
-        Unit('m**m')
+        Unit("m**m")
     with pytest.raises(UnitParseError):
-        Unit('m**g')
+        Unit("m**g")
     with pytest.raises(UnitParseError):
-        Unit('m+g')
+        Unit("m+g")
     with pytest.raises(UnitParseError):
-        Unit('m-g')
+        Unit("m-g")
     with pytest.raises(UnitParseError):
-        Unit('hello!')
+        Unit("hello!")
 
-    cm = Unit('cm')
-    data = 1*cm
+    cm = Unit("cm")
+    data = 1 * cm
 
     assert Unit(data) == cm
 
@@ -180,7 +169,7 @@ def test_create_from_expr():
     # Mul expr
     s3 = s1 * s2
     # Pow expr
-    s4 = s1**2 * s2**(-1)
+    s4 = s1 ** 2 * s2 ** (-1)
 
     u1 = Unit(s1)
     u2 = Unit(s2)
@@ -195,12 +184,12 @@ def test_create_from_expr():
     assert_allclose_units(u1.base_value, pc_mks, 1e-12)
     assert_allclose_units(u2.base_value, yr_mks, 1e-12)
     assert_allclose_units(u3.base_value, pc_mks * yr_mks, 1e-12)
-    assert_allclose_units(u4.base_value, pc_mks**2 / yr_mks, 1e-12)
+    assert_allclose_units(u4.base_value, pc_mks ** 2 / yr_mks, 1e-12)
 
     assert u1.dimensions == length
     assert u2.dimensions == time
     assert u3.dimensions == length * time
-    assert u4.dimensions == length**2 / time
+    assert u4.dimensions == length ** 2 / time
 
 
 def test_create_with_duplicate_dimensions():
@@ -226,32 +215,32 @@ def test_create_new_symbol():
     Create unit with unknown symbol.
 
     """
-    u1 = Unit("abc", base_value=42, dimensions=(mass/time))
+    u1 = Unit("abc", base_value=42, dimensions=(mass / time))
 
     assert u1.expr == Symbol("abc", positive=True)
     assert u1.base_value == 42
     assert u1.dimensions == mass / time
 
-    u1 = Unit("abc", base_value=42, dimensions=length**3)
+    u1 = Unit("abc", base_value=42, dimensions=length ** 3)
 
     assert u1.expr == Symbol("abc", positive=True)
     assert u1.base_value == 42
-    assert u1.dimensions == length**3
+    assert u1.dimensions == length ** 3
 
-    u1 = Unit("abc", base_value=42, dimensions=length*(mass*length))
+    u1 = Unit("abc", base_value=42, dimensions=length * (mass * length))
 
     assert u1.expr == Symbol("abc", positive=True)
     assert u1.base_value == 42
-    assert u1.dimensions == length**2*mass
+    assert u1.dimensions == length ** 2 * mass
 
     with pytest.raises(UnitParseError):
-        Unit('abc', base_value=42, dimensions=length**length)
+        Unit("abc", base_value=42, dimensions=length ** length)
     with pytest.raises(UnitParseError):
-        Unit('abc', base_value=42, dimensions=length**(length*length))
+        Unit("abc", base_value=42, dimensions=length ** (length * length))
     with pytest.raises(UnitParseError):
-        Unit('abc', base_value=42, dimensions=length-mass)
+        Unit("abc", base_value=42, dimensions=length - mass)
     with pytest.raises(UnitParseError):
-        Unit('abc', base_value=42, dimensions=length+mass)
+        Unit("abc", base_value=42, dimensions=length + mass)
 
 
 def test_create_fail_on_unknown_symbol():
@@ -297,7 +286,7 @@ def test_create_fail_on_base_value_type():
 
     """
     with pytest.raises(UnitParseError):
-        Unit("a", base_value="a", dimensions=(mass/time))
+        Unit("a", base_value="a", dimensions=(mass / time))
 
 
 def test_string_representation():
@@ -348,9 +337,9 @@ def test_multiplication():
 
     u6 = u4 * u5
 
-    assert u6.expr == pc_sym**2 * msun_sym * s_sym
-    assert_allclose_units(u6.base_value, pc_mks**2 * msun_mks, 1e-12)
-    assert u6.dimensions == length**2 * mass * time
+    assert u6.expr == pc_sym ** 2 * msun_sym * s_sym
+    assert_allclose_units(u6.base_value, pc_mks ** 2 * msun_mks, 1e-12)
+    assert u6.dimensions == length ** 2 * mass * time
 
 
 def test_division():
@@ -386,19 +375,20 @@ def test_power():
 
     pc_mks = m_per_pc
     mK_mks = 1e-3
-    u1_dims = mass * length**2 * time**-3 * temperature**4
+    u1_dims = mass * length ** 2 * time ** -3 * temperature ** 4
     u1 = Unit("kg * pc**2 * s**-3 * mK**4")
 
-    u2 = u1**2
+    u2 = u1 ** 2
 
-    assert u2.dimensions == u1_dims**2
-    assert_allclose_units(u2.base_value, (pc_mks**2 * mK_mks**4)**2, 1e-12)
+    assert u2.dimensions == u1_dims ** 2
+    assert_allclose_units(u2.base_value, (pc_mks ** 2 * mK_mks ** 4) ** 2, 1e-12)
 
-    u3 = u1**(-1.0/3)
+    u3 = u1 ** (-1.0 / 3)
 
-    assert u3.dimensions == nsimplify(u1_dims**(-1.0/3))
-    assert_allclose_units(u3.base_value, (pc_mks**2 * mK_mks**4)**(-1.0/3),
-                          1e-12)
+    assert u3.dimensions == nsimplify(u1_dims ** (-1.0 / 3))
+    assert_allclose_units(
+        u3.base_value, (pc_mks ** 2 * mK_mks ** 4) ** (-1.0 / 3), 1e-12
+    )
 
 
 def test_equality():
@@ -414,33 +404,33 @@ def test_equality():
 
 
 def test_invalid_operations():
-    u1 = Unit('cm')
-    u2 = Unit('m')
+    u1 = Unit("cm")
+    u2 = Unit("m")
 
     with pytest.raises(InvalidUnitOperation):
-        u1+u2
+        u1 + u2
     with pytest.raises(InvalidUnitOperation):
         u1 += u2
     with pytest.raises(InvalidUnitOperation):
-        1+u1
+        1 + u1
     with pytest.raises(InvalidUnitOperation):
-        u1+1
+        u1 + 1
     with pytest.raises(InvalidUnitOperation):
-        u1-u2
+        u1 - u2
     with pytest.raises(InvalidUnitOperation):
         u1 -= u2
     with pytest.raises(InvalidUnitOperation):
-        1-u1
+        1 - u1
     with pytest.raises(InvalidUnitOperation):
-        u1-1
+        u1 - 1
     with pytest.raises(InvalidUnitOperation):
         u1 *= u2
     with pytest.raises(InvalidUnitOperation):
-        u1*'hello!'
+        u1 * "hello!"
     with pytest.raises(InvalidUnitOperation):
         u1 /= u2
     with pytest.raises(InvalidUnitOperation):
-        u1/'hello!'
+        u1 / "hello!"
 
 
 def test_base_equivalent():
@@ -458,29 +448,30 @@ def test_base_equivalent():
     assert u2.expr == u3.expr
     assert u2 == u3
 
-    assert_allclose_units(u1.base_value, Msun_mks / Mpc_mks**3, 1e-12)
+    assert_allclose_units(u1.base_value, Msun_mks / Mpc_mks ** 3, 1e-12)
     assert u2.base_value == 1
     assert u3.base_value == 1
 
-    mass_density = mass / length**3
+    mass_density = mass / length ** 3
 
     assert u1.dimensions == mass_density
     assert u2.dimensions == mass_density
     assert u3.dimensions == mass_density
 
-    assert_allclose_units(u1.get_conversion_factor(u3)[0],
-                          Msun_mks / Mpc_mks**3, 1e-12)
+    assert_allclose_units(
+        u1.get_conversion_factor(u3)[0], Msun_mks / Mpc_mks ** 3, 1e-12
+    )
 
     with pytest.raises(UnitConversionError):
-        u1.get_conversion_factor(Unit('m'))
+        u1.get_conversion_factor(Unit("m"))
 
     with pytest.raises(UnitConversionError):
-        u1.get_conversion_factor(Unit('degF'))
+        u1.get_conversion_factor(Unit("degF"))
 
 
 def test_temperature_offsets():
-    u1 = Unit('degC')
-    u2 = Unit('degF')
+    u1 = Unit("degC")
+    u2 = Unit("degF")
 
     with pytest.raises(InvalidUnitOperation):
         operator.mul(u1, u2)
@@ -492,24 +483,29 @@ def test_latex_repr():
     registry = UnitRegistry()
 
     # create a fake comoving unit
-    registry.add('pccm', registry.lut['pc'][0]/(1+2), length,
-                 "\\rm{pc}/(1+z)", prefixable=True)
+    registry.add(
+        "pccm",
+        registry.lut["pc"][0] / (1 + 2),
+        length,
+        "\\rm{pc}/(1+z)",
+        prefixable=True,
+    )
 
-    test_unit = Unit('Mpccm', registry=registry)
-    assert_almost_equal(test_unit.base_value, m_per_mpc/3)
-    assert_equal(test_unit.latex_repr, r'\rm{Mpc}/(1+z)')
+    test_unit = Unit("Mpccm", registry=registry)
+    assert_almost_equal(test_unit.base_value, m_per_mpc / 3)
+    assert_equal(test_unit.latex_repr, r"\rm{Mpc}/(1+z)")
 
-    test_unit = Unit('cm**-3', base_value=1.0, registry=registry)
-    assert_equal(test_unit.latex_repr, '\\frac{1}{\\rm{cm}^{3}}')
+    test_unit = Unit("cm**-3", base_value=1.0, registry=registry)
+    assert_equal(test_unit.latex_repr, "\\frac{1}{\\rm{cm}^{3}}")
 
-    test_unit = Unit('m_geom/l_geom**3')
-    assert_equal(test_unit.latex_repr, '\\frac{1}{M_\\odot^{2}}')
+    test_unit = Unit("m_geom/l_geom**3")
+    assert_equal(test_unit.latex_repr, "\\frac{1}{M_\\odot^{2}}")
 
-    test_unit = Unit('1e9*cm')
-    assert_equal(test_unit.latex_repr, '1.0 \\times 10^{9}\\ \\rm{cm}')
+    test_unit = Unit("1e9*cm")
+    assert_equal(test_unit.latex_repr, "1.0 \\times 10^{9}\\ \\rm{cm}")
 
-    test_unit = Unit('1.0*cm')
-    assert_equal(test_unit.latex_repr, '\\rm{cm}')
+    test_unit = Unit("1.0*cm")
+    assert_equal(test_unit.latex_repr, "\\rm{cm}")
 
 
 def test_latitude_longitude():
@@ -517,21 +513,21 @@ def test_latitude_longitude():
     lon = unit_symbols.lon
     deg = unit_symbols.deg
     assert_equal(lat.units.base_offset, 90.0)
-    assert_equal((deg*90.0).in_units("lat").value, 0.0)
-    assert_equal((deg*180).in_units("lat").value, -90.0)
-    assert_equal((lat*0.0).in_units("deg"), deg*90.0)
-    assert_equal((lat*-90).in_units("deg"), deg*180)
+    assert_equal((deg * 90.0).in_units("lat").value, 0.0)
+    assert_equal((deg * 180).in_units("lat").value, -90.0)
+    assert_equal((lat * 0.0).in_units("deg"), deg * 90.0)
+    assert_equal((lat * -90).in_units("deg"), deg * 180)
 
     assert_equal(lon.units.base_offset, -180.0)
-    assert_equal((deg*0.0).in_units("lon").value, -180.0)
-    assert_equal((deg*90.0).in_units("lon").value, -90.0)
-    assert_equal((deg*180).in_units("lon").value, 0.0)
-    assert_equal((deg*360).in_units("lon").value, 180.0)
+    assert_equal((deg * 0.0).in_units("lon").value, -180.0)
+    assert_equal((deg * 90.0).in_units("lon").value, -90.0)
+    assert_equal((deg * 180).in_units("lon").value, 0.0)
+    assert_equal((deg * 360).in_units("lon").value, 180.0)
 
-    assert_equal((lon*-180.0).in_units("deg"), deg*0.0)
-    assert_equal((lon*-90.0).in_units("deg"), deg*90.0)
-    assert_equal((lon*0.0).in_units("deg"), deg*180.0)
-    assert_equal((lon*180.0).in_units("deg"), deg*360)
+    assert_equal((lon * -180.0).in_units("deg"), deg * 0.0)
+    assert_equal((lon * -90.0).in_units("deg"), deg * 90.0)
+    assert_equal((lon * 0.0).in_units("deg"), deg * 180.0)
+    assert_equal((lon * 180.0).in_units("deg"), deg * 360)
 
 
 def test_registry_json():
@@ -544,81 +540,81 @@ def test_registry_json():
 
 def test_creation_from_ytarray():
     u1 = Unit(electrostatic_unit)
-    assert_equal(str(u1), 'esu')
-    assert_equal(u1, Unit('esu'))
+    assert_equal(str(u1), "esu")
+    assert_equal(u1, Unit("esu"))
     assert_equal(u1, electrostatic_unit.units)
 
     u2 = Unit(elementary_charge_cgs)
-    assert_equal(str(u2), '4.8032056e-10*esu')
-    assert_equal(u2, Unit('4.8032056e-10*esu'))
+    assert_equal(str(u2), "4.8032056e-10*esu")
+    assert_equal(u2, Unit("4.8032056e-10*esu"))
     assert_equal(u1, elementary_charge_cgs.units)
 
-    assert_allclose((u1/u2).base_value,
-                    electrostatic_unit/elementary_charge_cgs)
+    assert_allclose((u1 / u2).base_value, electrostatic_unit / elementary_charge_cgs)
 
     with pytest.raises(UnitParseError):
-        Unit([1, 2, 3]*elementary_charge_cgs)
+        Unit([1, 2, 3] * elementary_charge_cgs)
 
 
 def test_list_same_dimensions():
     from unyt import m
+
     reg = default_unit_registry
     for equiv in reg.list_same_dimensions(m):
         assert Unit(equiv).dimensions is length
 
 
 def test_decagram():
-    dag = Unit('dag')
-    g = Unit('g')
+    dag = Unit("dag")
+    g = Unit("g")
     assert dag.get_conversion_factor(g) == (10.0, None)
 
 
 def test_pickle():
-    cm = Unit('cm')
+    cm = Unit("cm")
     assert cm == pickle.loads(pickle.dumps(cm))
 
 
 def test_preserve_offset():
     from unyt import degF, dimensionless
 
-    new_unit = degF*dimensionless
+    new_unit = degF * dimensionless
 
     assert new_unit is not degF
     assert new_unit == degF
     assert new_unit.base_offset == degF.base_offset
 
-    new_unit = degF/dimensionless
+    new_unit = degF / dimensionless
 
     assert new_unit is not degF
     assert new_unit == degF
     assert new_unit.base_offset == degF.base_offset
 
     with pytest.raises(InvalidUnitOperation):
-        dimensionless/degF
+        dimensionless / degF
 
 
 def test_code_unit():
     from unyt import UnitRegistry
 
     ureg = UnitRegistry()
-    ureg.add('code_length', 10., length)
-    ureg.add('code_magnetic_field', 2.0, magnetic_field_mks)
-    u = Unit('code_length', registry=ureg)
+    ureg.add("code_length", 10.0, length)
+    ureg.add("code_magnetic_field", 2.0, magnetic_field_mks)
+    u = Unit("code_length", registry=ureg)
     assert u.is_code_unit is True
-    assert u.get_base_equivalent() == Unit('m')
-    u = Unit('cm')
+    assert u.get_base_equivalent() == Unit("m")
+    u = Unit("cm")
     assert u.is_code_unit is False
 
-    u = Unit('code_magnetic_field', registry=ureg)
-    assert u.get_base_equivalent('mks') == Unit('T')
-    assert u.get_base_equivalent('cgs') == Unit('gauss')
+    u = Unit("code_magnetic_field", registry=ureg)
+    assert u.get_base_equivalent("mks") == Unit("T")
+    assert u.get_base_equivalent("cgs") == Unit("gauss")
 
-    UnitSystem(ureg.unit_system_id, 'code_length', 'kg', 's', registry=ureg)
+    UnitSystem(ureg.unit_system_id, "code_length", "kg", "s", registry=ureg)
 
-    u = Unit('cm', registry=ureg)
-    ue = u.get_base_equivalent('code')
+    u = Unit("cm", registry=ureg)
+    ue = u.get_base_equivalent("code")
 
-    assert str(ue) == 'code_length'
+    assert str(ue) == "code_length"
     assert ue.base_value == 10
     assert ue.dimensions is length
 
@@ -627,31 +623,31 @@ def test_code_unit():
 
     ds = FakeDataset()
 
-    UnitSystem(ds, 'code_length', 'kg', 's', registry=ureg)
+    UnitSystem(ds, "code_length", "kg", "s", registry=ureg)
 
-    u = Unit('cm', registry=ureg)
+    u = Unit("cm", registry=ureg)
     ue = u.get_base_equivalent(ds)
 
-    assert str(ue) == 'code_length'
+    assert str(ue) == "code_length"
     assert ue.base_value == 10
     assert ue.dimensions is length
 
     with pytest.raises(UnitParseError):
-        Unit('code_length')
+        Unit("code_length")
 
 
 def test_bad_equivalence():
     from unyt import cm
 
     with pytest.raises(KeyError):
-        cm.has_equivalent('dne')
+        cm.has_equivalent("dne")
 
 
 def test_em_unit_base_equivalent():
     from unyt import A, cm
 
     with pytest.raises(UnitsNotReducible):
-        (A/cm).get_base_equivalent('cgs')
+        (A / cm).get_base_equivalent("cgs")
 
 
 def test_symbol_lut_length():

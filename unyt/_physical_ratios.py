@@ -1,4 +1,5 @@
 import numpy as np
+
 #
 # Physical Constants and Units Conversion Factors
 #
@@ -13,7 +14,7 @@ import numpy as np
 mass_electron_kg = 9.10938291e-31
 amu_kg = 1.660538921e-27
 amu_grams = amu_kg * 1.0e3
-mass_hydrogen_kg = 1.007947*amu_kg
+mass_hydrogen_kg = 1.007947 * amu_kg
 
 # Solar values (see Mamajek 2012)
 # https://sites.google.com/site/mamajeksstarnotes/bc-scale
@@ -95,9 +96,9 @@ standard_gravity_m_per_s2 = 9.80665
 newton_mks = 6.67384e-11
 planck_mks = 6.62606957e-34
 # permeability of Free Space
-mu_0 = 4.0e-7*np.pi
+mu_0 = 4.0e-7 * np.pi
 # permittivity of Free Space
-eps_0 = 1.0/(speed_of_light_m_per_s**2*mu_0)
+eps_0 = 1.0 / (speed_of_light_m_per_s ** 2 * mu_0)
 
 # temperature / energy
 boltzmann_constant_J_per_K = 1.3806488e-23
@@ -109,7 +110,7 @@ K_per_keV = J_per_keV / boltzmann_constant_J_per_K
 keV_per_K = 1.0 / K_per_keV
 keV_per_erg = 1.0 / erg_per_keV
 eV_per_erg = 1.0 / erg_per_eV
-kelvin_per_rankine = 5./9.
+kelvin_per_rankine = 5.0 / 9.0
 watt_per_horsepower = 745.69987158227022
 erg_per_s_per_watt = 1e7
 
@@ -144,14 +145,13 @@ HUGE = 1.0e90
 TINY = 1.0e-40
 
 # Planck units
-hbar_mks = 0.5*planck_mks/np.pi
-planck_mass_kg = np.sqrt(hbar_mks*speed_of_light_m_per_s/newton_mks)
-planck_length_m = np.sqrt(hbar_mks*newton_mks/speed_of_light_m_per_s**3)
+hbar_mks = 0.5 * planck_mks / np.pi
+planck_mass_kg = np.sqrt(hbar_mks * speed_of_light_m_per_s / newton_mks)
+planck_length_m = np.sqrt(hbar_mks * newton_mks / speed_of_light_m_per_s ** 3)
 planck_time_s = planck_length_m / speed_of_light_m_per_s
-planck_energy_J = (planck_mass_kg * speed_of_light_m_per_s *
-                   speed_of_light_m_per_s)
+planck_energy_J = planck_mass_kg * speed_of_light_m_per_s * speed_of_light_m_per_s
 planck_temperature_K = planck_energy_J / boltzmann_constant_J_per_K
-planck_charge_C = np.sqrt(4.0*np.pi*eps_0*hbar_mks*speed_of_light_m_per_s)
+planck_charge_C = np.sqrt(4.0 * np.pi * eps_0 * hbar_mks * speed_of_light_m_per_s)
 
 # Imperial and other non-metric units
 kg_per_pound = 0.45359237

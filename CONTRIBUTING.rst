@@ -91,15 +91,17 @@ Ready to contribute? Here's how to set up ``unyt`` for local development.
 
    Now you can make your changes locally.
 
-5. When you're done making changes, check that your changes pass flake8 and the
-   tests, including testing other Python versions with tox::
+5. When you're done making changes, check that your changes pass flake8, format
+   the code with black, and run the tests, including testing several Python
+   versions with tox::
 
     $ flake8 unyt
+    $ black ./
     $ pytest --doctest-modules --doctest-rst --doctest-plus
     $ tox
 
-   To get flake8, pytest, pytest-doctestplus, and tox, just pip install them
-   into your virtualenv.
+   To get ``flake8``, ``black``, ``pytest``, ``pytest-doctestplus``, and
+   ``tox``, just pip install them into your virtualenv.
 
 6. Commit your changes and push your branch to GitHub::
 
@@ -118,7 +120,9 @@ the ``unyt`` repository, simply run ``pytest`` in the root of the repository::
    $ cd unyt/
    $ py.test --doctest-modules --doctest-rst --doctest-plus
 
-You will need to install ``pytest`` and ``pytest-doctestplus`` from ``pip`` to run this command. Some tests depend on ``h5py``, ``Pint``, ``astropy``, and ``flake8`` being installed.
+You will need to install ``pytest`` and ``pytest-doctestplus`` from ``pip`` to
+run this command. Some tests depend on ``h5py``, ``Pint``, ``astropy``,
+``black``, and ``flake8`` being installed.
 
 If you would like to run the tests on multiple python versions, first ensure that you have multiple python versions visible on your ``$PATH``, then simply execute ``tox`` in the root of the ``unyt`` repository::
 

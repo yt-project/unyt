@@ -14,6 +14,7 @@ A class that represents a unit symbol.
 
 
 import copy
+
 try:
     from functools import lru_cache
 except ImportError:
@@ -35,18 +36,11 @@ from sympy import (
     Float,
     Basic,
     Rational,
-    sqrt
+    sqrt,
 )
 from sympy.core.numbers import One
-from sympy import (
-    sympify,
-    latex
-)
-from sympy.parsing.sympy_parser import (
-    parse_expr,
-    auto_number,
-    rationalize
-)
+from sympy import sympify, latex
+from sympy.parsing.sympy_parser import parse_expr, auto_number, rationalize
 
 from unyt.dimensions import (
     angle,
@@ -76,16 +70,17 @@ from unyt.unit_registry import (
 sympy_one = sympify(1)
 
 global_dict = {
-    'Symbol': Symbol,
-    'Integer': Integer,
-    'Float': Float,
-    'Rational': Rational,
-    'sqrt': sqrt
+    "Symbol": Symbol,
+    "Integer": Integer,
+    "Float": Float,
+    "Rational": Rational,
+    "sqrt": sqrt,
 }
 
 
 def _sanitize_unit_system(unit_system, obj):
     from unyt.unit_systems import unit_system_registry
+
     if hasattr(unit_system, "unit_registry"):
         unit_system = unit_system.unit_registry.unit_system_id
     elif unit_system == "code":
@@ -109,14 +104,20 @@ def _auto_positive_symbol(tokens, local_dict, global_dict):
         if tokNum == token.NAME:
             name = tokVal
 
-            if (name in ['True', 'False', 'None']
+            if (
+                name in ["True", "False", "None"]
                 or _iskeyword(name)
                 or name in local_dict
                 # Don't convert attribute access
-                or (prevTok[0] == token.OP and prevTok[1] == '.')
+                or (prevTok[0] == token.OP and prevTok[1] == ".")
                 # Don't convert keyword arguments
-                or (prevTok[0] == token.OP and prevTok[1] in ('(', ',')
-                    and nextTokNum == token.OP and nextTokVal == '=')):
+                or (
+                    prevTok[0] == token.OP
+                    and prevTok[1] in ("(", ",")
+                    and nextTokNum == token.OP
+                    and nextTokVal == "="
+                )
+            ):
                 result.append((token.NAME, name))
                 continue
             elif name in global_dict:
@@ -125,16 +126,18 @@ def _auto_positive_symbol(tokens, local_dict, global_dict):
                     result.append((token.NAME, name))
                     continue
 
-            result.extend([
-                (token.NAME, 'Symbol'),
-                (token.OP, '('),
-                (token.NAME, repr(str(name))),
-                (token.OP, ','),
-                (token.NAME, 'positive'),
-                (token.OP, '='),
-                (token.NAME, 'True'),
-                (token.OP, ')'),
-            ])
+            result.extend(
+                [
+                    (token.NAME, "Symbol"),
+                    (token.OP, "("),
+                    (token.NAME, repr(str(name))),
+                    (token.OP, ","),
+                    (token.NAME, "positive"),
+                    (token.OP, "="),
+                    (token.NAME, "True"),
+                    (token.OP, ")"),
+                ]
+            )
         else:
             result.append((tokNum, tokVal))
 
@@ -149,7 +152,7 @@ def _get_latex_representation(expr, registry):
         try:
             symbol_table[ex] = registry.lut[str(ex)][3]
         except KeyError:
-            symbol_table[ex] = r"\rm{" + str(ex).replace('_', r'\ ') + "}"
+            symbol_table[ex] = r"\rm{" + str(ex).replace("_", r"\ ") + "}"
 
     # invert the symbol table dict to look for keys with identical values
     invert_symbols = {}
@@ -174,14 +177,19 @@ def _get_latex_representation(expr, registry):
         else:
             l_expr = coeffs[1]
             prefix = Float(coeffs[0], 2)
-    latex_repr = latex(l_expr, symbol_names=symbol_table, mul_symbol="dot",
-                       fold_frac_powers=True, fold_short_frac=True)
+    latex_repr = latex(
+        l_expr,
+        symbol_names=symbol_table,
+        mul_symbol="dot",
+        fold_frac_powers=True,
+        fold_short_frac=True,
+    )
 
     if prefix is not None:
-        latex_repr = latex(prefix, mul_symbol="times") + '\\ ' + latex_repr
+        latex_repr = latex(prefix, mul_symbol="times") + "\\ " + latex_repr
 
-    if latex_repr == '1':
-        return ''
+    if latex_repr == "1":
+        return ""
     else:
         return latex_repr
 
@@ -197,7 +205,7 @@ class Unit(object):
     """
 
     # Set some assumptions for sympy.
-    is_positive = True    # make sqrt(m**2) --> m
+    is_positive = True  # make sqrt(m**2) --> m
     is_commutative = True
     is_number = False
 
@@ -207,8 +215,15 @@ class Unit(object):
 
     __array_priority__ = 3.0
 
-    def __new__(cls, unit_expr=sympy_one, base_value=None, base_offset=0.0,
-                dimensions=None, registry=None, latex_repr=None):
+    def __new__(
+        cls,
+        unit_expr=sympy_one,
+        base_value=None,
+        base_offset=0.0,
+        dimensions=None,
+        registry=None,
+        latex_repr=None,
+    ):
         """
         Create a new unit. May be an atomic unit (like a gram) or combinations
         of atomic units (like g / cm**3).
@@ -247,36 +262,43 @@ class Unit(object):
                 # if unit_expr is an empty string, parse_expr fails hard...
                 unit_expr = "1"
             try:
-                unit_expr = parse_expr(unit_expr, global_dict=global_dict,
-                                       transformations=unit_text_transform)
+                unit_expr = parse_expr(
+                    unit_expr,
+                    global_dict=global_dict,
+                    transformations=unit_text_transform,
+                )
             except SyntaxError as e:
-                msg = ("Unit expression '%s' raised an error "
-                       "during parsing:\n%s" % (unit_expr, repr(e)))
+                msg = "Unit expression '%s' raised an error " "during parsing:\n%s" % (
+                    unit_expr,
+                    repr(e),
+                )
                 raise UnitParseError(msg)
         # Simplest case. If user passes a Unit object, just use the expr.
         elif isinstance(unit_expr, Unit):
             # grab the unit object's sympy expression.
             unit_expr = unit_expr.expr
-        elif hasattr(unit_expr, 'units') and hasattr(unit_expr, 'value'):
+        elif hasattr(unit_expr, "units") and hasattr(unit_expr, "value"):
             # something that looks like a unyt_array, grab the unit and value
             if unit_expr.shape != ():
                 raise UnitParseError(
-                    'Cannot create a unit from a non-scalar unyt_array, '
-                    'received: %s' % (unit_expr, ))
+                    "Cannot create a unit from a non-scalar unyt_array, "
+                    "received: %s" % (unit_expr,)
+                )
             value = unit_expr.value
             if value == 1:
                 unit_expr = unit_expr.units.expr
             else:
-                unit_expr = unit_expr.value*unit_expr.units.expr
+                unit_expr = unit_expr.value * unit_expr.units.expr
         # Make sure we have an Expr at this point.
         if not isinstance(unit_expr, Expr):
-            raise UnitParseError("Unit representation must be a string or "
-                                 "sympy Expr. '%s' has type '%s'."
-                                 % (unit_expr, type(unit_expr)))
+            raise UnitParseError(
+                "Unit representation must be a string or "
+                "sympy Expr. '%s' has type '%s'." % (unit_expr, type(unit_expr))
+            )
 
         # this is slightly faster if unit_expr is the same object as
         # sympy_one than just checking for == equality
-        is_one = (unit_expr is sympy_one or unit_expr == sympy_one)
+        is_one = unit_expr is sympy_one or unit_expr == sympy_one
         if dimensions is None and is_one:
             dimensions = dimensionless
 
@@ -300,9 +322,10 @@ class Unit(object):
             try:
                 base_value = float(base_value)
             except ValueError:
-                raise UnitParseError("Could not use base_value as a float. "
-                                     "base_value is '%s' (type '%s')."
-                                     % (base_value, type(base_value)))
+                raise UnitParseError(
+                    "Could not use base_value as a float. "
+                    "base_value is '%s' (type '%s')." % (base_value, type(base_value))
+                )
 
             # check that dimensions is valid
             if dimensions is not None:
@@ -390,32 +413,35 @@ class Unit(object):
         raise InvalidUnitOperation("addition with unit objects is not allowed")
 
     def __sub__(self, u):
-        raise InvalidUnitOperation(
-            "subtraction with unit objects is not allowed")
+        raise InvalidUnitOperation("subtraction with unit objects is not allowed")
 
     def __rsub__(self, u):
-        raise InvalidUnitOperation(
-            "subtraction with unit objects is not allowed")
+        raise InvalidUnitOperation("subtraction with unit objects is not allowed")
 
     def __iadd__(self, u):
         raise InvalidUnitOperation(
-            "in-place operations with unit objects are not allowed")
+            "in-place operations with unit objects are not allowed"
+        )
 
     def __isub__(self, u):
         raise InvalidUnitOperation(
-            "in-place operations with unit objects are not allowed")
+            "in-place operations with unit objects are not allowed"
+        )
 
     def __imul__(self, u):
         raise InvalidUnitOperation(
-            "in-place operations with unit objects are not allowed")
+            "in-place operations with unit objects are not allowed"
+        )
 
     def __idiv__(self, u):
         raise InvalidUnitOperation(
-            "in-place operations with unit objects are not allowed")
+            "in-place operations with unit objects are not allowed"
+        )
 
     def __itruediv__(self, u):
         raise InvalidUnitOperation(
-            "in-place operations with unit objects are not allowed")
+            "in-place operations with unit objects are not allowed"
+        )
 
     def __rmul__(self, u):
         return self.__mul__(u)
@@ -425,57 +451,64 @@ class Unit(object):
         if self._ua is None:
             # cache the imported object to avoid cost of repeated imports
             from unyt.array import unyt_quantity, unyt_array
+
             self._ua = unyt_array
             self._uq = unyt_quantity
         if not isinstance(u, Unit):
             cls = type(u)
-            if ((cls in (np.ndarray, np.matrix, np.ma.masked_array) or
-                 isinstance(u, (numeric_type, list, tuple)))):
+            if cls in (np.ndarray, np.matrix, np.ma.masked_array) or isinstance(
+                u, (numeric_type, list, tuple)
+            ):
                 try:
-                    units = u.units*self
+                    units = u.units * self
                 except AttributeError:
                     units = self
                 data = np.array(u)
-                if data.dtype.kind not in ('f', 'u', 'i', 'c'):
+                if data.dtype.kind not in ("f", "u", "i", "c"):
                     raise UnitDtypeError(data, data.dtype)
                 if data.shape == ():
                     return self._uq(data, units, bypass_validation=True)
                 return self._ua(data, units, bypass_validation=True)
             elif isinstance(u, self._ua):
-                return cls(u, u.units*self, bypass_validation=True)
+                return cls(u, u.units * self, bypass_validation=True)
             else:
                 raise InvalidUnitOperation(
                     "Tried to multiply a Unit object with '%s' (type %s). "
-                    "This behavior is undefined." % (u, type(u)))
+                    "This behavior is undefined." % (u, type(u))
+                )
 
         base_offset = 0.0
         if self.base_offset or u.base_offset:
             if u.dimensions in (temperature, angle) and self.is_dimensionless:
                 base_offset = u.base_offset
-            elif (self.dimensions in (temperature, angle) and
-                  u.is_dimensionless):
+            elif self.dimensions in (temperature, angle) and u.is_dimensionless:
                 base_offset = self.base_offset
             else:
                 raise InvalidUnitOperation(
                     "Quantities with dimensions of angle or units of "
-                    "Fahrenheit or Celsius cannot be multiplied.")
+                    "Fahrenheit or Celsius cannot be multiplied."
+                )
 
-        return Unit(self.expr * u.expr,
-                    base_value=(self.base_value * u.base_value),
-                    base_offset=base_offset,
-                    dimensions=(self.dimensions * u.dimensions),
-                    registry=self.registry)
+        return Unit(
+            self.expr * u.expr,
+            base_value=(self.base_value * u.base_value),
+            base_offset=base_offset,
+            dimensions=(self.dimensions * u.dimensions),
+            registry=self.registry,
+        )
 
     def __div__(self, u):
         """ Divide Unit by u (Unit object). """
         if not isinstance(u, Unit):
             if isinstance(u, (numeric_type, list, tuple, np.ndarray)):
                 from unyt.array import unyt_quantity
-                return unyt_quantity(1.0, self)/u
+
+                return unyt_quantity(1.0, self) / u
             else:
                 raise InvalidUnitOperation(
                     "Tried to divide a Unit object by '%s' (type %s). This "
-                    "behavior is undefined." % (u, type(u)))
+                    "behavior is undefined." % (u, type(u))
+                )
 
         base_offset = 0.0
         if self.base_offset or u.base_offset:
@@ -484,41 +517,48 @@ class Unit(object):
             else:
                 raise InvalidUnitOperation(
                     "Quantities with units of Farhenheit "
-                    "and Celsius cannot be divided.")
+                    "and Celsius cannot be divided."
+                )
 
-        return Unit(self.expr / u.expr,
-                    base_value=(self.base_value / u.base_value),
-                    base_offset=base_offset,
-                    dimensions=(self.dimensions / u.dimensions),
-                    registry=self.registry)
+        return Unit(
+            self.expr / u.expr,
+            base_value=(self.base_value / u.base_value),
+            base_offset=base_offset,
+            dimensions=(self.dimensions / u.dimensions),
+            registry=self.registry,
+        )
 
     __truediv__ = __div__
 
     def __rdiv__(self, u):
-        return u * self**-1
+        return u * self ** -1
 
     def __rtruediv__(self, u):
-        return u * self**-1
+        return u * self ** -1
 
     def __pow__(self, p):
         """ Take Unit to power p (float). """
         try:
             p = Rational(str(p)).limit_denominator()
         except (ValueError, TypeError):
-            raise InvalidUnitOperation("Tried to take a Unit object to the "
-                                       "power '%s' (type %s). Failed to cast "
-                                       "it to a float." % (p, type(p)))
+            raise InvalidUnitOperation(
+                "Tried to take a Unit object to the "
+                "power '%s' (type %s). Failed to cast "
+                "it to a float." % (p, type(p))
+            )
 
-        return Unit(self.expr**p, base_value=(self.base_value**p),
-                    dimensions=(self.dimensions**p),
-                    registry=self.registry)
+        return Unit(
+            self.expr ** p,
+            base_value=(self.base_value ** p),
+            dimensions=(self.dimensions ** p),
+            registry=self.registry,
+        )
 
     def __eq__(self, u):
         """ Test unit equality. """
         if not isinstance(u, Unit):
             return False
-        return (self.base_value == u.base_value and
-                self.dimensions == u.dimensions)
+        return self.base_value == u.base_value and self.dimensions == u.dimensions
 
     def __ne__(self, u):
         """ Test unit inequality. """
@@ -609,6 +649,7 @@ class Unit(object):
         compton: mass <-> length
         """
         from unyt.equivalencies import equivalence_registry
+
         for k, v in equivalence_registry.items():
             if self.has_equivalent(k):
                 print(v())
@@ -628,7 +669,7 @@ class Unit(object):
         try:
             this_equiv = equivalence_registry[equiv]()
         except KeyError:
-            raise KeyError("No such equivalence \"%s\"." % equiv)
+            raise KeyError('No such equivalence "%s".' % equiv)
         old_dims = self.dimensions
         return old_dims in this_equiv._dims
 
@@ -644,12 +685,12 @@ class Unit(object):
         unit_system = _sanitize_unit_system(unit_system, self)
         try:
             conv_data = _check_em_conversion(
-                self.units, registry=self.registry, unit_system=unit_system)
+                self.units, registry=self.registry, unit_system=unit_system
+            )
         except MKSCGSConversionError:
             raise UnitsNotReducible(self.units, unit_system)
         if any(conv_data):
-            new_units, _ = _em_conversion(
-                self, conv_data, unit_system=unit_system)
+            new_units, _ = _em_conversion(self, conv_data, unit_system=unit_system)
         else:
             new_units = unit_system[self.dimensions]
         return Unit(new_units, registry=self.registry)
@@ -716,6 +757,7 @@ class Unit(object):
         """
         return self.latex_repr
 
+
 #
 # Unit manipulation functions
 #
@@ -725,22 +767,32 @@ class Unit(object):
 # canonical unit to convert to in that system, and floating point
 # conversion factor
 em_conversions = {
-    dims.charge_mks: (dims.charge_cgs, "esu", 0.1*speed_of_light_cm_per_s),
-    dims.charge_cgs: (dims.charge_mks, "C", 10.0/speed_of_light_cm_per_s),
+    dims.charge_mks: (dims.charge_cgs, "esu", 0.1 * speed_of_light_cm_per_s),
+    dims.charge_cgs: (dims.charge_mks, "C", 10.0 / speed_of_light_cm_per_s),
     dims.magnetic_field_mks: (dims.magnetic_field_cgs, "gauss", 1.0e4),
     dims.magnetic_field_cgs: (dims.magnetic_field_mks, "T", 1.0e-4),
-    dims.current_mks: (
-        dims.current_cgs, "statA", 0.1*speed_of_light_cm_per_s),
-    dims.current_cgs: (dims.current_mks, "A", 10.0/speed_of_light_cm_per_s),
+    dims.current_mks: (dims.current_cgs, "statA", 0.1 * speed_of_light_cm_per_s),
+    dims.current_cgs: (dims.current_mks, "A", 10.0 / speed_of_light_cm_per_s),
     dims.electric_potential_mks: (
-        dims.electric_potential_cgs, "statV",
-        1.0e-8*speed_of_light_cm_per_s),
+        dims.electric_potential_cgs,
+        "statV",
+        1.0e-8 * speed_of_light_cm_per_s,
+    ),
     dims.electric_potential_cgs: (
-        dims.electric_potential_mks, "V", 1.0e8/speed_of_light_cm_per_s),
+        dims.electric_potential_mks,
+        "V",
+        1.0e8 / speed_of_light_cm_per_s,
+    ),
     dims.resistance_mks: (
-        dims.resistance_cgs, "statohm", 1.0e9/(speed_of_light_cm_per_s**2)),
+        dims.resistance_cgs,
+        "statohm",
+        1.0e9 / (speed_of_light_cm_per_s ** 2),
+    ),
     dims.resistance_cgs: (
-        dims.resistance_mks, "ohm", 1.0e-9*speed_of_light_cm_per_s**2)
+        dims.resistance_mks,
+        "ohm",
+        1.0e-9 * speed_of_light_cm_per_s ** 2,
+    ),
 }
 
 
@@ -757,12 +809,12 @@ def _em_conversion(orig_units, conv_data, to_units=None, unit_system=None):
     if conv_unit is None:
         conv_unit = canonical_unit
     new_expr = orig_units.copy().expr.replace(
-        orig_units.expr, scale*canonical_unit.expr)
+        orig_units.expr, scale * canonical_unit.expr
+    )
     if unit_system is not None:
         # we don't know the to_units, so we get it directly from the
         # conv_data
-        inter_expr = orig_units.copy().expr.replace(
-            orig_units.expr, conv_unit.expr)
+        inter_expr = orig_units.copy().expr.replace(orig_units.expr, conv_unit.expr)
         to_units = Unit(inter_expr, registry=orig_units.registry)
     new_units = Unit(new_expr, registry=orig_units.registry)
     conv = new_units.get_conversion_factor(to_units)
@@ -770,8 +822,7 @@ def _em_conversion(orig_units, conv_data, to_units=None, unit_system=None):
 
 
 @lru_cache(maxsize=128, typed=False)
-def _check_em_conversion(unit, to_unit=None, unit_system=None,
-                         registry=None):
+def _check_em_conversion(unit, to_unit=None, unit_system=None, registry=None):
     """Check to see if the units contain E&M units
 
     This function supports unyt's ability to convert data to and from E&M
@@ -807,7 +858,8 @@ def _check_em_conversion(unit, to_unit=None, unit_system=None,
             raise MKSCGSConversionError(unit)
         else:
             from unyt.unit_systems import unit_system_registry
-            unit_system = unit_system_registry['mks']
+
+            unit_system = unit_system_registry["mks"]
     for unit_atom in unit.expr.atoms():
         if unit_atom.is_Number:
             continue
@@ -854,15 +906,17 @@ def _get_conversion_factor(old_units, new_units, dtype):
 
     """
     if old_units.dimensions != new_units.dimensions:
-        raise UnitConversionError(old_units, old_units.dimensions,
-                                  new_units, new_units.dimensions)
+        raise UnitConversionError(
+            old_units, old_units.dimensions, new_units, new_units.dimensions
+        )
     ratio = old_units.base_value / new_units.base_value
     if old_units.base_offset == 0 and new_units.base_offset == 0:
         return (ratio, None)
     else:
         # the dimensions are the same, so both are temperatures, where
         # it's legal to convert units so no need to do error checking
-        return ratio, ratio*old_units.base_offset - new_units.base_offset
+        return ratio, ratio * old_units.base_offset - new_units.base_offset
+
 
 #
 # Helper functions
@@ -891,13 +945,12 @@ def _get_unit_data_from_expr(unit_expr, unit_symbol_lut):
         return _lookup_unit_symbol(str(unit_expr), unit_symbol_lut)
 
     if isinstance(unit_expr, Pow):
-        unit_data = _get_unit_data_from_expr(
-            unit_expr.args[0], unit_symbol_lut)
+        unit_data = _get_unit_data_from_expr(unit_expr.args[0], unit_symbol_lut)
         power = unit_expr.args[1]
         if isinstance(power, Symbol):
             raise UnitParseError("Invalid unit expression '%s'." % unit_expr)
-        conv = float(unit_data[0]**power)
-        unit = unit_data[1]**power
+        conv = float(unit_data[0] ** power)
+        unit = unit_data[1] ** power
         return (conv, unit)
 
     if isinstance(unit_expr, Mul):
@@ -910,9 +963,11 @@ def _get_unit_data_from_expr(unit_expr, unit_symbol_lut):
 
         return (float(base_value), dimensions)
 
-    raise UnitParseError("Cannot parse for unit data from '%s'. Please supply"
-                         " an expression of only Unit, Symbol, Pow, and Mul"
-                         "objects." % str(unit_expr))
+    raise UnitParseError(
+        "Cannot parse for unit data from '%s'. Please supply"
+        " an expression of only Unit, Symbol, Pow, and Mul"
+        "objects." % str(unit_expr)
+    )
 
 
 def _validate_dimensions(dimensions):
@@ -921,20 +976,25 @@ def _validate_dimensions(dimensions):
             _validate_dimensions(dim)
     elif isinstance(dimensions, Symbol):
         if dimensions not in base_dimensions:
-            raise UnitParseError("Dimensionality expression contains an "
-                                 "unknown symbol '%s'." % dimensions)
+            raise UnitParseError(
+                "Dimensionality expression contains an "
+                "unknown symbol '%s'." % dimensions
+            )
     elif isinstance(dimensions, Pow):
         if not isinstance(dimensions.args[1], Number):
-            raise UnitParseError("Dimensionality expression '%s' contains a "
-                                 "unit symbol as a power." % dimensions)
+            raise UnitParseError(
+                "Dimensionality expression '%s' contains a "
+                "unit symbol as a power." % dimensions
+            )
     elif isinstance(dimensions, (Add, Number)):
         if not isinstance(dimensions, One):
-            raise UnitParseError("Only dimensions that are instances of Pow, "
-                                 "Mul, or symbols in the base dimensions are "
-                                 "allowed.  Got dimensions '%s'" % dimensions)
+            raise UnitParseError(
+                "Only dimensions that are instances of Pow, "
+                "Mul, or symbols in the base dimensions are "
+                "allowed.  Got dimensions '%s'" % dimensions
+            )
     elif not isinstance(dimensions, Basic):
-        raise UnitParseError("Bad dimensionality expression '%s'." %
-                             dimensions)
+        raise UnitParseError("Bad dimensionality expression '%s'." % dimensions)
 
 
 def _get_system_unit_string(dimensions, base_units):
@@ -957,8 +1017,9 @@ def _get_system_unit_string(dimensions, base_units):
     return " * ".join(units)
 
 
-def define_unit(symbol, value, tex_repr=None, offset=None, prefixable=False,
-                registry=None):
+def define_unit(
+    symbol, value, tex_repr=None, offset=None, prefixable=False, registry=None
+):
     """
     Define a new unit and add it to the default unit registry.
 
@@ -996,22 +1057,30 @@ def define_unit(symbol, value, tex_repr=None, offset=None, prefixable=False,
     """
     from unyt.array import unyt_quantity, _iterable
     import unyt
+
     if registry is None:
         registry = default_unit_registry
     if symbol in registry:
         raise RuntimeError(
-            "Unit symbol '%s' already exists in the provided "
-            "registry" % symbol)
+            "Unit symbol '%s' already exists in the provided " "registry" % symbol
+        )
     if not isinstance(value, unyt_quantity):
         if _iterable(value) and len(value) == 2:
             value = unyt_quantity(value[0], value[1])
         else:
-            raise RuntimeError("\"value\" needs to be a quantity or "
-                               "(value, unit) tuple!")
-    base_value = float(value.in_base(unit_system='mks'))
+            raise RuntimeError(
+                '"value" needs to be a quantity or ' "(value, unit) tuple!"
+            )
+    base_value = float(value.in_base(unit_system="mks"))
     dimensions = value.units.dimensions
-    registry.add(symbol, base_value, dimensions, prefixable=prefixable,
-                 tex_repr=tex_repr, offset=offset)
+    registry.add(
+        symbol,
+        base_value,
+        dimensions,
+        prefixable=prefixable,
+        tex_repr=tex_repr,
+        offset=offset,
+    )
     if registry is default_unit_registry:
         u = Unit(symbol, registry=registry)
         setattr(unyt, symbol, u)

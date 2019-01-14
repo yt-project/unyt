@@ -14,14 +14,8 @@ Unit system class.
 from collections import OrderedDict
 from six import string_types
 from unyt import dimensions
-from unyt.exceptions import (
-    MissingMKSCurrent,
-    IllDefinedUnitSystem
-)
-from unyt.unit_object import (
-    Unit,
-    _get_system_unit_string
-)
+from unyt.exceptions import MissingMKSCurrent, IllDefinedUnitSystem
+from unyt.unit_object import Unit, _get_system_unit_string
 
 unit_system_registry = {}
 
@@ -59,32 +53,54 @@ class UnitSystem(object):
         The unit registry associated with this unit system. Only
         useful for defining unit systems based on code units.
     """
-    def __init__(self, name, length_unit, mass_unit, time_unit,
-                 temperature_unit="K", angle_unit="rad",
-                 current_mks_unit="A", luminous_intensity_unit="cd",
-                 registry=None):
+
+    def __init__(
+        self,
+        name,
+        length_unit,
+        mass_unit,
+        time_unit,
+        temperature_unit="K",
+        angle_unit="rad",
+        current_mks_unit="A",
+        luminous_intensity_unit="cd",
+        registry=None,
+    ):
         self.registry = registry
         if current_mks_unit is not None:
-            current_mks_unit = Unit(current_mks_unit,
-                                    registry=self.registry)
-        self.units_map = OrderedDict([
-            (dimensions.length, Unit(length_unit, registry=self.registry)),
-            (dimensions.mass, Unit(mass_unit, registry=self.registry)),
-            (dimensions.time, Unit(time_unit, registry=self.registry)),
-            (dimensions.temperature, Unit(
-                temperature_unit, registry=self.registry)),
-            (dimensions.angle, Unit(angle_unit, registry=self.registry)),
-            (dimensions.current_mks, current_mks_unit),
-            (dimensions.luminous_intensity, Unit(
-                luminous_intensity_unit, registry=self.registry))])
+            current_mks_unit = Unit(current_mks_unit, registry=self.registry)
+        self.units_map = OrderedDict(
+            [
+                (dimensions.length, Unit(length_unit, registry=self.registry)),
+                (dimensions.mass, Unit(mass_unit, registry=self.registry)),
+                (dimensions.time, Unit(time_unit, registry=self.registry)),
+                (
+                    dimensions.temperature,
+                    Unit(temperature_unit, registry=self.registry),
+                ),
+                (dimensions.angle, Unit(angle_unit, registry=self.registry)),
+                (dimensions.current_mks, current_mks_unit),
+                (
+                    dimensions.luminous_intensity,
+                    Unit(luminous_intensity_unit, registry=self.registry),
+                ),
+            ]
+        )
         for dimension, unit in self.units_map.items():
             # CGS sets the current_mks unit to none, so catch it here
             if unit is None:
                 continue
             if unit.dimensions is not dimension:
                 raise IllDefinedUnitSystem(self.units_map)
-        self._dims = ["length", "mass", "time", "temperature", "angle",
-                      "current_mks", "luminous_intensity"]
+        self._dims = [
+            "length",
+            "mass",
+            "time",
+            "temperature",
+            "angle",
+            "current_mks",
+            "luminous_intensity",
+        ]
         self.registry = registry
         self.base_units = self.units_map.copy()
         unit_system_registry[name] = self
@@ -118,8 +134,7 @@ class UnitSystem(object):
         repr += " Base Units:\n"
         for dim in self.base_units:
             if self.base_units[dim] is not None:
-                repr += "  %s: %s\n" % (
-                    str(dim).strip("()"), self.base_units[dim])
+                repr += "  %s: %s\n" % (str(dim).strip("()"), self.base_units[dim])
         repr += " Other Units:\n"
         for key in self._dims:
             dim = getattr(dimensions, key)
@@ -156,8 +171,7 @@ mks_unit_system["magnetic_flux"] = "Wb"
 mks_unit_system["luminous_flux"] = "lx"
 
 #: The imperial unit system
-imperial_unit_system = UnitSystem("imperial", "ft", "lb", "s",
-                                  temperature_unit="R")
+imperial_unit_system = UnitSystem("imperial", "ft", "lb", "s", temperature_unit="R")
 imperial_unit_system["force"] = "lbf"
 imperial_unit_system["energy"] = "ft*lbf"
 imperial_unit_system["pressure"] = "lbf/ft**2"
@@ -172,11 +186,11 @@ galactic_unit_system["magnetic_field_cgs"] = "uG"
 solar_unit_system = UnitSystem("solar", "AU", "Mearth", "yr")
 
 #: Geometrized unit system
-geometrized_unit_system = UnitSystem("geometrized", "l_geom",
-                                     "m_geom", "t_geom")
+geometrized_unit_system = UnitSystem("geometrized", "l_geom", "m_geom", "t_geom")
 
 #: Planck unit system
-planck_unit_system = UnitSystem("planck", "l_pl", "m_pl", "t_pl",
-                                temperature_unit="T_pl")
+planck_unit_system = UnitSystem(
+    "planck", "l_pl", "m_pl", "t_pl", temperature_unit="T_pl"
+)
 planck_unit_system["energy"] = "E_pl"
 planck_unit_system["charge_mks"] = "q_pl"

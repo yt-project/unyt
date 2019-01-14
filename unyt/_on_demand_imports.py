@@ -17,11 +17,13 @@ class NotAModule(object):
     someone tries to use an on-demand import without having the requisite
     package installed.
     """
+
     def __init__(self, pkg_name):
         self.pkg_name = pkg_name
         self.error = ImportError(
             "This functionality requires the %s "
-            "package to be installed." % self.pkg_name)
+            "package to be installed." % self.pkg_name
+        )
 
     def __getattr__(self, item):
         raise self.error
@@ -41,6 +43,7 @@ class astropy_imports(object):
         if self._log is None:
             try:
                 from astropy import log
+
                 if log.exception_logging_enabled():
                     log.disable_exception_logging()
             except ImportError:
@@ -53,6 +56,7 @@ class astropy_imports(object):
         if self._units is None:
             try:
                 from astropy import units
+
                 self.log
             except ImportError:
                 units = NotAModule(self._name)
@@ -64,6 +68,7 @@ class astropy_imports(object):
         if self._version is None:
             try:
                 import astropy
+
                 version = astropy.__version__
             except ImportError:
                 version = NotAModule(self._name)
@@ -94,6 +99,7 @@ class h5py_imports(object):
         if self._version is None:
             try:
                 from h5py import __version__
+
                 self._version = __version__
             except ImportError:
                 self._version = NotAModule(self._name)

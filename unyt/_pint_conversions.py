@@ -47,41 +47,41 @@ pint_aliases = {
 }
 
 pint_prefixes = {
-    'yotta': 'Y',
-    'zetta': 'Z',
-    'exa': 'E',
-    'peta': 'P',
-    'tera': 'T',
-    'giga': 'G',
-    'mega': 'M',
-    'kilo': 'k',
-    'deci': 'd',
-    'centi': 'c',
-    'milli': 'm',
-    'micro': 'u',
-    'nano': 'n',
-    'pico': 'p',
-    'femto': 'f',
-    'atto': 'a',
-    'zepto': 'z',
-    'yocto': 'y',
+    "yotta": "Y",
+    "zetta": "Z",
+    "exa": "E",
+    "peta": "P",
+    "tera": "T",
+    "giga": "G",
+    "mega": "M",
+    "kilo": "k",
+    "deci": "d",
+    "centi": "c",
+    "milli": "m",
+    "micro": "u",
+    "nano": "n",
+    "pico": "p",
+    "femto": "f",
+    "atto": "a",
+    "zepto": "z",
+    "yocto": "y",
 }
 
 
 def convert_pint_units(unit_expr):
     uexpr = unit_expr
-    pfx = ''
+    pfx = ""
     for prefix in pint_prefixes:
         if unit_expr.startswith(prefix):
             pfx = pint_prefixes[prefix]
-            uexpr = uexpr[len(prefix):]
+            uexpr = uexpr[len(prefix) :]
             break
     if uexpr in pint_aliases:
         uexpr = pint_aliases[uexpr]
-        if pfx == '':
+        if pfx == "":
             return uexpr
         else:
-            return pfx+uexpr
+            return pfx + uexpr
     # If we can't figure it out just pass it and see
     # what happens
     return unit_expr
