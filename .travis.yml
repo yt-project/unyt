@@ -34,11 +34,6 @@ before_install:
   - pyenv install -s 3.6.5
   - pyenv install -s 3.7.1
   - pyenv local 2.7.15 3.5.5 3.6.5 3.7.1
-  - |
-      if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-        brew install python
-        brew link --overwrite python
-      fi
   - pip install tox tox-pyenv codecov
 
 # Command to run tests, e.g. python setup.py test
