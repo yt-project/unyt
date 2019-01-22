@@ -268,11 +268,11 @@ Products and quotients of unit objects will not be simplified unless
 ``simplify()`` is called explicitly. However, products and quotients of arrays
 and quantities will be simplified to make interactive work more intuitive::
 
-  >>> from unyt import Watt, minute, hour
-  >>> power = [20, 40, 80] * Watt / minute
+  >>> from unyt import erg, minute, hour
+  >>> power = [20, 40, 80] * erg / minute
   >>> elapsed_time = 3*hour
   >>> print(power*elapsed_time)
-  [ 3600.  7200. 14400.] W
+  [ 3600.  7200. 14400.] erg
 
 Unit Conversions and Unit Systems
 +++++++++++++++++++++++++++++++++
