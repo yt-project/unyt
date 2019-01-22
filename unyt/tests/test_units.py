@@ -653,3 +653,25 @@ def test_em_unit_base_equivalent():
 def test_symbol_lut_length():
     for v in default_unit_symbol_lut.values():
         assert len(v) == 5
+
+
+def test_simplify():
+    import unyt as u
+
+    answers = {
+        u.Hz * u.s: "dimensionless",
+        u.kg / u.g: "1000",
+        u.Hz * u.s * u.km: "km",
+        u.kHz * u.s: "1000",
+        u.kHz * u.s * u.km: "1000*km",
+        u.kHz * u.s ** 2: "1000*s",
+        u.kHz * u.s ** 2 * u.km: "1000*km*s",
+        u.Hz ** -1 * u.s: "s/Hz",
+        u.Hz ** -1 * u.s * u.km: "km*s/Hz",
+        u.Hz ** 1.5 * u.s ** 1.7: "sqrt(Hz)*s**(7/10)",
+        u.Hz ** 1.5 * u.s ** 1.7 * u.km: "sqrt(Hz)*km*s**(7/10)",
+        u.m ** 2 / u.cm ** 2: "10000",
+    }
+
+    for unit, answer in answers.items():
+        assert str(unit.simplify()) == answer

@@ -83,16 +83,15 @@ end, days::
 
   >>> period = 2*pi*(semimajor_axis**3/(G*Mjup))**0.5
   >>> period
-  unyt_array([2.64196224e-12, 5.30291672e-12, 1.06837107e-11,
-              2.49212918e-11], 'AU**(3/2)*s/m**(3/2)')
+  unyt_array([ 152867.34547843,  306833.60667034,  618173.2944961 ,
+                1441978.11592457], 's')
   >>> period.to('d')
   unyt_array([ 1.76929798,  3.55131489,  7.1547835 , 16.68956153], 'd')
 
 Note that we haven't added any conversion factors between different units,
-that's all handled internally by :mod:`unyt`. Also note how the intermediate
-result ended up with complicated, ugly units, but the :meth:`unyt_array.to
-<unyt.array.unyt_array.to>` method was able to automagically handle the
-conversion to days.
+that's all handled internally by :mod:`unyt`. Also note how the
+:meth:`unyt_array.to <unyt.array.unyt_array.to>` method was able to
+automagically handle the conversion from seconds to days.
 
 It's also worth emphasizing that :mod:`unyt` represents powers using standard
 python syntax. This means you must use `**` and not `^`, even when writing a
@@ -229,13 +228,51 @@ controlled identically to numpy arrays, using ``numpy.setprintoptions``:
   [1.1235] km
   >>> np.set_printoptions(precision=8)
 
-Print a :math:`\rm{\LaTeX}` representation of a set of units using the :meth:`unyt.unit_object.Unit.latex_representation` function or :attr:`unyt.unit_object.Unit.latex_repr` attribute:
+Print a :math:`\rm{\LaTeX}` representation of a set of units using the
+:meth:`unyt.unit_object.Unit.latex_representation` function or
+:attr:`unyt.unit_object.Unit.latex_repr` attribute:
 
   >>> from unyt import g, cm
   >>> (g/cm**3).units.latex_representation()
   '\\frac{\\rm{g}}{\\rm{cm}^{3}}'
   >>> (g/cm**3).units.latex_repr
   '\\frac{\\rm{g}}{\\rm{cm}^{3}}'
+
+
+Simplifying Units
+-----------------
+
+Unit expressions can often be simplified to cancel pairs of factors with
+compatible dimensions. For example, we can form a unit with dimensions of length
+by dividing a unit with dimensions of length squared by another unit with
+dimensions of length::
+
+  >>> from unyt import m, cm
+  >>> m**2/cm
+  m**2/cm
+
+The :class:`Unit <unyt.unit_object.Unit>` class has a :meth:`simplify()
+<unyt.unit_object.Unit.simplify>` method that we can call to create a new unit
+object to represent this dimensionless conversion factor::
+
+  >>> (m**2/cm).simplify()
+  100*m
+
+This will also work for units that are the reciprocals of each other, for example:
+
+  >>> from unyt import s, Hz
+  >>> (s*Hz).simplify()
+  (dimensionless)
+
+Products and quotients of unit objects will not be simplified unless
+``simplify()`` is called explicitly. However, products and quotients of arrays
+and quantities will be simplified to make interactive work more intuitive::
+
+  >>> from unyt import Watt, minute, hour
+  >>> power = [20, 40, 80] * Watt / minute
+  >>> elapsed_time = 3*hour
+  >>> print(power*elapsed_time)
+  [ 3600.  7200. 14400.] W
 
 Unit Conversions and Unit Systems
 +++++++++++++++++++++++++++++++++
