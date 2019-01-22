@@ -253,7 +253,8 @@ dimensions of length::
 
 The :class:`Unit <unyt.unit_object.Unit>` class has a :meth:`simplify()
 <unyt.unit_object.Unit.simplify>` method that we can call to create a new unit
-object to represent this dimensionless conversion factor::
+object to that includes the dimensionless ratio ``m/cm`` as a constant
+coefficient::
 
   >>> (m**2/cm).simplify()
   100*m
