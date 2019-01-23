@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Test symbolic unit handling.
 
@@ -24,6 +25,7 @@ from numpy.testing import (
 )
 import operator
 import pytest
+import sys
 from six.moves import cPickle as pickle
 from sympy import Symbol
 from unyt._testing import assert_allclose_units
@@ -675,3 +677,16 @@ def test_simplify():
 
     for unit, answer in answers.items():
         assert str(unit.simplify()) == answer
+
+
+@pytest.mark.skipif(sys.version_info < (3, 0, 0), reason="Feature requires python3")
+def test_micro_prefix():
+    import unyt as u
+
+    # both versions of unicode mu work correctly
+    assert u.um == getattr(u, "µm")
+    assert u.um == getattr(u, "μm")
+
+    # parsing both versions works as well
+    assert u.ug == u.Unit("µg")
+    assert u.ug == u.Unit("μg")

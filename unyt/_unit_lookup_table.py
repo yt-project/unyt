@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 The default unit symbol lookup table.
 
@@ -11,6 +12,8 @@ The default unit symbol lookup table.
 #
 # The full license is in the LICENSE file, distributed with this software.
 # -----------------------------------------------------------------------------
+
+import sys
 
 from unyt import dimensions
 from unyt._physical_ratios import (
@@ -275,6 +278,13 @@ unit_prefixes = {
     "z": 1e-21,  # zepto
     "y": 1e-24,  # yocto
 }
+
+if sys.version_info > (3, 0, 0):
+    #  'MICRO SIGN' (U+00B5)
+    unit_prefixes["µ"] = 1e-6  # micro
+    #  'GREEK SMALL LETTER MU' (U+03BC)
+    unit_prefixes["μ"] = 1e-6  # micro
+
 
 latex_prefixes = {"u": r"\mu"}
 
