@@ -505,7 +505,8 @@ class EffectiveTemperatureEquivalence(Equivalence):
             T4 = np.true_divide(
                 x, pc.stefan_boltzmann_constant_mks, out=self._get_out(x)
             )
-            return np.power(T4, 0.25, out=self._get_out(x))
+            ret = np.power(T4, 0.25, out=self._get_out(x))
+            return ret
 
     def __str__(self):
         return "effective_temperature: flux <-> temperature"

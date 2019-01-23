@@ -1039,7 +1039,7 @@ def binary_ufunc_comparison(ufunc, a, b):
     ret = ufunc(a, b)
 
     if ufunc is np.multiply:
-        assert ret.units == a.units * b.units
+        assert ret.units == (a.units * b.units).simplify().as_coeff_unit()[1]
     elif ufunc in (np.divide, np.true_divide, np.arctan2):
         assert ret.units.dimensions == (a.units / b.units).dimensions
     elif ufunc in (
@@ -1715,11 +1715,12 @@ def test_equivalencies():
     assert_allclose_units(T, F.in_units("K", equivalence="effective_temperature"))
     T.convert_to_units("erg/s/cm**2", "effective_temperature")
     assert_allclose_units(T, F)
-    assert T.units == unyt_quantity(1.0, "erg/cm**2/s").units
+    assert T.units == u.Unit("erg/cm**2/s")
     assert F.units == u.W / u.m ** 2
+    assert_almost_equal(T.in_units("K", "effective_temperature").value, 1e4)
     T.convert_to_units("K", "effective_temperature")
     assert_almost_equal(T.value, 1e4)
-    assert T.units == u.K.units
+    assert T.units == u.K
 
     # to_value test
 

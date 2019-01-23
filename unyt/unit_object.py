@@ -14,6 +14,7 @@ A class that represents a unit symbol.
 
 
 import copy
+import itertools
 
 try:
     from functools import lru_cache
@@ -37,6 +38,8 @@ from sympy import (
     Basic,
     Rational,
     sqrt,
+    Mod,
+    floor,
 )
 from sympy.core.numbers import One
 from sympy import sympify, latex
@@ -757,6 +760,94 @@ class Unit(object):
         """
         return self.latex_repr
 
+    def as_coeff_unit(self):
+        """Factor the coefficient multiplying a unit
+
+        For units that are multiplied by a constant dimensionless
+        coefficient, returns a tuple containing the coefficient and
+        a new unit object for the unmultiplied unit.
+
+        Example
+        -------
+
+        >>> import unyt as u
+        >>> unit = (u.m**2/u.cm).simplify()
+        >>> unit
+        100*m
+        >>> unit.as_coeff_unit()
+        (100.0, m)
+        """
+        coeff, mul = self.expr.as_coeff_Mul()
+        coeff = float(coeff)
+        ret = Unit(
+            mul,
+            self.base_value / coeff,
+            self.base_offset,
+            self.dimensions,
+            self.registry,
+        )
+        return coeff, ret
+
+    def simplify(self):
+        """Return a new equivalent unit object with a simplified unit expression
+
+        >>> import unyt as u
+        >>> unit = (u.m**2/u.cm).simplify()
+        >>> unit
+        100*m
+        """
+        expr = self.expr
+        self.expr = _cancel_mul(expr, self.registry)
+        return self
+
+
+def _factor_pairs(expr):
+    factors = expr.as_ordered_factors()
+    expanded_factors = []
+    for f in factors:
+        if f.is_Number:
+            continue
+        base, exp = f.as_base_exp()
+        if exp.q != 1:
+            expanded_factors.append(base ** Mod(exp, 1))
+            exp = floor(exp)
+        if exp >= 0:
+            f = (base,) * exp
+        else:
+            f = (1 / base,) * abs(exp)
+        expanded_factors.extend(f)
+    return list(itertools.combinations(expanded_factors, 2))
+
+
+def _create_unit_from_factor(factor, registry):
+    base, exp = factor.as_base_exp()
+    f = registry[str(base)]
+    return Unit(base, f[0], f[2], f[1], registry, f[3]) ** exp
+
+
+def _cancel_mul(expr, registry):
+    pairs_to_consider = _factor_pairs(expr)
+    uncancelable_pairs = set()
+    while len(pairs_to_consider):
+        pair = pairs_to_consider.pop()
+        if pair in uncancelable_pairs:
+            continue
+        u1 = _create_unit_from_factor(pair[0], registry)
+        u2 = _create_unit_from_factor(pair[1], registry)
+        prod = u1 * u2
+        if prod.dimensions == 1:
+            expr = expr / pair[0]
+            expr = expr / pair[1]
+            value = prod.base_value
+            if value != 1:
+                if value.is_integer():
+                    value = int(value)
+                expr *= value
+        else:
+            uncancelable_pairs.add(pair)
+        pairs_to_consider = _factor_pairs(expr)
+    return expr
+
 
 #
 # Unit manipulation functions
@@ -1084,3 +1175,6 @@ def define_unit(
     if registry is default_unit_registry:
         u = Unit(symbol, registry=registry)
         setattr(unyt, symbol, u)
+
+
+NULL_UNIT = Unit()

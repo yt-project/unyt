@@ -166,52 +166,54 @@ def _return_arr(func):
 
 @lru_cache(maxsize=128, typed=False)
 def _sqrt_unit(unit):
-    return unit ** 0.5
+    return 1, unit ** 0.5
 
 
 @lru_cache(maxsize=128, typed=False)
 def _multiply_units(unit1, unit2):
-    return unit1 * unit2
+    ret = (unit1 * unit2).simplify()
+    return ret.as_coeff_unit()
 
 
 def _preserve_units(unit1, unit2=None):
-    return unit1
+    return 1, unit1
 
 
 @lru_cache(maxsize=128, typed=False)
 def _power_unit(unit, power):
-    return unit ** power
+    return 1, unit ** power
 
 
 @lru_cache(maxsize=128, typed=False)
 def _square_unit(unit):
-    return unit * unit
+    return 1, unit * unit
 
 
 @lru_cache(maxsize=128, typed=False)
 def _divide_units(unit1, unit2):
-    return unit1 / unit2
+    ret = (unit1 / unit2).simplify()
+    return ret.as_coeff_unit()
 
 
 @lru_cache(maxsize=128, typed=False)
 def _reciprocal_unit(unit):
-    return unit ** -1
+    return 1, unit ** -1
 
 
 def _passthrough_unit(unit, unit2=None):
-    return unit
+    return 1, unit
 
 
 def _return_without_unit(unit, unit2=None):
-    return None
+    return 1, None
 
 
 def _arctan2_unit(unit1, unit2):
-    return NULL_UNIT
+    return 1, NULL_UNIT
 
 
 def _comparison_unit(unit1, unit2=None):
-    return None
+    return 1, None
 
 
 def _invert_units(unit):
@@ -1092,9 +1094,9 @@ class unyt_array(np.ndarray):
         >>> (1.0*km).has_equivalent('spectral')
         True
         >>> print((1*km).to_equivalent('MHz', equivalence='spectral'))
-        0.29979245800000004 MHz
+        0.299792458 MHz
         >>> print((1*keV).to_equivalent('angstrom', equivalence='spectral'))
-        12.398419315219659 angstrom
+        12.39841931521966 angstrom
         """
         return self.units.has_equivalent(equivalence)
 
@@ -1629,6 +1631,7 @@ class unyt_array(np.ndarray):
             if ufunc in (multiply, divide) and method == "reduce":
                 # a reduction of a multiply or divide corresponds to
                 # a repeated product which we implement as an exponent
+                mul = 1
                 power_sign = POWER_SIGN_MAPPING[ufunc]
                 if "axis" in kwargs and kwargs["axis"] is not None:
                     unit = u ** (power_sign * inp.shape[kwargs["axis"]])
@@ -1636,7 +1639,7 @@ class unyt_array(np.ndarray):
                     unit = u ** (power_sign * inp.size)
             else:
                 # get unit of result
-                unit = self._ufunc_registry[ufunc](u)
+                mul, unit = self._ufunc_registry[ufunc](u)
             # use type(self) here so we can support user-defined
             # subclasses of unyt_array
             ret_class = type(self)
@@ -1707,7 +1710,7 @@ class unyt_array(np.ndarray):
                         )
                     inp1 = np.asarray(inp1) * conv
             # get the unit of the result
-            unit = unit_operator(u0, u1)
+            mul, unit = unit_operator(u0, u1)
             # actually evaluate the ufunc
             out_arr = func(
                 inp0.view(np.ndarray), inp1.view(np.ndarray), out=out_func, **kwargs
@@ -1759,13 +1762,19 @@ class unyt_array(np.ndarray):
             else:
                 out_arr = ret_class(out_arr, unit, bypass_validation=True)
         if out is not None:
+            if mul != 1:
+                multiply(out, mul, out=out)
+                if np.shares_memory(out_arr, out):
+                    mul = 1
             if isinstance(out, unyt_array):
                 try:
                     out.units = out_arr.units
                 except AttributeError:
                     # out_arr is an ndarray
                     out.units = Unit("", registry=self.units.registry)
-        return out_arr
+        if mul == 1:
+            return out_arr
+        return mul * out_arr
 
     def copy(self, order="C"):
         """
