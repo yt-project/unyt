@@ -607,7 +607,18 @@ def test_code_unit():
 
     u = Unit("code_magnetic_field", registry=ureg)
     assert u.get_base_equivalent("mks") == Unit("T")
-    assert u.get_base_equivalent("cgs") == Unit("gauss")
+    with pytest.raises(UnitsNotReducible):
+        assert u.get_base_equivalent("cgs")
+
+    # see issue #60
+    u = Unit("s/m")
+    assert u.get_mks_equivalent() == Unit("s/m")
+    assert u.get_mks_equivalent() != Unit("ohm")
+    assert u.get_cgs_equivalent() == Unit("s/cm")
+
+    u = Unit("kC")
+    assert u.get_cgs_equivalent() == Unit("kesu")
+    assert u.get_cgs_equivalent().get_mks_equivalent() == u
 
     UnitSystem(ureg.unit_system_id, "code_length", "kg", "s", registry=ureg)
 

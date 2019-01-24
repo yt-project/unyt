@@ -246,6 +246,28 @@ class UnitRegistry:
         return equiv
 
 
+def _split_prefix(symbol_str, unit_symbol_lut):
+    possible_prefix = symbol_str[0]
+
+    if symbol_str[:2] == "da":
+        possible_prefix = "da"
+
+    if possible_prefix in unit_prefixes:
+        # the first character could be a prefix, check the rest of the symbol
+        symbol_wo_pref = symbol_str[1:]
+
+        # deca is the only prefix with length 2
+        if symbol_str[:2] == "da":
+            symbol_wo_pref = symbol_str[2:]
+            possible_prefix = "da"
+
+        prefixable_units = [u for u in unit_symbol_lut if unit_symbol_lut[u][4]]
+
+        if symbol_wo_pref in unit_symbol_lut and symbol_wo_pref in prefixable_units:
+            return possible_prefix, symbol_wo_pref
+    return "", symbol_str
+
+
 def _lookup_unit_symbol(symbol_str, unit_symbol_lut):
     """
     Searches for the unit data tuple corresponding to the given symbol.
@@ -263,62 +285,42 @@ def _lookup_unit_symbol(symbol_str, unit_symbol_lut):
         return unit_symbol_lut[symbol_str]
 
     # could still be a known symbol with a prefix
-    possible_prefix = symbol_str[0]
+    prefix, symbol_wo_prefix = _split_prefix(symbol_str, unit_symbol_lut)
 
-    if symbol_str[:2] == "da":
-        possible_prefix = "da"
+    if prefix:
+        # lookup successful, it's a symbol with a prefix
+        unit_data = unit_symbol_lut[symbol_wo_prefix]
+        prefix_value = unit_prefixes[prefix]
 
-    if possible_prefix in unit_prefixes:
-        # the first character could be a prefix, check the rest of the symbol
-        symbol_wo_pref = symbol_str[1:]
-
-        # deca is the only prefix with length 2
-        if symbol_str[:2] == "da":
-            symbol_wo_pref = symbol_str[2:]
-            possible_prefix = "da"
-
-        prefixable_units = [u for u in unit_symbol_lut if unit_symbol_lut[u][4]]
-
-        unit_is_si_prefixable = (
-            symbol_wo_pref in unit_symbol_lut and symbol_wo_pref in prefixable_units
-        )
-
-        if unit_is_si_prefixable is True:
-            # lookup successful, it's a symbol with a prefix
-            unit_data = unit_symbol_lut[symbol_wo_pref]
-            prefix_value = unit_prefixes[possible_prefix]
-
-            if possible_prefix in latex_prefixes:
-                latex_repr = symbol_str.replace(
-                    possible_prefix, "{" + latex_prefixes[possible_prefix] + "}"
-                )
+        if prefix in latex_prefixes:
+            latex_repr = symbol_str.replace(prefix, "{" + latex_prefixes[prefix] + "}")
+        else:
+            # Need to add some special handling for comoving units
+            # this is fine for now, but it wouldn't work for a general
+            # unit that has an arbitrary LaTeX representation
+            if symbol_wo_prefix != "cm" and symbol_wo_prefix.endswith("cm"):
+                sub_symbol_wo_prefix = symbol_wo_prefix[:-2]
+                sub_symbol_str = symbol_str[:-2]
             else:
-                # Need to add some special handling for comoving units
-                # this is fine for now, but it wouldn't work for a general
-                # unit that has an arbitrary LaTeX representation
-                if symbol_wo_pref != "cm" and symbol_wo_pref.endswith("cm"):
-                    sub_symbol_wo_prefix = symbol_wo_pref[:-2]
-                    sub_symbol_str = symbol_str[:-2]
-                else:
-                    sub_symbol_wo_prefix = symbol_wo_pref
-                    sub_symbol_str = symbol_str
-                latex_repr = unit_data[3].replace(
-                    "{" + sub_symbol_wo_prefix + "}", "{" + sub_symbol_str + "}"
-                )
-
-            # Leave offset and dimensions the same, but adjust scale factor and
-            # LaTeX representation
-            ret = (
-                unit_data[0] * prefix_value,
-                unit_data[1],
-                unit_data[2],
-                latex_repr,
-                False,
+                sub_symbol_wo_prefix = symbol_wo_prefix
+                sub_symbol_str = symbol_str
+            latex_repr = unit_data[3].replace(
+                "{" + sub_symbol_wo_prefix + "}", "{" + sub_symbol_str + "}"
             )
 
-            unit_symbol_lut[symbol_str] = ret
+        # Leave offset and dimensions the same, but adjust scale factor and
+        # LaTeX representation
+        ret = (
+            unit_data[0] * prefix_value,
+            unit_data[1],
+            unit_data[2],
+            latex_repr,
+            False,
+        )
 
-            return ret
+        unit_symbol_lut[symbol_str] = ret
+
+        return ret
 
     # no dice
     raise UnitParseError(
