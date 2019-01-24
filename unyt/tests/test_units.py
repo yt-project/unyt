@@ -607,7 +607,8 @@ def test_code_unit():
 
     u = Unit("code_magnetic_field", registry=ureg)
     assert u.get_base_equivalent("mks") == Unit("T")
-    assert u.get_base_equivalent("cgs") == Unit("gauss")
+    with pytest.raises(UnitsNotReducible):
+        assert u.get_base_equivalent("cgs")
 
     UnitSystem(ureg.unit_system_id, "code_length", "kg", "s", registry=ureg)
 

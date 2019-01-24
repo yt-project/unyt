@@ -858,28 +858,32 @@ def _cancel_mul(expr, registry):
 # canonical unit to convert to in that system, and floating point
 # conversion factor
 em_conversions = {
-    dims.charge_mks: (dims.charge_cgs, "esu", 0.1 * speed_of_light_cm_per_s),
-    dims.charge_cgs: (dims.charge_mks, "C", 10.0 / speed_of_light_cm_per_s),
-    dims.magnetic_field_mks: (dims.magnetic_field_cgs, "gauss", 1.0e4),
-    dims.magnetic_field_cgs: (dims.magnetic_field_mks, "T", 1.0e-4),
-    dims.current_mks: (dims.current_cgs, "statA", 0.1 * speed_of_light_cm_per_s),
-    dims.current_cgs: (dims.current_mks, "A", 10.0 / speed_of_light_cm_per_s),
-    dims.electric_potential_mks: (
+    ("C", dims.charge_mks): (dims.charge_cgs, "esu", 0.1 * speed_of_light_cm_per_s),
+    ("esu", dims.charge_cgs): (dims.charge_mks, "C", 10.0 / speed_of_light_cm_per_s),
+    ("T", dims.magnetic_field_mks): (dims.magnetic_field_cgs, "gauss", 1.0e4),
+    ("gauss", dims.magnetic_field_cgs): (dims.magnetic_field_mks, "T", 1.0e-4),
+    ("A", dims.current_mks): (dims.current_cgs, "statA", 0.1 * speed_of_light_cm_per_s),
+    ("statA", dims.current_cgs): (
+        dims.current_mks,
+        "A",
+        10.0 / speed_of_light_cm_per_s,
+    ),
+    ("V", dims.electric_potential_mks): (
         dims.electric_potential_cgs,
         "statV",
         1.0e-8 * speed_of_light_cm_per_s,
     ),
-    dims.electric_potential_cgs: (
+    ("statV", dims.electric_potential_cgs): (
         dims.electric_potential_mks,
         "V",
         1.0e8 / speed_of_light_cm_per_s,
     ),
-    dims.resistance_mks: (
+    ("ohm", dims.resistance_mks): (
         dims.resistance_cgs,
         "statohm",
         1.0e9 / (speed_of_light_cm_per_s ** 2),
     ),
-    dims.resistance_cgs: (
+    ("statohm", dims.resistance_cgs): (
         dims.resistance_mks,
         "ohm",
         1.0e-9 * speed_of_light_cm_per_s ** 2,
@@ -929,8 +933,8 @@ def _check_em_conversion(unit, to_unit=None, unit_system=None, registry=None):
     em_map = ()
     if unit == to_unit:
         return em_map
-    if unit.dimensions in em_conversions:
-        em_info = em_conversions[unit.dimensions]
+    if (str(unit), unit.dimensions) in em_conversions:
+        em_info = em_conversions[str(unit), unit.dimensions]
         em_unit = Unit(em_info[1], registry=registry)
         if to_unit is None:
             cmks_in_unit = current_mks in unit.dimensions.atoms()
@@ -961,8 +965,8 @@ def _check_em_conversion(unit, to_unit=None, unit_system=None, registry=None):
                 continue
         except MissingMKSCurrent:
             raise MKSCGSConversionError(unit)
-        if budims in em_conversions:
-            conv_unit = em_conversions[budims][1]
+        if (bu, budims) in em_conversions:
+            conv_unit = em_conversions[bu, budims][1]
             if to_unit is not None:
                 for to_unit_atom in to_unit.expr.atoms():
                     bou = str(to_unit_atom)
