@@ -66,6 +66,7 @@ from unyt._physical_ratios import speed_of_light_cm_per_s
 from unyt.unit_registry import (
     default_unit_registry,
     _lookup_unit_symbol,
+    _split_prefix,
     UnitRegistry,
     UnitParseError,
 )
@@ -933,9 +934,13 @@ def _check_em_conversion(unit, to_unit=None, unit_system=None, registry=None):
     em_map = ()
     if unit == to_unit:
         return em_map
-    if (str(unit), unit.dimensions) in em_conversions:
-        em_info = em_conversions[str(unit), unit.dimensions]
-        em_unit = Unit(em_info[1], registry=registry)
+    if unit.is_atomic:
+        prefix, unit_wo_prefix = _split_prefix(str(unit), unit.registry.lut)
+    else:
+        prefix, unit_wo_prefix = "", str(unit)
+    if (unit_wo_prefix, unit.dimensions) in em_conversions:
+        em_info = em_conversions[unit_wo_prefix, unit.dimensions]
+        em_unit = Unit(prefix + em_info[1], registry=registry)
         if to_unit is None:
             cmks_in_unit = current_mks in unit.dimensions.atoms()
             cmks_in_unit_system = unit_system.units_map[current_mks]
