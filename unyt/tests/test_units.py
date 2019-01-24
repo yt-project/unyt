@@ -610,6 +610,12 @@ def test_code_unit():
     with pytest.raises(UnitsNotReducible):
         assert u.get_base_equivalent("cgs")
 
+    # see issue #60
+    u = Unit("s/m")
+    assert u.get_mks_equivalent() == Unit("s/m")
+    assert u.get_mks_equivalent() != Unit("ohm")
+    assert u.get_cgs_equivalent() == Unit("s/cm")
+
     UnitSystem(ureg.unit_system_id, "code_length", "kg", "s", registry=ureg)
 
     u = Unit("cm", registry=ureg)
