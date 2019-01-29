@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Predefined useful aliases to physical units
 
@@ -19,6 +20,8 @@ For example::
 # The full license is in the LICENSE file, distributed with this software.
 # -----------------------------------------------------------------------------
 
+import sys
+
 from unyt.unit_object import Unit
 
 #
@@ -33,6 +36,11 @@ pm = picometer = Unit("pm")
 nm = nanometer = Unit("nm")
 #: micrometer
 um = micrometer = Unit("um")
+if sys.version_info > (3, 0, 0):
+    #: micrometer
+    globals()["µm"] = Unit("µm")
+    #: micrometer
+    globals()["μm"] = Unit("μm")
 #: millimeter
 mm = millimeter = Unit("mm")
 #: centimeter
@@ -67,6 +75,11 @@ pg = picogram = Unit("pg")
 ng = nanogram = Unit("ng")
 #: micogram
 ug = microgram = Unit("ug")
+if sys.version_info > (3, 0, 0):
+    #: microgram
+    globals()["µg"] = Unit("µg")
+    #: microgram
+    globals()["μg"] = Unit("μg")
 #: milligram
 mg = milligram = Unit("mg")
 #: gram
@@ -88,6 +101,11 @@ ps = picosecond = Unit("ps")
 ns = nanosecond = Unit("ns")
 #: microsecond
 us = microsecond = Unit("us")
+if sys.version_info > (3, 0, 0):
+    #: microgram
+    globals()["µs"] = Unit("µs")
+    #: microgram
+    globals()["μs"] = Unit("μs")
 #: millisecond
 ms = millisecond = Unit("ms")
 #: second
