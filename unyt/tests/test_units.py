@@ -44,7 +44,7 @@ from unyt.dimensions import (
 )
 from unyt.exceptions import InvalidUnitOperation, UnitsNotReducible, UnitConversionError
 from unyt.unit_object import default_unit_registry, Unit, UnitParseError
-from unyt.unit_systems import UnitSystem
+from unyt.unit_systems import cgs_unit_system, UnitSystem
 from unyt._unit_lookup_table import default_unit_symbol_lut, unit_prefixes
 import unyt.unit_symbols as unit_symbols
 from unyt._physical_ratios import (
@@ -469,6 +469,19 @@ def test_base_equivalent():
 
     with pytest.raises(UnitConversionError):
         u1.get_conversion_factor(Unit("degF"))
+
+    reg = UnitRegistry(unit_system=cgs_unit_system)
+
+    u = Unit("kg", registry=reg)
+
+    assert u.get_base_equivalent() == Unit("g")
+
+    u = Unit("kg")
+
+    assert u.get_base_equivalent() == Unit("kg")
+
+    u = Unit("A")
+    assert u.get_base_equivalent(unit_system="mks") == Unit("A")
 
 
 def test_temperature_offsets():

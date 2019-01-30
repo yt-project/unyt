@@ -21,9 +21,26 @@ from unyt._unit_lookup_table import (
     unit_prefixes,
     latex_prefixes,
 )
+from unyt.unit_systems import mks_unit_system, _split_prefix, unit_system_registry
 from hashlib import md5
 import six
 from sympy import sympify, srepr
+
+
+def _sanitize_unit_system(unit_system, obj):
+
+    if unit_system is None:
+        try:
+            unit_system = obj.units.registry.unit_system
+        except AttributeError:
+            unit_system = mks_unit_system
+    if hasattr(unit_system, "name"):
+        return unit_system_registry[unit_system.name]
+    elif hasattr(unit_system, "unit_registry"):
+        unit_system = unit_system.unit_registry.unit_system_id
+    elif unit_system == "code":
+        unit_system = obj.registry.unit_system_id
+    return unit_system_registry[str(unit_system)]
 
 
 class UnitRegistry:
@@ -31,12 +48,14 @@ class UnitRegistry:
 
     _unit_system_id = None
 
-    def __init__(self, add_default_symbols=True, lut=None):
+    def __init__(self, add_default_symbols=True, lut=None, unit_system=None):
         self._unit_object_cache = {}
         if lut:
             self.lut = lut
         else:
             self.lut = {}
+
+        self.unit_system = _sanitize_unit_system(unit_system, None)
 
         if add_default_symbols:
             self.lut.update(default_unit_symbol_lut)
@@ -45,9 +64,13 @@ class UnitRegistry:
         try:
             ret = self.lut[key]
         except KeyError:
-            raise SymbolNotFoundError(
-                "The symbol '%s' does not exist in this registry." % key
-            )
+            try:
+                _lookup_unit_symbol(str(key), self.lut)
+                ret = self.lut[key]
+            except UnitParseError:
+                raise SymbolNotFoundError(
+                    "The symbol '%s' does not exist in this registry." % key
+                )
         return ret
 
     def __contains__(self, item):
@@ -246,26 +269,8 @@ class UnitRegistry:
         return equiv
 
 
-def _split_prefix(symbol_str, unit_symbol_lut):
-    possible_prefix = symbol_str[0]
-
-    if symbol_str[:2] == "da":
-        possible_prefix = "da"
-
-    if possible_prefix in unit_prefixes:
-        # the first character could be a prefix, check the rest of the symbol
-        symbol_wo_pref = symbol_str[1:]
-
-        # deca is the only prefix with length 2
-        if symbol_str[:2] == "da":
-            symbol_wo_pref = symbol_str[2:]
-            possible_prefix = "da"
-
-        prefixable_units = [u for u in unit_symbol_lut if unit_symbol_lut[u][4]]
-
-        if symbol_wo_pref in unit_symbol_lut and symbol_wo_pref in prefixable_units:
-            return possible_prefix, symbol_wo_pref
-    return "", symbol_str
+#: The default unit registry
+default_unit_registry = UnitRegistry()
 
 
 def _lookup_unit_symbol(symbol_str, unit_symbol_lut):
@@ -326,7 +331,3 @@ def _lookup_unit_symbol(symbol_str, unit_symbol_lut):
     raise UnitParseError(
         "Could not find unit symbol '%s' in the provided " "symbols." % symbol_str
     )
-
-
-#: The default unit registry
-default_unit_registry = UnitRegistry()

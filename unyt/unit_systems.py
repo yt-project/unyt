@@ -15,7 +15,51 @@ from collections import OrderedDict
 from six import string_types
 from unyt import dimensions
 from unyt.exceptions import MissingMKSCurrent, IllDefinedUnitSystem
-from unyt.unit_object import Unit, _get_system_unit_string
+from unyt._unit_lookup_table import (
+    default_unit_symbol_lut as default_lut,
+    unit_prefixes,
+)
+
+
+def _split_prefix(symbol_str, unit_symbol_lut):
+    possible_prefix = symbol_str[0]
+
+    if symbol_str[:2] == "da":
+        possible_prefix = "da"
+
+    if possible_prefix in unit_prefixes:
+        # the first character could be a prefix, check the rest of the symbol
+        symbol_wo_pref = symbol_str[1:]
+
+        # deca is the only prefix with length 2
+        if symbol_str[:2] == "da":
+            symbol_wo_pref = symbol_str[2:]
+            possible_prefix = "da"
+
+        prefixable_units = [u for u in unit_symbol_lut if unit_symbol_lut[u][4]]
+
+        if symbol_wo_pref in unit_symbol_lut and symbol_wo_pref in prefixable_units:
+            return possible_prefix, symbol_wo_pref
+    return "", symbol_str
+
+
+def _get_system_unit_string(dims, base_units):
+    # The dimensions of a unit object is the product of the base dimensions.
+    # Use sympy to factor the dimensions into base CGS unit symbols.
+    units = []
+    my_dims = dims.expand()
+    if my_dims is dimensions.dimensionless:
+        return ""
+    for factor in my_dims.as_ordered_factors():
+        dim = list(factor.free_symbols)[0]
+        unit_string = str(base_units[dim])
+        if factor.is_Pow:
+            power_string = "**(%s)" % factor.as_base_exp()[1]
+        else:
+            power_string = ""
+        units.append("(%s)%s" % (unit_string, power_string))
+    return " * ".join(units)
+
 
 unit_system_registry = {}
 
@@ -67,31 +111,27 @@ class UnitSystem(object):
         registry=None,
     ):
         self.registry = registry
-        if current_mks_unit is not None:
-            current_mks_unit = Unit(current_mks_unit, registry=self.registry)
         self.units_map = OrderedDict(
             [
-                (dimensions.length, Unit(length_unit, registry=self.registry)),
-                (dimensions.mass, Unit(mass_unit, registry=self.registry)),
-                (dimensions.time, Unit(time_unit, registry=self.registry)),
-                (
-                    dimensions.temperature,
-                    Unit(temperature_unit, registry=self.registry),
-                ),
-                (dimensions.angle, Unit(angle_unit, registry=self.registry)),
+                (dimensions.length, length_unit),
+                (dimensions.mass, mass_unit),
+                (dimensions.time, time_unit),
+                (dimensions.temperature, temperature_unit),
+                (dimensions.angle, angle_unit),
                 (dimensions.current_mks, current_mks_unit),
-                (
-                    dimensions.luminous_intensity,
-                    Unit(luminous_intensity_unit, registry=self.registry),
-                ),
+                (dimensions.luminous_intensity, luminous_intensity_unit),
             ]
         )
         for dimension, unit in self.units_map.items():
             # CGS sets the current_mks unit to none, so catch it here
-            if unit is None:
+            if unit is None and dimension is dimensions.current_mks:
                 continue
-            if unit.dimensions is not dimension:
+            if self.registry is not None and self.registry[unit][1] is not dimension:
                 raise IllDefinedUnitSystem(self.units_map)
+            elif self.registry is None:
+                bu = _split_prefix(unit, default_lut)[1]
+                if default_lut[bu][1] is not dimension:
+                    raise IllDefinedUnitSystem(self.units_map)
         self._dims = [
             "length",
             "mass",
@@ -107,15 +147,18 @@ class UnitSystem(object):
         self.name = name
 
     def __getitem__(self, key):
+        from unyt.unit_object import Unit
+
         if isinstance(key, string_types):
             key = getattr(dimensions, key)
         um = self.units_map
-        if key not in um or um[key] is None or um[key].dimensions is not key:
+        if key not in um or um[key] is None:
             if cmks in key.free_symbols and self.units_map[cmks] is None:
                 raise MissingMKSCurrent(self.name)
             units = _get_system_unit_string(key, self.units_map)
-            self.units_map[key] = Unit(units, registry=self.registry)
-        return self.units_map[key]
+            self.units_map[key] = units
+            return Unit(units, registry=self.registry)
+        return Unit(self.units_map[key], registry=self.registry)
 
     def __setitem__(self, key, value):
         if isinstance(key, string_types):
@@ -124,7 +167,7 @@ class UnitSystem(object):
             key = getattr(dimensions, key)
         if self.units_map[cmks] is None and cmks in key.free_symbols:
             raise MissingMKSCurrent(self.name)
-        self.units_map[key] = Unit(value, registry=self.registry)
+        self.units_map[key] = value
 
     def __str__(self):
         return self.name

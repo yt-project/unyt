@@ -126,13 +126,8 @@ from unyt.exceptions import (
 from unyt.equivalencies import equivalence_registry
 from unyt._on_demand_imports import _astropy, _pint
 from unyt._pint_conversions import convert_pint_units
-from unyt.unit_object import (
-    _check_em_conversion,
-    _em_conversion,
-    _sanitize_unit_system,
-    Unit,
-)
-from unyt.unit_registry import UnitRegistry
+from unyt.unit_object import _check_em_conversion, _em_conversion, Unit
+from unyt.unit_registry import _sanitize_unit_system, UnitRegistry
 
 NULL_UNIT = Unit()
 POWER_SIGN_MAPPING = {multiply: 1, divide: -1}
@@ -657,7 +652,7 @@ class unyt_array(np.ndarray):
         else:
             self.convert_to_equivalent(units, equivalence, **kwargs)
 
-    def convert_to_base(self, unit_system="mks", equivalence=None, **kwargs):
+    def convert_to_base(self, unit_system=None, equivalence=None, **kwargs):
         """
         Convert the array in-place to the equivalent base units in
         the specified unit system.
@@ -669,7 +664,7 @@ class unyt_array(np.ndarray):
         ----------
         unit_system : string, optional
             The unit system to be used in the conversion. If not specified,
-            the default base units of mks are used.
+            the configured base units are used (defaults to MKS).
         equivalence : string, optional
             The equivalence you wish to use. To see which equivalencies
             are supported for this object, try the ``list_equivalencies``
@@ -927,7 +922,7 @@ class unyt_array(np.ndarray):
         else:
             return v
 
-    def in_base(self, unit_system="mks"):
+    def in_base(self, unit_system=None):
         """
         Creates a copy of this array with the data in the specified unit
         system, and returns it in that system's base units.
@@ -936,7 +931,7 @@ class unyt_array(np.ndarray):
         ----------
         unit_system : string, optional
             The unit system to be used in the conversion. If not specified,
-            the default base units of mks are used.
+            the configured default base units of are used (defaults to MKS).
 
         Examples
         --------
