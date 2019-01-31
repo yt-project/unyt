@@ -66,10 +66,10 @@ from unyt._physical_ratios import speed_of_light_cm_per_s
 from unyt.unit_registry import (
     default_unit_registry,
     _lookup_unit_symbol,
-    _split_prefix,
     UnitRegistry,
     UnitParseError,
 )
+from unyt.unit_systems import _split_prefix
 
 sympy_one = sympify(1)
 
@@ -80,16 +80,6 @@ global_dict = {
     "Rational": Rational,
     "sqrt": sqrt,
 }
-
-
-def _sanitize_unit_system(unit_system, obj):
-    from unyt.unit_systems import unit_system_registry
-
-    if hasattr(unit_system, "unit_registry"):
-        unit_system = unit_system.unit_registry.unit_system_id
-    elif unit_system == "code":
-        unit_system = obj.registry.unit_system_id
-    return unit_system_registry[str(unit_system)]
 
 
 def _auto_positive_symbol(tokens, local_dict, global_dict):
@@ -677,7 +667,7 @@ class Unit(object):
         old_dims = self.dimensions
         return old_dims in this_equiv._dims
 
-    def get_base_equivalent(self, unit_system="mks"):
+    def get_base_equivalent(self, unit_system=None):
         """Create and return dimensionally-equivalent units in a specified base.
 
         >>> from unyt import g, cm
@@ -686,6 +676,8 @@ class Unit(object):
         >>> (g/cm**3).get_base_equivalent('solar')
         Mearth/AU**3
         """
+        from unyt.unit_registry import _sanitize_unit_system
+
         unit_system = _sanitize_unit_system(unit_system, self)
         try:
             conv_data = _check_em_conversion(
@@ -1095,26 +1087,6 @@ def _validate_dimensions(dimensions):
             )
     elif not isinstance(dimensions, Basic):
         raise UnitParseError("Bad dimensionality expression '%s'." % dimensions)
-
-
-def _get_system_unit_string(dimensions, base_units):
-    # The dimensions of a unit object is the product of the base dimensions.
-    # Use sympy to factor the dimensions into base CGS unit symbols.
-    units = []
-    my_dims = dimensions.expand()
-    if my_dims is dimensionless:
-        return ""
-    if my_dims in base_units:
-        return base_units[my_dims]
-    for factor in my_dims.as_ordered_factors():
-        dim = list(factor.free_symbols)[0]
-        unit_string = str(base_units[dim])
-        if factor.is_Pow:
-            power_string = "**(%s)" % factor.as_base_exp()[1]
-        else:
-            power_string = ""
-        units.append("(%s)%s" % (unit_string, power_string))
-    return " * ".join(units)
 
 
 def define_unit(

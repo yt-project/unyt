@@ -59,6 +59,8 @@ def test_unit_system_id():
 def test_bad_unit_system():
     with pytest.raises(IllDefinedUnitSystem):
         UnitSystem("atomic", "nm", "fs", "nK", "rad")
+    with pytest.raises(IllDefinedUnitSystem):
+        UnitSystem("atomic", "nm", "fs", "nK", "rad", registry=UnitRegistry())
 
 
 def test_mks_current():

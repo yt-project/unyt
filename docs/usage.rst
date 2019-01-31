@@ -759,7 +759,7 @@ In practice, the unit metadata for a unit object is contained in an instance of 
   <unyt.unit_registry.UnitRegistry ...>
 
 All the unit objects in the :mod:`unyt` namespace make use of the default unit
-registry, importable as :data:`unyt.unit_registry.default_unit_registry`. This
+registry, importable as :data:`unyt.unit_object.default_unit_registry`. This
 registry object contains all of the real-world physical units that the
 :mod:`unyt` library ships with out of the box.
 
