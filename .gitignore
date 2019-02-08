@@ -24,6 +24,9 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+# this can probably be removed at some point
+# https://github.com/pypa/pip/issues/6213
+pip-wheel-metadata/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
