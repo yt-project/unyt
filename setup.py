@@ -3,8 +3,16 @@
 
 """The setup script."""
 
+import os
 from setuptools import setup, find_packages
-import versioneer
+import sys
+
+# ensure the current directory is on sys.path
+# so versioneer can be imported when pip uses
+# PEP 517/518 build rules
+sys.path.append(os.path.dirname(__file__))
+
+import versioneer  # NOQA
 
 with open("README.rst") as readme_file:
     readme = readme_file.read()
