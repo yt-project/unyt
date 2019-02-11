@@ -1,6 +1,7 @@
 import pytest
 
 from unyt.unit_object import define_unit
+from unyt.unit_registry import UnitRegistry
 from unyt.array import unyt_quantity
 
 
@@ -21,6 +22,14 @@ def test_define_unit():
     volt = unyt_quantity(1.0, "V")
     second = unyt_quantity(1.0, "s")
     assert g == volt / second ** (0.5)
+
+    # Test custom registry
+    reg = UnitRegistry()
+    define_unit("Foo", (1, "m"), registry=reg)
+    define_unit("Baz", (1, "Foo**2"), registry=reg)
+    h = unyt_quantity(1, "Baz", registry=reg)
+    i = unyt_quantity(1, "m**2", registry=reg)
+    assert h == i
 
 
 def test_define_unit_error():
