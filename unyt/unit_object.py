@@ -1093,7 +1093,7 @@ def define_unit(
     symbol, value, tex_repr=None, offset=None, prefixable=False, registry=None
 ):
     """
-    Define a new unit and add it to the default unit registry.
+    Define a new unit and add it to the specified unit registry.
 
     Parameters
     ----------
@@ -1138,7 +1138,7 @@ def define_unit(
         )
     if not isinstance(value, unyt_quantity):
         if _iterable(value) and len(value) == 2:
-            value = unyt_quantity(value[0], value[1])
+            value = unyt_quantity(value[0], value[1], registry=registry)
         else:
             raise RuntimeError(
                 '"value" needs to be a quantity or ' "(value, unit) tuple!"
