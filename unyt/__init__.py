@@ -95,16 +95,17 @@ from unyt.unit_systems import UnitSystem  # NOQA: F401
 # we go through the trouble of doing this instead of "import *"
 # to avoid including extraneous variables (e.g. floating point
 # constants used to *construct* a physical constant) in this namespace
-def import_quantities(module, global_namespace):
+def import_units(module, namespace, default_registry=None):
+    """Import Unit objects from a module into a namespace"""
     for key, value in module.__dict__.items():
         if isinstance(value, (unyt_quantity, Unit)):
-            global_namespace[key] = value
+            if default_registry is not None:
+                value.registry = default_registry
+            namespace[key] = value
 
 
-import_quantities(unit_symbols, globals())
-import_quantities(physical_constants, globals())
-
-del import_quantities
+import_units(unit_symbols, globals())
+import_units(physical_constants, globals())
 
 __version__ = get_versions()["version"]
 del get_versions

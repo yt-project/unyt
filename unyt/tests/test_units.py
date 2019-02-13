@@ -30,7 +30,6 @@ from six.moves import cPickle as pickle
 from sympy import Symbol
 from unyt._testing import assert_allclose_units
 from unyt.unit_registry import UnitRegistry
-from unyt import electrostatic_unit, elementary_charge_cgs
 from unyt.dimensions import (
     mass,
     length,
@@ -554,14 +553,16 @@ def test_registry_json():
 
 
 def test_creation_from_ytarray():
+    from unyt import electrostatic_unit, elementary_charge_cgs
+
     u1 = Unit(electrostatic_unit)
-    assert_equal(str(u1), "esu")
+    assert_equal(str(u1), "statC")
     assert_equal(u1, Unit("esu"))
     assert_equal(u1, electrostatic_unit.units)
 
     u2 = Unit(elementary_charge_cgs)
-    assert_equal(str(u2), "4.8032056e-10*esu")
-    assert_equal(u2, Unit("4.8032056e-10*esu"))
+    assert_equal(str(u2), "4.80320467299766e-10*statC")
+    assert_equal(u2, Unit("4.80320467299766e-10*statC"))
     assert_equal(u1, elementary_charge_cgs.units)
 
     assert_allclose((u1 / u2).base_value, electrostatic_unit / elementary_charge_cgs)
@@ -714,3 +715,44 @@ def test_micro_prefix():
     # parsing both versions works as well
     assert u.ug == u.Unit("µg")
     assert u.ug == u.Unit("μg")
+
+
+def test_name_alternatives():
+    import unyt
+    from unyt._unit_lookup_table import (
+        default_unit_name_alternatives,
+        name_alternatives,
+        inv_name_alternatives,
+    )
+
+    # concatenated list of all alternative unit names
+    allowed_names = sum(name_alternatives.values(), [])
+
+    # ensure the values are all tuples and not e.g. strings
+    for val in default_unit_name_alternatives.values():
+        assert isinstance(val, tuple)
+
+    # all names are unique
+    assert len(set(allowed_names)) == len(allowed_names)
+    # each allowed name has a key in the inverse dict
+    assert len(inv_name_alternatives.keys()) == len(allowed_names)
+    assert set(inv_name_alternatives.keys()) == set(allowed_names)
+
+    for name in allowed_names:
+        assert hasattr(unyt, name)
+        assert hasattr(unyt.unit_symbols, name)
+
+
+def test_attosecond():
+    from unyt import Unit, attosecond, second
+
+    assert Unit("as") == attosecond
+    assert str(Unit("as")) == "as"
+    assert Unit("as/s") == attosecond / second
+
+
+def test_micro():
+    from unyt import Unit
+
+    assert str(Unit("um")) == "µm"
+    assert str(Unit("us")) == "µs"

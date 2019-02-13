@@ -589,7 +589,7 @@ def test_unit_conversions():
     assert_equal(dyne.in_mks(), dyne)
     assert_equal(dyne.in_mks(), 1e-5)
     assert_equal(str(dyne.in_mks().units), "N")
-    assert_equal(str(dyne.in_cgs().units), "dyne")
+    assert_equal(str(dyne.in_cgs().units), "dyn")
 
     em3 = unyt_quantity(1.0, "erg/m**3")
 
@@ -598,7 +598,7 @@ def test_unit_conversions():
     assert_equal(em3.in_mks(), em3)
     assert_equal(em3.in_mks(), 1e-7)
     assert_equal(str(em3.in_mks().units), "Pa")
-    assert_equal(str(em3.in_cgs().units), "dyne/cm**2")
+    assert_equal(str(em3.in_cgs().units), "dyn/cm**2")
 
     em3_converted = unyt_quantity(1545436840.386756, "Msun/(Myr**2*kpc)")
     assert_equal(em3.in_base(unit_system="galactic"), em3)
@@ -1479,7 +1479,7 @@ def test_equivalencies():
 
     lam = 4000 * u.angstrom
     hnu = lam.in_units("erg", "spectral")
-    assert_allclose_units(hnu, u.hmks * u.clight / lam)
+    assert_allclose_units(hnu, u.h_mks * u.clight / lam)
     lam.convert_to_units("eV", "spectral")
     assert_allclose_units(lam, hnu)
     assert lam.units == u.eV.units
@@ -1519,7 +1519,7 @@ def test_equivalencies():
 
     nu = 1.0 * u.MHz
     E = nu.to("erg", "spectral")
-    assert_allclose_units(E, u.hmks * nu)
+    assert_allclose_units(E, u.h_mks * nu)
     nu.convert_to_units("J", "spectral")
     assert_allclose_units(nu, E)
     assert nu.units == u.J.units
@@ -1529,7 +1529,7 @@ def test_equivalencies():
 
     E = 13.6 * u.eV
     nu = E.to("Hz", "spectral")
-    assert_allclose_units(nu, E / u.hmks)
+    assert_allclose_units(nu, E / u.h_mks)
     E.convert_to_units("MHz", "spectral")
     assert_allclose_units(nu, E)
     assert E.units == u.MHz.units
@@ -1539,7 +1539,7 @@ def test_equivalencies():
 
     E = 13.6 * u.eV
     lam = E.to("nm", "spectral")
-    assert_allclose_units(lam, u.hmks * u.clight / E)
+    assert_allclose_units(lam, u.h_mks * u.clight / E)
     E.convert_to_units("angstrom", "spectral")
     assert_allclose_units(E, lam)
     assert E.units == u.angstrom.units
@@ -1549,7 +1549,7 @@ def test_equivalencies():
 
     E = 13.6 * u.eV
     nubar = E.to("1/nm", "spectral")
-    assert_allclose_units(nubar, E / (u.hmks * u.clight))
+    assert_allclose_units(nubar, E / (u.h_mks * u.clight))
     E.convert_to_units("1/angstrom", "spectral")
     assert_allclose_units(E, nubar)
     assert E.units == (1 / u.angstrom).units
@@ -1579,7 +1579,7 @@ def test_equivalencies():
 
     nubar = 1500.0 / u.cm
     E = nubar.to("erg", "spectral")
-    assert_allclose_units(E, u.hmks * u.clight * nubar)
+    assert_allclose_units(E, u.h_mks * u.clight * nubar)
     nubar.convert_to_units("J", "spectral")
     assert_allclose_units(nubar, E)
     assert nubar.units == u.J.units
@@ -1655,7 +1655,7 @@ def test_equivalencies():
 
     # Schwarzschild
 
-    msun = 1.0 * u.Msun
+    msun = 1.0 * u.unit_symbols.Msun
     msun.convert_to_equivalent("km", "schwarzschild")
     R = u.mass_sun_mks.in_units("kpc", "schwarzschild")
     assert_allclose_units(msun, R)
@@ -1663,7 +1663,7 @@ def test_equivalencies():
     assert_allclose_units(u.mass_sun_mks, R.in_units("kg", "schwarzschild"))
     R.convert_to_units("Msun", "schwarzschild")
     assert_allclose_units(u.mass_sun_mks, R)
-    assert R.units == u.Msun.units
+    assert R.units == u.unit_symbols.Msun.units
     assert msun.units == u.km.units
 
     # Compton
@@ -1672,7 +1672,7 @@ def test_equivalencies():
     me.convert_to_units("nm", "compton")
     length = u.me.in_units("angstrom", "compton")
     assert_allclose_units(length, me)
-    assert_allclose_units(length, u.hmks / (u.me * u.clight))
+    assert_allclose_units(length, u.h_mks / (u.me * u.clight))
     assert_allclose_units(u.me, length.in_units("g", "compton"))
     assert me.units == u.nm.units
     assert length.units == u.angstrom.units

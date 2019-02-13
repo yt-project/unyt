@@ -47,10 +47,10 @@ we can look up from `Wikipedia
   ...
   >>> for moon, period in zip(moons, period):
   ...     print('{}: {:04.2f}'.format(moon, period))
-  Io: 1.77 d
-  Europa: 3.55 d
-  Ganymede: 7.15 d
-  Callisto: 16.69 d
+  Io: 1.77 day
+  Europa: 3.55 day
+  Ganymede: 7.15 day
+  Callisto: 16.69 day
 
 Let's break up this example into a few components so you can see what's going
 on. First, we import the unit symbols we need from the :mod:`unyt` namespace::
@@ -86,20 +86,14 @@ end, days::
   unyt_array([ 152867.34547843,  306833.60667034,  618173.2944961 ,
                 1441978.11592457], 's')
   >>> period.to('d')
-  unyt_array([ 1.76929798,  3.55131489,  7.1547835 , 16.68956153], 'd')
+  unyt_array([ 1.76929798,  3.55131489,  7.1547835 , 16.68956153], 'day')
 
 Note that we haven't added any conversion factors between different units,
 that's all handled internally by :mod:`unyt`. Also note how the
 :meth:`unyt_array.to <unyt.array.unyt_array.to>` method was able to
-automagically handle the conversion from seconds to days.
+automagically handle the conversion from seconds to days and how the
+shorthand ``"d"`` was automatically interpreted as ``"day"``.
 
-It's also worth emphasizing that :mod:`unyt` represents powers using standard
-python syntax. This means you must use `**` and not `^`, even when writing a
-unit as a string:
-
-  >>> from unyt import kg, m
-  >>> print((10.*kg/m**3).to('g/cm**3'))
-  0.01 g/cm**3
 
 Arithmetic and units
 --------------------
@@ -191,8 +185,15 @@ the :class:`unyt.unyt_array <unyt.array.unyt_array>` class to quickly apply unit
   >>> velocities + 12*velocities.units
   unyt_array([22, 32, 42], 'cm/s')
 
-Logarithms, Exponentials, and Trigonometric Functions
------------------------------------------------------
+Powers, Logarithms, Exponentials, and Trigonometric Functions
+-------------------------------------------------------------
+
+The :mod:`unyt` library represents powers using standard python syntax. This
+means you must use `**` and not `^`, even when writing a unit as a string:
+
+  >>> from unyt import kg, m
+  >>> print((10.*kg/m**3).to('g/cm**3'))
+  0.01 g/cm**3
 
 Formally it does not make sense to exponentiate, take the logarithm of, or apply
 a transcendental function to a quantity with units. However, the :mod:`unyt`

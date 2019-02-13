@@ -92,8 +92,8 @@ class UnitRegistry:
         if self._unit_system_id is None:
             hash_data = bytearray()
             for k, v in sorted(self.lut.items()):
-                hash_data.extend(k.encode("ascii"))
-                hash_data.extend(repr(v).encode("ascii"))
+                hash_data.extend(k.encode("utf8"))
+                hash_data.extend(repr(v).encode("utf8"))
             m = md5()
             m.update(hash_data)
             self._unit_system_id = str(m.hexdigest())
@@ -295,7 +295,7 @@ def _lookup_unit_symbol(symbol_str, unit_symbol_lut):
     if prefix:
         # lookup successful, it's a symbol with a prefix
         unit_data = unit_symbol_lut[symbol_wo_prefix]
-        prefix_value = unit_prefixes[prefix]
+        prefix_value = unit_prefixes[prefix][0]
 
         if prefix in latex_prefixes:
             latex_repr = symbol_str.replace(prefix, "{" + latex_prefixes[prefix] + "}")

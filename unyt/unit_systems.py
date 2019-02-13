@@ -17,6 +17,7 @@ from unyt import dimensions
 from unyt.exceptions import MissingMKSCurrent, IllDefinedUnitSystem
 from unyt._unit_lookup_table import (
     default_unit_symbol_lut as default_lut,
+    inv_name_alternatives,
     unit_prefixes,
 )
 
@@ -130,7 +131,7 @@ class UnitSystem(object):
                 raise IllDefinedUnitSystem(self.units_map)
             elif self.registry is None:
                 bu = _split_prefix(unit, default_lut)[1]
-                if default_lut[bu][1] is not dimension:
+                if default_lut[inv_name_alternatives[bu]][1] is not dimension:
                     raise IllDefinedUnitSystem(self.units_map)
         self._dims = [
             "length",

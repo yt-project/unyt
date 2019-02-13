@@ -63,6 +63,7 @@ from unyt.exceptions import (
     UnitsNotReducible,
 )
 from unyt._physical_ratios import speed_of_light_cm_per_s
+from unyt._unit_lookup_table import inv_name_alternatives
 from unyt.unit_registry import (
     default_unit_registry,
     _lookup_unit_symbol,
@@ -97,10 +98,10 @@ def _auto_positive_symbol(tokens, local_dict, global_dict):
         nextTokNum, nextTokVal = nextTok
         if tokNum == token.NAME:
             name = tokVal
-
             if (
                 name in ["True", "False", "None"]
-                or _iskeyword(name)
+                # special case 'as' for attosecond
+                or (_iskeyword(name) and name != "as")
                 or name in local_dict
                 # Don't convert attribute access
                 or (prevTok[0] == token.OP and prevTok[1] == ".")
@@ -120,11 +121,19 @@ def _auto_positive_symbol(tokens, local_dict, global_dict):
                     result.append((token.NAME, name))
                     continue
 
+            # try to resolve known alternative unit name
+            try:
+                used_name = inv_name_alternatives[str(name)]
+            except KeyError:
+                # if we don't know this name it's a user-defined unit name
+                # so we should create a new symbol for it
+                used_name = str(name)
+
             result.extend(
                 [
                     (token.NAME, "Symbol"),
                     (token.OP, "("),
-                    (token.NAME, repr(str(name))),
+                    (token.NAME, repr(used_name)),
                     (token.OP, ","),
                     (token.NAME, "positive"),
                     (token.OP, "="),
@@ -262,7 +271,7 @@ class Unit(object):
                     transformations=unit_text_transform,
                 )
             except SyntaxError as e:
-                msg = "Unit expression '%s' raised an error " "during parsing:\n%s" % (
+                msg = "Unit expression '%s' raised an error during parsing:\n%s" % (
                     unit_expr,
                     repr(e),
                 )
@@ -851,10 +860,10 @@ def _cancel_mul(expr, registry):
 # canonical unit to convert to in that system, and floating point
 # conversion factor
 em_conversions = {
-    ("C", dims.charge_mks): (dims.charge_cgs, "esu", 0.1 * speed_of_light_cm_per_s),
-    ("esu", dims.charge_cgs): (dims.charge_mks, "C", 10.0 / speed_of_light_cm_per_s),
-    ("T", dims.magnetic_field_mks): (dims.magnetic_field_cgs, "gauss", 1.0e4),
-    ("gauss", dims.magnetic_field_cgs): (dims.magnetic_field_mks, "T", 1.0e-4),
+    ("C", dims.charge_mks): (dims.charge_cgs, "statC", 0.1 * speed_of_light_cm_per_s),
+    ("statC", dims.charge_cgs): (dims.charge_mks, "C", 10.0 / speed_of_light_cm_per_s),
+    ("T", dims.magnetic_field_mks): (dims.magnetic_field_cgs, "G", 1.0e4),
+    ("G", dims.magnetic_field_cgs): (dims.magnetic_field_mks, "T", 1.0e-4),
     ("A", dims.current_mks): (dims.current_cgs, "statA", 0.1 * speed_of_light_cm_per_s),
     ("statA", dims.current_cgs): (
         dims.current_mks,
@@ -871,14 +880,14 @@ em_conversions = {
         "V",
         1.0e8 / speed_of_light_cm_per_s,
     ),
-    ("ohm", dims.resistance_mks): (
+    ("Ω", dims.resistance_mks): (
         dims.resistance_cgs,
         "statohm",
         1.0e9 / (speed_of_light_cm_per_s ** 2),
     ),
     ("statohm", dims.resistance_cgs): (
         dims.resistance_mks,
-        "ohm",
+        "Ω",
         1.0e-9 * speed_of_light_cm_per_s ** 2,
     ),
 }

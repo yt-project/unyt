@@ -15,6 +15,7 @@ mass_electron_kg = 9.10938291e-31
 amu_kg = 1.660538921e-27
 amu_grams = amu_kg * 1.0e3
 mass_hydrogen_kg = 1.007947 * amu_kg
+mass_proton_kg = 1.672623110e-27
 
 # Solar values (see Mamajek 2012)
 # https://sites.google.com/site/mamajeksstarnotes/bc-scale
@@ -99,6 +100,7 @@ planck_mks = 6.62606957e-34
 mu_0 = 4.0e-7 * np.pi
 # permittivity of Free Space
 eps_0 = 1.0 / (speed_of_light_m_per_s ** 2 * mu_0)
+avogadros_number = 6.02214085774 * 10 ** 23
 
 # temperature / energy
 boltzmann_constant_J_per_K = 1.3806488e-23

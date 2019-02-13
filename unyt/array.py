@@ -718,7 +718,7 @@ class unyt_array(np.ndarray):
         >>> data = [1., 2., 3.]*Newton
         >>> data.convert_to_cgs()
         >>> data
-        unyt_array([100000., 200000., 300000.], 'dyne')
+        unyt_array([100000., 200000., 300000.], 'dyn')
 
         """
         self.convert_to_units(
@@ -1091,7 +1091,7 @@ class unyt_array(np.ndarray):
         >>> print((1*km).to_equivalent('MHz', equivalence='spectral'))
         0.299792458 MHz
         >>> print((1*keV).to_equivalent('angstrom', equivalence='spectral'))
-        12.39841931521966 angstrom
+        12.39841931521966 Å
         """
         return self.units.has_equivalent(equivalence)
 

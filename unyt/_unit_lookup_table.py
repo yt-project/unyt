@@ -13,7 +13,7 @@ The default unit symbol lookup table.
 # The full license is in the LICENSE file, distributed with this software.
 # -----------------------------------------------------------------------------
 
-import sys
+from collections import defaultdict
 
 from unyt import dimensions
 from unyt._physical_ratios import (
@@ -25,6 +25,14 @@ from unyt._physical_ratios import (
     m_per_ft,
     watt_per_horsepower,
     mass_sun_kg,
+    mass_jupiter_kg,
+    mass_earth_kg,
+    mass_mercury_kg,
+    mass_venus_kg,
+    mass_mars_kg,
+    mass_saturn_kg,
+    mass_uranus_kg,
+    mass_neptune_kg,
     sec_per_year,
     sec_per_day,
     sec_per_hr,
@@ -36,10 +44,10 @@ from unyt._physical_ratios import (
     amu_kg,
     amu_grams,
     mass_electron_kg,
+    mass_hydrogen_kg,
+    mass_proton_kg,
     m_per_ang,
     jansky_mks,
-    mass_jupiter_kg,
-    mass_earth_kg,
     kelvin_per_rankine,
     speed_of_light_m_per_s,
     planck_length_m,
@@ -48,13 +56,17 @@ from unyt._physical_ratios import (
     planck_mass_kg,
     planck_temperature_K,
     planck_time_s,
-    mass_hydrogen_kg,
     kg_per_pound,
-    standard_gravity_m_per_s2,
     pascal_per_atm,
-    newton_mks,
     m_per_rearth,
     m_per_rjup,
+    boltzmann_constant_J_per_K,
+    standard_gravity_m_per_s2,
+    newton_mks,
+    planck_mks,
+    eps_0,
+    mu_0,
+    avogadros_number,
 )
 import numpy as np
 
@@ -67,17 +79,16 @@ default_unit_symbol_lut = {  # noqa: W605
     "g": (1.0e-3, dimensions.mass, 0.0, r"\rm{g}", True),
     "s": (1.0, dimensions.time, 0.0, r"\rm{s}", True),
     "K": (1.0, dimensions.temperature, 0.0, r"\rm{K}", True),
-    "radian": (1.0, dimensions.angle, 0.0, r"\rm{radian}", True),
+    "rad": (1.0, dimensions.angle, 0.0, r"\rm{radian}", True),
     "A": (1.0, dimensions.current_mks, 0.0, r"\rm{A}", True),
     "cd": (1.0, dimensions.luminous_intensity, 0.0, r"\rm{cd}", True),
     "mol": (1.0 / amu_grams, dimensions.dimensionless, 0.0, r"\rm{mol}", True),
     # some cgs
-    "dyne": (1.0e-5, dimensions.force, 0.0, r"\rm{dyn}", True),
+    "dyn": (1.0e-5, dimensions.force, 0.0, r"\rm{dyn}", True),
     "erg": (1.0e-7, dimensions.energy, 0.0, r"\rm{erg}", True),
     "Ba": (0.1, dimensions.pressure, 0.0, r"\rm{Ba}", True),
-    "esu": (1.0e-3 ** 1.5, dimensions.charge_cgs, 0.0, r"\rm{esu}", True),
-    "gauss": (0.1 ** 0.5, dimensions.magnetic_field_cgs, 0.0, r"\rm{G}", True),
-    "degC": (1.0, dimensions.temperature, -273.15, r"^\circ\rm{C}", True),
+    "G": (0.1 ** 0.5, dimensions.magnetic_field_cgs, 0.0, r"\rm{G}", True),
+    "statC": (1.0e-3 ** 1.5, dimensions.charge_cgs, 0.0, r"\rm{statC}", True),
     "statA": (1.0e-3 ** 1.5, dimensions.current_cgs, 0.0, r"\rm{statA}", True),
     "statV": (
         0.1 * 1.0e-3 ** 0.5,
@@ -98,21 +109,22 @@ default_unit_symbol_lut = {  # noqa: W605
     "Pa": (1.0, dimensions.pressure, 0.0, r"\rm{Pa}", True),
     "V": (1.0, dimensions.electric_potential, 0.0, r"\rm{V}", True),
     "F": (1.0, dimensions.capacitance, 0.0, r"\rm{F}", True),
-    "ohm": (1.0, dimensions.resistance, 0.0, r"\Omega", True),
+    "Ω": (1.0, dimensions.resistance, 0.0, r"\Omega", True),
     "Wb": (1.0, dimensions.magnetic_flux, 0.0, r"\rm{Wb}", True),
     "lm": (1.0, dimensions.luminous_flux, 0.0, r"\rm{lm}", True),
     "lx": (1.0, dimensions.luminous_flux / dimensions.area, 0.0, r"\rm{lx}", True),
+    "degC": (1.0, dimensions.temperature, -273.15, r"^\circ\rm{C}", True),
     # Imperial and other non-metric units
     "inch": (m_per_inch, dimensions.length, 0.0, r"\rm{in}", False),
     "ft": (m_per_ft, dimensions.length, 0.0, r"\rm{ft}", False),
     "yd": (0.9144, dimensions.length, 0.0, r"\rm{yd}", False),
     "mile": (1609.344, dimensions.length, 0.0, r"\rm{mile}", False),
-    "fur": (m_per_ft * 660.0, dimensions.length, 0.0, r"\rm{fur}", False),
+    "furlong": (m_per_ft * 660.0, dimensions.length, 0.0, r"\rm{fur}", False),
     "degF": (
         kelvin_per_rankine,
         dimensions.temperature,
         -459.67,
-        "^\circ\rm{F}",
+        r"^\circ\rm{F}",
         False,
     ),
     "R": (kelvin_per_rankine, dimensions.temperature, 0.0, r"^\circ\rm{R}", False),
@@ -124,7 +136,6 @@ default_unit_symbol_lut = {  # noqa: W605
         False,
     ),
     "lb": (kg_per_pound, dimensions.mass, 0.0, r"\rm{lb}", False),
-    "lbm": (kg_per_pound, dimensions.mass, 0.0, r"\rm{lbm}", False),
     "atm": (pascal_per_atm, dimensions.pressure, 0.0, r"\rm{atm}", False),
     "hp": (watt_per_horsepower, dimensions.power, 0.0, r"\rm{hp}", False),
     "oz": (kg_per_pound / 16.0, dimensions.mass, 0.0, r"\rm{oz}", False),
@@ -147,39 +158,30 @@ default_unit_symbol_lut = {  # noqa: W605
     ),
     "smoot": (1.7018, dimensions.length, 0.0, r"\rm{smoot}", False),
     # dimensionless stuff
-    "h": (1.0, dimensions.dimensionless, 0.0, r"h", False),
     "dimensionless": (1.0, dimensions.dimensionless, 0.0, r"", False),
     # times
     "min": (sec_per_min, dimensions.time, 0.0, r"\rm{min}", False),
     "hr": (sec_per_hr, dimensions.time, 0.0, r"\rm{hr}", False),
     "day": (sec_per_day, dimensions.time, 0.0, r"\rm{d}", False),
-    "d": (sec_per_day, dimensions.time, 0.0, r"\rm{d}", False),
     "yr": (sec_per_year, dimensions.time, 0.0, r"\rm{yr}", True),
     # Velocities
     "c": (speed_of_light_m_per_s, dimensions.velocity, 0.0, r"\rm{c}", False),
     # Solar units
     "Msun": (mass_sun_kg, dimensions.mass, 0.0, r"M_\odot", False),
-    "msun": (mass_sun_kg, dimensions.mass, 0.0, r"M_\odot", False),
     "Rsun": (m_per_rsun, dimensions.length, 0.0, r"R_\odot", False),
-    "rsun": (m_per_rsun, dimensions.length, 0.0, r"R_\odot", False),
-    "R_sun": (m_per_rsun, dimensions.length, 0.0, r"R_\odot", False),
-    "r_sun": (m_per_rsun, dimensions.length, 0.0, r"R_\odot", False),
     "Lsun": (luminosity_sun_watts, dimensions.power, 0.0, r"L_\odot", False),
     "Tsun": (temp_sun_kelvin, dimensions.temperature, 0.0, r"T_\odot", False),
     "Zsun": (metallicity_sun, dimensions.dimensionless, 0.0, r"Z_\odot", False),
     "Mjup": (mass_jupiter_kg, dimensions.mass, 0.0, r"M_{\rm{Jup}}", False),
     "Mearth": (mass_earth_kg, dimensions.mass, 0.0, r"M_\oplus", False),
-    "R_jup": (m_per_rjup, dimensions.length, 0.0, r"R_\mathrm{Jup}", False),
-    "r_jup": (m_per_rjup, dimensions.length, 0.0, r"R_\mathrm{Jup}", False),
-    "R_earth": (m_per_rearth, dimensions.length, 0.0, r"R_\oplus", False),
-    "r_earth": (m_per_rearth, dimensions.length, 0.0, r"R_\oplus", False),
+    "Rjup": (m_per_rjup, dimensions.length, 0.0, r"R_\mathrm{Jup}", False),
+    "Rearth": (m_per_rearth, dimensions.length, 0.0, r"R_\oplus", False),
     # astro distances
     "AU": (m_per_au, dimensions.length, 0.0, r"\rm{AU}", False),
-    "au": (m_per_au, dimensions.length, 0.0, r"\rm{AU}", False),
     "ly": (m_per_ly, dimensions.length, 0.0, r"\rm{ly}", False),
     "pc": (m_per_pc, dimensions.length, 0.0, r"\rm{pc}", True),
     # angles
-    "degree": (np.pi / 180.0, dimensions.angle, 0.0, r"\rm{deg}", False),
+    "degree": (np.pi / 180.0, dimensions.angle, 0.0, r"^\circ", False),
     "arcmin": (
         np.pi / 10800.0,
         dimensions.angle,
@@ -202,13 +204,13 @@ default_unit_symbol_lut = {  # noqa: W605
         False,
     ),  # milliarcseconds
     "hourangle": (np.pi / 12.0, dimensions.angle, 0.0, r"\rm{HA}", False),
-    "steradian": (1.0, dimensions.solid_angle, 0.0, r"\rm{sr}", False),
+    "sr": (1.0, dimensions.solid_angle, 0.0, r"\rm{sr}", False),
     "lat": (-np.pi / 180.0, dimensions.angle, 90.0, r"\rm{Latitude}", False),
     "lon": (np.pi / 180.0, dimensions.angle, -180.0, r"\rm{Longitude}", False),
     # misc
     "eV": (J_per_eV, dimensions.energy, 0.0, r"\rm{eV}", True),
     "amu": (amu_kg, dimensions.mass, 0.0, r"\rm{amu}", False),
-    "angstrom": (m_per_ang, dimensions.length, 0.0, r"\AA", False),
+    "Å": (m_per_ang, dimensions.length, 0.0, r"\AA", False),
     "Jy": (jansky_mks, dimensions.specific_flux, 0.0, r"\rm{Jy}", True),
     "counts": (1.0, dimensions.dimensionless, 0.0, r"\rm{counts}", False),
     "photons": (1.0, dimensions.dimensionless, 0.0, r"\rm{photons}", False),
@@ -218,18 +220,6 @@ default_unit_symbol_lut = {  # noqa: W605
     "rayleigh": (2.5e9 / np.pi, dimensions.count_intensity, 0.0, r"\rm{R}", False),
     "lambert": (1.0e4 / np.pi, dimensions.luminance, 0.0, r"\rm{L}", False),
     "nt": (1.0, dimensions.luminance, 0.0, r"\rm{nt}", False),
-    # for AstroPy compatibility
-    "solMass": (mass_sun_kg, dimensions.mass, 0.0, r"M_\odot", False),
-    "solRad": (m_per_rsun, dimensions.length, 0.0, r"R_\odot", False),
-    "solLum": (luminosity_sun_watts, dimensions.power, 0.0, r"L_\odot", False),
-    "dyn": (1.0e-5, dimensions.force, 0.0, r"\rm{dyn}", False),
-    "sr": (1.0, dimensions.solid_angle, 0.0, r"\rm{sr}", False),
-    "rad": (1.0, dimensions.angle, 0.0, r"\rm{rad}", False),
-    "deg": (np.pi / 180.0, dimensions.angle, 0.0, r"\rm{deg}", False),
-    "Fr": (1.0e-3 ** 1.5, dimensions.charge_cgs, 0.0, r"\rm{Fr}", False),
-    "G": (0.1 ** 0.5, dimensions.magnetic_field_cgs, 0.0, r"\rm{G}", True),
-    "Angstrom": (m_per_ang, dimensions.length, 0.0, r"\AA", False),
-    "statC": (1.0e-3 ** 1.5, dimensions.charge_cgs, 0.0, r"\rm{statC}", True),
     # Planck units
     "m_pl": (planck_mass_kg, dimensions.mass, 0.0, r"m_{\rm{P}}", False),
     "l_pl": (planck_length_m, dimensions.length, 0.0, r"\ell_\rm{P}", False),
@@ -257,34 +247,29 @@ default_unit_symbol_lut = {  # noqa: W605
 
 # This dictionary formatting from magnitude package, credit to Juan Reyero.
 unit_prefixes = {
-    "Y": 1e24,  # yotta
-    "Z": 1e21,  # zetta
-    "E": 1e18,  # exa
-    "P": 1e15,  # peta
-    "T": 1e12,  # tera
-    "G": 1e9,  # giga
-    "M": 1e6,  # mega
-    "k": 1e3,  # kilo
-    "h": 1e2,  # hecto
-    "da": 1e1,  # deca
-    "d": 1e-1,  # deci
-    "c": 1e-2,  # centi
-    "m": 1e-3,  # mili
-    "u": 1e-6,  # micro
-    "n": 1e-9,  # nano
-    "p": 1e-12,  # pico
-    "f": 1e-15,  # femto
-    "a": 1e-18,  # atto
-    "z": 1e-21,  # zepto
-    "y": 1e-24,  # yocto
+    "Y": (1e24, "yotta"),
+    "Z": (1e21, "zetta"),
+    "E": (1e18, "exa"),
+    "P": (1e15, "peta"),
+    "T": (1e12, "tera"),
+    "G": (1e9, "giga"),
+    "M": (1e6, "mega"),
+    "k": (1e3, "kilo"),
+    "h": (1e2, "hecto"),
+    "da": (1e1, "deca"),
+    "d": (1e-1, "deci"),
+    "c": (1e-2, "centi"),
+    "m": (1e-3, "mili"),
+    "µ": (1e-6, "micro"),  # ('MICRO SIGN' U+00B5)
+    "u": (1e-6, "micro"),
+    "μ": (1e-6, "micro"),  # ('GREEK SMALL LETTER MU' U+03BC)
+    "n": (1e-9, "nano"),
+    "p": (1e-12, "pico"),
+    "f": (1e-15, "femto"),
+    "a": (1e-18, "atto"),
+    "z": (1e-21, "zepto"),
+    "y": (1e-24, "yocto"),
 }
-
-if sys.version_info > (3, 0, 0):
-    #  'MICRO SIGN' (U+00B5)
-    unit_prefixes["µ"] = 1e-6  # micro
-    #  'GREEK SMALL LETTER MU' (U+03BC)
-    unit_prefixes["μ"] = 1e-6  # micro
-
 
 latex_prefixes = {"u": r"\mu"}
 
@@ -297,3 +282,204 @@ default_base_units = {
     dimensions.current_mks: "A",
     dimensions.luminous_intensity: "cd",
 }
+
+physical_constants = {
+    "me": (mass_electron_kg, "kg", ["mass_electron", "electron_mass"]),
+    "amu": (amu_kg, "kg", ["atomic_mass_unit"]),
+    "Na": (avogadros_number, "mol**-1", ["Avogadros_number", "avogadros_number"]),
+    "mp": (mass_proton_kg, "kg", ["proton_mass", "mass_proton"]),
+    "mh": (mass_hydrogen_kg, "kg", ["hydrogen_mass", "mass_hydrogen"]),
+    "c": (speed_of_light_m_per_s, "m/s", ["clight", "speed_of_light"]),
+    "σ_T": (
+        6.65245854533e-29,
+        "m**2",
+        ["sigma_thompson", "thompson_cross_section", "cross_section_thompson"],
+    ),
+    "qp": (
+        1.6021766208e-19,
+        "C",
+        ["proton_charge", "elementary_charge", "charge_proton"],
+    ),
+    "qe": (-1.6021766208e-19, "C", ["electron_charge", "charge_electron"]),
+    "kb": (boltzmann_constant_J_per_K, "J/K", ["kboltz", "boltzmann_constant"]),
+    "G": (newton_mks, "m**3/kg/s**2", ["newtons_constant", "gravitational_constant"]),
+    "h": (planck_mks, "J*s", ["planck_constant"]),
+    "hbar": (0.5 * planck_mks / np.pi, "J*s", ["reduced_planck_constant"]),
+    "σ": (5.670373e-8, "W/m**2/K**4", ["stefan_boltzmann_constant"]),
+    "Tcmb": (2.726, "K", ["CMB_temperature"]),
+    "Msun": (mass_sun_kg, "kg", ["msun", "solar_mass", "mass_sun"]),
+    "Mjup": (mass_jupiter_kg, "kg", ["mjup", "jupiter_mass", "mass_jupiter"]),
+    "mercury_mass": (mass_mercury_kg, "kg", ["mass_mercury"]),
+    "venus_mass": (mass_venus_kg, "kg", ["mass_venus"]),
+    "Mearth": (mass_earth_kg, "kg", ["mearth", "earth_mass", "mass_earth"]),
+    "mars_mass": (mass_mars_kg, "kg", ["mass_mars"]),
+    "saturn_mass": (mass_saturn_kg, "kg", ["mass_saturn"]),
+    "uranus_mass": (mass_uranus_kg, "kg", ["mass_uranus"]),
+    "neptune_mass": (mass_neptune_kg, "kg", ["mass_neptune"]),
+    "m_pl": (planck_mass_kg, "kg", ["planck_mass"]),
+    "l_pl": (planck_length_m, "m", ["planck_length"]),
+    "t_pl": (planck_time_s, "kg", ["planck_time"]),
+    "E_pl": (planck_energy_J, "kg", ["planck_energy"]),
+    "q_pl": (planck_charge_C, "kg", ["planck_charge"]),
+    "T_pl": (planck_temperature_K, "kg", ["planck_temperature"]),
+    "mu_0": (mu_0, "N/A**2", ["vacuum_permeability", "magnetic_constant", "μ_0"]),
+    "eps_0": (
+        eps_0,
+        "C**2/N/m**2",
+        ["vacuum_permittivity", "electric_constant", "ε_0", "epsilon_0"],
+    ),
+    "standard_gravity": (standard_gravity_m_per_s2, "m/s**2", []),
+}
+
+default_unit_name_alternatives = {
+    # base
+    "m": ("meter", "metre"),
+    "g": ("gram", "gramme"),
+    "s": ("second",),
+    "K": ("degree_kelvin", "kelvin"),
+    "rad": ("radian",),
+    "A": ("ampere", "amp", "Amp"),
+    "cd": ("candela",),
+    "mol": ("mole",),
+    # some cgs
+    "dyn": ("dyne",),
+    "erg": ("ergs",),
+    "Ba": ("barye",),
+    "G": ("gauss",),
+    "statC": ("statcoulomb", "esu", "ESU", "electrostatic_unit"),
+    "statA": ("statampere",),
+    "statV": ("statvolt",),
+    "Mx": ("maxwell",),
+    # some SI
+    "J": ("joule",),
+    "W": ("watt",),
+    "Hz": ("hertz",),
+    "N": ("newton",),
+    "C": ("coulomb",),
+    "T": ("tesla",),
+    "Pa": ("pascal",),
+    "V": ("volt",),
+    "F": ("farad",),
+    "Ω": ("ohm", "Ohm"),
+    "Wb": ("weber",),
+    "lm": ("lumen",),
+    "lx": ("lux",),
+    "degC": ("degree_celsius", "celcius"),
+    # Imperial and other non-metric units
+    "inch": ("in",),
+    "ft": ("foot",),
+    "yd": ("yard",),
+    "furlong": ("fur",),
+    "degF": ("degree_fahrenheit", "fahrenheit"),
+    "R": ("degree_rankine", "rankine"),
+    "lbf": ("pound_force",),
+    "lb": ("pound", "pound_mass", "lbm"),
+    "atm": ("atmosphere",),
+    "hp": ("horsepower",),
+    "oz": ("ounce",),
+    "cal": ("calorie",),
+    "BTU": ("british_thermal_unit",),
+    "psi": ("pounds_per_square_inch",),
+    # dimensionless stuff
+    "dimensionless": ("_", ""),
+    # times
+    "min": ("minute",),
+    "hr": ("hour",),
+    "day": ("d",),
+    "yr": ("year",),
+    # Solar units
+    "Msun": ("solar_mass", "solMass"),
+    "Rsun": ("r_sun", "solar_radius", "solRadius"),
+    "Lsun": ("l_sun", "solar_luminosity", "solLuminosity"),
+    "Tsun": ("t_sun", "solar_temperature", "solTemperature"),
+    "Zsun": ("z_sun", "solar_metallicity", "solMetallicity"),
+    "Mjup": ("m_jup", "jupiter_mass"),
+    "Mearth": ("m_earth", "earth_mass"),
+    "Rjup": ("r_jup", "jupiter_radius"),
+    "Rearth": ("r_earth", "earth_radius"),
+    # astro distances
+    "AU": ("astronomical_unit",),
+    "pc": ("parsec",),
+    "ly": ("light_year",),
+    # angles
+    "degree": ("deg",),
+    "arcmin": ("arcminute",),
+    "arcsec": ("arcsecond",),
+    "mas": ("milliarcsecond",),
+    "hourangle": ("HA",),
+    "sr": ("steradian",),
+    "lat": ("latitude", "degree_latitude"),
+    "lon": ("longitude", "degree_longitude"),
+    # misc
+    "eV": ("electronvolt",),
+    "amu": ("atomic_mass_unit",),
+    "Å": ("angstrom",),
+    "Jy": ("jansky",),
+    "counts": ("count",),
+    "photons": ("photon",),
+    "me": ("electron_mass",),
+    "mp": ("proton_mass",),
+    "Sv": ("sievert",),
+    "nt": ("nit",),
+    # Planck units
+    "m_pl": ("planck_mass",),
+    "l_pl": ("planck_length",),
+    "t_pl": ("planck_time",),
+    "T_pl": ("planck_temperature",),
+    "q_pl": ("planck_charge",),
+    "E_pl": ("planck_energy",),
+}
+
+
+def generate_name_alternatives():
+    names = defaultdict(list)
+    inv_names = {}
+    seen = set()
+
+    def append_name(n, okey, key):
+        if key not in seen:
+            n.append(key)
+            inv_names[key] = okey
+            seen.add(key)
+        else:
+            if okey[0] not in ["u", "μ"]:
+                raise RuntimeError(
+                    "Duplicate unit name found: {}, {}".format(key, okey)
+                )
+
+    for key, entry in default_unit_symbol_lut.items():
+        append_name(names[key], key, key)
+        # Are we SI prefixable or not?
+        if entry[4]:
+            for prefix in unit_prefixes:
+                if prefix in ["u", "μ"]:
+                    used_prefix = "µ"
+                else:
+                    used_prefix = prefix
+                append_name(names[prefix + key], used_prefix + key, prefix + key)
+        elif len(key) > 3 and key.title() != key:
+            if all([len(k) > 3 for k in key.split("_")]):
+                append_name(names[key], key, key.title())
+        if key in default_unit_name_alternatives:
+            alternatives = default_unit_name_alternatives[key]
+            # Are we SI prefixable or not?
+            if entry[4]:
+                for a in alternatives:
+                    for up, up_data in unit_prefixes.items():
+                        if len(a) < 4:
+                            append_name(names[up + key], up + key, up + a)
+                        alt = up_data[1] + a
+                        if alt not in seen:
+                            append_name(names[up + key], up + key, alt)
+                        if not alt.islower() or len(alt) < 4:
+                            continue
+                        append_name(names[up + key], up + key, alt.title())
+            for alt in alternatives:
+                append_name(names[key], key, alt)
+                if not alt.islower() or len(alt) < 4:
+                    continue
+                append_name(names[key], key, alt.title())
+    return names, inv_names
+
+
+name_alternatives, inv_name_alternatives = generate_name_alternatives()
