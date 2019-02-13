@@ -79,7 +79,7 @@ default_unit_symbol_lut = {  # noqa: W605
     "g": (1.0e-3, dimensions.mass, 0.0, r"\rm{g}", True),
     "s": (1.0, dimensions.time, 0.0, r"\rm{s}", True),
     "K": (1.0, dimensions.temperature, 0.0, r"\rm{K}", True),
-    "rad": (1.0, dimensions.angle, 0.0, r"\rm{radian}", True),
+    "rad": (1.0, dimensions.angle, 0.0, r"\rm{rad}", True),
     "A": (1.0, dimensions.current_mks, 0.0, r"\rm{A}", True),
     "cd": (1.0, dimensions.luminous_intensity, 0.0, r"\rm{cd}", True),
     "mol": (1.0 / amu_grams, dimensions.dimensionless, 0.0, r"\rm{mol}", True),

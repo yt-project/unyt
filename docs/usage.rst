@@ -10,13 +10,15 @@ To use unyt in a project::
   >>> import unyt
 
 The top-level :mod:`unyt` namespace defines both a number of useful functions as
-well as a number of unit symbols you can use to attach units to NumPy arrays or
-python lists.
+well as a number of units and physical constants populated from the
+:mod:`unyt.unit_symbols` and :mod:`unyt.physical_constants` namespaces you
+can use to attach units to NumPy arrays and other common python data container types like ``list`` and ``tuple``. For an exhaustive listing of units and physical constants
+defined in :mod:`unyt`, see :ref:`unit-listing`.
 
 An Example from High School Physics
 -----------------------------------
 
-To see how you might use these symbols to solve a problem where units might be a
+To see how you might use :mod:`unyt` to solve a problem where units might be a
 headache, let's estimate the orbital periods of Jupiter's Galilean moons,
 assuming they have circular orbits and their masses are negligible compared to
 Jupiter. Under these assumptions, the orbital period is

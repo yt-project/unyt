@@ -4,7 +4,15 @@ Predefined useful physical constants
 Note that all of these names can be imported from the top-level unyt namespace.
 For example::
 
-    >>> from unyt import c, G, kb
+    >>> from unyt.physical_constants import gravitational_constant, solar_mass
+    >>> from unyt import AU
+    >>> from math import pi
+    >>>
+    >>> period = 2 * pi * ((1 * AU)**3 / (gravitational_constant * solar_mass))**0.5
+    >>> period.in_units('day')
+    unyt_quantity(365.26893606, 'day')
+
+.. show_all_constants::
 
 """
 

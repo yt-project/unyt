@@ -212,7 +212,7 @@ mks_unit_system["electric_potential"] = "V"
 mks_unit_system["capacitance"] = "F"
 mks_unit_system["resistance"] = "ohm"
 mks_unit_system["magnetic_flux"] = "Wb"
-mks_unit_system["luminous_flux"] = "lx"
+mks_unit_system["luminous_flux"] = "lm"
 
 #: The imperial unit system
 imperial_unit_system = UnitSystem("imperial", "ft", "lb", "s", temperature_unit="R")

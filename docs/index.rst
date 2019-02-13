@@ -28,6 +28,7 @@ that can be directly imported from from the ``unyt`` namespace:
 
    installation
    usage
+   unit_listing
    API Documentation <modules/unyt>
    contributing
    citation
