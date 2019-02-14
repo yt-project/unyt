@@ -16,11 +16,7 @@ A registry for units that can be added to and modified.
 import json
 
 from unyt.exceptions import SymbolNotFoundError, UnitParseError
-from unyt._unit_lookup_table import (
-    default_unit_symbol_lut,
-    unit_prefixes,
-    latex_prefixes,
-)
+from unyt._unit_lookup_table import default_unit_symbol_lut, unit_prefixes
 from unyt.unit_systems import mks_unit_system, _split_prefix, unit_system_registry
 from hashlib import md5
 from sympy import sympify, srepr
@@ -296,21 +292,18 @@ def _lookup_unit_symbol(symbol_str, unit_symbol_lut):
         unit_data = unit_symbol_lut[symbol_wo_prefix]
         prefix_value = unit_prefixes[prefix][0]
 
-        if prefix in latex_prefixes:
-            latex_repr = symbol_str.replace(prefix, "{" + latex_prefixes[prefix] + "}")
+        # Need to add some special handling for comoving units
+        # this is fine for now, but it wouldn't work for a general
+        # unit that has an arbitrary LaTeX representation
+        if symbol_wo_prefix != "cm" and symbol_wo_prefix.endswith("cm"):
+            sub_symbol_wo_prefix = symbol_wo_prefix[:-2]
+            sub_symbol_str = symbol_str[:-2]
         else:
-            # Need to add some special handling for comoving units
-            # this is fine for now, but it wouldn't work for a general
-            # unit that has an arbitrary LaTeX representation
-            if symbol_wo_prefix != "cm" and symbol_wo_prefix.endswith("cm"):
-                sub_symbol_wo_prefix = symbol_wo_prefix[:-2]
-                sub_symbol_str = symbol_str[:-2]
-            else:
-                sub_symbol_wo_prefix = symbol_wo_prefix
-                sub_symbol_str = symbol_str
-            latex_repr = unit_data[3].replace(
-                "{" + sub_symbol_wo_prefix + "}", "{" + sub_symbol_str + "}"
-            )
+            sub_symbol_wo_prefix = symbol_wo_prefix
+            sub_symbol_str = symbol_str
+        latex_repr = unit_data[3].replace(
+            "{" + sub_symbol_wo_prefix + "}", "{" + sub_symbol_str + "}"
+        )
 
         # Leave offset and dimensions the same, but adjust scale factor and
         # LaTeX representation

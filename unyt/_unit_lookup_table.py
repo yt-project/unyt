@@ -290,8 +290,6 @@ unit_prefixes = OrderedDict(
     ]
 )
 
-latex_prefixes = {"u": r"\mu"}
-
 default_base_units = {
     dimensions.mass: "kg",
     dimensions.length: "m",
@@ -482,7 +480,7 @@ def generate_name_alternatives():
             seen.add(key)
         else:
             if okey[0] not in ["u", "μ"]:
-                raise RuntimeError(
+                raise RuntimeError(  # pragma: no cover
                     "Duplicate unit name found: {}, {}".format(key, okey)
                 )
 
@@ -510,9 +508,8 @@ def generate_name_alternatives():
                         alt = up_data[1] + a
                         if alt not in seen:
                             append_name(names[up + key], up + key, alt)
-                        if not alt.islower() or len(alt) < 4:
-                            continue
-                        append_name(names[up + key], up + key, alt.title())
+                        if alt.title() not in names[up + key]:
+                            append_name(names[up + key], up + key, alt.title())
             for alt in alternatives:
                 append_name(names[key], key, alt)
                 if not alt.islower() or len(alt) < 4:

@@ -396,10 +396,7 @@ def test_division():
     a3 = [4 * cm, 5 * cm, 6 * cm]
     answer1 = unyt_array([0.25, 0.4, 0.5])
     answer2 = unyt_array([4, 2.5, 2])
-    if "div" in dir(operator):
-        op = operator.div
-    else:
-        op = operator.truediv
+    op = operator.truediv
 
     operate_and_compare(a1, a2, op, answer1)
     operate_and_compare(a2, a1, op, answer2)
@@ -1220,8 +1217,6 @@ def test_registry_association():
         assert_equal(id(d.units.registry), id(b.units.registry))
 
     binary_ops = [operator.add, operator.sub, operator.mul, operator.truediv]
-    if hasattr(operator, "div"):
-        binary_ops.append(operator.div)
     for op in binary_ops:
         binary_op_registry_comparison(op)
 
@@ -1309,8 +1304,6 @@ def test_subclass():
         assert_isinstance(op(inst2, inst1), compare_class)
 
     ops = [operator.mul, operator.truediv]
-    if hasattr(operator, "div"):
-        ops.append(operator.div)
     for op in ops:
         for inst in (b, ytq, ndf, yta, nda, loq):
             op_comparison(op, a, inst, unyt_a_subclass)

@@ -432,11 +432,6 @@ class Unit(object):
             "in-place operations with unit objects are not allowed"
         )
 
-    def __idiv__(self, u):
-        raise InvalidUnitOperation(
-            "in-place operations with unit objects are not allowed"
-        )
-
     def __itruediv__(self, u):
         raise InvalidUnitOperation(
             "in-place operations with unit objects are not allowed"
@@ -496,7 +491,7 @@ class Unit(object):
             registry=self.registry,
         )
 
-    def __div__(self, u):
+    def __truediv__(self, u):
         """ Divide Unit by u (Unit object). """
         if not isinstance(u, Unit):
             if isinstance(u, (numeric_type, list, tuple, np.ndarray)):
@@ -526,11 +521,6 @@ class Unit(object):
             dimensions=(self.dimensions / u.dimensions),
             registry=self.registry,
         )
-
-    __truediv__ = __div__
-
-    def __rdiv__(self, u):
-        return u * self ** -1
 
     def __rtruediv__(self, u):
         return u * self ** -1

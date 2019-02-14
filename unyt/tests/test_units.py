@@ -26,8 +26,8 @@ from numpy.testing import (
 import operator
 import pickle
 import pytest
-import sys
 from sympy import Symbol
+
 from unyt._testing import assert_allclose_units
 from unyt.unit_registry import UnitRegistry
 from unyt.dimensions import (
@@ -154,6 +154,7 @@ def test_create_from_string():
     data = 1 * cm
 
     assert Unit(data) == cm
+    assert Unit(b"cm") == cm
 
 
 def test_create_from_expr():
@@ -704,13 +705,12 @@ def test_simplify():
         assert str(unit.simplify()) == answer
 
 
-@pytest.mark.skipif(sys.version_info < (3, 0, 0), reason="Feature requires python3")
 def test_micro_prefix():
     import unyt as u
 
     # both versions of unicode mu work correctly
-    assert u.um == getattr(u, "µm")
-    assert u.um == getattr(u, "μm")
+    assert u.um == u.µm
+    assert u.um == u.μm
 
     # parsing both versions works as well
     assert u.ug == u.Unit("µg")

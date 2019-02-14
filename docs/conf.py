@@ -22,7 +22,7 @@ import unyt
 # relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
 #
-sys.path.insert(0, os.curdir + os.sep + 'extensions')
+sys.path.insert(0, os.curdir + os.sep + "extensions")
 
 # -- General configuration ---------------------------------------------
 
@@ -38,7 +38,7 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.napoleon",
     "sphinx.ext.mathjax",
-    "show_all_units"
+    "show_all_units",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
