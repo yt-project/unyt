@@ -16,10 +16,7 @@ unyt_array class.
 import copy
 from functools import wraps
 
-try:
-    from functools import lru_cache
-except ImportError:
-    from backports.functools_lru_cache import lru_cache
+from functools import lru_cache
 from numbers import Number as numeric_type
 import numpy as np
 from numpy import (
@@ -1329,7 +1326,7 @@ class unyt_array(np.ndarray):
         ...              info=myinfo)  # doctest: +SKIP
         """
         from unyt._on_demand_imports import _h5py as h5py
-        from six.moves import cPickle as pickle
+        import pickle
 
         if info is None:
             info = {}
@@ -1385,7 +1382,7 @@ class unyt_array(np.ndarray):
 
         """
         from unyt._on_demand_imports import _h5py as h5py
-        from six.moves import cPickle as pickle
+        import pickle
 
         if dataset_name is None:
             dataset_name = "array_data"

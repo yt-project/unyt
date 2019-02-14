@@ -148,9 +148,9 @@ Before you submit a pull request, check that it meets these guidelines:
    please update the existing docstrings. If you modify private implementation
    details, please use your judgment on documenting it with comments or
    docstrings.
-3. The pull request should work for Python 2.7, 3.4, 3.5, 3.6, and 3.7. Check
-   https://travis-ci.org/yt-project/unyt/pull_requests
-   and make sure that the tests pass for all supported Python versions.
+3. The pull request should work for Python 3.5, 3.6, and 3.7. Check in the
+   GitHub interface for your pull request and make sure that the tests pass for
+   all supported Python versions.
 
 Deploying
 ---------

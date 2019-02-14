@@ -12,7 +12,6 @@ Unit system class.
 # -----------------------------------------------------------------------------
 
 from collections import OrderedDict
-from six import string_types
 from unyt import dimensions
 from unyt.exceptions import MissingMKSCurrent, IllDefinedUnitSystem
 from unyt._unit_lookup_table import (
@@ -150,7 +149,7 @@ class UnitSystem(object):
     def __getitem__(self, key):
         from unyt.unit_object import Unit
 
-        if isinstance(key, string_types):
+        if isinstance(key, str):
             key = getattr(dimensions, key)
         um = self.units_map
         if key not in um or um[key] is None:
@@ -162,7 +161,7 @@ class UnitSystem(object):
         return Unit(self.units_map[key], registry=self.registry)
 
     def __setitem__(self, key, value):
-        if isinstance(key, string_types):
+        if isinstance(key, str):
             if key not in self._dims:
                 self._dims.append(key)
             key = getattr(dimensions, key)

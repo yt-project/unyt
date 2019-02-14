@@ -24,9 +24,9 @@ from numpy.testing import (
     assert_equal,
 )
 import operator
+import pickle
 import pytest
 import sys
-from six.moves import cPickle as pickle
 from sympy import Symbol
 from unyt._testing import assert_allclose_units
 from unyt.unit_registry import UnitRegistry

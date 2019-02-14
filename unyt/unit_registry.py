@@ -23,7 +23,6 @@ from unyt._unit_lookup_table import (
 )
 from unyt.unit_systems import mks_unit_system, _split_prefix, unit_system_registry
 from hashlib import md5
-import six
 from sympy import sympify, srepr
 
 
@@ -231,7 +230,7 @@ class UnitRegistry:
         Returns a json-serialized version of the unit registry
         """
         sanitized_lut = {}
-        for k, v in six.iteritems(self.lut):
+        for k, v in self.lut.items():
             san_v = list(v)
             repr_dims = srepr(v[1])
             san_v[1] = repr_dims
@@ -252,7 +251,7 @@ class UnitRegistry:
         """
         data = json.loads(json_text)
         lut = {}
-        for k, v in six.iteritems(data):
+        for k, v in data.items():
             unsan_v = list(v)
             unsan_v[1] = sympify(v[1])
             lut[k] = tuple(unsan_v)

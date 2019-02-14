@@ -2,4 +2,3 @@ numpy
 sympy
 astropy
 pint
-six

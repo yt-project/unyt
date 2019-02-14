@@ -52,9 +52,8 @@ The ``unyt`` package (pronounced like "unit") provides a subclass of NumPy's
 And a whole lot more! See `the documentation <http://unyt.readthedocs.io>`_ for
 installation instructions, more examples, and full API reference.
 
-This package only depends on ``numpy``, ``sympy``, ``six`` and, on Python 2.7,
-``backports.functools_lru_cache`` (a backport of ``functools.lru_cache``).
-Notably, it does *not* depend on ``yt`` and it is written in pure Python.
+This package only depends on ``numpy`` and ``sympy``.  Notably, it does *not*
+depend on ``yt`` and it is written in pure Python.
 
 Code of Conduct
 ---------------

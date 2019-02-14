@@ -15,12 +15,12 @@ Test ndarray subclass that handles symbolic units.
 # ----------------------------------------------------------------------------
 
 import copy
-from six.moves import cPickle as pickle
 import itertools
 import math
 import numpy as np
 import operator
 import os
+import pickle
 import pytest
 import shutil
 import tempfile

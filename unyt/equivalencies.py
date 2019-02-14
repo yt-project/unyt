@@ -30,7 +30,6 @@ from unyt.dimensions import (
 )
 from unyt.exceptions import InvalidUnitEquivalence
 
-from six import add_metaclass
 import numpy as np
 
 equivalence_registry = OrderedDict()
@@ -43,8 +42,7 @@ class _RegisteredEquivalence(type):
             equivalence_registry[cls.type_name] = cls
 
 
-@add_metaclass(_RegisteredEquivalence)
-class Equivalence(object):
+class Equivalence(object, metaclass=_RegisteredEquivalence):
     def __init__(self, in_place=False):
         self.in_place = in_place
 

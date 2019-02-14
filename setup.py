@@ -23,8 +23,6 @@ with open("HISTORY.rst") as history_file:
 requirements = [
     'numpy>="1.13.0"',
     "sympy",
-    "six",
-    'backports.functools_lru_cache;python_version<"3.3"',
 ]
 
 test_requirements = ["pytest"]
@@ -54,6 +52,7 @@ setup(
     packages=find_packages(include=["unyt"]),
     test_suite="tests",
     tests_require=test_requirements,
+    python_requires='>=3.5',
     url="https://github.com/yt-project/unyt",
     version=versioneer.get_version(),
     zip_safe=False,

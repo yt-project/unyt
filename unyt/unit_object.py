@@ -16,14 +16,10 @@ A class that represents a unit symbol.
 import copy
 import itertools
 
-try:
-    from functools import lru_cache
-except ImportError:
-    from backports.functools_lru_cache import lru_cache
+from functools import lru_cache
 from keyword import iskeyword as _iskeyword
 import numpy as np
 from numbers import Number as numeric_type
-from six import text_type
 import token
 
 from sympy import (
@@ -252,7 +248,7 @@ class Unit(object):
         """
         unit_cache_key = None
         # Parse a text unit representation using sympy's parser
-        if isinstance(unit_expr, (str, bytes, text_type)):
+        if isinstance(unit_expr, (str, bytes)):
             if isinstance(unit_expr, bytes):
                 unit_expr = unit_expr.decode("utf-8")
 
