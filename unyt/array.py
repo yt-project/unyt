@@ -16,10 +16,7 @@ unyt_array class.
 import copy
 from functools import wraps
 
-try:
-    from functools import lru_cache
-except ImportError:
-    from backports.functools_lru_cache import lru_cache
+from functools import lru_cache
 from numbers import Number as numeric_type
 import numpy as np
 from numpy import (
@@ -110,7 +107,6 @@ from numpy import (
 )
 from numpy.core.umath import _ones_like
 from sympy import Rational
-import sys
 import warnings
 
 from unyt.dimensions import angle, temperature
@@ -718,7 +714,7 @@ class unyt_array(np.ndarray):
         >>> data = [1., 2., 3.]*Newton
         >>> data.convert_to_cgs()
         >>> data
-        unyt_array([100000., 200000., 300000.], 'dyne')
+        unyt_array([100000., 200000., 300000.], 'dyn')
 
         """
         self.convert_to_units(
@@ -1091,7 +1087,7 @@ class unyt_array(np.ndarray):
         >>> print((1*km).to_equivalent('MHz', equivalence='spectral'))
         0.299792458 MHz
         >>> print((1*keV).to_equivalent('angstrom', equivalence='spectral'))
-        12.39841931521966 angstrom
+        12.39841931521966 Å
         """
         return self.units.has_equivalent(equivalence)
 
@@ -1329,7 +1325,7 @@ class unyt_array(np.ndarray):
         ...              info=myinfo)  # doctest: +SKIP
         """
         from unyt._on_demand_imports import _h5py as h5py
-        from six.moves import cPickle as pickle
+        import pickle
 
         if info is None:
             info = {}
@@ -1385,7 +1381,7 @@ class unyt_array(np.ndarray):
 
         """
         from unyt._on_demand_imports import _h5py as h5py
-        from six.moves import cPickle as pickle
+        import pickle
 
         if dataset_name is None:
             dataset_name = "array_data"
@@ -1714,18 +1710,9 @@ class unyt_array(np.ndarray):
                 if unit.is_dimensionless and unit.base_value != 1.0:
                     if not u0.is_dimensionless:
                         if u0.dimensions == u1.dimensions:
-                            if out_func is not None:
-                                out_arr = np.multiply(
-                                    out_arr.view(np.ndarray),
-                                    unit.base_value,
-                                    out=out_func,
-                                )
-                            else:
-                                out_arr = np.multiply(
-                                    out_arr.view(np.ndarray),
-                                    unit.base_value,
-                                    out=out_func,
-                                )
+                            out_arr = np.multiply(
+                                out_arr.view(np.ndarray), unit.base_value, out=out_func
+                            )
                             unit = Unit(registry=unit.registry)
                 if (
                     u0.base_offset
@@ -1815,16 +1802,6 @@ class unyt_array(np.ndarray):
         # this needs to be defined for all numpy versions, see
         # numpy issue #9081
         return type(self)(super(unyt_array, self).__pos__(), self.units)
-
-    # ensure we always use float division on python2 to avoid truncation for
-    # operations on int arrays
-    if sys.version_info < (3, 0, 0):
-
-        def __div__(self, other):
-            return self.__truediv__(other)
-
-        def __rdiv__(self, other):
-            return self.__rtruediv__(other)
 
     @_return_arr
     def dot(self, b, out=None):

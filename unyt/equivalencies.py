@@ -30,7 +30,6 @@ from unyt.dimensions import (
 )
 from unyt.exceptions import InvalidUnitEquivalence
 
-from six import add_metaclass
 import numpy as np
 
 equivalence_registry = OrderedDict()
@@ -43,8 +42,7 @@ class _RegisteredEquivalence(type):
             equivalence_registry[cls.type_name] = cls
 
 
-@add_metaclass(_RegisteredEquivalence)
-class Equivalence(object):
+class Equivalence(object, metaclass=_RegisteredEquivalence):
     def __init__(self, in_place=False):
         self.in_place = in_place
 
@@ -220,30 +218,30 @@ class SpectralEquivalence(Equivalence):
 
         if new_dims == energy:
             if x.units.dimensions == length:
-                return np.true_divide(pc.clight * pc.hmks, x, out=self._get_out(x))
+                return np.true_divide(pc.clight * pc.h_mks, x, out=self._get_out(x))
             elif x.units.dimensions == rate:
-                return np.multiply(x, pc.hmks, out=self._get_out(x))
+                return np.multiply(x, pc.h_mks, out=self._get_out(x))
             elif x.units.dimensions == spatial_frequency:
-                return np.multiply(x, pc.hmks * pc.clight, out=self._get_out(x))
+                return np.multiply(x, pc.h_mks * pc.clight, out=self._get_out(x))
         elif new_dims == length:
             if x.units.dimensions == rate:
                 return np.true_divide(pc.clight, x, out=self._get_out(x))
             elif x.units.dimensions == energy:
-                return np.true_divide(pc.hmks * pc.clight, x, out=self._get_out(x))
+                return np.true_divide(pc.h_mks * pc.clight, x, out=self._get_out(x))
             elif x.units.dimensions == spatial_frequency:
                 return np.true_divide(1, x, out=self._get_out(x))
         elif new_dims == rate:
             if x.units.dimensions == length:
                 return np.true_divide(pc.clight, x, out=self._get_out(x))
             elif x.units.dimensions == energy:
-                return np.true_divide(x, pc.hmks, out=self._get_out(x))
+                return np.true_divide(x, pc.h_mks, out=self._get_out(x))
             elif x.units.dimensions == spatial_frequency:
                 return np.multiply(x, pc.clight, out=self._get_out(x))
         elif new_dims == spatial_frequency:
             if x.units.dimensions == length:
                 return np.true_divide(1, x, out=self._get_out(x))
             elif x.units.dimensions == energy:
-                return np.true_divide(x, pc.clight * pc.hmks, out=self._get_out(x))
+                return np.true_divide(x, pc.clight * pc.h_mks, out=self._get_out(x))
             elif x.units.dimensions == rate:
                 return np.true_divide(x, pc.clight, out=self._get_out(x))
 
@@ -449,7 +447,7 @@ class ComptonEquivalence(Equivalence):
     compton: mass <-> length
     >>> from unyt import me, fm
     >>> me.to_equivalent('angstrom', 'compton')
-    unyt_quantity(0.0242631, 'angstrom')
+    unyt_quantity(0.0242631, 'Å')
     >>> (10*fm).to_equivalent('me', 'compton')
     unyt_quantity(242.63102371, 'me')
     """
@@ -460,7 +458,7 @@ class ComptonEquivalence(Equivalence):
     def _convert(self, x, new_dims):
         from unyt import physical_constants as pc
 
-        return np.true_divide(pc.hmks / pc.clight, x, out=self._get_out(x))
+        return np.true_divide(pc.h_mks / pc.clight, x, out=self._get_out(x))
 
     def __str__(self):
         return "compton: mass <-> length"

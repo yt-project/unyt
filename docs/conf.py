@@ -13,15 +13,16 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
+import os
+import sys
+import unyt
+
 # If extensions (or modules to document with autodoc) are in another
 # directory, add these directories to sys.path here. If the directory is
 # relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
 #
-import os
-import sys
-
-import unyt
+sys.path.insert(0, os.curdir + os.sep + "extensions")
 
 # -- General configuration ---------------------------------------------
 
@@ -37,6 +38,7 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.napoleon",
     "sphinx.ext.mathjax",
+    "show_all_units",
 ]
 
 # Add any paths that contain templates here, relative to this directory.

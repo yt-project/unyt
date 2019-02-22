@@ -29,11 +29,10 @@ before_install:
   - export PYENV_ROOT="$HOME/.pyenv"
   - export PATH="$HOME/.pyenv/bin:$PATH"
   - eval "$(pyenv init -)"
-  - pyenv install -s 2.7.15
   - pyenv install -s 3.5.5
   - pyenv install -s 3.6.5
   - pyenv install -s 3.7.1
-  - pyenv local 2.7.15 3.5.5 3.6.5 3.7.1
+  - pyenv local 3.5.5 3.6.5 3.7.1
   - pip install tox tox-pyenv codecov
 
 # Command to run tests, e.g. python setup.py test

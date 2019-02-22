@@ -12,11 +12,11 @@ Unit system class.
 # -----------------------------------------------------------------------------
 
 from collections import OrderedDict
-from six import string_types
 from unyt import dimensions
 from unyt.exceptions import MissingMKSCurrent, IllDefinedUnitSystem
 from unyt._unit_lookup_table import (
     default_unit_symbol_lut as default_lut,
+    inv_name_alternatives,
     unit_prefixes,
 )
 
@@ -130,7 +130,7 @@ class UnitSystem(object):
                 raise IllDefinedUnitSystem(self.units_map)
             elif self.registry is None:
                 bu = _split_prefix(unit, default_lut)[1]
-                if default_lut[bu][1] is not dimension:
+                if default_lut[inv_name_alternatives[bu]][1] is not dimension:
                     raise IllDefinedUnitSystem(self.units_map)
         self._dims = [
             "length",
@@ -149,7 +149,7 @@ class UnitSystem(object):
     def __getitem__(self, key):
         from unyt.unit_object import Unit
 
-        if isinstance(key, string_types):
+        if isinstance(key, str):
             key = getattr(dimensions, key)
         um = self.units_map
         if key not in um or um[key] is None:
@@ -161,7 +161,7 @@ class UnitSystem(object):
         return Unit(self.units_map[key], registry=self.registry)
 
     def __setitem__(self, key, value):
-        if isinstance(key, string_types):
+        if isinstance(key, str):
             if key not in self._dims:
                 self._dims.append(key)
             key = getattr(dimensions, key)
@@ -211,7 +211,7 @@ mks_unit_system["electric_potential"] = "V"
 mks_unit_system["capacitance"] = "F"
 mks_unit_system["resistance"] = "ohm"
 mks_unit_system["magnetic_flux"] = "Wb"
-mks_unit_system["luminous_flux"] = "lx"
+mks_unit_system["luminous_flux"] = "lm"
 
 #: The imperial unit system
 imperial_unit_system = UnitSystem("imperial", "ft", "lb", "s", temperature_unit="R")
