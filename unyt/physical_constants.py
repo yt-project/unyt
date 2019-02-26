@@ -26,7 +26,7 @@ For example::
 
 
 from unyt.array import unyt_quantity as _unyt_quantity
-from unyt.exceptions import UnitsNotReducible
+from unyt.exceptions import UnitsNotReducible as _UnitsNotReducible
 from unyt._unit_lookup_table import physical_constants as _physical_constants
 from unyt.unit_object import Unit as _Unit
 from unyt.unit_registry import default_unit_registry as _default_unit_registry
@@ -44,7 +44,7 @@ def _generate_constants(namespace, registry):
             )
             try:
                 namespace[name + "_cgs"] = quan.in_cgs()
-            except UnitsNotReducible:
+            except _UnitsNotReducible:
                 pass
             if name == "h":
                 # backward compatibility for unyt 1.0, which defined hmks
