@@ -702,18 +702,8 @@ method:
   <Quantity([1 2 3], 'centimeter')>
 
 
-Integrating :mod:`unyt` Into a Python Library
-+++++++++++++++++++++++++++++++++++++++++++++
-
-The :mod:`unyt` library began life as the unit system for the ``yt`` data
-analysis and visualization package, in the form of ``yt.units``. In this role,
-:mod:`unyt` was deeply integrated into a larger python library. Due to these
-origins, it is straightforward to build applications that ensure unit
-consistency by making use of :mod:`unyt`. Below we discuss a few topics that
-most often come up when integrating :mod:`unyt` into a new or existing Python library.
-
 User-Defined Units
-------------------
+++++++++++++++++++
 
 Often it is convenient to define new custom units. This can happen when you need
 to make use of a unit that the :mod:`unyt` library does not have a definition
@@ -730,13 +720,7 @@ The :mod:`unyt` library provides two approaches for dealing with this
 problem. For more toy one-off use-cases, we suggest using
 :func:`unyt.define_unit <unyt.unit_object.define_unit>` which allows defining a
 new unit name in the global, default unit system that :mod:`unyt` ships with by
-default. For more complex uses cases that need more flexibility, it is possible
-to use a custom unit system by ensuring that the data you are working with makes
-use of a :class:`UnitRegistry <unyt.unit_registry.UnitRegistry>` customized for
-your use case.
-
-Using :func:`unyt.define_unit <unyt.unit_object.define_unit>`
-*************************************************************
+default.
 
 This function makes it possible to easily define a new unit that is unknown to
 the :mod:`unyt` library:
@@ -748,12 +732,79 @@ the :mod:`unyt` library:
   >>> print((3*u.fortnight)/one_day)
   42.0 dimensionless
 
-This is primarily useful for one-off definitions of units that the :mod:`unyt` library does not already have predefined.
+This is primarily useful for one-off definitions of units that the :mod:`unyt`
+library does not already have predefined. For more complex uses cases that need
+more flexibility, it is possible to use a custom unit system by ensuring that
+the data you are working with makes use of a :class:`UnitRegistry
+<unyt.unit_registry.UnitRegistry>` customized for your use case, as described
+below.
+
+Dealing with data types
++++++++++++++++++++++++
+
+The :mod:`unyt` library supports creating :class:`unyt.unyt_array
+<unyt.array.unyt_array>` and :class:`unyt.unyt_quantity
+<unyt.array.unyt_quantity>` instances with arbitrary integer or floating point
+data types:
+
+   >>> import numpy as np
+   >>> from unyt import km
+   ...
+   >>> int_data = [1, 2, 3]*km
+   >>> int_data
+   unyt_array([1, 2, 3], 'km')
+   >>> float32_data = np.array([1, 2, 3], dtype='float32')*km
+   >>> float32_data
+   unyt_array([1., 2., 3.], dtype=float32, units='km')
+
+The ``dtype`` of a ``unyt_array`` instance created by multiplying an iterable by
+a unit will be the same as passing the iterable to ``np.array()``. You can also
+manually specify the ``dtype`` by calling ``np.array()`` yourself or by using
+the ``unyt_array`` initializer directly:
+
+   >>> np.array([1, 2, 3], dtype='float64')*km
+   unyt_array([1., 2., 3.], 'km')
+
+Operations that convert an integer array to a new unit will convert the array to
+the floating point type with an equivalent size. For example, Calling
+``in_units`` on a 32 bit integer array with units of kilometers will return a 32
+bit floating point array.
+
+   >>> data = np.array([1, 2, 3], dtype='int32')*km
+   >>> data.in_units('mile')
+   unyt_array([0.62137121, 1.24274242, 1.86411357], dtype=float32, units='mile')
+
+In-place operations will also mutate the dtype from float to integer in these
+cases, again in away that will preserve the byte size of the data.
+
+   >>> data.convert_to_units('mile')
+   >>> data
+   unyt_array([0.62137121, 1.24274242, 1.86411357], dtype=float32, units='mile')
+
+It is possible that arrays containing large integers (16777217 for 32 bit and
+9007199254740993 for 64 bit) will lose precision when converting data to a
+different unit. In these cases a warning message will be printed.
+
+Integrating :mod:`unyt` Into a Python Library
++++++++++++++++++++++++++++++++++++++++++++++
+
+The :mod:`unyt` library began life as the unit system for the ``yt`` data
+analysis and visualization package, in the form of ``yt.units``. In this role,
+:mod:`unyt` was deeply integrated into a larger python library. Due to these
+origins, it is straightforward to build applications that ensure unit
+consistency by making use of :mod:`unyt`. Below we discuss a few topics that
+most often come up when integrating :mod:`unyt` into a new or existing Python
+library.
 
 Unit registries
-***************
+---------------
 
-In these cases it becomes important to understand how ``unyt`` stores unit metadata in an internal database, how to add custom entries to the database, how to modify them, and how to persist custom units.
+It is also possible to define a custom database of units completely independent
+of the global default unit database exposed by the :mod:`unyt` namespace or to
+create namespaces in your own package that expose listings of units. In these
+cases it becomes important to understand how ``unyt`` stores unit metadata in an
+internal database, how to add custom entries to the database, how to modify
+them, and how to persist custom units.
 
 In practice, the unit metadata for a unit object is contained in an instance of the :class:`UnitRegistry <unyt.unit_registry.UnitRegistry>` class. Every :class:`Unit <unyt.unit_object.Unit>` instance contains a reference to a :class:`UnitRegistry <unyt.unit_registry.UnitRegistry>` instance:
 
@@ -762,7 +813,7 @@ In practice, the unit metadata for a unit object is contained in an instance of 
   <unyt.unit_registry.UnitRegistry ...>
 
 All the unit objects in the :mod:`unyt` namespace make use of the default unit
-registry, importable as :data:`unyt.unit_object.default_unit_registry`. This
+registry, importable as :data:`unyt.unit_registry.default_unit_registry`. This
 registry object contains all of the real-world physical units that the
 :mod:`unyt` library ships with out of the box.
 
@@ -821,61 +872,19 @@ units), then care must be taken when working with custom units. To avoid these
 sorts of ambiguities it is best to do work in physical units as much as
 possible.
 
-Dealing with data types
------------------------
 
-The :mod:`unyt` library supports creating :class:`unyt.unyt_array
-<unyt.array.unyt_array>` and :class:`unyt.unyt_quantity
-<unyt.array.unyt_quantity>` instances with arbitrary integer or floating point
-data types:
 
-   >>> import numpy as np
-   >>> from unyt import km
-   ...
-   >>> int_data = [1, 2, 3]*km
-   >>> int_data
-   unyt_array([1, 2, 3], 'km')
-   >>> float32_data = np.array([1, 2, 3], dtype='float32')*km
-   >>> float32_data
-   unyt_array([1., 2., 3.], dtype=float32, units='km')
 
-The ``dtype`` of a ``unyt_array`` instance created by multiplying an iterable by
-a unit will be the same as passing the iterable to ``np.array()``. You can also
-manually specify the ``dtype`` by calling ``np.array()`` yourself or by using
-the ``unyt_array`` initializer directly:
-
-   >>> np.array([1, 2, 3], dtype='float64')*km
-   unyt_array([1., 2., 3.], 'km')
-
-Operations that convert an integer array to a new unit will convert the array to
-the floating point type with an equivalent size. For example, Calling
-``in_units`` on a 32 bit integer array with units of kilometers will return a 32
-bit floating point array.
-
-   >>> data = np.array([1, 2, 3], dtype='int32')*km
-   >>> data.in_units('mile')
-   unyt_array([0.62137121, 1.24274242, 1.86411357], dtype=float32, units='mile')
-
-In-place operations will also mutate the dtype from float to integer in these
-cases, again in away that will preserve the byte size of the data.
-
-   >>> data.convert_to_units('mile')
-   >>> data
-   unyt_array([0.62137121, 1.24274242, 1.86411357], dtype=float32, units='mile')
-
-It is possible that arrays containing large integers (16777217 for 32 bit and
-9007199254740993 for 64 bit) will lose precision when converting data to a
-different unit. In these cases a warning message will be printed.
 
 Writing Data with Units to Disk
--------------------------------
+*******************************
 
 The :mod:`unyt` library has support for serializing data stored in a
 :class:`unyt.unyt_array <unyt.array.unyt_array>` instance to HDF5 files, text
 files, and via the Python pickle protocol. We give brief examples below, but first describe how to handle saving units manually as string metadata.
 
 Dealing with units as strings
-*****************************
+-----------------------------
 
 If all you want to do is save data to disk in a physical unit or you are working
 in a physical unit system, then you only need to save the unit name as a string
@@ -917,7 +926,7 @@ Of course in this example using ``numpy.save`` we need to hard-code the units be
   >>> os.remove('my_data.h5')
 
 HDF5 Files
-**********
+----------
 
 The :mod:`unyt` library provides a hook for writing data both to a new HDF5 file and an existing file and then subsequently reading that data back in to restore the array. This works via the :meth:`unyt_array.write_hdf5 <unyt.array.unyt_array.write_hdf5>` and :meth:`unyt_array.from_hdf5 <unyt.array.unyt_array.from_hdf5>` methods. The simplest way to use these functions is to write data to a file that does not exist yet:
 
@@ -979,7 +988,7 @@ restoring the data from disk. Here is a short example illustrating this:
 
 
 Text Files
-**********
+----------
 
 The :mod:`unyt` library also has wrappers around ``numpy.savetxt`` and ``numpy.loadtxt`` for saving data as an ASCII table. For example:
 
@@ -998,7 +1007,7 @@ The :mod:`unyt` library also has wrappers around ``numpy.savetxt`` and ``numpy.l
   >>> os.remove('my_data.txt')
 
 Pickles
-*******
+-------
 
 .. note::
 
@@ -1025,7 +1034,7 @@ the pickle. If you have custom units defined, the reloaded data will know about
 your custom unit and be able to convert data to and from the custom unit.
 
 Performance Considerations
---------------------------
+**************************
 
 Tracking units in an application will inevitably add overhead. Judging where overhead is important or not depends on what real-world workflows look like. Ultimately, profiling code is the best way to find out whether handling units is a performance bottleneck. Optimally handling units will be amortized over the cost of an operation. While this is true for large arrays (bigger than about one million elements), this is *not* true for small arrays that contain only a few elements.
 
