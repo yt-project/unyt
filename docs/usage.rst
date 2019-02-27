@@ -872,8 +872,61 @@ units), then care must be taken when working with custom units. To avoid these
 sorts of ambiguities it is best to do work in physical units as much as
 possible.
 
+Custom Unit Systems
+-------------------
 
+By default :mod:`unyt` uses the SI MKS unit system. However, libraries can
+create a unit registry using another unit system to expose that unit system to
+their users by creating a unit registry with a custom unit system. For example,
+to make CGS units the default unit for all operations, one might modify the
+``Simulation`` class defined above like so::
 
+  >>> class Simulation(object):
+  ...     def __init__(self, registry):
+  ...         self.registry = registry
+  ...
+  ...     def array(self, value, units):
+  ...         return unyt_array(value, units, registry=self.registry)
+  ...
+  ...     def quantity(self, value, units):
+  ...         return unyt_quantity(value, units, registry=self.registry)
+  ...
+  >>> registry = UnitRegistry(unit_system='cgs')
+  >>> registry.add("code_length", base_value=3.2, dimensions=length)
+  >>> s_cgs = Simulation(registry)
+  >>> data = s_cgs.array([1, 2, 3], 'code_length')
+  >>> data
+  unyt_array([1, 2, 3], 'code_length')
+  >>> data.in_base()
+  unyt_array([320., 640., 960.], 'cm')
+
+Note that the ``base_value`` parameter of ~unyt.unit_registry.UnitRegistry.add
+must be specified in MKS units. All unit data are stored internally in
+:mod:`unyt` in MKS units.
+
+You can also use two helper functions provided by :mod:`unyt`,
+~unyt.unit_systems.add_constants and ~unyt.unit_systems.add_symbols, to populate
+a namespace with a set of predefined unit symbols or physical consants. This
+namespace could correspond to the names importable from a module or the names of
+attributes of an object, or any other generic dictionary.
+
+One example of doing this would be to make a ``UnitContainer`` class that
+contains units that are compatible with the ``Simulation`` instance we named
+``s_cgs`` in the example above::
+
+  >>> from unyt.unit_systems import add_symbols
+  >>> class UnitContainer(object):
+  ...    def __init__(self, registry):
+  ...        add_symbols(vars(self), registry)
+  >>> units = UnitContainer(s_cgs.registry)
+  >>> units.kilometer
+  km
+  >>> (10*units.kilometer).in_base()
+  unyt_quantity(1000000., 'cm')
+
+Note how the result of the call to ``in_base()`` comes out in centimeters
+because of the the CGS unit system used by the ~unyt.unit_registry.UnitRegistry
+instance associated with the ``Simulation``.
 
 
 Writing Data with Units to Disk
