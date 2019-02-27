@@ -32,7 +32,7 @@ def add_symbols(namespace, registry):
     namespace : dict
        The dict to insert unit symbols into. The keys will be string
        unit names and values will be the corresponding unit objects.
-    registry : ~unyt.unit_registry.UnitRegistry
+    registry : :class:`unyt.unit_registry.UnitRegistry`
        The registry to create units from. Note that if you would like to
        use a custom unit system, ensure your registry was created using
        that unit system.
@@ -58,7 +58,7 @@ def add_symbols(namespace, registry):
 
 
 def add_constants(namespace, registry):
-    """Adds the quantities from ~unyt.physical_constants to a namespace
+    """Adds the quantities from :mod:`unyt.physical_constants` to a namespace
 
     Parameters
     ----------
@@ -66,7 +66,7 @@ def add_constants(namespace, registry):
     namespace : dict
        The dict to insert quantities into. The keys will be string names
        and values will be the corresponding quantities.
-    registry : ~unyt.unit_registry.UnitRegistry
+    registry : :class:`unyt.unit_registry.UnitRegistry`
        The registry to create units from. Note that if you would like to
        use a custom unit system, ensure your registry was created using
        that unit system.

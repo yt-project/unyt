@@ -344,7 +344,7 @@ class unyt_array(np.ndarray):
     input_units : String unit name, unit symbol object, or astropy unit
         The units of the array. Powers must be specified using python
         syntax (cm**3, not cm^3).
-    registry : ~unyt.unit_registry.UnitRegistry
+    registry : :class:`unyt.unit_registry.UnitRegistry`
         The registry to create units from. If input_units is already associated
         with a unit registry and this is specified, this will be used instead
         of the registry associated with the unit object.

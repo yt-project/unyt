@@ -1094,7 +1094,7 @@ def define_unit(
     ----------
     symbol : string
         The symbol for the new unit.
-    value : tuple or ~unyt.array.unyt_quantity
+    value : tuple or :class:`unyt.array.unyt_quantity`
         The definition of the new unit in terms of some other units. For
         example, one would define a new "mph" unit with ``(1.0, "mile/hr")``
         or with ``1.0*unyt.mile/unyt.hr``
@@ -1105,7 +1105,7 @@ def define_unit(
         The default offset for the unit. If not set, an offset of 0 is assumed.
     prefixable : boolean, optional
         Whether or not the new unit can use SI prefixes. Default: False
-    registry : A ~unyt.unit_registry.UnitRegistry instance or None
+    registry : :class:`unyt.unit_registry.UnitRegistry` or None
         The unit registry to add the unit to. If None, then defaults to the
         global default unit registry. If registry is set to None then the
         unit object will be added as an attribute to the top-level :mod:`unyt`

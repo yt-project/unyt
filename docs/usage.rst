@@ -900,15 +900,16 @@ to make CGS units the default unit for all operations, one might modify the
   >>> data.in_base()
   unyt_array([320., 640., 960.], 'cm')
 
-Note that the ``base_value`` parameter of ~unyt.unit_registry.UnitRegistry.add
-must be specified in MKS units. All unit data are stored internally in
-:mod:`unyt` in MKS units.
+Note that the ``base_value`` parameter of :meth:`UnitRegistry.add
+<unyt.unit_registry.UnitRegistry.add>` must be specified in MKS units. All unit
+data are stored internally in :mod:`unyt` in MKS units.
 
 You can also use two helper functions provided by :mod:`unyt`,
-~unyt.unit_systems.add_constants and ~unyt.unit_systems.add_symbols, to populate
-a namespace with a set of predefined unit symbols or physical consants. This
-namespace could correspond to the names importable from a module or the names of
-attributes of an object, or any other generic dictionary.
+:func:`unyt.unit_systems.add_constants` and
+:func:`unyt.unit_systems.add_symbols`, to populate a namespace with a set of
+predefined unit symbols or physical consants. This namespace could correspond to
+the names importable from a module or the names of attributes of an object, or
+any other generic dictionary.
 
 One example of doing this would be to make a ``UnitContainer`` class that
 contains units that are compatible with the ``Simulation`` instance we named
@@ -925,8 +926,8 @@ contains units that are compatible with the ``Simulation`` instance we named
   unyt_quantity(1000000., 'cm')
 
 Note how the result of the call to ``in_base()`` comes out in centimeters
-because of the the CGS unit system used by the ~unyt.unit_registry.UnitRegistry
-instance associated with the ``Simulation``.
+because of the the CGS unit system used by the :class:`UnitRegistry
+<unyt.unit_registry.UnitRegistry>` instance associated with the ``Simulation``.
 
 
 Writing Data with Units to Disk
