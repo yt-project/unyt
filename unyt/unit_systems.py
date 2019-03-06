@@ -13,12 +13,98 @@ Unit system class.
 
 from collections import OrderedDict
 from unyt import dimensions
-from unyt.exceptions import MissingMKSCurrent, IllDefinedUnitSystem
+from unyt.exceptions import MissingMKSCurrent, IllDefinedUnitSystem, UnitsNotReducible
 from unyt._unit_lookup_table import (
     default_unit_symbol_lut as default_lut,
     inv_name_alternatives,
+    name_alternatives,
+    physical_constants,
     unit_prefixes,
 )
+
+
+def add_symbols(namespace, registry):
+    """Adds the unit symbols from :mod:`unyt.unit_symbols` to a namespace
+
+    Parameters
+    ----------
+
+    namespace : dict
+       The dict to insert unit symbols into. The keys will be string
+       unit names and values will be the corresponding unit objects.
+    registry : :class:`unyt.unit_registry.UnitRegistry`
+       The registry to create units from. Note that if you would like to
+       use a custom unit system, ensure your registry was created using
+       that unit system.
+
+    Example
+    -------
+    >>> from unyt.unit_registry import UnitRegistry
+    >>> class MyClass():
+    ...     def __init__(self):
+    ...         self.reg = UnitRegistry()
+    ...         add_symbols(vars(self), self.reg)
+    >>> foo = MyClass()
+    >>> foo.kilometer
+    km
+    >>> foo.joule
+    J
+    """
+    from unyt.unit_object import Unit
+
+    for canonical_name, alt_names in name_alternatives.items():
+        for alt_name in alt_names:
+            namespace[alt_name] = Unit(canonical_name, registry=registry)
+
+
+def add_constants(namespace, registry):
+    """Adds the quantities from :mod:`unyt.physical_constants` to a namespace
+
+    Parameters
+    ----------
+
+    namespace : dict
+       The dict to insert quantities into. The keys will be string names
+       and values will be the corresponding quantities.
+    registry : :class:`unyt.unit_registry.UnitRegistry`
+       The registry to create units from. Note that if you would like to
+       use a custom unit system, ensure your registry was created using
+       that unit system.
+
+    Example
+    -------
+    >>> from unyt.unit_registry import UnitRegistry
+    >>> class MyClass():
+    ...     def __init__(self):
+    ...         self.reg = UnitRegistry(unit_system='cgs')
+    ...         add_constants(vars(self), self.reg)
+    >>> foo = MyClass()
+    >>> foo.gravitational_constant
+    unyt_quantity(6.67384e-08, 'cm**3/(g*s**2)')
+    >>> foo.speed_of_light
+    unyt_quantity(2.99792458e+10, 'cm/s')
+    """
+    from unyt.array import unyt_quantity
+
+    for constant_name in physical_constants:
+        value, unit_name, alternate_names = physical_constants[constant_name]
+        for name in alternate_names + [constant_name]:
+            quan = unyt_quantity(value, unit_name, registry=registry)
+            try:
+                namespace[name] = quan.in_base(unit_system=registry.unit_system)
+            except UnitsNotReducible:
+                namespace[name] = quan
+            namespace[name + "_mks"] = unyt_quantity(
+                value, unit_name, registry=registry
+            )
+            try:
+                namespace[name + "_cgs"] = quan.in_cgs()
+            except UnitsNotReducible:
+                pass
+            if name == "h":
+                # backward compatibility for unyt 1.0, which defined hmks
+                namespace["hmks"] = namespace["h_mks"].copy()
+                namespace["hcgs"] = namespace["h_cgs"].copy()
 
 
 def _split_prefix(symbol_str, unit_symbol_lut):
