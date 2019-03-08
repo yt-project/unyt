@@ -2,9 +2,119 @@
 History
 =======
 
-unyt began life as a submodule of yt named yt.units.
+2.0.0 (2019-03-08)
+------------------
 
-It was separated from yt.units as its own package in 2018.
+``unyt`` 2.0.0 includes a number of exciting new features as well as some
+bugfixes. There are some small backwards incompatible changes in this release
+related to automatic unit simplification and handling of dtypes. Please see the
+release notes below for more details. If you are upgrading from ``unyt 1.x`` we
+suggest testing to make sure these changes do not siginificantly impact you. If
+you run into issues please let us know by `opening an issue on GitHub
+<https://github.com/yt-project/unyt/issues/new>`_.
+
+* Dropped support for Python 2.7 and Python 3.4. Added support for Python 3.7.
+* Added ``Unit.simplify()``, which cancels pairs of terms in a unit expression
+  that have inverse dimensions and made it so the results of ``unyt_array``
+  multiplication and division will automatically simplify units. This means
+  operations that combine distinct dimensionally equivalent units will cancel in
+  many situations. For example
+
+  .. code-block:: python
+
+     >>> from unyt import kg, g
+     >>> print((12*kg)/(4*g))
+     3000.0 dimensionless
+
+  older versions of ``unyt`` would have returned ``4.0 kg/g``. See `PR #58
+  <https://github.com/yt-project/unyt/pull/58>`_ for more details. This change
+  may cause the units of operations to have different, equivalent simplified
+  units than they did with older versions of ``unyt``.
+* Added the ability to resolve non-canonical unit names to the equivalent
+  canonical unit names. This means it is now possible to refer to a unit name
+  using an alternative non-canonical unit name when importing the unit from the
+  ``unyt`` namespace as well as when a unit name is passed as a string to
+  ``unyt``. For example:
+
+  .. code-block:: python
+
+     >>> from unyt import meter, second
+     >>> data = 1000*meter/second
+     >>> data.to('kilometer/second')
+     unyt_quantity(1., 'km/s')
+     >>> data.to('metre/s')
+     unyt_quantity(1000., 'm/s')
+
+  The documentation now has a table of units recognized by ``unyt`` along with
+  known alternative spellings for each unit.
+* Added support for unicode unit names, including ``μm`` for micrometer and ``Ω``
+  for ohm. See `PR #59 <https://github.com/yt-project/unyt/pull/59>`_.
+* Substantially improved support for data that does not have a ``float64``
+  dtype. Rather than coercing all data to ``float64`` ``unyt`` will now preserve
+  the dtype of data. Data that is not already a numpy array will be coerced to a
+  dtype by calling ``np.array`` internally. Converting integer data to a new
+  unit will convert the data to floats, if this causes a loss of precision then
+  a warning message will be printed. See `PR #55
+  <https://github.com/yt-project/unyt/pull/55>`_ for details. This change may
+  cause data to be loaded into ``unyt`` with a different dtype. On Windows the
+  default float dtype is ``float32``, so data may begin to be recognized as
+  ``float32`` by default.
+* Unit registries are now associated with a unit system. This means that it's
+  possible to create a unit registry that is associated with a non-MKS unit
+  system so that conversions to "base" units will end up in that non-MKS
+  system. For example:
+
+  .. code-block:: python
+
+     >>> from unyt import UnitRegistry, unyt_quantity
+     >>> ureg = UnitRegistry(unit_system='cgs')
+     >>> data = unyt_quantity(12, 'N', registry=ureg)
+     >>> data.in_base()
+     unyt_quantity(1200000., 'dyn')
+
+  See `PR #62 <https://github.com/yt-project/unyt/pull/62>`_ for details.
+* Added two new utility functions, ``unyt.unit_systems.add_constants`` and
+  ``unyt.unit_systems.add_symbols`` that can populate a namespace with a set of
+  unit symbols in the same way that the top-level ``unyt`` namespace is
+  populated. For example, the author of a library making use of ``unyt`` could
+  create an object that users can use to access unit data like this:
+
+  .. code-block:: python
+
+      >>> from unyt.unit_systems import add_symbols
+      >>> from unyt.unit_registry import UnitRegistry
+      >>> class UnitContainer(object):
+      ...    def __init__(self):
+      ...        add_symbols(vars(self), registry=UnitRegistry())
+      >>> units = UnitContainer()
+      >>> units.kilometer
+      km
+      >>> units.microsecond
+      µs
+
+  See `PR #68 <https://github.com/yt-project/unyt/pull/68>`_.
+* The ``unyt`` codebase is now automatically formatted by `black
+  <https://github.com/ambv/black>`_. See `PR #57
+  <https://github.com/yt-project/unyt/pull/57>`_.
+* Add missing "microsecond" name from top-level ``unyt`` namespace. See `PR
+  #48 <https://github.com/yt-project/unyt/pull/48>`_.
+* Add support for ``numpy.argsort`` by defining ``unyt_array.argsort``. See `PR
+  #52 <https://github.com/yt-project/unyt/pull/52>`_.
+* Add Farad unit and fix issues with conversions between MKS and CGS
+  electromagnetic units. See `PR #54
+  <https://github.com/yt-project/unyt/pull/54>`_.
+* Fixed incorrect conversions between inverse velocities and ``statohm``. See
+  `PR #61 <https://github.com/yt-project/unyt/pull/61>`_.
+* Fixed issues with installing ``unyt`` from source with newer versions of
+  ``pip``. See `PR #63 <https://github.com/yt-project/unyt/pull/62>`_.
+* Fixed bug when using `define_unit` that caused crashes when using a custom
+  unit registry. Thank you to Bili Dong (@qobilidob on GitHub) for the pull
+  request. See `PR #64 <https://github.com/yt-project/unyt/pull/64>`_.
+
+We would also like to thank Daniel Gomez (@dangom), Britton Smith
+(@brittonsmith), Lee Johnston (@l-johnston), Meagan Lang (@langmm), Eric Chen
+(@ericchen), Justin Gilmer (@justinGilmer), and Andy Perez (@sharkweek) for
+reporting issues.
 
 1.0.7 (2018-08-13)
 ------------------
@@ -105,3 +215,5 @@ DougAJ4, Ma Jianjun, Paul Ivanov, and Stephan Hoyer for reporting issues.
 ------------------
 
 * First release on PyPI.
+* unyt began life as a submodule of yt named yt.units.
+* It was separated from yt.units as its own package in 2018.
