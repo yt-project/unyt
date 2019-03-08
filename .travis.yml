@@ -33,7 +33,7 @@ before_install:
   - pyenv install -s 3.6.5
   - pyenv install -s 3.7.1
   - pyenv local 3.5.5 3.6.5 3.7.1
-  - pip install tox tox-pyenv codecov
+  - pip install tox tox-pyenv codecov twine
 
 # Command to run tests, e.g. python setup.py test
 script: tox -vvv

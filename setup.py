@@ -28,7 +28,7 @@ setup(
     author="The yt project",
     author_email="yt-dev@python.org",
     classifiers=[
-        "Development Status :: 5 - Production / Stable",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: BSD License",
         "Natural Language :: English",
