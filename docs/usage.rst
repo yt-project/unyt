@@ -467,6 +467,22 @@ atoms and molecules:
    >>> atomic_unit_system['angular_momentum']
    mp*nm**2/fs
 
+It is also legal to define a unit system using :class:`unyt.Unit
+<unyt.unit_object.Unit>` instances:
+
+  >>> from unyt.unit_symbols import Msun, second, megaparsec
+  >>> UnitSystem('cosmological', megaparsec, Msun, second)
+    cosmological Unit System
+     Base Units:
+      length: Mpc
+      mass: Msun
+      time: s
+      temperature: K
+      angle: rad
+      current_mks: A
+      luminous_intensity: cd
+     Other Units:
+
 Once you have defined a new unit system that will register the new system with a
 global registry of unit systems known to the :mod:`unyt` library. That means you
 will immediately be able to use it just like the built-in unit systems:

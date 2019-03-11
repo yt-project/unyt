@@ -161,25 +161,25 @@ class UnitSystem(object):
     name : string
         The name of the unit system. Will be used as the key in the
         *unit_system_registry* dict to reference the unit system by.
-    length_unit : string
+    length_unit : string or :class:`unyt.unit_object.Unit`
         The base length unit of this unit system.
-    mass_unit : string
+    mass_unit : string or :class:`unyt.unit_object.Unit`
         The base mass unit of this unit system.
-    time_unit : string
+    time_unit : string or :class:`unyt.unit_object.Unit`
         The base time unit of this unit system.
-    temperature_unit : string, optional
+    temperature_unit : string or :class:`unyt.unit_object.Unit`, optional
         The base temperature unit of this unit system. Defaults to "K".
-    angle_unit : string, optional
+    angle_unit : string or :class:`unyt.unit_object.Unit`, optional
         The base angle unit of this unit system. Defaults to "rad".
     mks_system: boolean, optional
         Whether or not this unit system has SI-specific units.
         Default: False
-    current_mks_unit : string, optional
+    current_mks_unit : string or :class:`unyt.unit_object.Unit`, optional
         The base current unit of this unit system. Defaults to "A".
-    luminous_intensity_unit : string, optional
+    luminous_intensity_unit : string or :class:`unyt.unit_object.Unit`, optional
         The base luminous intensity unit of this unit system.
         Defaults to "cd".
-    registry : :class:`yt.units.unit_registry.UnitRegistry` object
+    registry : :class:`unyt.unit_registry.UnitRegistry` object
         The unit registry associated with this unit system. Only
         useful for defining unit systems based on code units.
     """
@@ -215,8 +215,12 @@ class UnitSystem(object):
             if self.registry is not None and self.registry[unit][1] is not dimension:
                 raise IllDefinedUnitSystem(self.units_map)
             elif self.registry is None:
-                bu = _split_prefix(unit, default_lut)[1]
-                if default_lut[inv_name_alternatives[bu]][1] is not dimension:
+                if isinstance(unit, str):
+                    bu = _split_prefix(unit, default_lut)[1]
+                    inferred_dimension = default_lut[inv_name_alternatives[bu]][1]
+                else:
+                    inferred_dimension = getattr(unit, "dimensions", None)
+                if inferred_dimension is not dimension:
                     raise IllDefinedUnitSystem(self.units_map)
         self._dims = [
             "length",

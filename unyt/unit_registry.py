@@ -57,11 +57,11 @@ class UnitRegistry:
 
     def __getitem__(self, key):
         try:
-            ret = self.lut[key]
+            ret = self.lut[str(key)]
         except KeyError:
             try:
                 _lookup_unit_symbol(str(key), self.lut)
-                ret = self.lut[key]
+                ret = self.lut[str(key)]
             except UnitParseError:
                 raise SymbolNotFoundError(
                     "The symbol '%s' does not exist in this registry." % key

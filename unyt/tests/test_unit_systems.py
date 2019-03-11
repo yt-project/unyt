@@ -13,6 +13,8 @@ Test unit systems.
 
 import pytest
 
+import unyt.unit_symbols as us
+
 from unyt.exceptions import IllDefinedUnitSystem, MissingMKSCurrent
 from unyt.unit_object import Unit
 from unyt.unit_systems import UnitSystem, cgs_unit_system, unit_system_registry
@@ -61,6 +63,10 @@ def test_bad_unit_system():
         UnitSystem("atomic", "nm", "fs", "nK", "rad")
     with pytest.raises(IllDefinedUnitSystem):
         UnitSystem("atomic", "nm", "fs", "nK", "rad", registry=UnitRegistry())
+    with pytest.raises(IllDefinedUnitSystem):
+        UnitSystem("atomic", us.nm, us.fs, us.nK, us.rad)
+    with pytest.raises(IllDefinedUnitSystem):
+        UnitSystem("atomic", us.nm, us.fs, us.nK, us.rad, registry=UnitRegistry())
 
 
 def test_mks_current():
@@ -72,3 +78,10 @@ def test_mks_current():
         cgs_unit_system[dimensions.current_mks] = "foo"
     with pytest.raises(MissingMKSCurrent):
         cgs_unit_system[dimensions.magnetic_field] = "bar"
+
+
+def test_create_unit_system_from_unit_objects():
+    s = UnitSystem("test_units", us.Mpc, us.Msun, us.s)
+    assert s["length"] == us.Mpc
+    assert s["mass"] == us.Msun
+    assert s["time"] == us.s
