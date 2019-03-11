@@ -39,7 +39,7 @@ you run into issues please let us know by `opening an issue on GitHub
   .. code-block:: python
 
      >>> from unyt import meter, second
-     >>> data = 1000*meter/second
+     >>> data = 1000.*meter/second
      >>> data.to('kilometer/second')
      unyt_quantity(1., 'km/s')
      >>> data.to('metre/s')
@@ -57,8 +57,9 @@ you run into issues please let us know by `opening an issue on GitHub
   a warning message will be printed. See `PR #55
   <https://github.com/yt-project/unyt/pull/55>`_ for details. This change may
   cause data to be loaded into ``unyt`` with a different dtype. On Windows the
-  default float dtype is ``float32``, so data may begin to be recognized as
-  ``float32`` by default.
+  default integer dtype is ``int32``, so data may begin to be recognized as
+  ``int32`` or converted to ``float32`` where before it was interpreted as
+  ``float64`` by default.
 * Unit registries are now associated with a unit system. This means that it's
   possible to create a unit registry that is associated with a non-MKS unit
   system so that conversions to "base" units will end up in that non-MKS
