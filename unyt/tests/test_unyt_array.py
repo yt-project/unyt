@@ -43,7 +43,9 @@ from unyt.array import (
     udot,
     uintersect1d,
     unorm,
+    ustack,
     uunion1d,
+    uvstack,
     loadtxt,
     savetxt,
 )
@@ -1863,9 +1865,12 @@ def test_numpy_wrappers():
     a1 = unyt_array([1, 2, 3], "cm")
     a2 = unyt_array([2, 3, 4, 5, 6], "cm")
     a3 = unyt_array([[1, 2, 3], [4, 5, 6]], "cm")
+    a4 = unyt_array([7, 8, 9, 10, 11], "cm")
     catenate_answer = [1, 2, 3, 2, 3, 4, 5, 6]
     intersect_answer = [2, 3]
     union_answer = [1, 2, 3, 4, 5, 6]
+    vstack_answer = [[2, 3, 4, 5, 6], [7, 8, 9, 10, 11]]
+    vstack_answer_last_axis = [[2, 7], [3, 8], [4, 9], [5, 10], [6, 11]]
     cross_answer = [-2, 4, -2]
     norm_answer = np.sqrt(1 ** 2 + 2 ** 2 + 3 ** 2)
     arr_norm_answer = [norm_answer, np.sqrt(4 ** 2 + 5 ** 2 + 6 ** 2)]
@@ -1897,6 +1902,15 @@ def test_numpy_wrappers():
         uconcatenate((a1, a2.v))
     with pytest.raises(RuntimeError):
         uconcatenate((a1.to("m"), a2))
+    assert_array_equal(unyt_array(vstack_answer, "cm"), uvstack([a2, a4]))
+    assert_array_equal(vstack_answer, np.vstack([a2, a4]))
+    assert_array_equal(unyt_array(vstack_answer, "cm"), ustack([a2, a4]))
+    assert_array_equal(vstack_answer, np.stack([a2, a4]))
+
+    assert_array_equal(
+        unyt_array(vstack_answer_last_axis, "cm"), ustack([a2, a4], axis=-1)
+    )
+    assert_array_equal(vstack_answer_last_axis, np.stack([a2, a4], axis=-1))
 
 
 def test_dimensionless_conversion():
