@@ -2141,7 +2141,7 @@ def ustack(arrs, axis=0):
     [[1 2 3]
      [2 3 4]] km
     """
-    v = np.stack(arrs)
+    v = np.stack(arrs, axis=axis)
     v = _validate_numpy_wrapper_units(v, arrs)
     return v
 
