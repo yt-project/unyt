@@ -104,6 +104,7 @@ from numpy import (
     isnat,
     heaviside,
     ones_like,
+    matmul,
 )
 from numpy.core.umath import _ones_like
 from sympy import Rational
@@ -469,6 +470,7 @@ class unyt_array(np.ndarray):
         isnat: _return_without_unit,
         heaviside: _preserve_units,
         _ones_like: _preserve_units,
+        matmul: _multiply_units,
     }
 
     __array_priority__ = 2.0
@@ -1803,7 +1805,6 @@ class unyt_array(np.ndarray):
         # numpy issue #9081
         return type(self)(super(unyt_array, self).__pos__(), self.units)
 
-    @_return_arr
     def dot(self, b, out=None):
         """dot product of two arrays.
 
@@ -1828,7 +1829,11 @@ class unyt_array(np.ndarray):
         [[8. 8.]
          [8. 8.]] km*s**2
         """
-        return super(unyt_array, self).dot(b), self.units * b.units
+        res_units = self.units * getattr(b, "units", NULL_UNIT)
+        ret = self.view(np.ndarray).dot(np.asarray(b), out=out) * res_units
+        if out is not None:
+            out.units = res_units
+        return ret
 
     def __reduce__(self):
         """Pickle reduction method
