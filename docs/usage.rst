@@ -938,6 +938,8 @@ contains units that are compatible with the ``Simulation`` instance we named
   >>> units = UnitContainer(s_cgs.registry)
   >>> units.kilometer
   km
+  >>> units.code_length
+  code_length
   >>> (10.0 * units.kilometer).in_base()
   unyt_quantity(1000000., 'cm')
   >>> (10.0 * units.kilometer).in_units('code_length')

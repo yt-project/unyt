@@ -55,6 +55,9 @@ def add_symbols(namespace, registry):
     for canonical_name, alt_names in name_alternatives.items():
         for alt_name in alt_names:
             namespace[alt_name] = Unit(canonical_name, registry=registry)
+    for name in registry.keys():
+        if name not in namespace:
+            namespace[name] = Unit(name, registry=registry)
 
 
 def add_constants(namespace, registry):
@@ -274,6 +277,11 @@ class UnitSystem(object):
             if dim not in self.base_units:
                 repr += "  %s: %s\n" % (key, self.units_map[dim])
         return repr[:-1]
+
+    @property
+    def has_current_mks(self):
+        """Does this unit system have an MKS current dimension?"""
+        return self.units_map[cmks] is not None
 
 
 #: The CGS unit system
