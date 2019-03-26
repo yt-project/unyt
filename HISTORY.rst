@@ -2,6 +2,25 @@
 History
 =======
 
+2.1.0 (2019-03-26)
+------------------
+
+This release includes a few minor new features and bugfixes for the 2.0.0 release.
+
+* Added support for the matmul ``@`` operator. See `PR #80
+  <https://github.com/yt-project/unyt/pull/80>`_.
+* Allow defining unit systems using ``Unit`` instances instead of string unit
+  names. See `PR #71 <https://github.com/yt-project/unyt/pull/71>`_.
+* Fix incorrect behavior when ``uhstack`` is called with the ``axis``
+  argument. See `PR #73 <https://github.com/yt-project/unyt/pull/73>`_.
+* Add ``"rsun"``, ``"lsun"``, and ``"au"`` as alternate spellings for the
+  ``"Rsun"``, ``"Lsun"``, and ``"AU"`` units. See `PR #77
+  <https://github.com/yt-project/unyt/pull/77>`_.
+* Improvements for working with code unit systems. See `PR #78
+  <https://github.com/yt-project/unyt/pull/78>`_.
+* Reduce impact of floating point round-off noise on unit comparisons. See `PR
+  #79 <https://github.com/yt-project/unyt/pull/79>`_.
+
 2.0.0 (2019-03-08)
 ------------------
 
