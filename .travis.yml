@@ -36,7 +36,7 @@ before_install:
   - pip install tox tox-pyenv codecov twine
 
 # Command to run tests, e.g. python setup.py test
-script: tox -vvv
+script: tox -p auto -vvv
 
 after_success: codecov
 

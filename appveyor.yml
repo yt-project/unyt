@@ -10,7 +10,7 @@ install:
   - C:\Python37\python -m pip install --pre -U tox
 
 test_script:
-  - C:\Python37\scripts\tox -vvv
+  - C:\Python37\scripts\tox -p auto -vvv
 
 cache:
   - '%LOCALAPPDATA%\pip\cache'
