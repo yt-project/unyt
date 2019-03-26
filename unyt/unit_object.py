@@ -15,6 +15,7 @@ A class that represents a unit symbol.
 
 import copy
 import itertools
+import math
 
 from functools import lru_cache
 from keyword import iskeyword as _iskeyword
@@ -547,13 +548,16 @@ class Unit(object):
         """ Test unit equality. """
         if not isinstance(u, Unit):
             return False
-        return self.base_value == u.base_value and self.dimensions == u.dimensions
+        return (
+            math.isclose(self.base_value, u.base_value)
+            and self.dimensions == u.dimensions
+        )
 
     def __ne__(self, u):
         """ Test unit inequality. """
         if not isinstance(u, Unit):
             return True
-        if self.base_value != u.base_value:
+        if not math.isclose(self.base_value, u.base_value):
             return True
         # use 'is' comparison dimensions to avoid expensive sympy operation
         if self.dimensions is u.dimensions:
