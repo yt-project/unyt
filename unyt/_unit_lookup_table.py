@@ -425,8 +425,8 @@ default_unit_name_alternatives = OrderedDict(
         ("yr", ("year",)),
         # Solar units
         ("Msun", ("solar_mass", "solMass")),
-        ("Rsun", ("r_sun", "solar_radius", "solRadius")),
-        ("Lsun", ("l_sun", "solar_luminosity", "solLuminosity")),
+        ("Rsun", ("rsun", "r_sun", "solar_radius", "solRadius")),
+        ("Lsun", ("lsun", "l_sun", "solar_luminosity", "solLuminosity")),
         ("Tsun", ("t_sun", "solar_temperature", "solTemperature")),
         ("Zsun", ("z_sun", "solar_metallicity", "solMetallicity")),
         ("Mjup", ("m_jup", "jupiter_mass")),
@@ -434,7 +434,7 @@ default_unit_name_alternatives = OrderedDict(
         ("Rjup", ("r_jup", "jupiter_radius")),
         ("Rearth", ("r_earth", "earth_radius")),
         # astro distances
-        ("AU", ("astronomical_unit",)),
+        ("AU", ("au", "astronomical_unit")),
         ("pc", ("parsec",)),
         ("ly", ("light_year",)),
         # angles
@@ -514,7 +514,8 @@ def generate_name_alternatives():
                 append_name(names[key], key, alt)
                 if not alt.islower() or len(alt) < 4:
                     continue
-                append_name(names[key], key, alt.title())
+                if alt.title() not in names[key]:
+                    append_name(names[key], key, alt.title())
     return names, inv_names
 
 
