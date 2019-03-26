@@ -1102,6 +1102,9 @@ def test_ufuncs():
             binary_ufunc_comparison(ufunc, pair[0], pair[1])
 
 
+@pytest.mark.skipif(
+    np.__version__ < "1.16", reason="matmul is broken on old numpy versions"
+)
 def test_dot_matmul():
     arr = unyt_array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], "cm")
 
