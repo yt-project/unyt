@@ -1102,20 +1102,92 @@ def test_ufuncs():
             binary_ufunc_comparison(ufunc, pair[0], pair[1])
 
 
-def test_reductions():
-    arr = unyt_array([[1, 2, 3], [4, 5, 6]], "cm")
+@pytest.mark.skipif(
+    np.__version__ < "1.16", reason="matmul is broken on old numpy versions"
+)
+def test_dot_matmul():
+    arr = unyt_array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], "cm")
 
-    ev_result = arr.dot(unyt_array([1, 2, 3], "cm"))
-    res = unyt_array([14.0, 32.0], "cm**2")
+    ev_result = arr.dot(unyt_array([1.0, 2.0, 3.0], "kg"))
+    matmul_result = arr @ unyt_array([1.0, 2.0, 3.0], "kg")
+    res = unyt_array([14.0, 32.0], "cm*kg")
     assert_equal(ev_result, res)
     assert_equal(ev_result.units, res.units)
     assert_isinstance(ev_result, unyt_array)
+    assert_equal(matmul_result, res)
+    assert_equal(matmul_result.units, res.units)
+    assert_isinstance(matmul_result, unyt_array)
+
+    ev_result = arr.dot(np.array([1.0, 2.0, 3.0]))
+    matmul_result = arr @ np.array([1.0, 2.0, 3.0])
+    res = unyt_array([14.0, 32.0], "cm")
+    assert_equal(ev_result, res)
+    assert_equal(ev_result.units, res.units)
+    assert_isinstance(ev_result, unyt_array)
+    assert_equal(matmul_result, res)
+    assert_equal(matmul_result.units, res.units)
+    assert_isinstance(matmul_result, unyt_array)
+
+    ev_result = arr.dot(arr.T)
+    matmul_result = arr @ arr.T
+    res = unyt_array([[14.0, 32.0], [32.0, 77.0]], "cm**2")
+    assert_equal(ev_result, res)
+    assert_equal(ev_result.units, res.units)
+    assert_isinstance(ev_result, unyt_array)
+    assert_equal(matmul_result, res)
+    assert_equal(matmul_result.units, res.units)
+    assert_isinstance(matmul_result, unyt_array)
+
+    ev_result = arr.v.dot(arr.T)
+    matmul_result = arr.v @ arr.T
+    res = unyt_array([[14.0, 32.0], [32.0, 77.0]], "cm")
+    assert_equal(ev_result, res)
+    assert_equal(ev_result.units, res.units)
+    assert_isinstance(ev_result, unyt_array)
+    assert_equal(matmul_result, res)
+    assert_equal(matmul_result.units, res.units)
+    assert_isinstance(matmul_result, unyt_array)
+
+    ev_result = arr.dot(arr.T.v)
+    matmul_result = arr @ arr.T.v
+    res = unyt_array([[14.0, 32.0], [32.0, 77.0]], "cm")
+    assert_equal(ev_result, res)
+    assert_equal(ev_result.units, res.units)
+    assert_isinstance(ev_result, unyt_array)
+    assert_equal(matmul_result, res)
+    assert_equal(matmul_result.units, res.units)
+    assert_isinstance(matmul_result, unyt_array)
+
+    arr = unyt_array([[1.0, 2.0], [3.0, 4.0]], "kg")
+    arr.dot(arr.T, out=arr)
+    res = unyt_array([[5.0, 11.0], [11.0, 25.0]], "kg**2")
+    assert_equal(arr, res)
+    assert_equal(arr.units, res.units)
+    assert_isinstance(arr, unyt_array)
 
     qv = unyt_array([1, 2, 3], "cm").dot(unyt_array([1, 2, 3], "cm"))
+    mv = unyt_array([1, 2, 3], "cm") @ unyt_array([1, 2, 3], "cm")
     qa = unyt_quantity(14, "cm**2")
     assert qv == qa
     assert qv.units == qa.units
     assert_isinstance(qv, unyt_quantity)
+    assert mv == qa
+    assert mv.units == qa.units
+    assert_isinstance(mv, unyt_quantity)
+
+    qv = unyt_array([1, 2, 3], "cm").dot(np.array([1, 2, 3]))
+    mv = unyt_array([1, 2, 3], "cm") @ np.array([1, 2, 3])
+    qa = unyt_quantity(14, "cm")
+    assert qv == qa
+    assert qv.units == qa.units
+    assert_isinstance(qv, unyt_quantity)
+    assert mv == qa
+    assert mv.units == qa.units
+    assert_isinstance(mv, unyt_quantity)
+
+
+def test_reductions():
+    arr = unyt_array([[1, 2, 3], [4, 5, 6]], "cm")
 
     answers = {
         "prod": (
