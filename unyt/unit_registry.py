@@ -34,7 +34,7 @@ def _sanitize_unit_system(unit_system, obj):
     elif hasattr(unit_system, "unit_registry"):
         unit_system = unit_system.unit_registry.unit_system_id
     elif unit_system == "code":
-        unit_system = obj.registry.unit_system_id
+        unit_system = obj.units.registry.unit_system_id
     return unit_system_registry[str(unit_system)]
 
 

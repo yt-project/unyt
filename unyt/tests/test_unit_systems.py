@@ -17,7 +17,12 @@ import unyt.unit_symbols as us
 
 from unyt.exceptions import IllDefinedUnitSystem, MissingMKSCurrent
 from unyt.unit_object import Unit
-from unyt.unit_systems import UnitSystem, cgs_unit_system, unit_system_registry
+from unyt.unit_systems import (
+    UnitSystem,
+    cgs_unit_system,
+    mks_unit_system,
+    unit_system_registry,
+)
 from unyt.unit_registry import UnitRegistry
 from unyt import dimensions
 
@@ -69,6 +74,30 @@ def test_bad_unit_system():
         UnitSystem("atomic", us.nm, us.fs, us.nK, us.rad, registry=UnitRegistry())
 
 
+def test_code_unit_system():
+    ureg = UnitRegistry()
+    ureg.add("code_length", 2.0, dimensions.length)
+    ureg.add("code_mass", 3.0, dimensions.mass)
+    ureg.add("code_time", 4.0, dimensions.time)
+    ureg.add("code_temperature", 5.0, dimensions.temperature)
+    code_unit_system = UnitSystem(
+        "my_unit_system",
+        "code_length",
+        "code_mass",
+        "code_time",
+        "code_temperature",
+        registry=ureg,
+    )
+    assert code_unit_system["length"] == Unit("code_length", registry=ureg)
+    assert code_unit_system["length"].base_value == 2
+    assert code_unit_system["mass"] == Unit("code_mass", registry=ureg)
+    assert code_unit_system["mass"].base_value == 3
+    assert code_unit_system["time"] == Unit("code_time", registry=ureg)
+    assert code_unit_system["time"].base_value == 4
+    assert code_unit_system["temperature"] == Unit("code_temperature", registry=ureg)
+    assert code_unit_system["temperature"].base_value == 5
+
+
 def test_mks_current():
     with pytest.raises(MissingMKSCurrent):
         cgs_unit_system[dimensions.current_mks]
@@ -78,6 +107,8 @@ def test_mks_current():
         cgs_unit_system[dimensions.current_mks] = "foo"
     with pytest.raises(MissingMKSCurrent):
         cgs_unit_system[dimensions.magnetic_field] = "bar"
+    assert cgs_unit_system.has_current_mks is False
+    assert mks_unit_system.has_current_mks is True
 
 
 def test_create_unit_system_from_unit_objects():
