@@ -2,6 +2,11 @@
 History
 =======
 
+2.1.1 (2019-03-27)
+------------------
+
+* Fixed an issue with restoring unit registries from JSON output. See `PR #81 <https://github.com/yt-project/unyt/pull/81>`_.
+
 2.1.0 (2019-03-26)
 ------------------
 
