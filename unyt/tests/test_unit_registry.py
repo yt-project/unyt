@@ -16,7 +16,7 @@ Test unit lookup tables and registry
 
 import pytest
 
-from unyt.dimensions import length
+from unyt.dimensions import length, energy
 from unyt.exceptions import SymbolNotFoundError, UnitParseError
 from unyt.unit_object import Unit
 from unyt.unit_registry import UnitRegistry
@@ -74,3 +74,14 @@ def test_registry_contains():
     assert "Merg" in ureg
     assert "foobar" not in ureg
     assert Unit("m", registry=ureg) in ureg
+
+
+def test_registry_json():
+    reg = UnitRegistry()
+    json_reg = reg.to_json()
+    unserialized_reg = UnitRegistry.from_json(json_reg)
+
+    assert reg.lut == unserialized_reg.lut
+
+    assert reg.lut["m"][1] is length
+    assert reg.lut["erg"][1] is energy

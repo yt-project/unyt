@@ -545,14 +545,6 @@ def test_latitude_longitude():
     assert_equal((lon * 180.0).in_units("deg"), deg * 360)
 
 
-def test_registry_json():
-    reg = UnitRegistry()
-    json_reg = reg.to_json()
-    unserialized_reg = UnitRegistry.from_json(json_reg)
-
-    assert_equal(reg.lut, unserialized_reg.lut)
-
-
 def test_creation_from_ytarray():
     from unyt import electrostatic_unit, elementary_charge_cgs
 
