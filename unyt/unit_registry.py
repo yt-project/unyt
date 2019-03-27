@@ -15,11 +15,12 @@ A registry for units that can be added to and modified.
 
 import json
 
+from unyt import dimensions as unyt_dims
 from unyt.exceptions import SymbolNotFoundError, UnitParseError
 from unyt._unit_lookup_table import default_unit_symbol_lut, unit_prefixes
 from unyt.unit_systems import mks_unit_system, _split_prefix, unit_system_registry
 from hashlib import md5
-from sympy import sympify, srepr
+from sympy import sympify
 
 
 def _sanitize_unit_system(unit_system, obj):
@@ -228,7 +229,7 @@ class UnitRegistry:
         sanitized_lut = {}
         for k, v in self.lut.items():
             san_v = list(v)
-            repr_dims = srepr(v[1])
+            repr_dims = str(v[1])
             san_v[1] = repr_dims
             sanitized_lut[k] = tuple(san_v)
 
@@ -249,7 +250,7 @@ class UnitRegistry:
         lut = {}
         for k, v in data.items():
             unsan_v = list(v)
-            unsan_v[1] = sympify(v[1])
+            unsan_v[1] = sympify(v[1], locals=vars(unyt_dims))
             lut[k] = tuple(unsan_v)
 
         return cls(lut=lut, add_default_symbols=False)
