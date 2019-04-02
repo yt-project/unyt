@@ -153,6 +153,14 @@ def test_create_from_string():
         Unit("m-g")
     with pytest.raises(UnitParseError):
         Unit("hello!")
+    with pytest.raises(UnitParseError):
+        Unit("True")
+    with pytest.raises(UnitParseError):
+        Unit("else")
+    with pytest.raises(UnitParseError):
+        Unit("hello(37)")
+    with pytest.raises(UnitParseError):
+        Unit("hello(foo=37)")
 
     cm = Unit("cm")
     data = 1 * cm

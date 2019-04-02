@@ -14,7 +14,6 @@ parsing utilities
 # -----------------------------------------------------------------------------
 
 
-from keyword import iskeyword
 from sympy.parsing.sympy_parser import parse_expr, auto_number, rationalize
 from sympy import Basic, Float, Integer, Rational, sqrt, Symbol
 import token
@@ -30,7 +29,6 @@ def _auto_positive_symbol(tokens, local_dict, global_dict):
     Adapted from sympy.sympy.parsing.sympy_parser.auto_symbol
     """
     result = []
-    prevTok = (None, None)
 
     tokens.append((None, None))  # so zip traverses all tokens
     for tok, nextTok in zip(tokens, tokens[1:]):
@@ -38,24 +36,7 @@ def _auto_positive_symbol(tokens, local_dict, global_dict):
         nextTokNum, nextTokVal = nextTok
         if tokNum == token.NAME:
             name = tokVal
-            if (
-                name in ["True", "False", "None"]
-                # special case 'as' for attosecond
-                or (iskeyword(name) and name != "as")
-                or name in local_dict
-                # Don't convert attribute access
-                or (prevTok[0] == token.OP and prevTok[1] == ".")
-                # Don't convert keyword arguments
-                or (
-                    prevTok[0] == token.OP
-                    and prevTok[1] in ("(", ",")
-                    and nextTokNum == token.OP
-                    and nextTokVal == "="
-                )
-            ):
-                result.append((token.NAME, name))
-                continue
-            elif name in global_dict:
+            if name in global_dict:
                 obj = global_dict[name]
                 if isinstance(obj, (Basic, type)) or callable(obj):
                     result.append((token.NAME, name))
@@ -84,8 +65,6 @@ def _auto_positive_symbol(tokens, local_dict, global_dict):
         else:
             result.append((tokNum, tokVal))
 
-        prevTok = (tokNum, tokVal)
-
     return result
 
 
@@ -109,7 +88,7 @@ def parse_unyt_expr(unit_expr):
         unit_expr = parse_expr(
             unit_expr, global_dict=global_dict, transformations=unit_text_transform
         )
-    except SyntaxError as e:
+    except Exception as e:
         msg = "Unit expression '%s' raised an error during parsing:\n%s" % (
             unit_expr,
             repr(e),
