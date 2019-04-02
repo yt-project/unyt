@@ -842,12 +842,9 @@ def _check_em_conversion(unit, to_unit=None, unit_system=None, registry=None):
     if em_map:
         return em_map
     if unit_system is None:
-        if to_unit.dimensions != unit.dimensions:
-            raise MKSCGSConversionError(unit)
-        else:
-            from unyt.unit_systems import unit_system_registry
+        from unyt.unit_systems import unit_system_registry
 
-            unit_system = unit_system_registry["mks"]
+        unit_system = unit_system_registry["mks"]
     for unit_atom in unit.expr.atoms():
         if unit_atom.is_Number:
             continue
@@ -858,15 +855,6 @@ def _check_em_conversion(unit, to_unit=None, unit_system=None, registry=None):
                 continue
         except MissingMKSCurrent:
             raise MKSCGSConversionError(unit)
-        if (bu, budims) in em_conversions:
-            conv_unit = em_conversions[bu, budims][1]
-            if to_unit is not None:
-                for to_unit_atom in to_unit.expr.atoms():
-                    bou = str(to_unit_atom)
-                    if bou == conv_unit:
-                        raise MKSCGSConversionError(unit)
-            else:
-                raise MKSCGSConversionError(unit)
     return em_map
 
 

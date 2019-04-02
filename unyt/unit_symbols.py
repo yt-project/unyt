@@ -31,6 +31,3 @@ _namespace = globals()
 for _canonical_name, _alt_names in _name_alternatives.items():
     for _alt_name in _alt_names:
         _namespace[_alt_name] = _Unit(_canonical_name, registry=_registry)
-for _name in _registry.keys():
-    if _name not in _namespace:
-        _namespace[_name] = _Unit(_name, registry=_registry)

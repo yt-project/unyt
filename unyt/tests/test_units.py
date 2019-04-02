@@ -44,7 +44,11 @@ from unyt.dimensions import (
 from unyt.exceptions import InvalidUnitOperation, UnitsNotReducible, UnitConversionError
 from unyt.unit_object import default_unit_registry, Unit, UnitParseError
 from unyt.unit_systems import cgs_unit_system, UnitSystem
-from unyt._unit_lookup_table import default_unit_symbol_lut, unit_prefixes
+from unyt._unit_lookup_table import (
+    default_unit_symbol_lut,
+    name_alternatives,
+    unit_prefixes,
+)
 import unyt.unit_symbols as unit_symbols
 from unyt._physical_ratios import (
     m_per_pc,
@@ -403,6 +407,7 @@ def test_equality():
     u2 = Unit("m * ms**-1")
 
     assert u1 == u2
+    assert u1.copy() == u2
 
 
 def test_invalid_operations():
@@ -748,3 +753,13 @@ def test_micro():
 
     assert str(Unit("um")) == "µm"
     assert str(Unit("us")) == "µs"
+
+
+def test_show_all_units_doc_table_ops():
+    for name in set(name_alternatives.keys()):
+        u = Unit(name)
+        (1 * u).in_mks()
+        try:
+            (1 * u).in_cgs()
+        except UnitsNotReducible:
+            pass

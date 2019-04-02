@@ -121,12 +121,7 @@ class MKSCGSConversionError(Exception):
     UnitConversionError.
     """
 
-    def __init__(self, unit):
-        self.unit = unit
-
-    def __str__(self):
-        err = "The '%s' unit cannot be safely converted." % self.unit
-        return err
+    pass
 
 
 class UnitsNotReducible(Exception):
