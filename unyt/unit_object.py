@@ -582,7 +582,10 @@ class Unit(object):
         if any(conv_data):
             new_units, _ = _em_conversion(self, conv_data, unit_system=unit_system)
         else:
-            new_units = unit_system[self.dimensions]
+            try:
+                new_units = unit_system[self.dimensions]
+            except MissingMKSCurrent:
+                raise UnitsNotReducible(self.units, unit_system)
         return Unit(new_units, registry=self.registry)
 
     def get_cgs_equivalent(self):
