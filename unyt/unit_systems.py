@@ -18,7 +18,6 @@ from unyt._parsing import parse_unyt_expr
 from unyt._unit_lookup_table import (
     default_unit_symbol_lut as default_lut,
     inv_name_alternatives,
-    name_alternatives,
     physical_constants,
     unit_prefixes,
 )
@@ -51,14 +50,15 @@ def add_symbols(namespace, registry):
     >>> foo.joule
     J
     """
+    import unyt.unit_symbols as us
     from unyt.unit_object import Unit
 
-    for canonical_name, alt_names in name_alternatives.items():
-        for alt_name in alt_names:
-            namespace[alt_name] = Unit(canonical_name, registry=registry)
-    for name in registry.keys():
-        if name not in namespace:
-            namespace[name] = Unit(name, registry=registry)
+    for name, unit in vars(us).items():
+        if name.startswith("_"):
+            continue
+        namespace[name] = Unit(unit.expr, registry=registry)
+    for name in [k for k in registry.keys() if k not in namespace]:
+        namespace[name] = Unit(name, registry=registry)
 
 
 def add_constants(namespace, registry):
