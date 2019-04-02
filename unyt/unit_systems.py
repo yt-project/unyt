@@ -14,6 +14,7 @@ Unit system class.
 from collections import OrderedDict
 from unyt import dimensions
 from unyt.exceptions import MissingMKSCurrent, IllDefinedUnitSystem, UnitsNotReducible
+from unyt._parsing import parse_unyt_expr
 from unyt._unit_lookup_table import (
     default_unit_symbol_lut as default_lut,
     inv_name_alternatives,
@@ -211,18 +212,21 @@ class UnitSystem(object):
                 (dimensions.luminous_intensity, luminous_intensity_unit),
             ]
         )
+        for k, v in self.units_map.items():
+            if v is not None:
+                self.units_map[k] = parse_unyt_expr(str(v))
         for dimension, unit in self.units_map.items():
             # CGS sets the current_mks unit to none, so catch it here
             if unit is None and dimension is dimensions.current_mks:
                 continue
-            if self.registry is not None and self.registry[unit][1] is not dimension:
+            if (
+                self.registry is not None
+                and self.registry[str(unit)][1] is not dimension
+            ):
                 raise IllDefinedUnitSystem(self.units_map)
             elif self.registry is None:
-                if isinstance(unit, str):
-                    bu = _split_prefix(unit, default_lut)[1]
-                    inferred_dimension = default_lut[inv_name_alternatives[bu]][1]
-                else:
-                    inferred_dimension = getattr(unit, "dimensions", None)
+                bu = _split_prefix(str(unit), default_lut)[1]
+                inferred_dimension = default_lut[inv_name_alternatives[bu]][1]
                 if inferred_dimension is not dimension:
                     raise IllDefinedUnitSystem(self.units_map)
         self._dims = [
@@ -249,7 +253,7 @@ class UnitSystem(object):
             if cmks in key.free_symbols and self.units_map[cmks] is None:
                 raise MissingMKSCurrent(self.name)
             units = _get_system_unit_string(key, self.units_map)
-            self.units_map[key] = units
+            self.units_map[key] = parse_unyt_expr(units)
             return Unit(units, registry=self.registry)
         return Unit(self.units_map[key], registry=self.registry)
 
@@ -260,7 +264,7 @@ class UnitSystem(object):
             key = getattr(dimensions, key)
         if self.units_map[cmks] is None and cmks in key.free_symbols:
             raise MissingMKSCurrent(self.name)
-        self.units_map[key] = value
+        self.units_map[key] = parse_unyt_expr(str(value))
 
     def __str__(self):
         return self.name
