@@ -126,9 +126,9 @@ def _split_prefix(symbol_str, unit_symbol_lut):
             symbol_wo_pref = symbol_str[2:]
             possible_prefix = "da"
 
-        prefixable_units = [u for u in unit_symbol_lut if unit_symbol_lut[u][4]]
+        entry = unit_symbol_lut.get(symbol_wo_pref, None)
 
-        if symbol_wo_pref in unit_symbol_lut and symbol_wo_pref in prefixable_units:
+        if entry and entry[4]:
             return possible_prefix, symbol_wo_pref
     return "", symbol_str
 
