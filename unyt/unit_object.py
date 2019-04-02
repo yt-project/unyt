@@ -296,10 +296,7 @@ class Unit(object):
                 "sympy Expr. '%s' has type '%s'." % (unit_expr, type(unit_expr))
             )
 
-        # this is slightly faster if unit_expr is the same object as
-        # sympy_one than just checking for == equality
-        is_one = unit_expr is sympy_one or unit_expr == sympy_one
-        if dimensions is None and is_one:
+        if dimensions is None and unit_expr is sympy_one:
             dimensions = dimensionless
 
         if registry is None:
@@ -882,6 +879,8 @@ em_conversions = {
     ),
 }
 
+em_conversion_dims = [k[1] for k in em_conversions.keys()]
+
 
 def _em_conversion(orig_units, conv_data, to_units=None, unit_system=None):
     """Convert between E&M & MKS base units.
@@ -895,14 +894,11 @@ def _em_conversion(orig_units, conv_data, to_units=None, unit_system=None):
     conv_unit, canonical_unit, scale = conv_data
     if conv_unit is None:
         conv_unit = canonical_unit
-    new_expr = orig_units.copy().expr.replace(
-        orig_units.expr, scale * canonical_unit.expr
-    )
+    new_expr = scale * canonical_unit.expr
     if unit_system is not None:
         # we don't know the to_units, so we get it directly from the
         # conv_data
-        inter_expr = orig_units.copy().expr.replace(orig_units.expr, conv_unit.expr)
-        to_units = Unit(inter_expr, registry=orig_units.registry)
+        to_units = Unit(conv_unit.expr, registry=orig_units.registry)
     new_units = Unit(new_expr, registry=orig_units.registry)
     conv = new_units.get_conversion_factor(to_units)
     return to_units, conv
@@ -923,7 +919,7 @@ def _check_em_conversion(unit, to_unit=None, unit_system=None, registry=None):
     trying to convert between CGS & MKS E&M units, it raises an error.
     """
     em_map = ()
-    if unit == to_unit:
+    if unit == to_unit or unit.dimensions not in em_conversion_dims:
         return em_map
     if unit.is_atomic:
         prefix, unit_wo_prefix = _split_prefix(str(unit), unit.registry.lut)
@@ -1033,7 +1029,7 @@ def _get_unit_data_from_expr(unit_expr, unit_symbol_lut):
         return (float(unit_expr), sympy_one)
 
     if isinstance(unit_expr, Symbol):
-        return _lookup_unit_symbol(str(unit_expr), unit_symbol_lut)
+        return _lookup_unit_symbol(unit_expr.name, unit_symbol_lut)
 
     if isinstance(unit_expr, Pow):
         unit_data = _get_unit_data_from_expr(unit_expr.args[0], unit_symbol_lut)
