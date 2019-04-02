@@ -22,7 +22,15 @@ For example::
 # The full license is in the LICENSE file, distributed with this software.
 # -----------------------------------------------------------------------------
 
-from unyt.unit_registry import default_unit_registry as _default_unit_registry
-from unyt.unit_systems import add_symbols as _add_symbols
+from unyt.unit_registry import default_unit_registry as _registry
+from unyt.unit_object import Unit as _Unit
+from unyt._unit_lookup_table import name_alternatives as _name_alternatives
 
-_add_symbols(globals(), registry=_default_unit_registry)
+_namespace = globals()
+
+for _canonical_name, _alt_names in _name_alternatives.items():
+    for _alt_name in _alt_names:
+        _namespace[_alt_name] = _Unit(_canonical_name, registry=_registry)
+for _name in _registry.keys():
+    if _name not in _namespace:
+        _namespace[_name] = _Unit(_name, registry=_registry)
