@@ -2,6 +2,13 @@
 History
 =======
 
+2.2.0 (2019-04-03)
+------------------
+
+* Several performance optimizations. This includes a slight change to the behavior
+  of MKS/CGS E&M unit conversions that makes the conversion rules slightly more relaxed.
+  See `PR #82 <https://github.com/yt-project/unyt/pull/82>`.
+
 2.1.1 (2019-03-27)
 ------------------
 
