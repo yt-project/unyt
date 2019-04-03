@@ -16,12 +16,9 @@ A class that represents a unit symbol.
 import copy
 import itertools
 import math
-
-from functools import lru_cache
-from keyword import iskeyword as _iskeyword
 import numpy as np
+from functools import lru_cache
 from numbers import Number as numeric_type
-import token
 
 from sympy import (
     Expr,
@@ -30,17 +27,14 @@ from sympy import (
     Number,
     Pow,
     Symbol,
-    Integer,
     Float,
     Basic,
     Rational,
-    sqrt,
     Mod,
     floor,
 )
 from sympy.core.numbers import One
 from sympy import sympify, latex
-from sympy.parsing.sympy_parser import parse_expr, auto_number, rationalize
 
 from unyt.dimensions import (
     angle,
@@ -58,92 +52,14 @@ from unyt.exceptions import (
     UnitConversionError,
     UnitDtypeError,
     UnitsNotReducible,
-)
-from unyt._physical_ratios import speed_of_light_cm_per_s
-from unyt._unit_lookup_table import inv_name_alternatives
-from unyt.unit_registry import (
-    default_unit_registry,
-    _lookup_unit_symbol,
-    UnitRegistry,
     UnitParseError,
 )
+from unyt._parsing import parse_unyt_expr
+from unyt._physical_ratios import speed_of_light_cm_per_s
+from unyt.unit_registry import default_unit_registry, _lookup_unit_symbol, UnitRegistry
 from unyt.unit_systems import _split_prefix
 
 sympy_one = sympify(1)
-
-global_dict = {
-    "Symbol": Symbol,
-    "Integer": Integer,
-    "Float": Float,
-    "Rational": Rational,
-    "sqrt": sqrt,
-}
-
-
-def _auto_positive_symbol(tokens, local_dict, global_dict):
-    """
-    Inserts calls to ``Symbol`` for undefined variables.
-    Passes in positive=True as a keyword argument.
-    Adapted from sympy.sympy.parsing.sympy_parser.auto_symbol
-    """
-    result = []
-    prevTok = (None, None)
-
-    tokens.append((None, None))  # so zip traverses all tokens
-    for tok, nextTok in zip(tokens, tokens[1:]):
-        tokNum, tokVal = tok
-        nextTokNum, nextTokVal = nextTok
-        if tokNum == token.NAME:
-            name = tokVal
-            if (
-                name in ["True", "False", "None"]
-                # special case 'as' for attosecond
-                or (_iskeyword(name) and name != "as")
-                or name in local_dict
-                # Don't convert attribute access
-                or (prevTok[0] == token.OP and prevTok[1] == ".")
-                # Don't convert keyword arguments
-                or (
-                    prevTok[0] == token.OP
-                    and prevTok[1] in ("(", ",")
-                    and nextTokNum == token.OP
-                    and nextTokVal == "="
-                )
-            ):
-                result.append((token.NAME, name))
-                continue
-            elif name in global_dict:
-                obj = global_dict[name]
-                if isinstance(obj, (Basic, type)) or callable(obj):
-                    result.append((token.NAME, name))
-                    continue
-
-            # try to resolve known alternative unit name
-            try:
-                used_name = inv_name_alternatives[str(name)]
-            except KeyError:
-                # if we don't know this name it's a user-defined unit name
-                # so we should create a new symbol for it
-                used_name = str(name)
-
-            result.extend(
-                [
-                    (token.NAME, "Symbol"),
-                    (token.OP, "("),
-                    (token.NAME, repr(used_name)),
-                    (token.OP, ","),
-                    (token.NAME, "positive"),
-                    (token.OP, "="),
-                    (token.NAME, "True"),
-                    (token.OP, ")"),
-                ]
-            )
-        else:
-            result.append((tokNum, tokVal))
-
-        prevTok = (tokNum, tokVal)
-
-    return result
 
 
 def _get_latex_representation(expr, registry):
@@ -192,9 +108,6 @@ def _get_latex_representation(expr, registry):
         return ""
     else:
         return latex_repr
-
-
-unit_text_transform = (_auto_positive_symbol, rationalize, auto_number)
 
 
 class Unit(object):
@@ -257,22 +170,7 @@ class Unit(object):
             if registry and unit_expr in registry._unit_object_cache:
                 return registry._unit_object_cache[unit_expr]
             unit_cache_key = unit_expr
-            if not unit_expr:
-                # Bug catch...
-                # if unit_expr is an empty string, parse_expr fails hard...
-                unit_expr = "1"
-            try:
-                unit_expr = parse_expr(
-                    unit_expr,
-                    global_dict=global_dict,
-                    transformations=unit_text_transform,
-                )
-            except SyntaxError as e:
-                msg = "Unit expression '%s' raised an error during parsing:\n%s" % (
-                    unit_expr,
-                    repr(e),
-                )
-                raise UnitParseError(msg)
+            unit_expr = parse_unyt_expr(unit_expr)
         # Simplest case. If user passes a Unit object, just use the expr.
         elif isinstance(unit_expr, Unit):
             # grab the unit object's sympy expression.
@@ -296,10 +194,7 @@ class Unit(object):
                 "sympy Expr. '%s' has type '%s'." % (unit_expr, type(unit_expr))
             )
 
-        # this is slightly faster if unit_expr is the same object as
-        # sympy_one than just checking for == equality
-        is_one = unit_expr is sympy_one or unit_expr == sympy_one
-        if dimensions is None and is_one:
+        if dimensions is None and unit_expr is sympy_one:
             dimensions = dimensionless
 
         if registry is None:
@@ -687,7 +582,10 @@ class Unit(object):
         if any(conv_data):
             new_units, _ = _em_conversion(self, conv_data, unit_system=unit_system)
         else:
-            new_units = unit_system[self.dimensions]
+            try:
+                new_units = unit_system[self.dimensions]
+            except MissingMKSCurrent:
+                raise UnitsNotReducible(self.units, unit_system)
         return Unit(new_units, registry=self.registry)
 
     def get_cgs_equivalent(self):
@@ -882,6 +780,8 @@ em_conversions = {
     ),
 }
 
+em_conversion_dims = [k[1] for k in em_conversions.keys()]
+
 
 def _em_conversion(orig_units, conv_data, to_units=None, unit_system=None):
     """Convert between E&M & MKS base units.
@@ -895,14 +795,11 @@ def _em_conversion(orig_units, conv_data, to_units=None, unit_system=None):
     conv_unit, canonical_unit, scale = conv_data
     if conv_unit is None:
         conv_unit = canonical_unit
-    new_expr = orig_units.copy().expr.replace(
-        orig_units.expr, scale * canonical_unit.expr
-    )
+    new_expr = scale * canonical_unit.expr
     if unit_system is not None:
         # we don't know the to_units, so we get it directly from the
         # conv_data
-        inter_expr = orig_units.copy().expr.replace(orig_units.expr, conv_unit.expr)
-        to_units = Unit(inter_expr, registry=orig_units.registry)
+        to_units = Unit(conv_unit.expr, registry=orig_units.registry)
     new_units = Unit(new_expr, registry=orig_units.registry)
     conv = new_units.get_conversion_factor(to_units)
     return to_units, conv
@@ -923,7 +820,7 @@ def _check_em_conversion(unit, to_unit=None, unit_system=None, registry=None):
     trying to convert between CGS & MKS E&M units, it raises an error.
     """
     em_map = ()
-    if unit == to_unit:
+    if unit == to_unit or unit.dimensions not in em_conversion_dims:
         return em_map
     if unit.is_atomic:
         prefix, unit_wo_prefix = _split_prefix(str(unit), unit.registry.lut)
@@ -945,12 +842,9 @@ def _check_em_conversion(unit, to_unit=None, unit_system=None, registry=None):
     if em_map:
         return em_map
     if unit_system is None:
-        if to_unit.dimensions != unit.dimensions:
-            raise MKSCGSConversionError(unit)
-        else:
-            from unyt.unit_systems import unit_system_registry
+        from unyt.unit_systems import unit_system_registry
 
-            unit_system = unit_system_registry["mks"]
+        unit_system = unit_system_registry["mks"]
     for unit_atom in unit.expr.atoms():
         if unit_atom.is_Number:
             continue
@@ -961,15 +855,6 @@ def _check_em_conversion(unit, to_unit=None, unit_system=None, registry=None):
                 continue
         except MissingMKSCurrent:
             raise MKSCGSConversionError(unit)
-        if (bu, budims) in em_conversions:
-            conv_unit = em_conversions[bu, budims][1]
-            if to_unit is not None:
-                for to_unit_atom in to_unit.expr.atoms():
-                    bou = str(to_unit_atom)
-                    if bou == conv_unit:
-                        raise MKSCGSConversionError(unit)
-            else:
-                raise MKSCGSConversionError(unit)
     return em_map
 
 
@@ -1033,7 +918,7 @@ def _get_unit_data_from_expr(unit_expr, unit_symbol_lut):
         return (float(unit_expr), sympy_one)
 
     if isinstance(unit_expr, Symbol):
-        return _lookup_unit_symbol(str(unit_expr), unit_symbol_lut)
+        return _lookup_unit_symbol(unit_expr.name, unit_symbol_lut)
 
     if isinstance(unit_expr, Pow):
         unit_data = _get_unit_data_from_expr(unit_expr.args[0], unit_symbol_lut)

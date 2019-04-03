@@ -98,7 +98,7 @@ Ready to contribute? Here's how to set up ``unyt`` for local development.
     $ flake8 unyt
     $ black ./
     $ pytest --doctest-modules --doctest-rst --doctest-plus
-    $ tox -p auto
+    $ tox
 
    To get ``flake8``, ``black``, ``pytest``, ``pytest-doctestplus``, and
    ``tox``, just pip install them into your virtualenv.
@@ -127,9 +127,9 @@ run this command. Some tests depend on ``h5py``, ``Pint``, ``astropy``,
 If you would like to run the tests on multiple python versions, first ensure that you have multiple python versions visible on your ``$PATH``, then simply execute ``tox`` in the root of the ``unyt`` repository::
 
    $ cd unyt
-   $ tox -p auto
+   $ tox
 
-The ``tox`` package itself can be installed using the ``pip`` associated with one of the python installations. See the ``tox.ini`` file in the root of the repository for more details about our ``tox`` setup. Note that you do not need to install anything besides ``tox`` and ``python`` for this to work, ``tox`` will handle setting up the test environment, including installing any necessary dependencies via ``pip``. Running ``tox`` with ``-p auto`` will run the tests in parallel and is not required but may make the tests run more quickly.
+The ``tox`` package itself can be installed using the ``pip`` associated with one of the python installations. See the ``tox.ini`` file in the root of the repository for more details about our ``tox`` setup. Note that you do not need to install anything besides ``tox`` and ``python`` for this to work, ``tox`` will handle setting up the test environment, including installing any necessary dependencies via ``pip``.
 
 Pull Request Guidelines
 -----------------------

@@ -14,7 +14,6 @@ unyt_array class.
 # -----------------------------------------------------------------------------
 
 import copy
-from functools import wraps
 
 from functools import lru_cache
 from numbers import Number as numeric_type
@@ -116,7 +115,6 @@ from unyt.exceptions import (
     InvalidUnitEquivalence,
     InvalidUnitOperation,
     MKSCGSConversionError,
-    UnitConversionError,
     UnitOperationError,
     UnitsNotReducible,
 )
@@ -141,19 +139,6 @@ def _iterable(obj):
     except Exception:
         return False
     return True
-
-
-def _return_arr(func):
-    @wraps(func)
-    def wrapped(*args, **kwargs):
-        ret, units = func(*args, **kwargs)
-        if ret.shape == ():
-            return unyt_quantity(ret, units)
-        else:
-            # This could be a subclass, so don't call unyt_array directly.
-            return type(args[0])(ret, units)
-
-    return wrapped
 
 
 @lru_cache(maxsize=128, typed=False)
@@ -598,14 +583,9 @@ class unyt_array(np.ndarray):
         """
         units = _sanitize_units_convert(units, self.units.registry)
         if equivalence is None:
-            try:
-                conv_data = _check_em_conversion(
-                    self.units, units, registry=self.units.registry
-                )
-            except MKSCGSConversionError:
-                raise UnitConversionError(
-                    self.units, self.units.dimensions, units, units.dimensions
-                )
+            conv_data = _check_em_conversion(
+                self.units, units, registry=self.units.registry
+            )
             if any(conv_data):
                 new_units, (conv_factor, offset) = _em_conversion(
                     self.units, conv_data, units
@@ -793,14 +773,9 @@ class unyt_array(np.ndarray):
         """
         units = _sanitize_units_convert(units, self.units.registry)
         if equivalence is None:
-            try:
-                conv_data = _check_em_conversion(
-                    self.units, units, registry=self.units.registry
-                )
-            except MKSCGSConversionError:
-                raise UnitConversionError(
-                    self.units, self.units.dimensions, units, units.dimensions
-                )
+            conv_data = _check_em_conversion(
+                self.units, units, registry=self.units.registry
+            )
             if any(conv_data):
                 new_units, (conversion_factor, offset) = _em_conversion(
                     self.units, conv_data, units
@@ -944,7 +919,7 @@ class unyt_array(np.ndarray):
                 self.units, unit_system=us, registry=self.units.registry
             )
         except MKSCGSConversionError:
-            raise UnitsNotReducible(self.units, unit_system)
+            raise UnitsNotReducible(self.units, us)
         if any(conv_data):
             to_units, (conv, offset) = _em_conversion(
                 self.units, conv_data, unit_system=us

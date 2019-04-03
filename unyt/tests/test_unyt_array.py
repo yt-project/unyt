@@ -1859,13 +1859,10 @@ def test_electromagnetic():
     u_mks = B * B / (2 * u.mu_0)
     assert_equal(u_mks.units.dimensions, dimensions.pressure)
     u_cgs = B_cgs * B_cgs / (8 * np.pi)
-    with pytest.raises(UnitConversionError):
-        u_cgs.to(u_mks.units)
+    assert_equal(u_mks, u_cgs.to(u_mks.units))
     assert_equal(u_mks.to(u_cgs.units), u_cgs)
-    with pytest.raises(UnitsNotReducible):
-        u_mks.in_cgs()
-    with pytest.raises(UnitsNotReducible):
-        u_cgs.in_mks()
+    assert_equal(u_mks.in_cgs(), u_cgs)
+    assert_equal(u_cgs.in_mks(), u_mks)
 
     current = 1.0 * u.A
     I_cgs = current.in_units("statA")
@@ -1891,10 +1888,10 @@ def test_electromagnetic():
     P_cgs = I_cgs * I_cgs * R_cgs
     assert_equal(P_mks.units.dimensions, dimensions.power)
     assert_equal(P_cgs.units.dimensions, dimensions.power)
-    with pytest.raises(UnitsNotReducible):
-        P_cgs.in_cgs()
-    with pytest.raises(UnitsNotReducible):
-        P_mks.in_cgs()
+    assert_almost_equal(P_cgs.in_cgs(), P_cgs)
+    assert_almost_equal(P_mks.in_cgs(), P_cgs)
+    assert_almost_equal(P_cgs.in_mks(), P_mks)
+    assert_almost_equal(P_mks.in_mks(), P_mks)
 
     V = unyt_quantity(1.0, "statV")
     V_mks = V.in_units("V")
@@ -1913,8 +1910,7 @@ def test_electromagnetic():
         data.to("C*T*V")
     with pytest.raises(UnitConversionError):
         data.convert_to_units("C*T*V")
-    with pytest.raises(UnitsNotReducible):
-        data.in_mks()
+    assert_equal(data.in_mks(), 6.67384e-18 * u.m ** 5 / u.s ** 4)
 
     mu_0 = 4.0e-7 * math.pi * u.N / u.A ** 2
     eps_0 = 8.85418781782e-12 * u.m ** -3 / u.kg * u.s ** 4 * u.A ** 2
