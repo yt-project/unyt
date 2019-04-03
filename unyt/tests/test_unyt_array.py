@@ -1891,7 +1891,7 @@ def test_electromagnetic():
     assert_almost_equal(P_cgs.in_cgs(), P_cgs)
     assert_almost_equal(P_mks.in_cgs(), P_cgs)
     assert_almost_equal(P_cgs.in_mks(), P_mks)
-    assert_almost_equal(P_cgs.in_mks(), P_mks)
+    assert_almost_equal(P_mks.in_mks(), P_mks)
 
     V = unyt_quantity(1.0, "statV")
     V_mks = V.in_units("V")
