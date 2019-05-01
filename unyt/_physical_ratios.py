@@ -94,7 +94,7 @@ speed_of_light_cm_per_s = speed_of_light_m_per_s * 100.0
 standard_gravity_m_per_s2 = 9.80665
 
 # some constants
-newton_mks = 6.67384e-11
+newton_mks = 6.67408e-11
 planck_mks = 6.62606957e-34
 # permeability of Free Space
 mu_0 = 4.0e-7 * np.pi
