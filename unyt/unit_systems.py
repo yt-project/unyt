@@ -84,7 +84,7 @@ def add_constants(namespace, registry):
     ...         add_constants(vars(self), self.reg)
     >>> foo = MyClass()
     >>> foo.gravitational_constant
-    unyt_quantity(6.67384e-08, 'cm**3/(g*s**2)')
+    unyt_quantity(6.67408e-08, 'cm**3/(g*s**2)')
     >>> foo.speed_of_light
     unyt_quantity(2.99792458e+10, 'cm/s')
     """

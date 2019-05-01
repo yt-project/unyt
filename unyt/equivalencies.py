@@ -409,9 +409,9 @@ class SchwarzschildEquivalence(Equivalence):
     schwarzschild: mass <-> length
     >>> from unyt import Msun, AU
     >>> (10*Msun).to_equivalent('km', 'schwarzschild')
-    unyt_quantity(29.5305543, 'km')
+    unyt_quantity(29.53161626, 'km')
     >>> (1*AU).to_equivalent('Msun', 'schwarzschild')
-    unyt_quantity(50658673.46804734, 'Msun')
+    unyt_quantity(50656851.7815179, 'Msun')
     """
 
     type_name = "schwarzschild"

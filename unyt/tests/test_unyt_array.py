@@ -1910,7 +1910,7 @@ def test_electromagnetic():
         data.to("C*T*V")
     with pytest.raises(UnitConversionError):
         data.convert_to_units("C*T*V")
-    assert_equal(data.in_mks(), 6.67384e-18 * u.m ** 5 / u.s ** 4)
+    assert_almost_equal(data.in_mks(), 6.67408e-18 * u.m ** 5 / u.s ** 4)
 
     mu_0 = 4.0e-7 * math.pi * u.N / u.A ** 2
     eps_0 = 8.85418781782e-12 * u.m ** -3 / u.kg * u.s ** 4 * u.A ** 2

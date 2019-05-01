@@ -10,7 +10,7 @@ For example::
     >>>
     >>> period = 2 * pi * ((1 * AU)**3 / (gravitational_constant * solar_mass))**0.5
     >>> period.in_units('day')
-    unyt_quantity(365.26893606, 'day')
+    unyt_quantity(365.26236846, 'day')
 
 .. show_all_constants::
 
