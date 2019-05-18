@@ -214,11 +214,16 @@ class UnitSystem(object):
         )
         for k, v in self.units_map.items():
             if v is not None:
-                self.units_map[k] = parse_unyt_expr(str(v))
+                if hasattr(v, "value") and hasattr(v, "units"):
+                    self.units_map[k] = v.value * v.units.expr
+                else:
+                    self.units_map[k] = parse_unyt_expr(str(v))
         for dimension, unit in self.units_map.items():
             # CGS sets the current_mks unit to none, so catch it here
             if unit is None and dimension is dimensions.current_mks:
                 continue
+            if unit.is_Mul:
+                unit = unit.as_coeff_Mul()[1]
             if (
                 self.registry is not None
                 and self.registry[str(unit)][1] is not dimension

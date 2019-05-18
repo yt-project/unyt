@@ -483,6 +483,21 @@ It is also legal to define a unit system using :class:`unyt.Unit
       luminous_intensity: cd
      Other Units:
 
+Or with a quantity:
+
+  >>> UnitSystem('quasmological', 3*megaparsec, .8*Msun, 42*second)
+    quasmological Unit System
+     Base Units:
+      length: 3*Mpc
+      mass: 0.8*Msun
+      time: 42*s
+      temperature: K
+      angle: rad
+      current_mks: A
+      luminous_intensity: cd
+     Other Units:
+
+
 Once you have defined a new unit system that will register the new system with a
 global registry of unit systems known to the :mod:`unyt` library. That means you
 will immediately be able to use it just like the built-in unit systems:
