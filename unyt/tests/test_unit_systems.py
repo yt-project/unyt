@@ -121,5 +121,5 @@ def test_create_unit_system_from_unit_objects():
 def test_create_unit_system_from_quantity():
     s = UnitSystem("test_units", us.Mpc, 3 * us.Msun, us.s)
     assert s["length"] == us.Mpc
-    assert 1 * s["mass"] == 3 * us.Msun
+    assert s["mass"] == Unit("3*Msun")
     assert s["time"] == us.s
