@@ -116,3 +116,10 @@ def test_create_unit_system_from_unit_objects():
     assert s["length"] == us.Mpc
     assert s["mass"] == us.Msun
     assert s["time"] == us.s
+
+
+def test_create_unit_system_from_quantity():
+    s = UnitSystem("test_units", us.Mpc, 3 * us.Msun, us.s)
+    assert s["length"] == us.Mpc
+    assert s["mass"] == Unit("3*Msun")
+    assert s["time"] == us.s
