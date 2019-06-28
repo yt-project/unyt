@@ -28,7 +28,7 @@ import pickle
 import pytest
 from sympy import Symbol
 
-from unyt._testing import assert_allclose_units
+from unyt.testing import assert_allclose_units
 from unyt.unit_registry import UnitRegistry
 from unyt.dimensions import (
     mass,

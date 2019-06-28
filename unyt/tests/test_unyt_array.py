@@ -58,7 +58,7 @@ from unyt.exceptions import (
     UnitParseError,
     UnitsNotReducible,
 )
-from unyt._testing import assert_allclose_units, process_warning
+from unyt.testing import assert_allclose_units, process_warning
 from unyt.unit_symbols import cm, m, g, degree
 from unyt.unit_registry import UnitRegistry
 from unyt._on_demand_imports import _astropy, _h5py, _pint, NotAModule
