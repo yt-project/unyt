@@ -110,3 +110,6 @@ docs/modules/
 # benchmark outputs
 benchmarks/*.json
 benchmarks/*.png
+
+# Pycharm config
+.idea/
