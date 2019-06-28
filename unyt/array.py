@@ -116,6 +116,7 @@ from unyt.exceptions import (
     InvalidUnitOperation,
     MKSCGSConversionError,
     UnitOperationError,
+    UnitConversionError,
     UnitsNotReducible,
 )
 from unyt.equivalencies import equivalence_registry
@@ -2278,3 +2279,35 @@ def savetxt(
         newline="\n",
         comments=comments,
     )
+
+
+def allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
+    # Create a copy to ensure this function does not alter input arrays
+    act = unyt_array(actual)
+    des = unyt_array(desired)
+
+    try:
+        des = des.in_units(act.units)
+    except (UnitOperationError, UnitConversionError):
+        return False
+
+    rt = unyt_array(rtol)
+    if not rt.units.is_dimensionless:
+        raise RuntimeError("Units of rtol (%s) are not " "dimensionless" % rt.units)
+
+    if not isinstance(atol, unyt_array):
+        at = unyt_quantity(atol, des.units)
+
+    try:
+        at = at.in_units(act.units)
+    except UnitOperationError:
+        return False
+
+    # units have been validated, so we strip units before calling numpy
+    # to avoid spurious errors
+    act = act.value
+    des = des.value
+    rt = rt.value
+    at = at.value
+
+    return np.allclose(act, des, rt, at, **kwargs)

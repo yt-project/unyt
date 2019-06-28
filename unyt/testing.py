@@ -13,10 +13,7 @@ Utilities for writing tests
 
 import warnings
 
-from numpy.testing import assert_allclose
-
-from unyt.array import unyt_array, unyt_quantity
-from unyt.exceptions import UnitConversionError, UnitOperationError
+from unyt.array import allclose_units
 
 
 def assert_allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
@@ -45,41 +42,8 @@ def assert_allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
     function for details.
 
     """
-    # Create a copy to ensure this function does not alter input arrays
-    act = unyt_array(actual)
-    des = unyt_array(desired)
-
-    try:
-        des = des.in_units(act.units)
-    except (UnitOperationError, UnitConversionError):
-        raise AssertionError(
-            "Units of actual (%s) and desired (%s) do not have "
-            "equivalent dimensions" % (act.units, des.units)
-        )
-
-    rt = unyt_array(rtol)
-    if not rt.units.is_dimensionless:
-        raise AssertionError("Units of rtol (%s) are not " "dimensionless" % rt.units)
-
-    if not isinstance(atol, unyt_array):
-        at = unyt_quantity(atol, des.units)
-
-    try:
-        at = at.in_units(act.units)
-    except UnitOperationError:
-        raise AssertionError(
-            "Units of atol (%s) and actual (%s) do not have "
-            "equivalent dimensions" % (at.units, act.units)
-        )
-
-    # units have been validated, so we strip units before calling numpy
-    # to avoid spurious errors
-    act = act.value
-    des = des.value
-    rt = rt.value
-    at = at.value
-
-    return assert_allclose(act, des, rt, at, **kwargs)
+    if not allclose_units(actual, desired, rtol, atol, **kwargs):
+        raise AssertionError
 
 
 def process_warning(op, message, warning_class, args=(), kwargs=None):
