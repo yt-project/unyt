@@ -14,7 +14,10 @@ Test unit lookup tables and registry
 # The full license is in the LICENSE file, distributed with this software.
 # -----------------------------------------------------------------------------
 
+import os
 import pytest
+
+from numpy.testing import assert_allclose
 
 from unyt.dimensions import length, energy
 from unyt.exceptions import SymbolNotFoundError, UnitParseError
@@ -85,3 +88,20 @@ def test_registry_json():
 
     assert reg.lut["m"][1] is length
     assert reg.lut["erg"][1] is energy
+
+
+def test_old_registry_json():
+    path = os.sep.join([os.path.dirname(__file__), "old_json_registry.txt"])
+    with open(path) as f:
+        json_text = f.read()
+    reg = UnitRegistry.from_json(json_text)
+    default_reg = UnitRegistry()
+
+    loaded_keys = reg.keys()
+
+    for k in default_reg.keys():
+        assert k in loaded_keys
+        loaded_val = reg[k]
+        val = default_reg[k]
+        assert_allclose(loaded_val[0], val[0])
+        assert loaded_val[1:] == val[1:]
