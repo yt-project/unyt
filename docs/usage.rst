@@ -11,9 +11,10 @@ To use unyt in a project::
 
 The top-level :mod:`unyt` namespace defines both a number of useful functions as
 well as a number of units and physical constants populated from the
-:mod:`unyt.unit_symbols` and :mod:`unyt.physical_constants` namespaces you
-can use to attach units to NumPy arrays and other common python data container types like ``list`` and ``tuple``. For an exhaustive listing of units and physical constants
-defined in :mod:`unyt`, see :ref:`unit-listing`.
+:mod:`unyt.unit_symbols` and :mod:`unyt.physical_constants` namespaces you can
+use to attach units to NumPy arrays and other common python data container types
+like ``list`` and ``tuple``. For an exhaustive listing of units and physical
+constants defined in :mod:`unyt`, see :ref:`unit-listing`.
 
 An Example from High School Physics
 -----------------------------------
@@ -93,7 +94,7 @@ end, days::
 Note that we haven't added any conversion factors between different units,
 that's all handled internally by :mod:`unyt`. Also note how the
 :meth:`unyt_array.to <unyt.array.unyt_array.to>` method was able to
-automagically handle the conversion from seconds to days and how the
+automatically handle the conversion from seconds to days and how the
 shorthand ``"d"`` was automatically interpreted as ``"day"``.
 
 
@@ -119,7 +120,9 @@ returns data in the units of the leftmost object in an expression::
   >>> print(4*m + 3*cm - 5*ft + 6*yard)  # doctest: +FLOAT_CMP
   7.9924 m
 
-One can also form more complex units out of atomic unit symbols. For example, here is how we'd create an array with units of meters per second and print out the values in the array in miles per hour::
+One can also form more complex units out of atomic unit symbols. For example,
+here is how we'd create an array with units of meters per second and print out
+the values in the array in miles per hour::
 
   >>> from unyt import m, s
   >>> velocities = [20., 22., 25.]*m/s
@@ -135,8 +138,12 @@ Similarly one can multiply two units together to create new compound units::
   >>> print(energy.to('erg'))
   120000000.0 erg
 
-In general, one can multiple or divide by an arbitrary rational power of a unit symbol. Most commonly this shows up in mathematical formulas in terms of square roots. For example, let's calculate the gravitational free-fall time for a person
-to fall from the surface of the Earth through to a hole dug all the way to the center of the Earth. It turns out that this time `is given by <https://en.wikipedia.org/wiki/Free-fall_time>`_:
+In general, one can multiple or divide by an arbitrary rational power of a unit
+symbol. Most commonly this shows up in mathematical formulas in terms of square
+roots. For example, let's calculate the gravitational free-fall time for a
+person to fall from the surface of the Earth through to a hole dug all the way
+to the center of the Earth. It turns out that this time `is given by
+<https://en.wikipedia.org/wiki/Free-fall_time>`_:
 
 .. math::
 
@@ -522,17 +529,16 @@ for the problem you are working on.
 
 The :mod:`unyt` library implements the following equivalencies:
 
-* "thermal": conversions between temperature and energy (:math:`E = k_BT`)
-* "spectral": conversions between wavelength, spatial frequency, frequency, and
-  energy for photons
-  (:math:`E = h\nu = hc/\lambda`, :math:`c = \lambda\nu`)
-* "mass_energy": conversions between mass and energy (:math:`E = mc^2`)
-* "lorentz": conversions between velocity and Lorentz factor
-  (:math:`\gamma = 1/\sqrt{1-(v/c)^2}`)
-* "schwarzschild": conversions between mass and Schwarzschild radius
+* ``"thermal"``: conversions between temperature and energy (:math:`E = k_BT`)
+* ``"spectral"``: conversions between wavelength, spatial frequency, frequency,
+  and energy for photons (:math:`E = h\nu = hc/\lambda`, :math:`c = \lambda\nu`)
+* ``"mass_energy"``: conversions between mass and energy (:math:`E = mc^2`)
+* ``"lorentz"``: conversions between velocity and Lorentz factor (:math:`\gamma
+  = 1/\sqrt{1-(v/c)^2}`)
+* ``"schwarzschild"``: conversions between mass and Schwarzschild radius
   (:math:`R_S = 2GM/c^2`)
-* "compton": conversions between mass and Compton wavelength
-  (:math:`\lambda = h/mc`)
+* ``"compton"``: conversions between mass and Compton wavelength (:math:`\lambda
+  = h/mc`)
 
 You can convert data to a specific set of units via an equivalency appropriate
 for the units of the data. To see the equivalencies that are available for an
@@ -966,14 +972,14 @@ because of the the CGS unit system used by the :class:`UnitRegistry
 
 
 Writing Data with Units to Disk
-*******************************
+-------------------------------
 
 The :mod:`unyt` library has support for serializing data stored in a
 :class:`unyt.unyt_array <unyt.array.unyt_array>` instance to HDF5 files, text
 files, and via the Python pickle protocol. We give brief examples below, but first describe how to handle saving units manually as string metadata.
 
 Dealing with units as strings
------------------------------
+*****************************
 
 If all you want to do is save data to disk in a physical unit or you are working
 in a physical unit system, then you only need to save the unit name as a string
@@ -1015,7 +1021,7 @@ Of course in this example using ``numpy.save`` we need to hard-code the units be
   >>> os.remove('my_data.h5')
 
 HDF5 Files
-----------
+**********
 
 The :mod:`unyt` library provides a hook for writing data both to a new HDF5 file and an existing file and then subsequently reading that data back in to restore the array. This works via the :meth:`unyt_array.write_hdf5 <unyt.array.unyt_array.write_hdf5>` and :meth:`unyt_array.from_hdf5 <unyt.array.unyt_array.from_hdf5>` methods. The simplest way to use these functions is to write data to a file that does not exist yet:
 
@@ -1077,7 +1083,7 @@ restoring the data from disk. Here is a short example illustrating this:
 
 
 Text Files
-----------
+**********
 
 The :mod:`unyt` library also has wrappers around ``numpy.savetxt`` and ``numpy.loadtxt`` for saving data as an ASCII table. For example:
 
@@ -1096,7 +1102,7 @@ The :mod:`unyt` library also has wrappers around ``numpy.savetxt`` and ``numpy.l
   >>> os.remove('my_data.txt')
 
 Pickles
--------
+*******
 
 .. note::
 
@@ -1123,12 +1129,23 @@ the pickle. If you have custom units defined, the reloaded data will know about
 your custom unit and be able to convert data to and from the custom unit.
 
 Performance Considerations
-**************************
+--------------------------
 
-Tracking units in an application will inevitably add overhead. Judging where overhead is important or not depends on what real-world workflows look like. Ultimately, profiling code is the best way to find out whether handling units is a performance bottleneck. Optimally handling units will be amortized over the cost of an operation. While this is true for large arrays (bigger than about one million elements), this is *not* true for small arrays that contain only a few elements.
+Tracking units in an application will inevitably add overhead. Judging where
+overhead is important or not depends on what real-world workflows look
+like. Ultimately, profiling code is the best way to find out whether handling
+units is a performance bottleneck. Optimally handling units will be amortized
+over the cost of an operation. While this is true for large arrays (bigger than
+about one million elements), this is *not* true for small arrays that contain
+only a few elements.
 
 In addition, it is sometimes easy to write code that needlessly checks unit
 consistency when we know ahead of time that data are already in the correct
-units. Often we can get away with only checking unit consistency once and then stripping units after that.
+units. Often we can get away with only checking unit consistency once and then
+stripping units after that.
 
-A good rule of thumb is that units should be checked on input, stripped off of data during a calculation, and then re-applied when returning data from a function. In other words, apply or check units at interfaces, but during an internal calculation it is often worth stripping units, especially if the calculation involves many operations on arrays with only a few elements.
+A good rule of thumb is that units should be checked on input, stripped off of
+data during a calculation, and then re-applied when returning data from a
+function. In other words, apply or check units at interfaces, but during an
+internal calculation it is often worth stripping units, especially if the
+calculation involves many operations on arrays with only a few elements.
