@@ -138,7 +138,7 @@ Similarly one can multiply two units together to create new compound units::
   >>> print(energy.to('erg'))
   120000000.0 erg
 
-In general, one can multiple or divide by an arbitrary rational power of a unit
+In general, one can multiply or divide by an arbitrary rational power of a unit
 symbol. Most commonly this shows up in mathematical formulas in terms of square
 roots. For example, let's calculate the gravitational free-fall time for a
 person to fall from the surface of the Earth through to a hole dug all the way
