@@ -5,16 +5,16 @@ History
 2.2.1 (2019-07-02)
 ------------------
 
-* Add support for loading JSON unit registries saved by ``yt.units``. See `PR
-  https://github.com/yt-project/unyt/pull/93`_.
-* Correct the value of the ``light_year`` unit. See `PR #93
-  <https://github.com/yt-project/unyt/pull/93>`_.
-* It is now possible to define a ``UnitSystem`` object with a quantity. See `PR
-  #86 <https://github.com/yt-project/unyt/pull/86>`_.
-* Incorrect units for Planck units have been fixed. See `PR #85
-  <https://github.com/yt-project/unyt/pull/85>`_.
-* Updated value of Newton's constant to latest CODATA value. See `PR #84
-  <https://github.com/yt-project/unyt/pull/84>`_.
+* Add support for loading JSON unit registries saved by ``yt.units``.
+  See `PR #93 <https://github.com/yt-project/unyt/pull/93>`_.
+* Correct the value of the ``light_year`` unit.
+  See `PR #93 <https://github.com/yt-project/unyt/pull/93>`_.
+* It is now possible to define a ``UnitSystem`` object with a quantity.
+  See `PR #86 <https://github.com/yt-project/unyt/pull/86>`_.
+* Incorrect units for Planck units have been fixed.
+  See `PR #85 <https://github.com/yt-project/unyt/pull/85>`_.
+* Updated value of Newton's constant to latest CODATA value.
+  See `PR #84 <https://github.com/yt-project/unyt/pull/84>`_.
 
 2.2.0 (2019-04-03)
 ------------------
