@@ -1808,11 +1808,18 @@ def test_electromagnetic():
     g = 1.0 * u.gauss
     assert t.to("gauss") == 1e4 * u.gauss
     assert g.to("T") == 1e-4 * u.Tesla
+    assert t.in_mks() == t
+    assert g.in_cgs() == g
+    t.convert_to_mks()
+    assert t == 1.0 * u.Tesla
+    g.convert_to_cgs()
+    assert g == 1.0 * u.gauss
 
-    qp_cgs = u.qp_cgs.in_units("C")
-    assert_equal(qp_cgs.units.dimensions, dimensions.charge_mks)
-    assert_almost_equal(qp_cgs.v, 10.0 * u.qp.v / speed_of_light_cm_per_s)
+    qp_mks = u.qp_cgs.in_units("C")
+    assert_equal(qp_mks.units.dimensions, dimensions.charge_mks)
+    assert_almost_equal(qp_mks.v, 10.0 * u.qp.v / speed_of_light_cm_per_s)
     qp = 1.0 * u.qp_cgs
+    assert_equal(qp, u.qp_cgs.in_units("esu"))
     qp.convert_to_units("C")
     assert_equal(qp.units.dimensions, dimensions.charge_mks)
     assert_almost_equal(qp.v, 10 * u.qp.v / u.clight.v)

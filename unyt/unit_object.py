@@ -577,6 +577,9 @@ class Unit(object):
             conv_data = _check_em_conversion(
                 self.units, registry=self.registry, unit_system=unit_system
             )
+            um = unit_system.units_map
+            if self.dimensions in um and self.expr == um[self.dimensions]:
+                return self.copy()
         except MKSCGSConversionError:
             raise UnitsNotReducible(self.units, unit_system)
         if any(conv_data):
