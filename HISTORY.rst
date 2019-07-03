@@ -2,6 +2,14 @@
 History
 =======
 
+2.2.2 (2019-07-03)
+------------------
+
+* Fix erroneous conversions of E&M units to their "native" unit system,
+  for example, converting Gauss to CGS units would return Tesla and converting
+  Tesla to MKS units would return Gauss. See `PR #96
+  <https://github.com/yt-project/unyt/pull/96>`_.
+
 2.2.1 (2019-07-02)
 ------------------
 
