@@ -909,6 +909,15 @@ units), then care must be taken when working with custom units. To avoid these
 sorts of ambiguities it is best to do work in physical units as much as
 possible.
 
+When writing tests, it is convenient to use :mod:`unyt.testing`. In particular, :func:`assert_allclose_units <unyt.testing.assert_allclose_units>` can be used to check for floating-point equality.
+
+  >>> from unyt import assert_allclose_units, m
+  >>> import numpy as np
+  >>> actual = [1e-5, 1e-3, 1e-1] * m
+  >>> desired = actual.to("cm")
+  >>> assert_allclose_units(actual, desired)
+
+
 Custom Unit Systems
 -------------------
 
