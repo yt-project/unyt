@@ -90,7 +90,7 @@ from unyt.array import (  # NOQA: F401
 from unyt.unit_object import Unit, define_unit  # NOQA: F401
 from unyt.unit_registry import UnitRegistry  # NOQA: F401
 from unyt.unit_systems import UnitSystem  # NOQA: F401
-from unyt.testing import assert_allclose_units
+from unyt.testing import assert_allclose_units  # NOQA: F401
 
 
 # function to only import quantities into this namespace
