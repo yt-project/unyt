@@ -86,6 +86,7 @@ from unyt.array import (  # NOQA: F401
     uvstack,
     unyt_array,
     unyt_quantity,
+    allclose_units,
 )
 from unyt.unit_object import Unit, define_unit  # NOQA: F401
 from unyt.unit_registry import UnitRegistry  # NOQA: F401
