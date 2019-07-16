@@ -922,9 +922,11 @@ class unyt_array(np.ndarray):
         except MKSCGSConversionError:
             raise UnitsNotReducible(self.units, us)
         if any(conv_data):
-            to_units, (conv, offset) = _em_conversion(
-                self.units, conv_data, unit_system=us
-            )
+            um = us.units_map
+            u = self.units
+            if u.dimensions in um and u.expr == um[self.units.dimensions]:
+                return self.copy()
+            to_units, (conv, offset) = _em_conversion(u, conv_data, unit_system=us)
         else:
             to_units = self.units.get_base_equivalent(unit_system)
             conv, offset = self.units.get_conversion_factor(to_units, self.dtype)

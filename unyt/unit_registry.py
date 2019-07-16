@@ -251,8 +251,24 @@ class UnitRegistry:
         for k, v in data.items():
             unsan_v = list(v)
             unsan_v[1] = sympify(v[1], locals=vars(unyt_dims))
+            if len(unsan_v) == 4:
+                # old unit registry so we need to add SI-prefixability to the registry
+                # entry and correct the base_value to be in MKS units
+                if k in default_unit_symbol_lut:
+                    unsan_v.append(default_unit_symbol_lut[k][4])
+                else:
+                    unsan_v.append(False)
+                dims = unsan_v[1]
+                for dim_factor in dims.as_ordered_factors():
+                    dim, power = dim_factor.as_base_exp()
+                    if dim == unyt_dims.mass:
+                        unsan_v[0] /= 1000 ** float(power)
+                    if dim == unyt_dims.length:
+                        unsan_v[0] /= 100 ** float(power)
             lut[k] = tuple(unsan_v)
-
+        for k in default_unit_symbol_lut:
+            if k not in lut:
+                lut[k] = default_unit_symbol_lut[k]
         return cls(lut=lut, add_default_symbols=False)
 
     def list_same_dimensions(self, unit_object):
