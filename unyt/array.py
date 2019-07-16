@@ -2299,6 +2299,8 @@ def allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
 
     if not isinstance(atol, unyt_array):
         at = unyt_quantity(atol, des.units)
+    else:
+        at = atol
 
     try:
         at = at.in_units(act.units)
