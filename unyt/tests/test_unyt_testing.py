@@ -51,8 +51,3 @@ def test_operation_error():
     with pytest.raises(UnitConversionError):
         assert_allclose_units(a1, a2, atol=unyt_quantity(0.0, "kg"))
 
-
-# from unyt import assert_allclose_units, m
-#  actual = [1e-5, 1e-3, 1e-1] * m
-#  desired = actual.to("cm")
-#  assert_allclose_units(actual, desired)
