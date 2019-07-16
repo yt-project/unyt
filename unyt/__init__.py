@@ -29,6 +29,7 @@ top-level ``unyt`` namespace:
 * :class:`unyt.unit_object.Unit`
 * :class:`unyt.unit_registry.UnitRegistry`
 * :class:`unyt.unit_systems.UnitSystem`
+* :func:`unyt.testing.assert_allclose_units`
 """
 
 # -----------------------------------------------------------------------------
