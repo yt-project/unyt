@@ -46,7 +46,7 @@ def assert_allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
         raise AssertionError
 
 
-def process_warning(op, message, warning_class, args=(), kwargs=None):
+def _process_warning(op, message, warning_class, args=(), kwargs=None):
     if kwargs is None:
         kwargs = {}
     with warnings.catch_warnings(record=True) as w:
