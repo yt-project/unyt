@@ -15,7 +15,6 @@ import pytest
 
 from unyt.array import unyt_array, unyt_quantity
 from unyt.testing import assert_allclose_units
-from unyt.exceptions import UnitConversionError
 
 
 def test_equality():
@@ -45,9 +44,8 @@ def test_runtime_error():
         assert_allclose_units(a1, a2, rtol=unyt_quantity(1e-7, "cm"))
 
 
-def test_operation_error():
+def test_atol_conversion_error():
     a1 = unyt_array([1.0, 2.0, 3.0], "cm")
     a2 = unyt_array([1.0, 2.0, 3.0], "cm")
-    with pytest.raises(UnitConversionError):
+    with pytest.raises(AssertionError):
         assert_allclose_units(a1, a2, atol=unyt_quantity(0.0, "kg"))
-

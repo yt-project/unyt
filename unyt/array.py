@@ -2345,7 +2345,7 @@ def allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
 
     try:
         at = at.in_units(act.units)
-    except UnitOperationError:
+    except (UnitOperationError, UnitConversionError):
         return False
 
     # units have been validated, so we strip units before calling numpy
