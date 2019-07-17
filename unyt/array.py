@@ -2284,6 +2284,47 @@ def savetxt(
 
 
 def allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
+    """Returns False if two objects are not equal up to desired tolerance
+
+    This is a wrapper for :func:`numpy.allclose` that also
+    verifies unit consistency
+
+    Parameters
+    ----------
+    actual : array-like
+        Array obtained (possibly with attached units)
+    desired : array-like
+        Array to compare with (possibly with attached units)
+    rtol : float, optional
+        Relative tolerance, defaults to 1e-7
+    atol : float or quantity, optional
+        Absolute tolerance. If units are attached, they must be consistent
+        with the units of ``actual`` and ``desired``. If no units are attached,
+        assumes the same units as ``desired``. Defaults to zero.
+
+    Raises
+    ------
+    RuntimeError
+        If units of ``rtol`` are not dimensionless
+
+    See Also
+    --------
+    :func:`unyt.testing.assert_allclose_units`
+
+    Notes
+    -----
+    Also accepts additional keyword arguments accepted by
+    :func:`numpy.allclose`, see the documentation of that
+    function for details.
+
+    Examples
+    --------
+    >>> import unyt as u
+    >>> actual = [1e-5, 1e-3, 1e-1]*u.m
+    >>> desired = actual.to("cm")
+    >>> allclose_units(actual, desired)
+    True
+    """
     # Create a copy to ensure this function does not alter input arrays
     act = unyt_array(actual)
     des = unyt_array(desired)
