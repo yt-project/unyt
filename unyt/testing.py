@@ -35,12 +35,22 @@ def assert_allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
         with the units of ``actual`` and ``desired``. If no units are attached,
         assumes the same units as ``desired``. Defaults to zero.
 
+    See Also
+    --------
+    :func:`unyt.array.allclose_units`
+
     Notes
     -----
     Also accepts additional keyword arguments accepted by
     :func:`numpy.testing.assert_allclose`, see the documentation of that
     function for details.
 
+    Examples
+    --------
+    >>> import unyt as u
+    >>> actual = [1e-5, 1e-3, 1e-1]*u.m
+    >>> desired = actual.to("cm")
+    >>> assert_allclose_units(actual, desired)
     """
     if not allclose_units(actual, desired, rtol, atol, **kwargs):
         raise AssertionError
