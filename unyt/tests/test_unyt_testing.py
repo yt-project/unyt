@@ -18,7 +18,7 @@ from unyt.testing import assert_allclose_units
 from unyt.exceptions import UnitConversionError
 
 
-def test_eqaulity():
+def test_equality():
     a1 = unyt_array([1.0, 2.0, 3.0], "cm")
     a2 = unyt_array([1.0, 2.0, 3.0], "cm")
     assert_allclose_units(a1, a2)
