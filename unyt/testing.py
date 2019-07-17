@@ -13,10 +13,7 @@ Utilities for writing tests
 
 import warnings
 
-from numpy.testing import assert_allclose
-
-from unyt.array import unyt_array, unyt_quantity
-from unyt.exceptions import UnitConversionError, UnitOperationError
+from unyt.array import allclose_units
 
 
 def assert_allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
@@ -38,51 +35,28 @@ def assert_allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
         with the units of ``actual`` and ``desired``. If no units are attached,
         assumes the same units as ``desired``. Defaults to zero.
 
+    See Also
+    --------
+    :func:`unyt.array.allclose_units`
+
     Notes
     -----
     Also accepts additional keyword arguments accepted by
     :func:`numpy.testing.assert_allclose`, see the documentation of that
     function for details.
 
+    Examples
+    --------
+    >>> import unyt as u
+    >>> actual = [1e-5, 1e-3, 1e-1]*u.m
+    >>> desired = actual.to("cm")
+    >>> assert_allclose_units(actual, desired)
     """
-    # Create a copy to ensure this function does not alter input arrays
-    act = unyt_array(actual)
-    des = unyt_array(desired)
-
-    try:
-        des = des.in_units(act.units)
-    except (UnitOperationError, UnitConversionError):
-        raise AssertionError(
-            "Units of actual (%s) and desired (%s) do not have "
-            "equivalent dimensions" % (act.units, des.units)
-        )
-
-    rt = unyt_array(rtol)
-    if not rt.units.is_dimensionless:
-        raise AssertionError("Units of rtol (%s) are not " "dimensionless" % rt.units)
-
-    if not isinstance(atol, unyt_array):
-        at = unyt_quantity(atol, des.units)
-
-    try:
-        at = at.in_units(act.units)
-    except UnitOperationError:
-        raise AssertionError(
-            "Units of atol (%s) and actual (%s) do not have "
-            "equivalent dimensions" % (at.units, act.units)
-        )
-
-    # units have been validated, so we strip units before calling numpy
-    # to avoid spurious errors
-    act = act.value
-    des = des.value
-    rt = rt.value
-    at = at.value
-
-    return assert_allclose(act, des, rt, at, **kwargs)
+    if not allclose_units(actual, desired, rtol, atol, **kwargs):
+        raise AssertionError
 
 
-def process_warning(op, message, warning_class, args=(), kwargs=None):
+def _process_warning(op, message, warning_class, args=(), kwargs=None):
     if kwargs is None:
         kwargs = {}
     with warnings.catch_warnings(record=True) as w:

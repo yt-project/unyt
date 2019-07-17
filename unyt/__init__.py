@@ -29,6 +29,8 @@ top-level ``unyt`` namespace:
 * :class:`unyt.unit_object.Unit`
 * :class:`unyt.unit_registry.UnitRegistry`
 * :class:`unyt.unit_systems.UnitSystem`
+* :func:`unyt.testing.assert_allclose_units`
+* :func:`unyt.array.allclose_units`
 """
 
 # -----------------------------------------------------------------------------
@@ -85,10 +87,12 @@ from unyt.array import (  # NOQA: F401
     uvstack,
     unyt_array,
     unyt_quantity,
+    allclose_units,
 )
 from unyt.unit_object import Unit, define_unit  # NOQA: F401
 from unyt.unit_registry import UnitRegistry  # NOQA: F401
 from unyt.unit_systems import UnitSystem  # NOQA: F401
+from unyt.testing import assert_allclose_units  # NOQA: F401
 
 
 # function to only import quantities into this namespace

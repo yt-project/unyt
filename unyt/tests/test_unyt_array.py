@@ -58,7 +58,7 @@ from unyt.exceptions import (
     UnitParseError,
     UnitsNotReducible,
 )
-from unyt._testing import assert_allclose_units, process_warning
+from unyt.testing import assert_allclose_units, _process_warning
 from unyt.unit_symbols import cm, m, g, degree
 from unyt.unit_registry import UnitRegistry
 from unyt._on_demand_imports import _astropy, _h5py, _pint, NotAModule
@@ -2241,9 +2241,9 @@ def test_overflow_warnings():
     data = [2 ** 53, 2 ** 54] * km
 
     message = "Overflow encountered while converting to units 'mile'"
-    process_warning(data.to, message, RuntimeWarning, ("mile",))
-    process_warning(data.in_units, message, RuntimeWarning, ("mile",))
-    process_warning(data.convert_to_units, message, RuntimeWarning, ("mile",))
+    _process_warning(data.to, message, RuntimeWarning, ("mile",))
+    _process_warning(data.in_units, message, RuntimeWarning, ("mile",))
+    _process_warning(data.convert_to_units, message, RuntimeWarning, ("mile",))
 
 
 def test_input_units_deprecation():
@@ -2251,10 +2251,10 @@ def test_input_units_deprecation():
 
     message = "input_units has been deprecated, please use units instead"
 
-    process_warning(
+    _process_warning(
         unyt_array, message, DeprecationWarning, ([1, 2, 3],), {"input_units": "mile"}
     )
-    process_warning(
+    _process_warning(
         unyt_quantity, message, DeprecationWarning, (3,), {"input_units": "mile"}
     )
 
