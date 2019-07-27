@@ -205,9 +205,9 @@ def check_dimensions(**arg_units):
     Parameters
     ----------
     arg_units: dict
-        Mapping of function arguments to dimensions, of the form {'arg1': dimension1, etc},
+        Mapping of function arguments to dimensions, of the form 'arg1'=dimension1 etc
         where ``'arg1'`` etc are the function arguments and ``dimension1`` etc
-        is an SI base unit (or combination of units), eg. length/time.
+        are SI base units (or combination of units), eg. length/time.
 
     Examples
     --------
@@ -220,7 +220,9 @@ def check_dimensions(**arg_units):
     >>> res = f(a= 2 * u.s, v = 3 * u.m/u.s)
     >>> print(res)
     6 m
+
     """
+
     def check_nr_args(f):
         """Ensure correct number of arguments and decorate.
 
@@ -238,9 +240,10 @@ def check_dimensions(**arg_units):
         number_of_args = f.__code__.co_argcount
         names_of_args = f.__code__.co_varnames
 
-        assert (
-            len(arg_units) == number_of_args
-        ), f'decorator number of arguments not equal with function number of arguments in "{f.__name__}"'
+        assert len(arg_units) == number_of_args, (
+            f"decorator number of arguments not equal with "
+            f"function number of arguments in '{f.__name__}'"
+        )
 
         @wraps(f)
         def new_f(*args, **kwargs):
@@ -261,7 +264,9 @@ def check_dimensions(**arg_units):
                         f"arg '{arg_name}'={repr(arg_value)} does not match {dimension}"
                     )
             return f(*args, **kwargs)
+
         return new_f
+
     return check_nr_args
 
 
