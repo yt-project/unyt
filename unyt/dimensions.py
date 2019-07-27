@@ -17,7 +17,6 @@ from itertools import chain
 
 from sympy import Symbol, sympify, Rational
 from functools import wraps
-from unyt.exceptions import UnitOperationError
 
 #: mass
 mass = Symbol("(mass)", positive=True)
@@ -220,6 +219,14 @@ def check_dimensions(**arg_units):
     >>> res = f(a= 2 * u.s, v = 3 * u.m/u.s)
     >>> print(res)
     6 m
+    >>> @check_dimensions(a=length, v=length/time)
+    ... def f(a, v):
+    ...     return a * v
+    ...
+    >>> f(a= 2 * u.s, v = 3 * u.m/u.s)
+    Traceback (most recent call last):
+    ...
+    TypeError: arg 'a=2 s' does not match (length)
 
     """
 
@@ -253,15 +260,15 @@ def check_dimensions(**arg_units):
 
             Raises
             ------
-            UnitOperationError
+            TypeError
                 If the units do not match.
 
             """
             for arg_name, arg_value in chain(zip(names_of_args, args), kwargs.items()):
                 dimension = arg_units[arg_name]
                 if arg_name in arg_units and not _has_units(arg_value, dimension):
-                    raise UnitOperationError(
-                        f"arg '{arg_name}'={repr(arg_value)} does not match {dimension}"
+                    raise TypeError(
+                        f"arg '{arg_name}={arg_value}' does not match {dimension}"
                     )
             return f(*args, **kwargs)
 
@@ -291,6 +298,8 @@ def _has_units(quant, dim):
     >>> from unyt.dimensions import length, time
     >>> _has_units(3 * u.m/u.s, length/time)
     True
+    >>> _has_units(3, length)
+    False
     """
     try:
         arg_dim = quant.units.dimensions
