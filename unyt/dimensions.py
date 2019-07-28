@@ -321,11 +321,11 @@ def returns(r_unit):
             """
             result = f(*args, **kwargs)
             if not _has_units(result, r_unit):
-                raise TypeError(
-                    f"result '{result}' does not match {r_unit}"
-                )
+                raise TypeError(f"result '{result}' does not match {r_unit}")
             return result
+
         return new_f
+
     return check_returns
 
 

@@ -32,6 +32,7 @@ top-level ``unyt`` namespace:
 * :func:`unyt.testing.assert_allclose_units`
 * :func:`unyt.array.allclose_units`
 * :func:`unyt.dimensions.accepts`
+* :func:`unyt.dimensions.returns`
 """
 
 # -----------------------------------------------------------------------------
@@ -94,7 +95,7 @@ from unyt.unit_object import Unit, define_unit  # NOQA: F401
 from unyt.unit_registry import UnitRegistry  # NOQA: F401
 from unyt.unit_systems import UnitSystem  # NOQA: F401
 from unyt.testing import assert_allclose_units  # NOQA: F401
-from unyt.dimensions import accepts  # NOQA: F401
+from unyt.dimensions import accepts, returns  # NOQA: F401
 
 
 # function to only import quantities into this namespace
