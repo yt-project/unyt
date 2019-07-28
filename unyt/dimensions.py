@@ -198,7 +198,7 @@ for k, v in list(em_dimensions.items()):
     em_dimensions[v] = k
 
 
-def check_dimensions(**arg_units):
+def accepts(**arg_units):
     """Decorator for checking units of function arguments.
 
     Parameters
@@ -212,14 +212,14 @@ def check_dimensions(**arg_units):
     --------
     >>> import unyt as u
     >>> from unyt.dimensions import length, time
-    >>> @check_dimensions(a=time, v=length/time)
+    >>> @accepts(a=time, v=length/time)
     ... def f(a, v):
     ...     return a * v
     ...
     >>> res = f(a= 2 * u.s, v = 3 * u.m/u.s)
     >>> print(res)
     6 m
-    >>> @check_dimensions(a=length, v=length/time)
+    >>> @accepts(a=length, v=length/time)
     ... def f(a, v):
     ...     return a * v
     ...
@@ -230,7 +230,7 @@ def check_dimensions(**arg_units):
 
     """
 
-    def check_nr_args(f):
+    def check_accepts(f):
         """Ensure correct number of arguments and decorate.
 
         Parameters
@@ -274,7 +274,59 @@ def check_dimensions(**arg_units):
 
         return new_f
 
-    return check_nr_args
+    return check_accepts
+
+
+def returns(r_unit):
+    """Decorator for checking function return units.
+
+    Parameters
+    ----------
+    r_unit: :py:class:`sympy.core.symbol.Symbol`
+        SI base unit (or combination of units), eg. length/time
+        of the value returned by the original function
+
+    Examples
+    --------
+    >>> import unyt as u
+    >>> from unyt.dimensions import length, time
+    >>> @returns(length)
+    ... def f(a, v):
+    ...     return a * v
+    ...
+    >>> res = f(a= 2 * u.s, v = 3 * u.m/u.s)
+    >>> print(res)
+    6 m
+    >>> @returns(length/time)
+    ... def f(a, v):
+    ...     return a * v
+    ...
+    >>> f(a= 2 * u.s, v = 3 * u.m/u.s)
+    Traceback (most recent call last):
+    ...
+    TypeError: result '6 m' does not match (length)/(time)
+
+    """
+
+    def check_returns(f):
+        @wraps(f)
+        def new_f(*args, **kwargs):
+            """The decorated function, which checks the return unit.
+
+            Raises
+            ------
+            TypeError
+                If the units do not match.
+
+            """
+            result = f(*args, **kwargs)
+            if not _has_units(result, r_unit):
+                raise TypeError(
+                    f"result '{result}' does not match {r_unit}"
+                )
+            return result
+        return new_f
+    return check_returns
 
 
 def _has_units(quant, dim):
