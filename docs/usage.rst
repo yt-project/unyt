@@ -297,8 +297,8 @@ decorators::
   >>> from unyt.dimensions import length, time
   >>> from unyt import accepts, returns
   >>> import unyt as u
-  >>> @accepts(a=time, v=length/time)
-  ... @returns(length)
+  >>> @returns(length)
+  ... @accepts(a=time, v=length/time)
   ... def foo(a, v):
   ...     return a * v
   ...
