@@ -248,13 +248,7 @@ def accepts(**arg_units):
             Decorated function.
 
         """
-        number_of_args = f.__code__.co_argcount
         names_of_args = f.__code__.co_varnames
-
-        assert len(arg_units) == number_of_args, (
-            f"decorator number of arguments not equal with "
-            f"function number of arguments in '{f.__name__}'"
-        )
 
         @wraps(f)
         def new_f(*args, **kwargs):
