@@ -263,11 +263,12 @@ def accepts(**arg_units):
 
             """
             for arg_name, arg_value in chain(zip(names_of_args, args), kwargs.items()):
-                dimension = arg_units[arg_name]
-                if arg_name in arg_units and not _has_units(arg_value, dimension):
-                    raise TypeError(
-                        f"arg '{arg_name}={arg_value}' does not match {dimension}"
-                    )
+                if arg_name in arg_units:  # function argument needs to be checked
+                    dimension = arg_units[arg_name]
+                    if not _has_units(arg_value, dimension):
+                        raise TypeError(
+                            f"arg '{arg_name}={arg_value}' does not match {dimension}"
+                        )
             return f(*args, **kwargs)
 
         return new_f
