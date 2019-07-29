@@ -236,6 +236,7 @@ def accepts(**arg_units):
     6 m/s
 
     """
+
     def check_accepts(f):
         """Decorates original function.
 
@@ -323,6 +324,7 @@ def returns(r_unit):
             Decorated function.
 
         """
+
         @wraps(f)
         def new_f(*args, **kwargs):
             """The decorated function, which checks the return unit.
