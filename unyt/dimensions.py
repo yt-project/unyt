@@ -213,25 +213,29 @@ def accepts(**arg_units):
     >>> import unyt as u
     >>> from unyt.dimensions import length, time
     >>> @accepts(a=time, v=length/time)
-    ... def f(a, v):
+    ... def foo(a, v):
     ...     return a * v
     ...
-    >>> res = f(a= 2 * u.s, v = 3 * u.m/u.s)
+    >>> res = foo(a= 2 * u.s, v = 3 * u.m/u.s)
     >>> print(res)
     6 m
     >>> @accepts(a=length, v=length/time)
-    ... def f(a, v):
+    ... def bar(a, v):
     ...     return a * v
     ...
-    >>> f(a= 2 * u.s, v = 3 * u.m/u.s)
+    >>> bar(a= 2 * u.s, v = 3 * u.m/u.s)
     Traceback (most recent call last):
     ...
     TypeError: arg 'a=2 s' does not match (length)
-
+    >>> @accepts(v=length/time)
+    ... def baz(a, v):
+    ...     return a * v
+    ...
+    >>> baz(a= 2, v = 3 * u.m/u.s)
     """
 
     def check_accepts(f):
-        """Ensure correct number of arguments and decorate.
+        """Decorates original function.
 
         Parameters
         ----------
