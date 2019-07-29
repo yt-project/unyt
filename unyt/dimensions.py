@@ -309,6 +309,19 @@ def returns(r_unit):
     """
 
     def check_returns(f):
+        """Decorates original function.
+
+        Parameters
+        ----------
+        f : function
+            Function being decorated.
+
+        Returns
+        -------
+        new_f: function
+            Decorated function.
+
+        """
         @wraps(f)
         def new_f(*args, **kwargs):
             """The decorated function, which checks the return unit.
