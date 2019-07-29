@@ -231,9 +231,11 @@ def accepts(**arg_units):
     ... def baz(a, v):
     ...     return a * v
     ...
-    >>> baz(a= 2, v = 3 * u.m/u.s)
-    """
+    >>> res = baz(a= 2, v = 3 * u.m/u.s)
+    >>> print(res)
+    6 m/s
 
+    """
     def check_accepts(f):
         """Decorates original function.
 
