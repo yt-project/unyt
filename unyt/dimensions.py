@@ -379,5 +379,8 @@ def _has_dimensions(quant, dim):
     >>> _has_dimensions(3, length)
     False
     """
-    arg_dim = getattr(quant.units, "dimensions", None)
+    try:
+        arg_dim = quant.units.dimensions
+    except AttributeError:
+        arg_dim = None
     return arg_dim == dim
