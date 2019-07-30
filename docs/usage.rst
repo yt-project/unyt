@@ -289,10 +289,9 @@ and quantities will be simplified to make interactive work more intuitive::
 Checking Units
 --------------
 
-If you define your own methods, which take quantities and arrays with units as arguments
-and return types, then you might want to ensure their type correctness by using the provided
-:meth:`@accepts <unyt.dimensions.accepts>` and :meth:`@returns <unyt.dimensions.returns>`
-decorators::
+If you write a function that accepts data with units as an argument or returns data with units,
+you can ensure the dimensional correctness of the inputs or outputs
+using the :meth:`@accepts <unyt.dimensions.accepts>` and :meth:`@returns <unyt.dimensions.returns>` decorators::
 
   >>> from unyt.dimensions import length, time
   >>> from unyt import accepts, returns
@@ -306,6 +305,8 @@ decorators::
   >>> print(res)
   6 m
 
+.. note::
+   Using these decorators may incur some performance overhead, especially for small arrays.
 
 Unit Conversions and Unit Systems
 +++++++++++++++++++++++++++++++++

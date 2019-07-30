@@ -208,6 +208,15 @@ def accepts(**arg_units):
         where ``'arg1'`` etc are the function arguments and ``dimension1`` etc
         are SI base units (or combination of units), eg. length/time.
 
+    Notes
+    -----
+    Keyword args are not dimensionally check, being directly passed to the
+    decorated function.
+
+    Function arguments that don't have attached units can be skipped can bypass
+    dimensionality checking by not being passed to the decorator. See ``baz`` in
+    the examples, where ``a`` has no units.
+
     Examples
     --------
     >>> import unyt as u
@@ -268,7 +277,7 @@ def accepts(**arg_units):
             for arg_name, arg_value in chain(zip(names_of_args, args), kwargs.items()):
                 if arg_name in arg_units:  # function argument needs to be checked
                     dimension = arg_units[arg_name]
-                    if not _has_units(arg_value, dimension):
+                    if not _has_dimensions(arg_value, dimension):
                         raise TypeError(
                             "arg '%s=%s' does not match %s"
                             % (arg_name, arg_value, dimension)
@@ -337,7 +346,7 @@ def returns(r_unit):
 
             """
             result = f(*args, **kwargs)
-            if not _has_units(result, r_unit):
+            if not _has_dimensions(result, r_unit):
                 raise TypeError("result '%s' does not match %s" % (result, r_unit))
             return result
 
@@ -346,7 +355,7 @@ def returns(r_unit):
     return check_returns
 
 
-def _has_units(quant, dim):
+def _has_dimensions(quant, dim):
     """Checks the argument has the right dimensionality.
 
     Parameters
@@ -365,13 +374,10 @@ def _has_units(quant, dim):
     --------
     >>> import unyt as u
     >>> from unyt.dimensions import length, time
-    >>> _has_units(3 * u.m/u.s, length/time)
+    >>> _has_dimensions(3 * u.m/u.s, length/time)
     True
-    >>> _has_units(3, length)
+    >>> _has_dimensions(3, length)
     False
     """
-    try:
-        arg_dim = quant.units.dimensions
-    except AttributeError:
-        arg_dim = None
+    arg_dim = getattr(quant.units, 'dimensions', None)
     return arg_dim == dim
