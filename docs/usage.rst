@@ -285,6 +285,29 @@ and quantities will be simplified to make interactive work more intuitive::
   >>> print(power*elapsed_time)
   [ 3600.  7200. 14400.] erg
 
+
+Checking Units
+--------------
+
+If you write a function that accepts data with units as an argument or returns data with units,
+you can ensure the dimensional correctness of the inputs or outputs
+using the :meth:`@accepts <unyt.dimensions.accepts>` and :meth:`@returns <unyt.dimensions.returns>` decorators::
+
+  >>> from unyt.dimensions import length, time
+  >>> from unyt import accepts, returns
+  >>> import unyt as u
+  >>> @returns(length)
+  ... @accepts(a=time, v=length/time)
+  ... def foo(a, v):
+  ...     return a * v
+  ...
+  >>> res = foo(a= 2 * u.s, v = 3 * u.m/u.s)
+  >>> print(res)
+  6 m
+
+.. note::
+   Using these decorators may incur some performance overhead, especially for small arrays.
+
 Unit Conversions and Unit Systems
 +++++++++++++++++++++++++++++++++
 
