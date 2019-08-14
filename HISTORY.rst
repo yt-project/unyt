@@ -2,6 +2,18 @@
 History
 =======
 
+2.3.0 (2019-08-14)
+------------------
+
+* Added ``unyt.dimensions.accepts`` and ``unyt.dimensions.returns``, decorators
+  that can be used to ensure that data passed into a decorated function has
+  units that are dimensionally consistent with the function's expected
+  inputs. See `PR #98 <https://github.com/yt-project/unyt/pull/94>`_.
+* Added ``unyt.allclose_units`` and improved documentation for writing tests for
+  code that uses ``unyt``. This is a wrapper for ``numpy.allclose`` that also
+  checks the units of the input arrays. See `PR #94
+  <https://github.com/yt-project/unyt/pull/94>`_.
+
 2.2.2 (2019-07-03)
 ------------------
 
