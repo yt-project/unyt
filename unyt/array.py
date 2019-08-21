@@ -105,7 +105,12 @@ from numpy import (
     ones_like,
     matmul,
 )
-from numpy.core.umath import _ones_like, clip
+from numpy.core.umath import _ones_like
+
+try:
+    from numpy.core.umath import clip
+except ImportError:
+    clip = None
 from sympy import Rational
 import warnings
 
