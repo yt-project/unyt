@@ -7,7 +7,7 @@ import io
 from matplotlib import pyplot as plt
 import numpy as np
 import os
-import perf
+import pyperf
 import subprocess
 import sys
 
@@ -37,13 +37,13 @@ def make_plot(extension):
     ratios = OrderedDict()
     stddevs = OrderedDict()
     benchmarks = OrderedDict()
-    np_bench = perf.Benchmark.load(open("{}_{}".format("numpy", extension), "r"))
+    np_bench = pyperf.Benchmark.load(open("{}_{}".format("numpy", extension), "r"))
     np_mean = np_bench.mean()
     np_stddev = np_bench.stdev()
     for package in setup:
         if package == "numpy":
             continue
-        benchmarks[package] = perf.Benchmark.load(
+        benchmarks[package] = pyperf.Benchmark.load(
             open("{}_{}".format(package, extension), "r")
         )
         mean = benchmarks[package].mean()
@@ -94,10 +94,11 @@ setup = OrderedDict(
         ("pint", "from pint import UnitRegistry; u = UnitRegistry()"),
         ("astropy", "import astropy.units as u"),
         ("unyt", "import unyt as u"),
+        ("quantities", "import quantities as u"),
     ]
 )
 
-base_args = ["python3.6", "-m", "perf", "timeit"]
+base_args = ["python", "-m", "pyperf", "timeit"]
 
 shared_setup = "import numpy as np; import operator"
 
