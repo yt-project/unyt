@@ -2,6 +2,12 @@
 History
 =======
 
+2.3.1 (2019-08-21)
+------------------
+
+* Added support for the ``clip`` ufunc added in NumPy 1.17. See `PR #102
+  <https://github.com/yt-project/unyt/pull/102>`_.
+
 2.3.0 (2019-08-14)
 ------------------
 
