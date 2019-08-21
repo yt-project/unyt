@@ -106,6 +106,11 @@ from numpy import (
     matmul,
 )
 from numpy.core.umath import _ones_like
+
+try:
+    from numpy.core.umath import clip
+except ImportError:
+    clip = None
 from sympy import Rational
 import warnings
 
@@ -457,6 +462,7 @@ class unyt_array(np.ndarray):
         heaviside: _preserve_units,
         _ones_like: _preserve_units,
         matmul: _multiply_units,
+        clip: _passthrough_unit,
     }
 
     __array_priority__ = 2.0
@@ -1705,10 +1711,21 @@ class unyt_array(np.ndarray):
                         "cannot by multiplied, divide, subtracted or added."
                     )
         else:
-            raise RuntimeError(
-                "Support for the %s ufunc with %i inputs has not been"
-                "added to unyt_array." % (str(ufunc), len(inputs))
-            )
+            if ufunc is clip:
+                inp = (inputs[0].view(np.ndarray), inputs[1], inputs[2])
+                if out is not None:
+                    _out = out.view(np.ndarray)
+                else:
+                    _out = None
+                out_arr = ufunc(*inp, out=_out)
+                unit = inputs[0].units
+                ret_class = type(inputs[0])
+                mul = 1
+            else:
+                raise RuntimeError(
+                    "Support for the %s ufunc with %i inputs has not been "
+                    "added to unyt_array." % (str(ufunc), len(inputs))
+                )
         if unit is None:
             out_arr = np.array(out_arr, copy=False)
         elif ufunc in (modf, divmod_):
