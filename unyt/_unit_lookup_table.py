@@ -111,6 +111,7 @@ default_unit_symbol_lut = OrderedDict(
         ("C", (1.0, dimensions.charge_mks, 0.0, r"\rm{C}", True)),
         ("T", (1.0, dimensions.magnetic_field_mks, 0.0, r"\rm{T}", True)),
         ("Pa", (1.0, dimensions.pressure, 0.0, r"\rm{Pa}", True)),
+        ("bar", (1.0e5, dimensions.pressure, 0.0, r"\rm{bar}", True)),
         ("V", (1.0, dimensions.electric_potential, 0.0, r"\rm{V}", True)),
         ("F", (1.0, dimensions.capacitance, 0.0, r"\rm{F}", True)),
         ("Ω", (1.0, dimensions.resistance, 0.0, r"\Omega", True)),
