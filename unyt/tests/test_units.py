@@ -771,3 +771,9 @@ def test_show_all_units_doc_table_ops():
             (1 * u).in_cgs()
         except UnitsNotReducible:
             pass
+
+
+def test_hPa_mbar():
+    assert Unit("hPa").dimensions == Unit("bar").dimensions
+    assert (5 * Unit("hPa") == 5 * Unit("mbar")).all()
+    assert (5 * Unit("hPa") != 1 * Unit("bar")).all()
