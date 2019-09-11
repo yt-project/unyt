@@ -118,7 +118,7 @@ We use the ``pytest`` test runner as well as the ``tox`` test wrapper to manage 
 the ``unyt`` repository, simply run ``pytest`` in the root of the repository::
 
    $ cd unyt/
-   $ py.test --doctest-modules --doctest-rst --doctest-plus
+   $ pytest --doctest-modules --doctest-rst --doctest-plus
 
 You will need to install ``pytest`` and ``pytest-doctestplus`` from ``pip`` to
 run this command. Some tests depend on ``h5py``, ``Pint``, ``astropy``,
