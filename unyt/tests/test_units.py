@@ -26,6 +26,7 @@ from numpy.testing import (
 import operator
 import pickle
 import pytest
+import re
 from sympy import Symbol
 
 from unyt.testing import assert_allclose_units
@@ -773,7 +774,21 @@ def test_show_all_units_doc_table_ops():
             pass
 
 
-def test_hPa_mbar():
+def test_hPa_mbar():  # pylint: disable=invalid-name
     assert Unit("hPa").dimensions == Unit("bar").dimensions
     assert (5 * Unit("hPa") == 5 * Unit("mbar")).all()
     assert (5 * Unit("hPa") != 1 * Unit("bar")).all()
+
+
+def test_percent():
+    a = 300.0 * Unit("percent")
+    b = 3.0 * Unit("dimensionless")
+    c = 300.0 * Unit("%")
+    d = 300.0 * Unit("V*%/V")
+
+    assert a == b
+    assert re.match(r"300\.0? percent", str(a))  # FIXME %
+    assert re.match(r"unyt_quantity\(300\.0?, 'percent'\)", repr(a))
+
+    assert a == c
+    assert c == d

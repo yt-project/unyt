@@ -84,6 +84,7 @@ def parse_unyt_expr(unit_expr):
         # Bug catch...
         # if unit_expr is an empty string, parse_expr fails hard...
         unit_expr = "1"
+    unit_expr = unit_expr.replace("%", "percent")
     try:
         unit_expr = parse_expr(
             unit_expr, global_dict=global_dict, transformations=unit_text_transform
