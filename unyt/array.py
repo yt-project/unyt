@@ -1712,7 +1712,12 @@ class unyt_array(np.ndarray):
                     )
         else:
             if ufunc is clip:
-                inp = (inputs[0].view(np.ndarray), inputs[1], inputs[2])
+                inp = []
+                for i in inputs:
+                    if isinstance(i, unyt_array):
+                        inp.append(i.to(inputs[0].units).view(np.ndarray))
+                    else:
+                        inp.append(i)
                 if out is not None:
                     _out = out.view(np.ndarray)
                 else:
