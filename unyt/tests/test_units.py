@@ -780,14 +780,14 @@ def test_hPa_mbar():
 
 
 def test_percent():
-    a = 300.0 * Unit("percent")
+    a = 300 * Unit("percent")
     b = 3.0 * Unit("dimensionless")
     c = 300.0 * Unit("%")
     d = 300.0 * Unit("V*%/V")
 
     assert a == b
-    assert str(a) == "300.0 %"
-    assert repr(a) == "unyt_quantity(300., '%')"
+    assert str(a) == "300 %"
+    assert repr(a) == "unyt_quantity(300, '%')"
 
     assert a == c
     assert c == d
