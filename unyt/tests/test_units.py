@@ -26,7 +26,6 @@ from numpy.testing import (
 import operator
 import pickle
 import pytest
-import re
 from sympy import Symbol
 
 from unyt.testing import assert_allclose_units
@@ -787,8 +786,8 @@ def test_percent():
     d = 300.0 * Unit("V*%/V")
 
     assert a == b
-    assert re.match(r"300\.0? percent", str(a))  # FIXME %
-    assert re.match(r"unyt_quantity\(300\.0?, 'percent'\)", repr(a))
+    assert str(a) == "300.0 %"
+    assert repr(a) == "unyt_quantity(300., '%')"
 
     assert a == c
     assert c == d
