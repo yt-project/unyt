@@ -509,6 +509,7 @@ def test_comparisons():
     a1 = unyt_array([1, 2, 3], "cm")
     a2 = unyt_array([2, 1, 3], "cm")
     a3 = unyt_array([0.02, 0.01, 0.03], "m")
+    a4 = unyt_array([1, 2, 3], "g")
     dimless = np.array([2, 1, 3])
 
     ops = (np.less, np.less_equal, np.greater, np.greater_equal, np.equal, np.not_equal)
@@ -541,6 +542,26 @@ def test_comparisons():
     assert_equal(a1 < 2, np.less(a1, 2))
     assert_equal(2 < a1, [False, False, True])
     assert_equal(2 < a1, np.less(2, a1))
+
+    # Check that comparisons with arrays that have different units with
+    # different dimensions work properly
+    operate_and_compare(a1, a4, np.equal, [False, False, False])
+    operate_and_compare(a1, a4, np.not_equal, [True, True, True])
+
+    # check that comparing quantities returns bools and not 0-D arrays
+    el1, el4 = a1[0], a4[0]
+    assert (el1 == el4) is False
+    assert (el1 != el4) is True
+
+    # comparisons that aren't == and !=
+    with pytest.raises(UnitOperationError):
+        np.greater(a1, a4)
+    with pytest.raises(UnitOperationError):
+        a1 > a4
+    with pytest.raises(UnitOperationError):
+        np.greater(el1, el4)
+    with pytest.raises(UnitOperationError):
+        el1 > el4
 
 
 def test_unit_conversions():
@@ -1003,8 +1024,6 @@ def binary_ufunc_comparison(ufunc, a, b):
             "greater_equal",
             "less",
             "less_equal",
-            "equal",
-            "not_equal",
             "logical_and",
             "logical_or",
             "logical_xor",
