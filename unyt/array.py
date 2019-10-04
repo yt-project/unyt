@@ -1673,7 +1673,26 @@ class unyt_array(np.ndarray):
                             elif u1.is_dimensionless:
                                 u1 = u0
                             else:
-                                raise UnitOperationError(ufunc, u0, u1)
+                                # comparison with different units, so need to check if
+                                # this is == and != which we allow and handle in a
+                                # special way using an early return from __array_ufunc__
+                                if ufunc in (equal, not_equal):
+                                    if ufunc is equal:
+                                        func = np.zeros_like
+                                    else:
+                                        func = np.ones_like
+                                    ret = func(np.asarray(inp1), dtype=bool)
+                                    if out is not None:
+                                        out[:] = ret[:]
+                                        if isinstance(out, unyt_array):
+                                            out.units = Unit(
+                                                "", registry=self.units.registry
+                                            )
+                                    if ret.shape == ():
+                                        ret = bool(ret)
+                                    return ret
+                                else:
+                                    raise UnitOperationError(ufunc, u0, u1)
                         else:
                             raise UnitOperationError(ufunc, u0, u1)
                     conv, offset = u1.get_conversion_factor(u0, inp1.dtype)
