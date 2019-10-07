@@ -777,3 +777,17 @@ def test_hPa_mbar():
     assert Unit("hPa").dimensions == Unit("bar").dimensions
     assert (5 * Unit("hPa") == 5 * Unit("mbar")).all()
     assert (5 * Unit("hPa") != 1 * Unit("bar")).all()
+
+
+def test_percent():
+    a = 300 * Unit("percent")
+    b = 3.0 * Unit("dimensionless")
+    c = 300.0 * Unit("%")
+    d = 300.0 * Unit("V*%/V")
+
+    assert a == b
+    assert str(a) == "300 %"
+    assert repr(a) == "unyt_quantity(300, '%')"
+
+    assert a == c
+    assert c == d

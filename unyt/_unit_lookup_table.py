@@ -182,6 +182,7 @@ default_unit_symbol_lut = OrderedDict(
         ("smoot", (1.7018, dimensions.length, 0.0, r"\rm{smoot}", False)),
         # dimensionless stuff
         ("dimensionless", (1.0, dimensions.dimensionless, 0.0, r"", False)),
+        ("%", (0.01, dimensions.dimensionless, 0.0, r"\%", False)),
         # times
         ("min", (sec_per_min, dimensions.time, 0.0, r"\rm{min}", False)),
         ("hr", (sec_per_hr, dimensions.time, 0.0, r"\rm{hr}", False)),
@@ -458,6 +459,7 @@ default_unit_name_alternatives = OrderedDict(
         ("mp", ("proton_mass",)),
         ("Sv", ("sievert",)),
         ("nt", ("nit",)),
+        ("%", ("percent",)),
         # Planck units
         ("m_pl", ("planck_mass",)),
         ("l_pl", ("planck_length",)),
