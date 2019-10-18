@@ -50,7 +50,6 @@ from unyt.exceptions import (
     MissingMKSCurrent,
     MKSCGSConversionError,
     UnitConversionError,
-    UnitDtypeError,
     UnitsNotReducible,
     UnitParseError,
 )
@@ -110,6 +109,34 @@ def _get_latex_representation(expr, registry):
         return latex_repr
 
 
+class _ImportCache(object):
+
+    __slots__ = ["_ua", "_uq"]
+
+    def __init__(self):
+        self._ua = None
+        self._uq = None
+
+    @property
+    def ua(self):
+        if self._ua is None:
+            from unyt.array import unyt_array
+
+            self._ua = unyt_array
+        return self._ua
+
+    @property
+    def uq(self):
+        if self._uq is None:
+            from unyt.array import unyt_quantity
+
+            self._uq = unyt_quantity
+        return self._uq
+
+
+_import_cache_singleton = _ImportCache()
+
+
 class Unit(object):
     """
     A symbolic unit, using sympy functionality. We only add "dimensions" so
@@ -117,14 +144,21 @@ class Unit(object):
 
     """
 
+    __slots__ = [
+        "expr",
+        "is_atomic",
+        "base_value",
+        "base_offset",
+        "dimensions",
+        "_latex_repr",
+        "registry",
+        "is_Unit",
+    ]
+
     # Set some assumptions for sympy.
     is_positive = True  # make sqrt(m**2) --> m
     is_commutative = True
     is_number = False
-
-    # caches for imports
-    _ua = None
-    _uq = None
 
     __array_priority__ = 3.0
 
@@ -161,18 +195,8 @@ class Unit(object):
 
         """
         unit_cache_key = None
-        # Parse a text unit representation using sympy's parser
-        if isinstance(unit_expr, (str, bytes)):
-            if isinstance(unit_expr, bytes):
-                unit_expr = unit_expr.decode("utf-8")
-
-            # this cache substantially speeds up unit conversions
-            if registry and unit_expr in registry._unit_object_cache:
-                return registry._unit_object_cache[unit_expr]
-            unit_cache_key = unit_expr
-            unit_expr = parse_unyt_expr(unit_expr)
         # Simplest case. If user passes a Unit object, just use the expr.
-        elif isinstance(unit_expr, Unit):
+        if hasattr(unit_expr, "is_Unit"):
             # grab the unit object's sympy expression.
             unit_expr = unit_expr.expr
         elif hasattr(unit_expr, "units") and hasattr(unit_expr, "value"):
@@ -187,6 +211,16 @@ class Unit(object):
                 unit_expr = unit_expr.units.expr
             else:
                 unit_expr = unit_expr.value * unit_expr.units.expr
+        # Parse a text unit representation using sympy's parser
+        elif isinstance(unit_expr, (str, bytes)):
+            if isinstance(unit_expr, bytes):
+                unit_expr = unit_expr.decode("utf-8")
+
+            # this cache substantially speeds up unit conversions
+            if registry and unit_expr in registry._unit_object_cache:
+                return registry._unit_object_cache[unit_expr]
+            unit_cache_key = unit_expr
+            unit_expr = parse_unyt_expr(unit_expr)
         # Make sure we have an Expr at this point.
         if not isinstance(unit_expr, Expr):
             raise UnitParseError(
@@ -247,6 +281,8 @@ class Unit(object):
         obj.dimensions = dimensions
         obj._latex_repr = latex_repr
         obj.registry = registry
+        # lets us avoid isinstance calls
+        obj.is_Unit = True
 
         # if we parsed a string unit expression, cache the result
         # for faster lookup later
@@ -338,34 +374,21 @@ class Unit(object):
 
     def __mul__(self, u):
         """ Multiply Unit with u (Unit object). """
-        if self._ua is None:
-            # cache the imported object to avoid cost of repeated imports
-            from unyt.array import unyt_quantity, unyt_array
-
-            self._ua = unyt_array
-            self._uq = unyt_quantity
-        if not isinstance(u, Unit):
-            cls = type(u)
-            if cls in (np.ndarray, np.matrix, np.ma.masked_array) or isinstance(
-                u, (numeric_type, list, tuple)
-            ):
-                try:
-                    units = u.units * self
-                except AttributeError:
-                    units = self
-                data = np.array(u)
-                if data.dtype.kind not in ("f", "u", "i", "c"):
-                    raise UnitDtypeError(data, data.dtype)
-                if data.shape == ():
-                    return self._uq(data, units, bypass_validation=True)
-                return self._ua(data, units, bypass_validation=True)
-            elif isinstance(u, self._ua):
-                return cls(u, u.units * self, bypass_validation=True)
+        if not getattr(u, "is_Unit", False):
+            data = np.array(u, subok=True)
+            unit = getattr(u, "units", None)
+            if unit is not None:
+                units = unit * self
             else:
+                units = self
+            if data.dtype.kind not in ("f", "u", "i", "c"):
                 raise InvalidUnitOperation(
                     "Tried to multiply a Unit object with '%s' (type %s). "
                     "This behavior is undefined." % (u, type(u))
                 )
+            if data.shape == ():
+                return _import_cache_singleton.uq(data, units, bypass_validation=True)
+            return _import_cache_singleton.ua(data, units, bypass_validation=True)
 
         base_offset = 0.0
         if self.base_offset or u.base_offset:

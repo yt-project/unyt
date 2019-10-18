@@ -1952,7 +1952,10 @@ class unyt_quantity(unyt_array):
             )
         if units is not None:
             input_units = units
-        if not isinstance(input_scalar, (numeric_type, np.number, np.ndarray)):
+        if not (
+            bypass_validation
+            or isinstance(input_scalar, (numeric_type, np.number, np.ndarray))
+        ):
             raise RuntimeError("unyt_quantity values must be numeric")
         if input_units is None:
             units = getattr(input_scalar, "units", None)
