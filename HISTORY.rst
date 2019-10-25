@@ -2,6 +2,29 @@
 History
 =======
 
+2.4.0 (2019-10-25)
+------------------
+
+* Improve performance for creating quantities or small arrays via multiplication
+  with a unit object. Creating an array or quantity from data that does not have
+  a numeric dtype will now raise ``UnitOperationError`` instead of
+  ``UnitDtypeError``, which has been removed. See `PR #111
+  <https://github.com/yt-project/unyt/pull/111>`_.
+* Comparing data with units that have different dimensions using the ``==`` and
+  ``!=`` operators will no longer raise an error. Other comparison operators
+  will continue to raise errors. See `PR #109
+  <https://github.com/yt-project/unyt/pull/109>`_.
+* Fixed a corner case in the implementation of ``clip``. See `PR #108
+  <https://github.com/yt-project/unyt/pull/108>`_. Thank you to Matthew Turk
+  (@matthewturk on GitHub) for the contribution.
+* Added ``%`` as a valid dimensionless unit with a value of `0.01`, also
+  available under the name ``percent``. See `PR #106
+  <https://github.com/yt-project/unyt/pull/106>`_. Thank you to Thomas Hisch for
+  the contribution.
+* Added ``bar`` to the default unit lookup table. See `PR #103
+  <https://github.com/yt-project/unyt/pull/103>`_. Thank you to Thomas Hisch
+  (@thisch on GitHub) for the contribution.
+
 2.3.1 (2019-08-21)
 ------------------
 
