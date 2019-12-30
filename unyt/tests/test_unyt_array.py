@@ -1477,7 +1477,7 @@ def test_h5_io():
 
     # write to a group that does exist
 
-    with _h5py.File("test.h5") as f:
+    with _h5py.File("test.h5", "a") as f:
         f.create_group("/arrays/test_group")
 
     warr.write_hdf5(

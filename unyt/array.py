@@ -1322,7 +1322,7 @@ class unyt_array(np.ndarray):
         if dataset_name is None:
             dataset_name = "array_data"
 
-        f = h5py.File(filename)
+        f = h5py.File(filename, "a")
         if group_name is not None:
             if group_name in f:
                 g = f[group_name]
@@ -1372,7 +1372,7 @@ class unyt_array(np.ndarray):
         if dataset_name is None:
             dataset_name = "array_data"
 
-        f = h5py.File(filename)
+        f = h5py.File(filename, "r")
         if group_name is not None:
             g = f[group_name]
         else:
