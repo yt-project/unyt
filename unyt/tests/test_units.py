@@ -791,3 +791,14 @@ def test_percent():
 
     assert a == c
     assert c == d
+
+
+def test_equal_has_same_hash():
+    a = Unit("m")
+    b = Unit("m")
+    c = Unit("m*s/s")
+
+    assert a == b
+    assert b == c
+    assert hash(a) == hash(b)
+    assert hash(b) == hash(c)
