@@ -321,6 +321,8 @@ binary_operators = (
 
 trigonometric_operators = (sin, cos, tan)
 
+multiple_output_operators = {modf: 2, frexp: 2, divmod_: 2}
+
 LARGE_INPUT = {4: 16777217, 8: 9007199254740993}
 
 
@@ -1584,18 +1586,29 @@ class unyt_array(np.ndarray):
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
         func = getattr(ufunc, method)
         if "out" not in kwargs:
-            out = None
-            out_func = None
+            if ufunc in multiple_output_operators:
+                out = (None,) * multiple_output_operators[ufunc]
+                out_func = out
+            else:
+                out = None
+                out_func = None
         else:
             # we need to get both the actual "out" object and a view onto it
             # in case we need to do in-place operations
-            out = kwargs.pop("out")[0]
-            if out.dtype.kind in ("u", "i"):
-                new_dtype = "f" + str(out.dtype.itemsize)
-                float_values = out.astype(new_dtype)
-                out.dtype = new_dtype
-                np.copyto(out, float_values)
-            out_func = out.view(np.ndarray)
+            out = kwargs.pop("out")
+            if ufunc in multiple_output_operators:
+                out_func = []
+                for arr in out:
+                    out_func.append(arr.view(np.ndarray))
+                out_func = tuple(out_func)
+            else:
+                out = out[0]
+                if out.dtype.kind in ("u", "i"):
+                    new_dtype = "f" + str(out.dtype.itemsize)
+                    float_values = out.astype(new_dtype)
+                    out.dtype = new_dtype
+                    np.copyto(out, float_values)
+                out_func = out.view(np.ndarray)
         if len(inputs) == 1:
             # Unary ufuncs
             inp = inputs[0]
@@ -1775,6 +1788,14 @@ class unyt_array(np.ndarray):
                 except AttributeError:
                     # out_arr is an ndarray
                     out.units = Unit("", registry=self.units.registry)
+            elif isinstance(out, tuple):
+                for o, oa in zip(out, out_arr):
+                    if o is None:
+                        continue
+                    try:
+                        o.units = oa.units
+                    except AttributeError:
+                        o.units = Unit("", registry=self.units.registry)
         if mul == 1:
             return out_arr
         return mul * out_arr
