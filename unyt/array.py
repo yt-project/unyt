@@ -127,8 +127,13 @@ from unyt.exceptions import (
 from unyt.equivalencies import equivalence_registry
 from unyt._on_demand_imports import _astropy, _pint
 from unyt._pint_conversions import convert_pint_units
+from unyt._unit_lookup_table import default_unit_symbol_lut
 from unyt.unit_object import _check_em_conversion, _em_conversion, Unit
-from unyt.unit_registry import _sanitize_unit_system, UnitRegistry
+from unyt.unit_registry import (
+    _sanitize_unit_system,
+    UnitRegistry,
+    default_unit_registry,
+)
 
 NULL_UNIT = Unit()
 POWER_SIGN_MAPPING = {multiply: 1, divide: -1}
@@ -1319,7 +1324,11 @@ class unyt_array(np.ndarray):
             info = {}
 
         info["units"] = str(self.units)
-        info["unit_registry"] = np.void(pickle.dumps(self.units.registry.lut))
+        lut = {}
+        for k, v in self.units.registry.lut.items():
+            if k not in default_unit_registry.lut:
+                lut[k] = v
+        info["unit_registry"] = np.void(pickle.dumps(lut))
 
         if dataset_name is None:
             dataset_name = "array_data"
@@ -1382,7 +1391,9 @@ class unyt_array(np.ndarray):
         dataset = g[dataset_name]
         data = dataset[:]
         units = dataset.attrs.get("units", "")
-        unit_lut = pickle.loads(dataset.attrs["unit_registry"].tostring())
+        unit_lut = default_unit_symbol_lut.copy()
+        unit_lut_load = pickle.loads(dataset.attrs["unit_registry"].tostring())
+        unit_lut.update(unit_lut_load)
         f.close()
         registry = UnitRegistry(lut=unit_lut, add_default_symbols=False)
         return cls(data, units, registry=registry)

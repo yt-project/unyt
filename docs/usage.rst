@@ -1057,7 +1057,7 @@ HDF5 Files
 
 The :mod:`unyt` library provides a hook for writing data both to a new HDF5 file and an existing file and then subsequently reading that data back in to restore the array. This works via the :meth:`unyt_array.write_hdf5 <unyt.array.unyt_array.write_hdf5>` and :meth:`unyt_array.from_hdf5 <unyt.array.unyt_array.from_hdf5>` methods. The simplest way to use these functions is to write data to a file that does not exist yet:
 
-  >>> from unyt import cm, unyt_array
+  >>> from unyt import cm
   >>> import os
   >>> data = [1, 2, 3]*cm
   >>> data.write_hdf5('my_data.h5')
