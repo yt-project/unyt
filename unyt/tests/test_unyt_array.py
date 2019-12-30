@@ -1359,6 +1359,10 @@ def test_astropy():
 
 
 def test_pint():
+    def assert_pint_array_equal(arr1, arr2):
+        assert_array_equal(arr1.magnitude, arr2.magnitude)
+        assert str(arr1.units) == str(arr2.units)
+
     if isinstance(_pint.UnitRegistry, NotAModule):
         return
     ureg = _pint.UnitRegistry()
@@ -1371,13 +1375,11 @@ def test_pint():
     yt_quan = unyt_quantity(10.0, "sqrt(g)/mm**3")
     yt_quan2 = unyt_quantity.from_pint(p_quan)
 
-    assert_array_equal(p_arr, yt_arr.to_pint())
-    assert_equal(p_quan, yt_quan.to_pint())
+    assert_pint_array_equal(p_arr, yt_arr.to_pint())
     assert_array_equal(yt_arr, unyt_array.from_pint(p_arr))
     assert_array_equal(yt_arr, yt_arr2)
 
-    assert_equal(p_quan.magnitude, yt_quan.to_pint().magnitude)
-    assert_equal(p_quan, yt_quan.to_pint())
+    assert_pint_array_equal(p_quan, yt_quan.to_pint())
     assert_equal(yt_quan, unyt_quantity.from_pint(p_quan))
     assert_equal(yt_quan, yt_quan2)
 
