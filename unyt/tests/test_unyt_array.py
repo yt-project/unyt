@@ -1010,7 +1010,10 @@ def unary_ufunc_comparison(ufunc, a):
 
 
 def binary_ufunc_comparison(ufunc, a, b):
-    out = b.copy()
+    if ufunc in [np.divmod]:
+        out = (b.copy(), b.copy())
+    else:
+        out = b.copy()
     if ufunc in yield_np_ufuncs(
         [
             "add",
@@ -1073,7 +1076,10 @@ def binary_ufunc_comparison(ufunc, a, b):
     ):
         assert not isinstance(ret, unyt_array) and isinstance(ret, np.ndarray)
     if isinstance(ret, tuple):
-        assert_array_equal(ret[0], out)
+        assert isinstance(out, tuple)
+        assert len(out) == len(ret)
+        for o, r in zip(out, ret):
+            assert_array_equal(r, o)
     else:
         assert_array_equal(ret, out)
     if ufunc in (np.divide, np.true_divide, np.arctan2) and (
@@ -1353,6 +1359,10 @@ def test_astropy():
 
 
 def test_pint():
+    def assert_pint_array_equal(arr1, arr2):
+        assert_array_equal(arr1.magnitude, arr2.magnitude)
+        assert str(arr1.units) == str(arr2.units)
+
     if isinstance(_pint.UnitRegistry, NotAModule):
         return
     ureg = _pint.UnitRegistry()
@@ -1365,13 +1375,11 @@ def test_pint():
     yt_quan = unyt_quantity(10.0, "sqrt(g)/mm**3")
     yt_quan2 = unyt_quantity.from_pint(p_quan)
 
-    assert_array_equal(p_arr, yt_arr.to_pint())
-    assert_equal(p_quan, yt_quan.to_pint())
+    assert_pint_array_equal(p_arr, yt_arr.to_pint())
     assert_array_equal(yt_arr, unyt_array.from_pint(p_arr))
     assert_array_equal(yt_arr, yt_arr2)
 
-    assert_equal(p_quan.magnitude, yt_quan.to_pint().magnitude)
-    assert_equal(p_quan, yt_quan.to_pint())
+    assert_pint_array_equal(p_quan, yt_quan.to_pint())
     assert_equal(yt_quan, unyt_quantity.from_pint(p_quan))
     assert_equal(yt_quan, yt_quan2)
 
@@ -1477,7 +1485,7 @@ def test_h5_io():
 
     # write to a group that does exist
 
-    with _h5py.File("test.h5") as f:
+    with _h5py.File("test.h5", "a") as f:
         f.create_group("/arrays/test_group")
 
     warr.write_hdf5(

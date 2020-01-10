@@ -76,7 +76,7 @@ global_dict = {
     "sqrt": sqrt,
 }
 
-unit_text_transform = (_auto_positive_symbol, rationalize, auto_number)
+unit_text_transform = (_auto_positive_symbol, auto_number, rationalize)
 
 
 def parse_unyt_expr(unit_expr):

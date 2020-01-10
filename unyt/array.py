@@ -127,8 +127,13 @@ from unyt.exceptions import (
 from unyt.equivalencies import equivalence_registry
 from unyt._on_demand_imports import _astropy, _pint
 from unyt._pint_conversions import convert_pint_units
+from unyt._unit_lookup_table import default_unit_symbol_lut
 from unyt.unit_object import _check_em_conversion, _em_conversion, Unit
-from unyt.unit_registry import _sanitize_unit_system, UnitRegistry
+from unyt.unit_registry import (
+    _sanitize_unit_system,
+    UnitRegistry,
+    default_unit_registry,
+)
 
 NULL_UNIT = Unit()
 POWER_SIGN_MAPPING = {multiply: 1, divide: -1}
@@ -320,6 +325,8 @@ binary_operators = (
 )
 
 trigonometric_operators = (sin, cos, tan)
+
+multiple_output_operators = {modf: 2, frexp: 2, divmod_: 2}
 
 LARGE_INPUT = {4: 16777217, 8: 9007199254740993}
 
@@ -1317,12 +1324,16 @@ class unyt_array(np.ndarray):
             info = {}
 
         info["units"] = str(self.units)
-        info["unit_registry"] = np.void(pickle.dumps(self.units.registry.lut))
+        lut = {}
+        for k, v in self.units.registry.lut.items():
+            if k not in default_unit_registry.lut:
+                lut[k] = v
+        info["unit_registry"] = np.void(pickle.dumps(lut))
 
         if dataset_name is None:
             dataset_name = "array_data"
 
-        f = h5py.File(filename)
+        f = h5py.File(filename, "a")
         if group_name is not None:
             if group_name in f:
                 g = f[group_name]
@@ -1372,7 +1383,7 @@ class unyt_array(np.ndarray):
         if dataset_name is None:
             dataset_name = "array_data"
 
-        f = h5py.File(filename)
+        f = h5py.File(filename, "r")
         if group_name is not None:
             g = f[group_name]
         else:
@@ -1380,7 +1391,9 @@ class unyt_array(np.ndarray):
         dataset = g[dataset_name]
         data = dataset[:]
         units = dataset.attrs.get("units", "")
-        unit_lut = pickle.loads(dataset.attrs["unit_registry"].tostring())
+        unit_lut = default_unit_symbol_lut.copy()
+        unit_lut_load = pickle.loads(dataset.attrs["unit_registry"].tostring())
+        unit_lut.update(unit_lut_load)
         f.close()
         registry = UnitRegistry(lut=unit_lut, add_default_symbols=False)
         return cls(data, units, registry=registry)
@@ -1584,18 +1597,29 @@ class unyt_array(np.ndarray):
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
         func = getattr(ufunc, method)
         if "out" not in kwargs:
-            out = None
-            out_func = None
+            if ufunc in multiple_output_operators:
+                out = (None,) * multiple_output_operators[ufunc]
+                out_func = out
+            else:
+                out = None
+                out_func = None
         else:
             # we need to get both the actual "out" object and a view onto it
             # in case we need to do in-place operations
-            out = kwargs.pop("out")[0]
-            if out.dtype.kind in ("u", "i"):
-                new_dtype = "f" + str(out.dtype.itemsize)
-                float_values = out.astype(new_dtype)
-                out.dtype = new_dtype
-                np.copyto(out, float_values)
-            out_func = out.view(np.ndarray)
+            out = kwargs.pop("out")
+            if ufunc in multiple_output_operators:
+                out_func = []
+                for arr in out:
+                    out_func.append(arr.view(np.ndarray))
+                out_func = tuple(out_func)
+            else:
+                out = out[0]
+                if out.dtype.kind in ("u", "i"):
+                    new_dtype = "f" + str(out.dtype.itemsize)
+                    float_values = out.astype(new_dtype)
+                    out.dtype = new_dtype
+                    np.copyto(out, float_values)
+                out_func = out.view(np.ndarray)
         if len(inputs) == 1:
             # Unary ufuncs
             inp = inputs[0]
@@ -1775,6 +1799,14 @@ class unyt_array(np.ndarray):
                 except AttributeError:
                     # out_arr is an ndarray
                     out.units = Unit("", registry=self.units.registry)
+            elif isinstance(out, tuple):
+                for o, oa in zip(out, out_arr):
+                    if o is None:
+                        continue
+                    try:
+                        o.units = oa.units
+                    except AttributeError:
+                        o.units = Unit("", registry=self.units.registry)
         if mul == 1:
             return out_arr
         return mul * out_arr

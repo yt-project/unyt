@@ -87,7 +87,7 @@ def _get_latex_representation(expr, registry):
     l_expr = expr
     if isinstance(expr, Mul):
         coeffs = expr.as_coeff_Mul()
-        if coeffs[0] == 1 or not isinstance(coeffs[0], Float):
+        if coeffs[0] == 1 or not isinstance(coeffs[0], Number):
             l_expr = coeffs[1]
         else:
             l_expr = coeffs[1]
