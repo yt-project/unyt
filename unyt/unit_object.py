@@ -317,7 +317,7 @@ class Unit(object):
         return self
 
     def __hash__(self):
-        return hash(self.registry.unit_system_id) ^ hash(self.expr)
+        return int(self.registry.unit_system_id, 16) ^ hash(self.expr)
 
     # end sympy conventions
 
