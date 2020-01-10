@@ -2,6 +2,15 @@
 History
 =======
 
+2.4.1 (2020-01-10)
+------------------
+
+Add support for the latest releases of h5py, sympy, NumPy, and PyTest. See `PR
+#115 <https://github.com/yt-project/unyt/pull/115>`_.
+Fix the hash implementation so that identical units cannot have distinct
+hashes. See `PR #114 <https://github.com/yt-project/unyt/pull/114>`_ and `PR
+#117 <https://github.com/yt-project/unyt/pull/114>`_.
+
 2.4.0 (2019-10-25)
 ------------------
 
