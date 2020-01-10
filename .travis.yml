@@ -34,6 +34,7 @@ before_install:
   - pyenv install -s 3.7.5
   - pyenv install -s 3.8.0
   - pyenv local 3.5.7 3.6.9 3.7.5 3.8.0
+  - pip install "coverage<5.0"
   - pip install tox tox-pyenv codecov twine
 
 # Command to run tests, e.g. python setup.py test
