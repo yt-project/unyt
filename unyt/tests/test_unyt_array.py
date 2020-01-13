@@ -2213,7 +2213,7 @@ def test_round():
 
 
 def test_integer_arrays():
-    from unyt import km, m, mile
+    from unyt import km, m, mile, ms, s
 
     def integer_semantics(inp):
         arr = inp * km
@@ -2260,6 +2260,10 @@ def test_integer_arrays():
     assert (arr1 + arr2).dtype == np.int_
     assert (arr1 * arr2).dtype == np.int_
     assert (arr1 / arr2).dtype.name == "float64"
+
+    # see issue #118 for details
+    assert 1000 * ms == 1 * s
+    assert 1 * s == 1000 * ms
 
 
 def test_overflow_warnings():

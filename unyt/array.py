@@ -1728,7 +1728,7 @@ class unyt_array(np.ndarray):
                             "cannot by multiplied, divided, subtracted or "
                             "added with data that has different units."
                         )
-                    inp1 = np.asarray(inp1) * conv
+                    inp1 = np.asarray(inp1, dtype=new_dtype) * conv
             # get the unit of the result
             mul, unit = unit_operator(u0, u1)
             # actually evaluate the ufunc
