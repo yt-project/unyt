@@ -527,7 +527,7 @@ def test_latex_repr():
     assert_equal(test_unit.latex_repr, "\\frac{1}{\\rm{cm}^{3}}")
 
     test_unit = Unit("m_geom/l_geom**3")
-    assert_equal(test_unit.latex_repr, "\\frac{1}{M_\\odot^{2}}")
+    assert_equal(test_unit.latex_repr, "\\frac{1}{\\rm{M}_\\odot^{2}}")
 
     test_unit = Unit("1e9*cm")
     assert_equal(test_unit.latex_repr, "1.0 \\times 10^{9}\\ \\rm{cm}")

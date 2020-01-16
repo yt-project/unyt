@@ -194,8 +194,14 @@ default_unit_symbol_lut = OrderedDict(
         ("Msun", (mass_sun_kg, dimensions.mass, 0.0, r"\rm{M}_\odot", False)),
         ("Rsun", (m_per_rsun, dimensions.length, 0.0, r"\rm{R}_\odot", False)),
         ("Lsun", (luminosity_sun_watts, dimensions.power, 0.0, r"\rm{L}_\odot", False)),
-        ("Tsun", (temp_sun_kelvin, dimensions.temperature, 0.0, r"\rm{T}_\odot", False)),
-        ("Zsun", (metallicity_sun, dimensions.dimensionless, 0.0, r"\rm{Z}_\odot", False)),
+        (
+            "Tsun",
+            (temp_sun_kelvin, dimensions.temperature, 0.0, r"\rm{T}_\odot", False),
+        ),
+        (
+            "Zsun",
+            (metallicity_sun, dimensions.dimensionless, 0.0, r"\rm{Z}_\odot", False),
+        ),
         ("Mjup", (mass_jupiter_kg, dimensions.mass, 0.0, r"\rm{M}_{\rm{Jup}}", False)),
         ("Mearth", (mass_earth_kg, dimensions.mass, 0.0, r"\rm{M}_\oplus", False)),
         ("Rjup", (m_per_rjup, dimensions.length, 0.0, r"\rm{R}_\mathrm{Jup}", False)),
