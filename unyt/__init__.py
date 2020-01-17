@@ -96,7 +96,8 @@ from unyt.unit_registry import UnitRegistry  # NOQA: F401
 from unyt.unit_systems import UnitSystem  # NOQA: F401
 from unyt.testing import assert_allclose_units  # NOQA: F401
 from unyt.dimensions import accepts, returns  # NOQA: F401
-from unyt import mpl_interface
+from unyt import mpl_interface  # NOQA: F401
+
 
 # function to only import quantities into this namespace
 # we go through the trouble of doing this instead of "import *"

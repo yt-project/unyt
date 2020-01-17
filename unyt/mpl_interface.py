@@ -2,14 +2,12 @@
 try:
     from matplotlib.units import (
         ConversionInterface,
-        ConversionError,
         AxisInfo,
         registry,
     )
 except ModuleNotFoundError:
     pass
 else:
-    import re
     from unyt import unyt_array, Unit
 
     class unyt_arrayConverter(ConversionInterface):
@@ -20,7 +18,8 @@ else:
             """return default axis label"""
             if isinstance(unit, tuple):
                 unit = unit[0]
-            label = f"$\\left({Unit(unit).latex_representation()}\\right)$"
+            unit_str = Unit(unit).latex_representation()
+            label = "$\\left(" + unit_str + "\\right)$"
             return AxisInfo(label=label)
 
         @staticmethod

@@ -1191,7 +1191,7 @@ axes with the units.
   >>> import matplotlib.pyplot as plt
   >>> from unyt import s, K
   >>> x = [0.0, 0.01, 0.02]*s
-  >>> y = [298.15, 308.15. 318.15]*K
+  >>> y = [298.15, 308.15, 318.15]*K
   >>> plt.plot(x, y)
   >>> plt.show()
   
