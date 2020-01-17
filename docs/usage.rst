@@ -1193,6 +1193,7 @@ axes with the units.
   >>> x = [0.0, 0.01, 0.02]*s
   >>> y = [298.15, 308.15, 318.15]*K
   >>> plt.plot(x, y)
+  [<matplotlib.lines.Line2D object at ...>]
   >>> plt.show()
   
 .. image:: _static/mpl_fig1.png
@@ -1200,6 +1201,7 @@ axes with the units.
 You can change the plotted units without affecting the original data.
 
   >>> plt.plot(x, y, xunits="ms", yunits=("J", "thermal"))
+  [<matplotlib.lines.Line2D object at ...>]
   >>> plt.show()
 
 .. image:: _static/mpl_fig2.png

@@ -5,7 +5,7 @@ try:
         AxisInfo,
         registry,
     )
-except ModuleNotFoundError:
+except ImportError:
     pass
 else:
     from unyt import unyt_array, Unit
