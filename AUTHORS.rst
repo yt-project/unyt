@@ -26,6 +26,7 @@ Contributors
 * Ben Thompson
 * Matthew Turk <matthewturk@gmail.com>
 * John ZuHone <jzuhone@gmail.com>
+* Lee Johnston <lee.johnston.100@gmail.com>
 
 This library was adapted from `dimensionful
 <https://github.com/caseywstark/dimensionful>`_ which was written by Casey Stark

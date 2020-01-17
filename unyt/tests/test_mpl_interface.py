@@ -1,10 +1,12 @@
-"""test Matplotlib ConversionInterface"""
-from numpy.testing import assert_array_almost_equal
-import matplotlib.pyplot as plt
+"""Test Matplotlib ConversionInterface"""
+from unyt._on_demand_imports import _matplotlib, NotAModule
 from unyt import s, K
 
 
 def test_label():
+    if isinstance(_matplotlib.pyplot, NotAModule):
+        return
+    plt = _matplotlib.pyplot
     x = [0, 1, 2] * s
     y = [3, 4, 5] * K
     _, ax = plt.subplots()
@@ -16,6 +18,9 @@ def test_label():
 
 
 def test_convert_unit():
+    if isinstance(_matplotlib.pyplot, NotAModule):
+        return
+    plt = _matplotlib.pyplot
     x = [0, 1, 2] * s
     y = [1000, 2000, 3000] * K
     _, ax = plt.subplots()
@@ -29,6 +34,9 @@ def test_convert_unit():
 
 
 def test_convert_equivalency():
+    if isinstance(_matplotlib.pyplot, NotAModule):
+        return
+    plt = _matplotlib.pyplot
     x = [0, 1, 2] * s
     y = [1000, 2000, 3000] * K
     _, ax = plt.subplots()
