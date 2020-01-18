@@ -1191,7 +1191,7 @@ axes with the units.
 .. doctest::
   :skipif plt is None
 
-  >>> import matplotlib.pyplot as plt # doctest: +SKIP
+  >>> import matplotlib.pyplot as plt
   >>> from unyt import s, K
   >>> x = [0.0, 0.01, 0.02]*s
   >>> y = [298.15, 308.15, 318.15]*K
