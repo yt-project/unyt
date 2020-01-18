@@ -1,7 +1,7 @@
 """Matplotlib ConversionInterface"""
 try:
     from matplotlib.units import ConversionInterface, AxisInfo, registry
-except (ImportError, ModuleNotFoundError):
+except ImportError:
     pass
 else:
     from unyt import unyt_array, Unit
