@@ -1205,3 +1205,8 @@ You can change the plotted units without affecting the original data.
   >>> plt.show() # doctest: +SKIP
 
 .. image:: _static/mpl_fig2.png
+
+.. note::
+  
+  - This feature works in matplotlib versions 3.1 and above
+  - Matplotlib is not a dependency of Unyt
