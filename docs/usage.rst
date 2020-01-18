@@ -1188,9 +1188,16 @@ Plotting with Matplotlib
 Matplotlib is Unyt aware. With no additional effort, Matplotlib will label the x and y
 axes with the units.
 
-.. doctest::
-  :skipif: plt is None
+.. testsetup:: matplotlib
+  
+  try:
+    import matplotlib as mpl
+  except (ImportError, ModuleNotFoundError):
+    mpl = None
 
+.. doctest:: matplotlib
+  :skipif: mpl is None
+  
   >>> import matplotlib.pyplot as plt
   >>> from unyt import s, K
   >>> x = [0.0, 0.01, 0.02]*s
@@ -1198,14 +1205,14 @@ axes with the units.
   >>> plt.plot(x, y)
   [<matplotlib.lines.Line2D object at ...>]
   >>> plt.show()
-  
+
 .. image:: _static/mpl_fig1.png
 
 You can change the plotted units without affecting the original data.
 
-.. doctest::
-  :skipif: plt is None
-
+.. doctest:: matplotlib
+  :skipif: mpl is None
+  
   >>> plt.plot(x, y, xunits="ms", yunits=("J", "thermal"))
   [<matplotlib.lines.Line2D object at ...>]
   >>> plt.show()

@@ -41,13 +41,6 @@ extensions = [
     "show_all_units",
 ]
 
-doctest_global_setup = """
-try:
-    import matplotlib.pyplot as plt
-except ImportError:
-    plt = None
-"""
-
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
