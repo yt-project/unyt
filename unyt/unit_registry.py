@@ -14,6 +14,7 @@ A registry for units that can be added to and modified.
 
 
 import json
+from functools import lru_cache
 
 from unyt import dimensions as unyt_dims
 from unyt.exceptions import SymbolNotFoundError, UnitParseError
@@ -37,6 +38,16 @@ def _sanitize_unit_system(unit_system, obj):
     elif unit_system == "code":
         unit_system = obj.units.registry.unit_system_id
     return unit_system_registry[str(unit_system)]
+
+
+@lru_cache(maxsize=128, typed=False)
+def cached_sympify(u):
+    """
+    Successive loads of unit systems produce the same calls to sympify
+    in UnitRegistry.from_json. Even within a single load, this is a
+    net improvement because there will often be a few cache hits
+    """
+    return sympify(u, locals=vars(unyt_dims))
 
 
 class UnitRegistry:
@@ -250,7 +261,7 @@ class UnitRegistry:
         lut = {}
         for k, v in data.items():
             unsan_v = list(v)
-            unsan_v[1] = sympify(v[1], locals=vars(unyt_dims))
+            unsan_v[1] = cached_sympify(v[1])
             if len(unsan_v) == 4:
                 # old unit registry so we need to add SI-prefixability to the registry
                 # entry and correct the base_value to be in MKS units
