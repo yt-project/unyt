@@ -9,7 +9,8 @@ Add support for the latest releases of h5py, sympy, NumPy, and PyTest. See `PR
 #115 <https://github.com/yt-project/unyt/pull/115>`_.
 Fix the hash implementation so that identical units cannot have distinct
 hashes. See `PR #114 <https://github.com/yt-project/unyt/pull/114>`_ and `PR
-#117 <https://github.com/yt-project/unyt/pull/114>`_.
+#117 <https://github.com/yt-project/unyt/pull/114>`_. Thank you to Ben Kimock
+(@saethlin on GitHub) for the contribution.
 
 2.4.0 (2019-10-25)
 ------------------
@@ -46,11 +47,13 @@ hashes. See `PR #114 <https://github.com/yt-project/unyt/pull/114>`_ and `PR
 * Added ``unyt.dimensions.accepts`` and ``unyt.dimensions.returns``, decorators
   that can be used to ensure that data passed into a decorated function has
   units that are dimensionally consistent with the function's expected
-  inputs. See `PR #98 <https://github.com/yt-project/unyt/pull/94>`_.
+  inputs. See `PR #98 <https://github.com/yt-project/unyt/pull/94>`_. Thank you
+  to Andrei Berceanu (@berceanu on GitHub) for the contribution.
 * Added ``unyt.allclose_units`` and improved documentation for writing tests for
   code that uses ``unyt``. This is a wrapper for ``numpy.allclose`` that also
   checks the units of the input arrays. See `PR #94
-  <https://github.com/yt-project/unyt/pull/94>`_.
+  <https://github.com/yt-project/unyt/pull/94>`_. Thank you to Andrei Berceanu
+  (@berceanu on GitHub) for the contribution.
 
 2.2.2 (2019-07-03)
 ------------------
@@ -70,7 +73,8 @@ hashes. See `PR #114 <https://github.com/yt-project/unyt/pull/114>`_ and `PR
 * It is now possible to define a ``UnitSystem`` object with a quantity.
   See `PR #86 <https://github.com/yt-project/unyt/pull/86>`_.
 * Incorrect units for Planck units have been fixed.
-  See `PR #85 <https://github.com/yt-project/unyt/pull/85>`_.
+  See `PR #85 <https://github.com/yt-project/unyt/pull/85>`_. Thank you to
+  Nathan Musoke (@musoke on GitHub) for the contribution.
 * Updated value of Newton's constant to latest CODATA value.
   See `PR #84 <https://github.com/yt-project/unyt/pull/84>`_.
 
@@ -84,7 +88,8 @@ hashes. See `PR #114 <https://github.com/yt-project/unyt/pull/114>`_ and `PR
 2.1.1 (2019-03-27)
 ------------------
 
-* Fixed an issue with restoring unit registries from JSON output. See `PR #81 <https://github.com/yt-project/unyt/pull/81>`_.
+* Fixed an issue with restoring unit registries from JSON output. See `PR #81
+  <https://github.com/yt-project/unyt/pull/81>`_.
 
 2.1.0 (2019-03-26)
 ------------------
@@ -94,7 +99,8 @@ This release includes a few minor new features and bugfixes for the 2.0.0 releas
 * Added support for the matmul ``@`` operator. See `PR #80
   <https://github.com/yt-project/unyt/pull/80>`_.
 * Allow defining unit systems using ``Unit`` instances instead of string unit
-  names. See `PR #71 <https://github.com/yt-project/unyt/pull/71>`_.
+  names. See `PR #71 <https://github.com/yt-project/unyt/pull/71>`_. Thank you
+  to Josh Borrow (@JBorrow on GitHub) for the contribution.
 * Fix incorrect behavior when ``uhstack`` is called with the ``axis``
   argument. See `PR #73 <https://github.com/yt-project/unyt/pull/73>`_.
 * Add ``"rsun"``, ``"lsun"``, and ``"au"`` as alternate spellings for the
