@@ -125,3 +125,43 @@ class pint_imports(object):
 
 
 _pint = pint_imports()
+
+
+class matplotlib_imports(object):
+    _name = "matplotlib"
+    _pyplot = None
+    _units = None
+
+    @property
+    def __version__(self):
+        if self._version is None:
+            try:
+                from matplotlib import __version__
+
+                self._version = __version__
+            except ImportError:
+                self._version = NotAModule(self._name)
+        return self._version
+
+    @property
+    def pyplot(self):
+        if self._pyplot is None:
+            try:
+                from matplotlib import pyplot
+            except ImportError:
+                pyplot = NotAModule(self._name)
+            self._pyplot = pyplot
+        return self._pyplot
+
+    @property
+    def units(self):
+        if self._units is None:
+            try:
+                from matplotlib import units
+            except ImportError:
+                units = NotAModule(self._name)
+            self._units = units
+        return self._units
+
+
+_matplotlib = matplotlib_imports()
