@@ -2,15 +2,33 @@
 History
 =======
 
+2.5.0 (2020-01-20)
+------------------
+
+* Importing unyt now registers unyt with Matplotlib's interface for handling
+  units. See the `Matplotlib
+  <https://matplotlib.org/gallery/units/units_scatter.html>`_ and `unyt
+  <https://unyt.readthedocs.io/en/latest/usage.html#plotting-with-matplotlib>`_
+  documentation for more details. See `PR #122
+  <https://github.com/yt-project/unyt/pull/122>`_ and `PR #124
+  <https://github.com/yt-project/unyt/pull/124>`_. Thank you to Lee Johnston
+  (@l-johnston on GitHub) for the contribution.
+* Updated the LaTeX formatting of solar units so they do not get rendered
+  italicized. See `PR #120
+  <https://github.com/yt-project/unyt/pull/120>`_. Thank you to Josh Borrow
+  (@JBorrow on GitHub) for the contribution.
+* Reduce floating point round-off error when data are converted from integer to
+  float dtypes. See `PR #119 <https://github.com/yt-project/unyt/pull/119>`_.
+
 2.4.1 (2020-01-10)
 ------------------
 
-Add support for the latest releases of h5py, sympy, NumPy, and PyTest. See `PR
-#115 <https://github.com/yt-project/unyt/pull/115>`_.
-Fix the hash implementation so that identical units cannot have distinct
-hashes. See `PR #114 <https://github.com/yt-project/unyt/pull/114>`_ and `PR
-#117 <https://github.com/yt-project/unyt/pull/114>`_. Thank you to Ben Kimock
-(@saethlin on GitHub) for the contribution.
+* Add support for the latest releases of h5py, sympy, NumPy, and PyTest. See `PR
+  #115 <https://github.com/yt-project/unyt/pull/115>`_.
+* Fix the hash implementation so that identical units cannot have distinct
+  hashes. See `PR #114 <https://github.com/yt-project/unyt/pull/114>`_ and `PR
+  #117 <https://github.com/yt-project/unyt/pull/114>`_. Thank you to Ben Kimock
+  (@saethlin on GitHub) for the contribution.
 
 2.4.0 (2019-10-25)
 ------------------
