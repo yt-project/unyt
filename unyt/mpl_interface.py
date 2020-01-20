@@ -31,8 +31,9 @@ else:
         def axisinfo(unit, axis):
             """Set the axis label based on unit
 
-            Parameters:
-            -----------
+            Parameters
+            ----------
+
             unit : Unit object, string, or tuple
                 This parameter comes from unyt_arrayConverter.default_units() or from
                 user code such as Axes.plot(), Axis.set_units(), etc. In user code, it
@@ -41,8 +42,9 @@ else:
                 following the call signature of unyt_array.convert_to_units().
             axis : Axis object
 
-            Returns:
-            --------
+            Returns
+            -------
+
             AxisInfo object with the label formatted as in-line math latex
             """
             if isinstance(unit, tuple):
@@ -59,13 +61,15 @@ else:
         def default_units(x, axis):
             """Return the Unit object of the unyt_array x
 
-            Parameters:
-            -----------
+            Parameters
+            ----------
+
             x : unyt_array
             axis : Axis object
 
-            Returns:
-            --------
+            Returns
+            -------
+
             Unit object
             """
             return x.units
@@ -74,8 +78,9 @@ else:
         def convert(value, unit, axis):
             """Convert the units of value to unit
 
-            Parameters:
-            -----------
+            Parameters
+            ----------
+
             value : unyt_array
             unit : Unit, string or tuple
                 This parameter comes from unyt_arrayConverter.default_units() or from
@@ -85,12 +90,14 @@ else:
                 following the call signature of unyt_array.convert_to_units().
             axis : Axis object
 
-            Returns:
-            --------
+            Returns
+            -------
+
             unyt_array
 
-            Raises:
-            -------
+            Raises
+            ------
+
             ConversionError if unit does not have the same dimensions as value
             """
             if isinstance(unit, str) or isinstance(unit, Unit):
