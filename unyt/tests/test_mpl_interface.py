@@ -1,5 +1,4 @@
 """Test Matplotlib ConversionInterface"""
-from pytest import raises
 from unyt._on_demand_imports import _matplotlib, NotAModule
 from unyt import s, K
 
@@ -60,15 +59,3 @@ def test_dimensionless():
     ax.plot(x, y)
     expected_ylabel = ""
     assert ax.yaxis.get_label().get_text() == expected_ylabel
-
-
-def test_conversionerror():
-    if isinstance(_matplotlib.pyplot, NotAModule):
-        return
-    plt = _matplotlib.pyplot
-    x = [0, 1, 2] * s
-    y = [3, 4, 5] * K
-    ax = plt.figure().add_subplot()
-    ax.plot(x, y)
-    with raises(_matplotlib.units.ConversionError):
-        ax.yaxis.set_units("V")
