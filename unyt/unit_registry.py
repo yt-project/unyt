@@ -40,11 +40,12 @@ def _sanitize_unit_system(unit_system, obj):
     return unit_system_registry[str(unit_system)]
 
 
-@lru_cache
+@lru_cache(maxsize=128, typed=False)
 def cached_sympify(u):
     """
-    Successive loads of unit systems produce the same calls to sympify in UnitRegistry.from_json
-    Even within a single load, this is a net gain because there will often be a few cache hits
+    Successive loads of unit systems produce the same calls to sympify
+    in UnitRegistry.from_json. Even within a single load, this is a
+    net improvement because there will often be a few cache hits
     """
     return sympify(u, locals=vars(unyt_dims))
 
