@@ -130,6 +130,7 @@ _pint = pint_imports()
 class matplotlib_imports(object):
     _name = "matplotlib"
     _pyplot = None
+    _units = None
 
     @property
     def __version__(self):
@@ -151,6 +152,16 @@ class matplotlib_imports(object):
                 pyplot = NotAModule(self._name)
             self._pyplot = pyplot
         return self._pyplot
+
+    @property
+    def units(self):
+        if self._units is None:
+            try:
+                from matplotlib import units
+            except ImportError:
+                units = NotAModule(self._name)
+            self._units = units
+        return self._units
 
 
 _matplotlib = matplotlib_imports()
