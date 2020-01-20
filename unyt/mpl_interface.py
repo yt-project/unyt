@@ -22,7 +22,7 @@ try:
 except ImportError:
     pass
 else:
-    from unyt import unyt_array, Unit
+    from unyt import unyt_array, unyt_quantity, Unit
 
     class unyt_arrayConverter(ConversionInterface):
         """Matplotlib interface for unyt_array"""
@@ -105,3 +105,4 @@ else:
             return value.to(*unit)
 
     registry[unyt_array] = unyt_arrayConverter()
+    registry[unyt_quantity] = unyt_arrayConverter()
