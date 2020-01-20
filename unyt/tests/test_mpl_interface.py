@@ -13,7 +13,8 @@ check_matplotlib = pytest.mark.skipif(
 
 @pytest.fixture
 def ax(scope="module"):
-    yield _matplotlib.pyplot.figure().add_subplot()
+    fig, ax = _matplotlib.pyplot.subplots()
+    yield ax
     _matplotlib.pyplot.close()
 
 
@@ -21,7 +22,6 @@ def ax(scope="module"):
 def test_label(ax):
     x = [0, 1, 2] * s
     y = [3, 4, 5] * K
-    ax.clear()
     ax.plot(x, y)
     expected_xlabel = "$\\left(\\rm{s}\\right)$"
     assert ax.xaxis.get_label().get_text() == expected_xlabel
@@ -33,7 +33,6 @@ def test_label(ax):
 def test_convert_unit(ax):
     x = [0, 1, 2] * s
     y = [1000, 2000, 3000] * K
-    ax.clear()
     ax.plot(x, y, yunits="Celcius")
     expected = y.to("Celcius")
     line = ax.lines[0]
@@ -61,7 +60,6 @@ def test_convert_equivalency(ax):
 def test_dimensionless(ax):
     x = [0, 1, 2] * s
     y = [3, 4, 5] * K / K
-    ax.clear()
     ax.plot(x, y)
     expected_ylabel = ""
     assert ax.yaxis.get_label().get_text() == expected_ylabel
@@ -71,10 +69,15 @@ def test_dimensionless(ax):
 def test_conversionerror(ax):
     x = [0, 1, 2] * s
     y = [3, 4, 5] * K
-    ax.clear()
     ax.plot(x, y)
     ax.xaxis.callbacks.exception_handler = None
-    with pytest.raises((_matplotlib.units.ConversionError, UnitConversionError)):
+    # Newer matplotlib versions catch our exception and raise a custom
+    # ConversionError exception
+    try:
+        error_type = _matplotlib.units.ConversionError
+    except AttributeError:
+        error_type = UnitConversionError
+    with pytest.raises(error_type):
         ax.xaxis.set_units("V")
 
 
@@ -82,7 +85,6 @@ def test_conversionerror(ax):
 def test_ndarray_label(ax):
     x = [0, 1, 2] * s
     y = np.arange(3, 6)
-    ax.clear()
     ax.plot(x, y)
     expected_xlabel = "$\\left(\\rm{s}\\right)$"
     assert ax.xaxis.get_label().get_text() == expected_xlabel
@@ -94,7 +96,6 @@ def test_ndarray_label(ax):
 def test_list_label(ax):
     x = [0, 1, 2] * s
     y = [3, 4, 5]
-    ax.clear()
     ax.plot(x, y)
     expected_xlabel = "$\\left(\\rm{s}\\right)$"
     assert ax.xaxis.get_label().get_text() == expected_xlabel
