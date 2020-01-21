@@ -2,9 +2,9 @@
 import numpy as np
 import pytest
 from unyt._on_demand_imports import _matplotlib, NotAModule
-from unyt import s, K, unyt_array, unyt_quantity
+from unyt import s, K, unyt_array, unyt_quantity, matplotlib_support
 from unyt.exceptions import UnitConversionError
-from unyt.mpl_interface import MplUnitsCM, unyt_arrayConverter
+from unyt.mpl_interface import unyt_arrayConverter
 
 
 check_matplotlib = pytest.mark.skipif(
@@ -14,12 +14,11 @@ check_matplotlib = pytest.mark.skipif(
 
 @pytest.fixture
 def ax(scope="module"):
-    mpl_units = MplUnitsCM()
-    mpl_units.enable()
+    matplotlib_support.enable()
     fig, ax = _matplotlib.pyplot.subplots()
     yield ax
     _matplotlib.pyplot.close()
-    mpl_units.disable()
+    matplotlib_support.disable()
 
 
 @check_matplotlib
@@ -146,12 +145,37 @@ def test_hist(ax):
 
 
 @check_matplotlib
-def test_MplUnitsCM():
-    mplunits = MplUnitsCM()
+def test_matplotlib_support():
     with pytest.raises(KeyError):
         _matplotlib.units.registry[unyt_array]
-    mplunits.enable()
+    matplotlib_support.enable()
     assert isinstance(_matplotlib.units.registry[unyt_array], unyt_arrayConverter)
-    mplunits.disable()
+    matplotlib_support.disable()
     assert unyt_array not in _matplotlib.units.registry.keys()
     assert unyt_quantity not in _matplotlib.units.registry.keys()
+    # test as a callable
+    matplotlib_support()
+    assert isinstance(_matplotlib.units.registry[unyt_array], unyt_arrayConverter)
+
+
+@check_matplotlib
+def test_labelstyle():
+    x = [0, 1, 2] * s
+    y = [3, 4, 5] * K
+    matplotlib_support.label_style = "[]"
+    matplotlib_support.enable()
+    assert unyt_arrayConverter._labelstyle == "[]"
+    fig, ax = _matplotlib.pyplot.subplots()
+    ax.plot(x, y)
+    expected_xlabel = "$\\left[\\rm{s}\\right]$"
+    assert ax.xaxis.get_label().get_text() == expected_xlabel
+    expected_ylabel = "$\\left[\\rm{K}\\right]$"
+    assert ax.yaxis.get_label().get_text() == expected_ylabel
+    matplotlib_support.label_style = "/"
+    ax.clear()
+    ax.plot(x, y)
+    expected_xlabel = "$q_{x}\\;/\\;\\rm{s}$"
+    assert ax.xaxis.get_label().get_text() == expected_xlabel
+    expected_ylabel = "$q_{y}\\;/\\;\\rm{K}$"
+    assert ax.yaxis.get_label().get_text() == expected_ylabel
+    _matplotlib.pyplot.close()

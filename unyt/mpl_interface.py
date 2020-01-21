@@ -28,6 +28,8 @@ else:
     class unyt_arrayConverter(ConversionInterface):
         """Matplotlib interface for unyt_array"""
 
+        _labelstyle = "()"
+
         @staticmethod
         def axisinfo(unit, axis):
             """Set the axis label based on unit
@@ -55,7 +57,18 @@ else:
                 label = ""
             else:
                 unit_str = unit_obj.latex_representation()
-                label = "$\\left(" + unit_str + "\\right)$"
+                if unyt_arrayConverter._labelstyle == "[]":
+                    label = "$\\left[" + unit_str + "\\right]$"
+                elif unyt_arrayConverter._labelstyle == "/":
+                    axsym = axis.axis_name
+                    if "/" in unit_str:
+                        label = (
+                            "$q_{" + axsym + "}\\;/\\;\\left(" + unit_str + "\\right)$"
+                        )
+                    else:
+                        label = "$q_{" + axsym + "}\\;/\\;" + unit_str + "$"
+                else:
+                    label = "$\\left(" + unit_str + "\\right)$"
             return AxisInfo(label=label)
 
         @staticmethod
@@ -113,11 +126,49 @@ else:
                     converted_value.append(obj.to(*unit))
                 converted_value = value_type(converted_value)
             else:
-                raise ConversionError(f"unable to convert {value}")
+                raise ConversionError("unable to convert {%s}".format(value))
             return converted_value
 
-    class MplUnitsCM:
-        """Context manager for experimenting with Unyt in Matplotlib"""
+    class matplotlib_support:
+        """Context manager for experimenting with Unyt in Matplotlib
+
+        Parameters
+        ----------
+
+        label_style : string, one from the set {'()', '[]', '/'}
+            The axis label style.
+            '()' -> '(unit)'
+            '[]' -> '[unit]'
+            '/' -> 'q / unit'
+            SI standard where label is a mathematical expression.
+            'q' is a generic quantity symbol and for a value on the axis, x,
+            the equation is q = x * unit.
+        """
+
+        def __init__(self, label_style="()"):
+            self._labelstyle = label_style
+            unyt_arrayConverter._labelstyle = label_style
+
+        def __call__(self):
+            self.__enter__()
+
+        @property
+        def label_style(self):
+            """label_style : string, one from the set {'()', '[]', '/'}
+                The axis label style.
+                '()' -> '(unit)'
+                '[]' -> '[unit]'
+                '/' -> 'q / unit'
+                SI standard where label is a mathematical expression.
+                'q' is a generic quantity symbol and for a value on the axis, x,
+                the equation is q = x * unit.
+            """
+            return self._labelstyle
+
+        @label_style.setter
+        def label_style(self, label_style="()"):
+            self._labelstyle = label_style
+            unyt_arrayConverter._labelstyle = label_style
 
         def __enter__(self):
             registry[unyt_array] = unyt_arrayConverter()
