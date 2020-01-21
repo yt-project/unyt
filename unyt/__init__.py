@@ -96,9 +96,13 @@ from unyt.unit_registry import UnitRegistry  # NOQA: F401
 from unyt.unit_systems import UnitSystem  # NOQA: F401
 from unyt.testing import assert_allclose_units  # NOQA: F401
 from unyt.dimensions import accepts, returns  # NOQA: F401
-from unyt.mpl_interface import matplotlib_support  # NOQA: F401
 
-matplotlib_support = matplotlib_support()
+try:
+    from unyt.mpl_interface import matplotlib_support  # NOQA: F401
+except ImportError:
+    pass
+else:
+    matplotlib_support = matplotlib_support()
 
 
 # function to only import quantities into this namespace
