@@ -1184,25 +1184,28 @@ calculation involves many operations on arrays with only a few elements.
 
 Plotting with Matplotlib
 ++++++++++++++++++++++++
+.. note::
+  - This is an experimental feature. Please report issues.
+  - The context manager ``MplUnitsCM`` will temporarily enable this feature
 
 Matplotlib is Unyt aware. With no additional effort, Matplotlib will label the x and y
 axes with the units.
 
   >>> import matplotlib.pyplot as plt
-  >>> from unyt import s, K
+  >>> from unyt import s, K, MplUnitsCM
   >>> x = [0.0, 0.01, 0.02]*s
   >>> y = [298.15, 308.15, 318.15]*K
-  >>> plt.plot(x, y)
-  [<matplotlib.lines.Line2D object at ...>]
-  >>> plt.show()
+  >>> with MplUnitsCM():
+  ... plt.plot(x, y)
+  ... plt.show()
 
 .. image:: _static/mpl_fig1.png
 
 You can change the plotted units without affecting the original data.
 
-  >>> plt.plot(x, y, xunits="ms", yunits=("J", "thermal"))
-  [<matplotlib.lines.Line2D object at ...>]
-  >>> plt.show()
+  >>> with MplUnitsCM():
+  ... plt.plot(x, y, xunits="ms", yunits=("J", "thermal"))
+  ... plt.show()
 
 .. image:: _static/mpl_fig2.png
 

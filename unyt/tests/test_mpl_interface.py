@@ -4,7 +4,7 @@ import pytest
 from unyt._on_demand_imports import _matplotlib, NotAModule
 from unyt import s, K, unyt_array, unyt_quantity
 from unyt.exceptions import UnitConversionError
-from unyt.mpl_interface import MplUnitsCM
+from unyt.mpl_interface import MplUnitsCM, unyt_arrayConverter
 
 
 check_matplotlib = pytest.mark.skipif(
@@ -143,3 +143,15 @@ def test_hist(ax):
     data = np.random.normal(size=10000) * s
     bin_edges = np.linspace(data.min(), data.max(), 50)
     ax.hist(data, bins=bin_edges)
+
+
+@check_matplotlib
+def test_MplUnitsCM():
+    mplunits = MplUnitsCM()
+    with pytest.raises(KeyError):
+        _matplotlib.units.registry[unyt_array]
+    mplunits.enable()
+    assert isinstance(_matplotlib.units.registry[unyt_array], unyt_arrayConverter)
+    mplunits.disable()
+    assert unyt_array not in _matplotlib.units.registry.keys()
+    assert unyt_quantity not in _matplotlib.units.registry.keys()

@@ -131,7 +131,7 @@ else:
             self.__enter__()
 
         def disable(self):
-            self.__exit__()
+            self.__exit__(None, None, None)
 
         def __repr__(self):
             return "<MplUnitsCM>"
