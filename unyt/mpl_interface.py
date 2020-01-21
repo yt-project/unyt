@@ -18,6 +18,7 @@ try:
         ConversionInterface,
         AxisInfo,
         registry,
+        ConversionError,
     )
 except ImportError:
     pass
@@ -81,7 +82,7 @@ else:
             Parameters
             ----------
 
-            value : unyt_array
+            value : unyt_array, unyt_quantity, or sequence there of
             unit : Unit, string or tuple
                 This parameter comes from unyt_arrayConverter.default_units() or from
                 user code such as Axes.plot(), Axis.set_units(), etc. In user code, it
@@ -98,11 +99,39 @@ else:
             Raises
             ------
 
-            ConversionError if unit does not have the same dimensions as value
+            ConversionError if unit does not have the same dimensions as value or
+            if we don't know how to convert value.
             """
             if isinstance(unit, str) or isinstance(unit, Unit):
                 unit = (unit,)
-            return value.to(*unit)
+            if isinstance(value, (unyt_array, unyt_quantity)):
+                converted_value = value.to(*unit)
+            elif isinstance(value, (list, tuple)):
+                value_type = type(value)
+                converted_value = []
+                for obj in value:
+                    converted_value.append(obj.to(*unit))
+                converted_value = value_type(converted_value)
+            else:
+                raise ConversionError(f"unable to convert {value}")
+            return converted_value
 
-    registry[unyt_array] = unyt_arrayConverter()
-    registry[unyt_quantity] = unyt_arrayConverter()
+    class MplUnitsCM:
+        """Context manager for experimenting with Unyt in Matplotlib"""
+
+        def __enter__(self):
+            registry[unyt_array] = unyt_arrayConverter()
+            registry[unyt_quantity] = unyt_arrayConverter()
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            registry.pop(unyt_array)
+            registry.pop(unyt_quantity)
+
+        def enable(self):
+            self.__enter__()
+
+        def disable(self):
+            self.__exit__()
+
+        def __repr__(self):
+            return "<MplUnitsCM>"
