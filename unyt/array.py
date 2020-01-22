@@ -482,7 +482,7 @@ class unyt_array(np.ndarray):
         dtype=None,
         bypass_validation=False,
         input_units=None,
-        name="",
+        name=None,
     ):
         # deprecate input_units in favor of units
         if input_units is not None:
@@ -1585,7 +1585,10 @@ class unyt_array(np.ndarray):
     @property
     def name(self):
         """Return the name (string) of the array"""
-        return getattr(self, "_name", "")
+        name = getattr(self, "_name", "")
+        if name is None:
+            name = ""
+        return name
 
     @name.setter
     def name(self, name):

@@ -198,6 +198,7 @@ def test_labelstyle():
 @check_matplotlib
 def test_name(ax):
     x = [0, 1, 2] * s
+    assert x.name == ""
     x.name = "time"
     assert x.name == "time"
     y = unyt_array([3, 4, 5], "m", name="distance")
