@@ -131,6 +131,7 @@ class matplotlib_imports(object):
     _name = "matplotlib"
     _pyplot = None
     _units = None
+    _use = None
 
     @property
     def __version__(self):
@@ -162,6 +163,16 @@ class matplotlib_imports(object):
                 units = NotAModule(self._name)
             self._units = units
         return self._units
+
+    @property
+    def use(self):
+        if self._use is None:
+            try:
+                from matplotlib import use
+            except ImportError:
+                use = NotAModule(self._name)
+            self._use = use
+        return self._use
 
 
 _matplotlib = matplotlib_imports()

@@ -18,12 +18,12 @@ try:
         ConversionInterface,
         AxisInfo,
         registry,
-        ConversionError,
     )
 except ImportError:
     pass
 else:
     from unyt import unyt_array, unyt_quantity, Unit
+    from unyt.exceptions import UnitConversionError
 
     class unyt_arrayConverter(ConversionInterface):
         """Matplotlib interface for unyt_array"""
@@ -126,7 +126,7 @@ else:
                     converted_value.append(obj.to(*unit))
                 converted_value = value_type(converted_value)
             else:
-                raise ConversionError("unable to convert {%s}".format(value))
+                raise UnitConversionError("unable to convert {%s}".format(value))
             return converted_value
 
     class matplotlib_support:

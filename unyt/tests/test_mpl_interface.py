@@ -17,7 +17,8 @@ check_matplotlib = pytest.mark.skipif(
 
 
 @pytest.fixture
-def ax(scope="module"):
+def ax():
+    _matplotlib.use("agg")
     matplotlib_support.enable()
     fig, ax = _matplotlib.pyplot.subplots()
     yield ax
