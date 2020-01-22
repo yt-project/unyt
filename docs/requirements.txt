@@ -1,6 +1,4 @@
 numpy
 sympy
-astropy
-pint
 matplotlib
 sphinx
