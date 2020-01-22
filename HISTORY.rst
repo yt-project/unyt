@@ -2,6 +2,21 @@
 History
 =======
 
+2.6.0 (2020-01-22)
+------------------
+
+* Matplotlib support is no longer enabled by importing ``unyt``. Instead, it is
+  now necessary to use the ``unyt.matplotlib_support`` context manager in code
+  where you want unyt to automatically generate plot labels. Enabling Matplotlib
+  support by default in the previous release caused crashes in previously
+  working code for some users we have decided to make the plotting support
+  optional. See the documentation for more details. We are sorry for introducing
+  a new feature that broke some user's code. See `PR #126
+  <https://github.com/yt-project/unyt/pull/126>`_. Thank you to Lee Johnston
+  (@l-johnston on GitHub) for the contribution.
+* Updated the contribution guide to include more details about setting up
+  multiple Python versions for the ``tox`` tests.
+
 2.5.0 (2020-01-20)
 ------------------
 
