@@ -32,8 +32,10 @@ Report bugs at https://github.com/yt-project/unyt/issues.
 If you are reporting a bug, please include:
 
 * Your operating system name and version.
-* Any details about your local setup that might be helpful in troubleshooting.
-* Detailed steps to reproduce the bug.
+* Any details about your local setup that might be helpful in
+  troubleshooting. This includes things like Python version and versions of any
+  libraries being used, including unyt.
+* If possible, detailed steps to reproduce the bug.
 
 Fix Bugs
 ~~~~~~~~
@@ -72,16 +74,36 @@ Get Started!
 
 Ready to contribute? Here's how to set up ``unyt`` for local development.
 
+The ``unyt`` test suite makes use of the ``tox`` test runner, which makes it
+easy to run tests on multiple python versions. However, this means that if all
+of the python versions needed by ``tox`` are not available, many of the ``tox``
+tests will fail with errors about missing python executables.
+
+This guide makes use of ``pyenv`` to set up all of the Python versions used in
+the unyt test suite. You do not have to use ``pyenv`` if you have other ways of
+managing your python evironment using your operating system's package manager or
+``conda``.
+
 1. Fork the ``unyt`` repo on GitHub.
 2. Clone your fork locally::
 
     $ git clone git@github.com:your_name_here/unyt.git
+3. Install ``pyenv``::
 
-3. Install your local copy into a virtualenv. Assuming you have
-   virtualenvwrapper installed, this is how you set up your fork for local
-   development::
+    $ git clone https://github.com/pyenv/pyenv.git $HOME/.pyenv
+    $ export PYENV_ROOT="$HOME/.pyenv"
+    $ export PATH="$HOME/.pyenv/bin:$PATH
+    $ eval "$(pyenv init -)"
+    $ pyenv install -s 3.5.9
+    $ pyenv install -s 3.6.10
+    $ pyenv install -s 3.7.6
+    $ pyenv install -s 3.8.1
+    $ pip install tox tox-pyenv
 
-    $ mkvirtualenv unyt
+3. Install your local copy into a virtualenv or conda environment. You can also
+   use one of the python interpreters we installed using ``pyenv``:
+
+    $ pyenv local 3.8.1
     $ cd unyt/
     $ python setup.py develop
 
@@ -98,10 +120,13 @@ Ready to contribute? Here's how to set up ``unyt`` for local development.
     $ flake8 unyt
     $ black ./
     $ pytest --doctest-modules --doctest-rst --doctest-plus
+    $ pyenv local 3.5.9 3.6.10 3.7.6 3.8.1
     $ tox
+    $ pyenv local 3.8.1
 
    To get ``flake8``, ``black``, ``pytest``, ``pytest-doctestplus``, and
-   ``tox``, just pip install them into your virtualenv.
+   ``tox``, just ``pip`` or ``conda`` install them into your python environment,
+   as appropriate. For a ``pyenv`` environment you would use ``pip``.
 
 6. Commit your changes and push your branch to GitHub::
 
@@ -114,22 +139,38 @@ Ready to contribute? Here's how to set up ``unyt`` for local development.
 Testing unyt
 ------------
 
-We use the ``pytest`` test runner as well as the ``tox`` test wrapper to manage running tests on various versions of python. To run the tests on your copy of
-the ``unyt`` repository, simply run ``pytest`` in the root of the repository::
+We use the ``pytest`` test runner as well as the ``tox`` test wrapper to manage
+running tests on various versions of python.
+
+To run the tests on your copy of the ``unyt`` repository using your current
+python evironment, run ``pytest`` in the root of the repository using the
+following arguments::
 
    $ cd unyt/
    $ pytest --doctest-modules --doctest-rst --doctest-plus
 
-You will need to install ``pytest`` and ``pytest-doctestplus`` from ``pip`` to
-run this command. Some tests depend on ``h5py``, ``Pint``, ``astropy``,
+These enable testing the docstrings and doctest examples scattered throughout
+the unyt and its documentation.
+   
+You will need to install ``pytest`` and ``pytest-doctestplus`` to run this
+command. Some tests depend on ``h5py``, ``Pint``, ``astropy``, ``matplotlib``
 ``black``, and ``flake8`` being installed.
 
-If you would like to run the tests on multiple python versions, first ensure that you have multiple python versions visible on your ``$PATH``, then simply execute ``tox`` in the root of the ``unyt`` repository::
+If you would like to run the tests on multiple python versions, first ensure
+that you have multiple python versions visible on your ``$PATH``, then simply
+execute ``tox`` in the root of the ``unyt`` repository. For example, using the
+``pyenv`` environment we set up above::
 
+   $ pyenv local 3.5.9 3.6.10 3.7.6 3.8.1
    $ cd unyt
    $ tox
 
-The ``tox`` package itself can be installed using the ``pip`` associated with one of the python installations. See the ``tox.ini`` file in the root of the repository for more details about our ``tox`` setup. Note that you do not need to install anything besides ``tox`` and ``python`` for this to work, ``tox`` will handle setting up the test environment, including installing any necessary dependencies via ``pip``.
+The ``tox`` package itself can be installed using the ``pip`` associated with
+one of the python installations. See the ``tox.ini`` file in the root of the
+repository for more details about our ``tox`` setup. Note that you do not need
+to install anything besides ``tox`` and the ``python`` versions needed by
+``tox`` for this to work, ``tox`` will handle setting up the test environment,
+including installing any necessary dependencies via ``pip``.
 
 Pull Request Guidelines
 -----------------------
@@ -148,7 +189,7 @@ Before you submit a pull request, check that it meets these guidelines:
    please update the existing docstrings. If you modify private implementation
    details, please use your judgment on documenting it with comments or
    docstrings.
-3. The pull request should work for Python 3.5, 3.6, and 3.7. Check in the
+3. The pull request should work for Python 3.5, 3.6, 3.7, and 3.8. Check in the
    GitHub interface for your pull request and make sure that the tests pass for
    all supported Python versions.
 
@@ -162,4 +203,8 @@ AUTHORS.rst).  Then run::
   $ git tag v1.x.x
   $ git push upstream master --tags
 
-Travis will then deploy to PyPI if tests pass.
+If the tests pass you can then subsequently manually upload to PyPi::
+
+  $ rm -r build dist
+  $ python setup.py sdist bdist_wheel --universal
+  $ twine upload dist/*
