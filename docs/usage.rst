@@ -1211,6 +1211,36 @@ You can change the plotted units without affecting the original data.
 
 .. image:: _static/mpl_fig2.png
 
+There are three ways to use the context manager.
+
+1. As a conventional context manager in a ``with`` statement as shown above
+
+2. As a feature toggle in an interactive session
+
+  >>> import matplotlib.pyplot as plt
+  >>> from unyt import s, K, matplotlib_support
+  >>> matplotlib_support.enable()
+  >>> plt.plot([0, 1, 2]*s, [3, 4, 5]*K)
+  [<matplotlib.lines.Line2D object at ...>]
+  >>> plt.show()
+  >>> matplotlib_support.disable()
+
+3. As an enable for a complete session
+
+  >>> import unyt
+  >>> unyt.matplotlib_support()
+  >>> import matplotlib.pyplot as plt
+
+It is possible to set the label style.
+
+  >>> import matplotlib.pyplot as plt
+  >>> from unyt import s, K, matplotlib_support
+  >>> matplotlib_support.label_style = "[]"
+  >>> with matplotlib_support:
+  ...   plt.plot([0, 1, 2]*s, [3, 4, 5]*K)
+  ...   plt.show()
+  [<matplotlib.lines.Line2D object at ...>]
+
 .. note::
   
   - This feature works in Matplotlib versions 2.2.4 and above

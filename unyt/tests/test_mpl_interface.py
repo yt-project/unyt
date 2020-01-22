@@ -2,10 +2,14 @@
 import numpy as np
 import pytest
 from unyt._on_demand_imports import _matplotlib, NotAModule
-from unyt import s, K, unyt_array, unyt_quantity, matplotlib_support
+from unyt import s, K, unyt_array, unyt_quantity
 from unyt.exceptions import UnitConversionError
-from unyt.mpl_interface import unyt_arrayConverter
 
+try:
+    from unyt import matplotlib_support
+    from unyt.mpl_interface import unyt_arrayConverter
+except ImportError:
+    pass
 
 check_matplotlib = pytest.mark.skipif(
     isinstance(_matplotlib.pyplot, NotAModule), reason="matplotlib not installed"
