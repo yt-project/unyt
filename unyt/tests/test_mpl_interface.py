@@ -2,7 +2,7 @@
 import numpy as np
 import pytest
 from unyt._on_demand_imports import _matplotlib, NotAModule
-from unyt import s, K, unyt_array, unyt_quantity
+from unyt import m, s, K, unyt_array, unyt_quantity
 from unyt.exceptions import UnitConversionError
 
 try:
@@ -171,6 +171,7 @@ def test_labelstyle():
     x = [0, 1, 2] * s
     y = [3, 4, 5] * K
     matplotlib_support.label_style = "[]"
+    assert matplotlib_support.label_style == "[]"
     matplotlib_support.enable()
     assert unyt_arrayConverter._labelstyle == "[]"
     fig, ax = _matplotlib.pyplot.subplots()
@@ -186,4 +187,9 @@ def test_labelstyle():
     assert ax.xaxis.get_label().get_text() == expected_xlabel
     expected_ylabel = "$q_{y}\\;/\\;\\rm{K}$"
     assert ax.yaxis.get_label().get_text() == expected_ylabel
+    x = [0, 1, 2] * m / s
+    ax.clear()
+    ax.plot(x, y)
+    expected_xlabel = "$q_{x}\\;/\\;\\left(\\rm{m} / \\rm{s}\\right)$"
+    assert ax.xaxis.get_label().get_text() == expected_xlabel
     _matplotlib.pyplot.close()

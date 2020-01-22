@@ -23,7 +23,6 @@ except ImportError:
     pass
 else:
     from unyt import unyt_array, unyt_quantity, Unit
-    from unyt.exceptions import UnitConversionError
 
     class unyt_arrayConverter(ConversionInterface):
         """Matplotlib interface for unyt_array"""
@@ -112,21 +111,19 @@ else:
             Raises
             ------
 
-            ConversionError if unit does not have the same dimensions as value or
-            if we don't know how to convert value.
+            ConversionError if unit does not have the same dimensions as value
             """
+            converted_value = value
             if isinstance(unit, str) or isinstance(unit, Unit):
                 unit = (unit,)
             if isinstance(value, (unyt_array, unyt_quantity)):
                 converted_value = value.to(*unit)
-            elif isinstance(value, (list, tuple)):
+            else:
                 value_type = type(value)
                 converted_value = []
                 for obj in value:
                     converted_value.append(obj.to(*unit))
                 converted_value = value_type(converted_value)
-            else:
-                raise UnitConversionError("unable to convert {%s}".format(value))
             return converted_value
 
     class matplotlib_support:
