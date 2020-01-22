@@ -30,6 +30,7 @@ def ax():
 def test_label(ax):
     x = [0, 1, 2] * s
     y = [3, 4, 5] * K
+    matplotlib_support.label_style = "()"
     ax.plot(x, y)
     expected_xlabel = "$\\left(\\rm{s}\\right)$"
     assert ax.xaxis.get_label().get_text() == expected_xlabel
@@ -93,6 +94,7 @@ def test_conversionerror(ax):
 def test_ndarray_label(ax):
     x = [0, 1, 2] * s
     y = np.arange(3, 6)
+    matplotlib_support.label_style = "()"
     ax.plot(x, y)
     expected_xlabel = "$\\left(\\rm{s}\\right)$"
     assert ax.xaxis.get_label().get_text() == expected_xlabel
@@ -104,6 +106,7 @@ def test_ndarray_label(ax):
 def test_list_label(ax):
     x = [0, 1, 2] * s
     y = [3, 4, 5]
+    matplotlib_support.label_style = "()"
     ax.plot(x, y)
     expected_xlabel = "$\\left(\\rm{s}\\right)$"
     assert ax.xaxis.get_label().get_text() == expected_xlabel
