@@ -36,6 +36,7 @@ def test_label(ax):
     assert ax.xaxis.get_label().get_text() == expected_xlabel
     expected_ylabel = "$\\left(\\rm{K}\\right)$"
     assert ax.yaxis.get_label().get_text() == expected_ylabel
+    _matplotlib.pyplot.close()
 
 
 @check_matplotlib
@@ -193,3 +194,4 @@ def test_labelstyle():
     expected_xlabel = "$q_{x}\\;/\\;\\left(\\rm{m} / \\rm{s}\\right)$"
     assert ax.xaxis.get_label().get_text() == expected_xlabel
     _matplotlib.pyplot.close()
+    matplotlib_support.disable()

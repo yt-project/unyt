@@ -1186,10 +1186,12 @@ Plotting with Matplotlib
 ++++++++++++++++++++++++
 .. note::
   - This is an experimental feature. Please report issues.
-  - The context manager ``matplotlib_support`` will temporarily enable this feature
+  - This feature works in Matplotlib versions 2.2.4 and above
+  - Matplotlib is not a dependency of Unyt
 
-Matplotlib is Unyt aware. With no additional effort, Matplotlib will label the x and y
-axes with the units.
+Matplotlib is Unyt aware. After enabling support in :mod:`unyt` using the
+:class:`unyt.matplotlib_support <unyt.mpl_interface.matplotlib_support>` context
+manager, Matplotlib will label the x and y axes with the units.
 
   >>> import matplotlib.pyplot as plt
   >>> from unyt import s, K, matplotlib_support
@@ -1211,27 +1213,8 @@ You can change the plotted units without affecting the original data.
 
 .. image:: _static/mpl_fig2.png
 
-There are three ways to use the context manager.
-
-1. As a conventional context manager in a ``with`` statement as shown above
-
-2. As a feature toggle in an interactive session
-
-  >>> import matplotlib.pyplot as plt
-  >>> from unyt import s, K, matplotlib_support
-  >>> matplotlib_support.enable()
-  >>> plt.plot([0, 1, 2]*s, [3, 4, 5]*K)
-  [<matplotlib.lines.Line2D object at ...>]
-  >>> plt.show()
-  >>> matplotlib_support.disable()
-
-3. As an enable for a complete session
-
-  >>> import unyt
-  >>> unyt.matplotlib_support()
-  >>> import matplotlib.pyplot as plt
-
-It is possible to set the label style.
+It is also possible to set the label style, the choices ``"()"``, ``"[]"`` and
+``"/"`` are supported.
 
   >>> import matplotlib.pyplot as plt
   >>> from unyt import s, K, matplotlib_support
@@ -1241,7 +1224,24 @@ It is possible to set the label style.
   ...   plt.show()
   [<matplotlib.lines.Line2D object at ...>]
 
-.. note::
-  
-  - This feature works in Matplotlib versions 2.2.4 and above
-  - Matplotlib is not a dependency of Unyt
+.. image:: _static/mpl_fig3.png
+
+There are three ways to use the context manager:
+
+1. As a conventional context manager in a ``with`` statement as shown above
+
+2. As a feature toggle in an interactive session:
+
+  >>> import matplotlib.pyplot as plt
+  >>> from unyt import s, K, matplotlib_support
+  >>> matplotlib_support.enable()
+  >>> plt.plot([0, 1, 2]*s, [3, 4, 5]*K)
+  [<matplotlib.lines.Line2D object at ...>]
+  >>> plt.show()
+  >>> matplotlib_support.disable()
+
+3. As an enable for a complete session:
+
+  >>> import unyt
+  >>> unyt.matplotlib_support()
+  >>> import matplotlib.pyplot as plt

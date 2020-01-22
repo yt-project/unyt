@@ -111,7 +111,8 @@ else:
             Raises
             ------
 
-            ConversionError if unit does not have the same dimensions as value
+            UnitConversionError if unit does not have the same dimensions as value or
+            if we don't know how to convert value.
             """
             converted_value = value
             if isinstance(unit, str) or isinstance(unit, Unit):
@@ -127,19 +128,18 @@ else:
             return converted_value
 
     class matplotlib_support:
-        """Context manager for experimenting with Unyt in Matplotlib
+        """Context manager for setting up integration with Unyt in Matplotlib
 
         Parameters
         ----------
 
-        label_style : string, one from the set {'()', '[]', '/'}
-            The axis label style.
-            '()' -> '(unit)'
-            '[]' -> '[unit]'
-            '/' -> 'q / unit'
-            SI standard where label is a mathematical expression.
-            'q' is a generic quantity symbol and for a value on the axis, x,
-            the equation is q = x * unit.
+        label_style : str
+          One of the following set, ``{'()', '[]', '/'}``. These choices correspond to the following
+          unit labels:
+
+            * ``'()'`` -> ``'(unit)'``
+            * ``'[]'`` -> ``'[unit]'``
+            * ``'/'`` -> ``'q_x / unit'``
         """
 
         def __init__(self, label_style="()"):
@@ -151,14 +151,12 @@ else:
 
         @property
         def label_style(self):
-            """label_style : string, one from the set {'()', '[]', '/'}
-                The axis label style.
-                '()' -> '(unit)'
-                '[]' -> '[unit]'
-                '/' -> 'q / unit'
-                SI standard where label is a mathematical expression.
-                'q' is a generic quantity symbol and for a value on the axis, x,
-                the equation is q = x * unit.
+            """str: One of the following set, ``{'()', '[]', '/'}``. These choices correspond to the following
+               unit labels:
+
+                 * ``'()'`` -> ``'(unit)'``
+                 * ``'[]'`` -> ``'[unit]'``
+                 * ``'/'`` -> ``'q_x / unit'``
             """
             return self._labelstyle
 
