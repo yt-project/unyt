@@ -1,5 +1,4 @@
 numpy
 sympy
-astropy
-pint
-sphinx==1.7.9
+matplotlib
+sphinx

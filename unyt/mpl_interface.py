@@ -14,11 +14,7 @@ Register unyt_array with Matplotlib if it is available
 
 
 try:
-    from matplotlib.units import (
-        ConversionInterface,
-        AxisInfo,
-        registry,
-    )
+    from matplotlib.units import ConversionInterface, AxisInfo, registry
 except ImportError:
     pass
 else:
@@ -26,6 +22,8 @@ else:
 
     class unyt_arrayConverter(ConversionInterface):
         """Matplotlib interface for unyt_array"""
+
+        _labelstyle = "()"
 
         @staticmethod
         def axisinfo(unit, axis):
@@ -54,7 +52,18 @@ else:
                 label = ""
             else:
                 unit_str = unit_obj.latex_representation()
-                label = "$\\left(" + unit_str + "\\right)$"
+                if unyt_arrayConverter._labelstyle == "[]":
+                    label = "$\\left[" + unit_str + "\\right]$"
+                elif unyt_arrayConverter._labelstyle == "/":
+                    axsym = axis.axis_name
+                    if "/" in unit_str:
+                        label = (
+                            "$q_{" + axsym + "}\\;/\\;\\left(" + unit_str + "\\right)$"
+                        )
+                    else:
+                        label = "$q_{" + axsym + "}\\;/\\;" + unit_str + "$"
+                else:
+                    label = "$\\left(" + unit_str + "\\right)$"
             return AxisInfo(label=label)
 
         @staticmethod
@@ -81,7 +90,7 @@ else:
             Parameters
             ----------
 
-            value : unyt_array
+            value : unyt_array, unyt_quantity, or sequence there of
             unit : Unit, string or tuple
                 This parameter comes from unyt_arrayConverter.default_units() or from
                 user code such as Axes.plot(), Axis.set_units(), etc. In user code, it
@@ -98,11 +107,70 @@ else:
             Raises
             ------
 
-            ConversionError if unit does not have the same dimensions as value
+            UnitConversionError if unit does not have the same dimensions as value or
+            if we don't know how to convert value.
             """
+            converted_value = value
             if isinstance(unit, str) or isinstance(unit, Unit):
                 unit = (unit,)
-            return value.to(*unit)
+            if isinstance(value, (unyt_array, unyt_quantity)):
+                converted_value = value.to(*unit)
+            else:
+                value_type = type(value)
+                converted_value = []
+                for obj in value:
+                    converted_value.append(obj.to(*unit))
+                converted_value = value_type(converted_value)
+            return converted_value
 
-    registry[unyt_array] = unyt_arrayConverter()
-    registry[unyt_quantity] = unyt_arrayConverter()
+    class matplotlib_support:
+        """Context manager for setting up integration with Unyt in Matplotlib
+
+        Parameters
+        ----------
+
+        label_style : str
+          One of the following set, ``{'()', '[]', '/'}``. These choices
+          correspond to the following unit labels:
+
+            * ``'()'`` -> ``'(unit)'``
+            * ``'[]'`` -> ``'[unit]'``
+            * ``'/'`` -> ``'q_x / unit'``
+        """
+
+        def __init__(self, label_style="()"):
+            self._labelstyle = label_style
+            unyt_arrayConverter._labelstyle = label_style
+
+        def __call__(self):
+            self.__enter__()
+
+        @property
+        def label_style(self):
+            """str: One of the following set, ``{'()', '[]', '/'}``.
+               These choices correspond to the following unit labels:
+
+                 * ``'()'`` -> ``'(unit)'``
+                 * ``'[]'`` -> ``'[unit]'``
+                 * ``'/'`` -> ``'q_x / unit'``
+            """
+            return self._labelstyle
+
+        @label_style.setter
+        def label_style(self, label_style="()"):
+            self._labelstyle = label_style
+            unyt_arrayConverter._labelstyle = label_style
+
+        def __enter__(self):
+            registry[unyt_array] = unyt_arrayConverter()
+            registry[unyt_quantity] = unyt_arrayConverter()
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            registry.pop(unyt_array)
+            registry.pop(unyt_quantity)
+
+        def enable(self):
+            self.__enter__()
+
+        def disable(self):
+            self.__exit__(None, None, None)
