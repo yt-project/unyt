@@ -47,24 +47,31 @@ else:
             """
             if isinstance(unit, tuple):
                 unit = unit[0]
-            unit_obj = Unit(unit)
+            unit_obj = unit if isinstance(unit, Unit) else Unit(unit)
+            name = getattr(axis, "_unytarrayname", "")
             if unit_obj.is_dimensionless:
-                label = ""
+                label = name
             else:
+                name += " "
                 unit_str = unit_obj.latex_representation()
                 if unyt_arrayConverter._labelstyle == "[]":
-                    label = "$\\left[" + unit_str + "\\right]$"
+                    label = name + "$\\left[" + unit_str + "\\right]$"
                 elif unyt_arrayConverter._labelstyle == "/":
                     axsym = axis.axis_name
                     if "/" in unit_str:
                         label = (
-                            "$q_{" + axsym + "}\\;/\\;\\left(" + unit_str + "\\right)$"
+                            name
+                            + "$q_{"
+                            + axsym
+                            + "}\\;/\\;\\left("
+                            + unit_str
+                            + "\\right)$"
                         )
                     else:
-                        label = "$q_{" + axsym + "}\\;/\\;" + unit_str + "$"
+                        label = name + "$q_{" + axsym + "}\\;/\\;" + unit_str + "$"
                 else:
-                    label = "$\\left(" + unit_str + "\\right)$"
-            return AxisInfo(label=label)
+                    label = name + "$\\left(" + unit_str + "\\right)$"
+            return AxisInfo(label=label.strip())
 
         @staticmethod
         def default_units(x, axis):
@@ -81,6 +88,7 @@ else:
 
             Unit object
             """
+            axis._unytarrayname = x.name
             return x.units
 
         @staticmethod
@@ -141,6 +149,7 @@ else:
         def __init__(self, label_style="()"):
             self._labelstyle = label_style
             unyt_arrayConverter._labelstyle = label_style
+            self._enabled = False
 
         def __call__(self):
             self.__enter__()
@@ -164,13 +173,21 @@ else:
         def __enter__(self):
             registry[unyt_array] = unyt_arrayConverter()
             registry[unyt_quantity] = unyt_arrayConverter()
+            self._enabled = True
 
         def __exit__(self, exc_type, exc_val, exc_tb):
             registry.pop(unyt_array)
             registry.pop(unyt_quantity)
+            self._enabled = False
 
         def enable(self):
             self.__enter__()
 
         def disable(self):
-            self.__exit__(None, None, None)
+            if self._enabled:
+                self.__exit__(None, None, None)
+
+        @property
+        def enabled(self):
+            """Return the enable state"""
+            return self._enabled

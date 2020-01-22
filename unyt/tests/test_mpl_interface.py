@@ -20,6 +20,7 @@ check_matplotlib = pytest.mark.skipif(
 def ax():
     _matplotlib.use("agg")
     matplotlib_support.enable()
+    matplotlib_support.label_style = "()"
     fig, ax = _matplotlib.pyplot.subplots()
     yield ax
     _matplotlib.pyplot.close()
@@ -122,7 +123,6 @@ def test_errorbar(ax):
     y_scatter = [unyt_array([0.1, 0.2, 0.3], "kg"), unyt_array([0.1, 0.2, 0.3], "kg")]
     x_lims = (unyt_quantity(5, "cm"), unyt_quantity(12, "cm"))
     y_lims = (unyt_quantity(5, "kg"), unyt_quantity(12, "kg"))
-
     ax.errorbar(x, y, yerr=y_scatter)
     x_lims = (unyt_quantity(5, "cm"), unyt_quantity(12, "cm"))
     y_lims = (unyt_quantity(5, "kg"), unyt_quantity(12, "kg"))
@@ -155,6 +155,7 @@ def test_matplotlib_support():
     with pytest.raises(KeyError):
         _matplotlib.units.registry[unyt_array]
     matplotlib_support.enable()
+    assert matplotlib_support.enabled
     assert isinstance(_matplotlib.units.registry[unyt_array], unyt_arrayConverter)
     matplotlib_support.disable()
     assert unyt_array not in _matplotlib.units.registry.keys()
@@ -192,3 +193,19 @@ def test_labelstyle():
     assert ax.xaxis.get_label().get_text() == expected_xlabel
     _matplotlib.pyplot.close()
     matplotlib_support.disable()
+
+
+@check_matplotlib
+def test_name(ax):
+    x = [0, 1, 2] * s
+    x.name = "time"
+    assert x.name == "time"
+    y = unyt_array([3, 4, 5], "m", name="distance")
+    ax.plot(x, y)
+    expected_xlabel = "time $\\left(\\rm{s}\\right)$"
+    assert ax.xaxis.get_label().get_text() == expected_xlabel
+    expected_ylabel = "distance $\\left(\\rm{m}\\right)$"
+    assert ax.yaxis.get_label().get_text() == expected_ylabel
+    ax.clear()
+    ax.plot(x, y, xunits="ms")
+    expected_xlabel = "time $\\left(\\rm{ms}\\right)$"

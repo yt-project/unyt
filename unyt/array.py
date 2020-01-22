@@ -482,6 +482,7 @@ class unyt_array(np.ndarray):
         dtype=None,
         bypass_validation=False,
         input_units=None,
+        name="",
     ):
         # deprecate input_units in favor of units
         if input_units is not None:
@@ -541,7 +542,7 @@ class unyt_array(np.ndarray):
 
         # Attach the units
         obj.units = units
-
+        obj._name = name
         return obj
 
     def __repr__(self):
@@ -1580,6 +1581,15 @@ class unyt_array(np.ndarray):
         [11 12 13] km
         """
         return np.ones_like(self)
+
+    @property
+    def name(self):
+        """Return the name (string) of the array"""
+        return getattr(self, "_name", "")
+
+    @name.setter
+    def name(self, name):
+        self._name = name
 
     def __getitem__(self, item):
         ret = super(unyt_array, self).__getitem__(item)
