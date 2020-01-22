@@ -119,10 +119,7 @@ def test_list_label(ax):
 def test_errorbar(ax):
     x = unyt_array([8, 9, 10], "cm")
     y = unyt_array([8, 9, 10], "kg")
-    y_scatter = [
-        unyt_array([0.1, 0.2, 0.3], "kg"),
-        unyt_array([0.1, 0.2, 0.3], "kg"),
-    ]
+    y_scatter = [unyt_array([0.1, 0.2, 0.3], "kg"), unyt_array([0.1, 0.2, 0.3], "kg")]
     x_lims = (unyt_quantity(5, "cm"), unyt_quantity(12, "cm"))
     y_lims = (unyt_quantity(5, "kg"), unyt_quantity(12, "kg"))
 

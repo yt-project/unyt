@@ -14,11 +14,7 @@ Register unyt_array with Matplotlib if it is available
 
 
 try:
-    from matplotlib.units import (
-        ConversionInterface,
-        AxisInfo,
-        registry,
-    )
+    from matplotlib.units import ConversionInterface, AxisInfo, registry
 except ImportError:
     pass
 else:
@@ -134,8 +130,8 @@ else:
         ----------
 
         label_style : str
-          One of the following set, ``{'()', '[]', '/'}``. These choices correspond to the following
-          unit labels:
+          One of the following set, ``{'()', '[]', '/'}``. These choices
+          correspond to the following unit labels:
 
             * ``'()'`` -> ``'(unit)'``
             * ``'[]'`` -> ``'[unit]'``
@@ -151,8 +147,8 @@ else:
 
         @property
         def label_style(self):
-            """str: One of the following set, ``{'()', '[]', '/'}``. These choices correspond to the following
-               unit labels:
+            """str: One of the following set, ``{'()', '[]', '/'}``.
+               These choices correspond to the following unit labels:
 
                  * ``'()'`` -> ``'(unit)'``
                  * ``'[]'`` -> ``'[unit]'``
