@@ -1582,10 +1582,6 @@ class unyt_array(np.ndarray):
         """
         return np.ones_like(self)
 
-    def get_name(self):
-        """Return the name of the array. Used as a callback in matplotlib"""
-        return self.name
-
     def __getitem__(self, item):
         ret = super(unyt_array, self).__getitem__(item)
         if ret.shape == ():
