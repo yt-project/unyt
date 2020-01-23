@@ -542,7 +542,7 @@ class unyt_array(np.ndarray):
 
         # Attach the units
         obj.units = units
-        obj._name = name
+        obj.name = name
         return obj
 
     def __repr__(self):
@@ -1582,17 +1582,9 @@ class unyt_array(np.ndarray):
         """
         return np.ones_like(self)
 
-    @property
-    def name(self):
-        """Return the name (string) of the array"""
-        name = getattr(self, "_name", "")
-        if name is None:
-            name = ""
-        return name
-
-    @name.setter
-    def name(self, name):
-        self._name = name
+    def get_name(self):
+        """Return the name of the array. Used as a callback in matplotlib"""
+        return self.name
 
     def __getitem__(self, item):
         ret = super(unyt_array, self).__getitem__(item)

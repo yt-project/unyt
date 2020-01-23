@@ -155,7 +155,6 @@ def test_matplotlib_support():
     with pytest.raises(KeyError):
         _matplotlib.units.registry[unyt_array]
     matplotlib_support.enable()
-    assert matplotlib_support.enabled
     assert isinstance(_matplotlib.units.registry[unyt_array], unyt_arrayConverter)
     matplotlib_support.disable()
     assert unyt_array not in _matplotlib.units.registry.keys()
@@ -197,9 +196,7 @@ def test_labelstyle():
 
 @check_matplotlib
 def test_name(ax):
-    x = [0, 1, 2] * s
-    assert x.name == ""
-    x.name = "time"
+    x = unyt_array([0, 1, 2], "s", name="time")
     assert x.name == "time"
     y = unyt_array([3, 4, 5], "m", name="distance")
     ax.plot(x, y)

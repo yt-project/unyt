@@ -18,12 +18,14 @@ try:
 except ImportError:
     pass
 else:
+    from weakref import WeakKeyDictionary
     from unyt import unyt_array, unyt_quantity, Unit
 
     class unyt_arrayConverter(ConversionInterface):
         """Matplotlib interface for unyt_array"""
 
         _labelstyle = "()"
+        _axisnames = WeakKeyDictionary()
 
         @staticmethod
         def axisinfo(unit, axis):
@@ -48,7 +50,7 @@ else:
             if isinstance(unit, tuple):
                 unit = unit[0]
             unit_obj = unit if isinstance(unit, Unit) else Unit(unit)
-            name = getattr(axis, "_unytarrayname", "")
+            name = unyt_arrayConverter._axisnames.get(axis, "")
             if unit_obj.is_dimensionless:
                 label = name
             else:
@@ -88,7 +90,8 @@ else:
 
             Unit object
             """
-            axis._unytarrayname = x.name
+            name = getattr(x, "name", "")
+            unyt_arrayConverter._axisnames[axis] = name if name is not None else ""
             return x.units
 
         @staticmethod
@@ -186,8 +189,3 @@ else:
         def disable(self):
             if self._enabled:
                 self.__exit__(None, None, None)
-
-        @property
-        def enabled(self):
-            """Return the enable state"""
-            return self._enabled
