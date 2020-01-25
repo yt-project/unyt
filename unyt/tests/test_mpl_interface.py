@@ -210,6 +210,7 @@ def test_name(ax):
     expected_xlabel = "time $\\left(\\rm{ms}\\right)$"
 
 
+@check_matplotlib
 def test_multiple_subplots():
     x1 = unyt_array([0, 1, 2], "s", name="time")
     y1 = unyt_array([6, 7, 8], "m", name="distance")
