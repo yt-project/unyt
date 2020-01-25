@@ -1,7 +1,11 @@
 """
-Register unyt_array with Matplotlib if it is available
+Matplotlib offers support for custom classes, such as unyt_array, allowing customization
+of axis information and unit conversion. In the case of unyt, the axis label is set
+based on the unyt_array.name and unyt_array.units attributes. It is also possible to
+convert the plotted units.
 
-
+This feature is optional and has to be enabled using the matplotlib_support context
+manager.
 """
 
 # -----------------------------------------------------------------------------
@@ -24,8 +28,20 @@ else:
     class unyt_arrayConverter(ConversionInterface):
         """Matplotlib interface for unyt_array"""
 
+        _instance = None
         _labelstyle = "()"
         _axisnames = WeakKeyDictionary()
+
+        # ensure that unyt_arrayConverter is a singleton
+        def __new__(cls):
+            if unyt_arrayConverter._instance is None:
+                unyt_arrayConverter._instance = super().__new__(cls)
+            return unyt_arrayConverter._instance
+
+        # When matplotlib first encounters a type in its units.registry, it will
+        # call default_units to obtain the units. Then it calls axisinfo to
+        # customize the axis - in our case, just set the label. Then matplotlib calls
+        # convert.
 
         @staticmethod
         def axisinfo(unit, axis):
@@ -59,18 +75,12 @@ else:
                 if unyt_arrayConverter._labelstyle == "[]":
                     label = name + "$\\left[" + unit_str + "\\right]$"
                 elif unyt_arrayConverter._labelstyle == "/":
-                    axsym = axis.axis_name
+                    axsym = "$q_{\\rm" + axis.axis_name + "}$"
+                    name = axsym if name == " " else name
                     if "/" in unit_str:
-                        label = (
-                            name
-                            + "$q_{"
-                            + axsym
-                            + "}\\;/\\;\\left("
-                            + unit_str
-                            + "\\right)$"
-                        )
+                        label = name + "$\\;/\\;\\left(" + unit_str + "\\right)$"
                     else:
-                        label = name + "$q_{" + axsym + "}\\;/\\;" + unit_str + "$"
+                        label = name + "$\\;/\\;" + unit_str + "$"
                 else:
                     label = name + "$\\left(" + unit_str + "\\right)$"
             return AxisInfo(label=label.strip())
@@ -91,6 +101,9 @@ else:
             Unit object
             """
             name = getattr(x, "name", "")
+            # maintain a mapping between Axis and name since Axis does not point to
+            # its underlying data and we want to propagate the name to the axis
+            # label in the subsequent call to axisinfo
             unyt_arrayConverter._axisnames[axis] = name if name is not None else ""
             return x.units
 
@@ -135,18 +148,22 @@ else:
             return converted_value
 
     class matplotlib_support:
-        """Context manager for setting up integration with Unyt in Matplotlib
+        """Context manager for enabling the feature
 
-        Parameters
-        ----------
+        When used in a with statement, the feature is enabled during the context and
+        then disabled after it exits.
 
-        label_style : str
-          One of the following set, ``{'()', '[]', '/'}``. These choices
-          correspond to the following unit labels:
+        Example
+        -------
 
-            * ``'()'`` -> ``'(unit)'``
-            * ``'[]'`` -> ``'[unit]'``
-            * ``'/'`` -> ``'q_x / unit'``
+        >>> import matplotlib.pyplot as plt
+        >>> from unyt import matplotlib_support, unyt_array
+        >>> x = unyt_array([0,1,2], "s", name="time")
+        >>> y = unyt_array([3,4,5], "m", name="distance")
+        >>> with matplotlib_support:
+        ...     plt.plot(x, y)
+        ...     plt.show()
+        [<matplotlib.lines.Line2D object at ...>]
         """
 
         def __init__(self, label_style="()"):
@@ -189,3 +206,6 @@ else:
         def disable(self):
             if self._enabled:
                 self.__exit__(None, None, None)
+
+
+__all__ = ["matplotlib_support"]

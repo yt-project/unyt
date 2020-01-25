@@ -2320,3 +2320,14 @@ def test_clip():
     assert positions.units == left_edge.units
     assert positions.max() == 1.0 * km
     assert positions.min() == 0.0 * km
+
+
+def test_name_attribute():
+    a = unyt_array([0, 1, 2], "s")
+    assert a.name is None
+    a.name = "time"
+    assert a.name == "time"
+    a.convert_to_units("ms")
+    assert a.name == "time"
+    b = unyt_quantity(1, "m", name="distance")
+    assert b.name == "distance"

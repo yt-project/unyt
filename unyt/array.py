@@ -355,6 +355,9 @@ class unyt_array(np.ndarray):
         corrupted, invalid units or array data, but can lead to significant
         speedups in the input validation logic adds significant overhead. If
         set, input_units *must* be a valid unit object. Defaults to False.
+    name : string
+        The name of the array. Defaults to None. This attribute does not propagate
+        through operations.
 
     Examples
     --------
@@ -1942,6 +1945,9 @@ class unyt_quantity(unyt_array):
         of the registry associated with the unit object.
     dtype : data-type
         The dtype of the array data.
+    name : string
+        The name of the scalar. Defaults to None. This attribute does not propagate
+        through operations.
 
     Examples
     --------
@@ -1976,6 +1982,7 @@ class unyt_quantity(unyt_array):
         dtype=None,
         bypass_validation=False,
         input_units=None,
+        name=None,
     ):
         if input_units is not None:
             warnings.warn(
@@ -2001,6 +2008,7 @@ class unyt_quantity(unyt_array):
             registry,
             dtype=dtype,
             bypass_validation=bypass_validation,
+            name=name,
         )
         if ret.size > 1:
             raise RuntimeError("unyt_quantity instances must be scalars")

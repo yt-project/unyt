@@ -180,15 +180,16 @@ def test_labelstyle():
     assert ax.yaxis.get_label().get_text() == expected_ylabel
     matplotlib_support.label_style = "/"
     ax.clear()
+    x.name = "$t$"
     ax.plot(x, y)
-    expected_xlabel = "$q_{x}\\;/\\;\\rm{s}$"
+    expected_xlabel = "$t$ $\\;/\\;\\rm{s}$"
     assert ax.xaxis.get_label().get_text() == expected_xlabel
-    expected_ylabel = "$q_{y}\\;/\\;\\rm{K}$"
+    expected_ylabel = "$q_{\\rmy}$$\\;/\\;\\rm{K}$"
     assert ax.yaxis.get_label().get_text() == expected_ylabel
     x = [0, 1, 2] * m / s
     ax.clear()
     ax.plot(x, y)
-    expected_xlabel = "$q_{x}\\;/\\;\\left(\\rm{m} / \\rm{s}\\right)$"
+    expected_xlabel = "$q_{\\rmx}$$\\;/\\;\\left(\\rm{m} / \\rm{s}\\right)$"
     assert ax.xaxis.get_label().get_text() == expected_xlabel
     _matplotlib.pyplot.close()
     matplotlib_support.disable()
@@ -207,3 +208,28 @@ def test_name(ax):
     ax.clear()
     ax.plot(x, y, xunits="ms")
     expected_xlabel = "time $\\left(\\rm{ms}\\right)$"
+
+
+def test_multiple_subplots():
+    x1 = unyt_array([0, 1, 2], "s", name="time")
+    y1 = unyt_array([6, 7, 8], "m", name="distance")
+    x2 = unyt_array([3, 4, 5], "V", name="voltage")
+    y2 = unyt_array([9, 10, 11], "A", name="current")
+    matplotlib_support.enable()
+    fig, ax = _matplotlib.pyplot.subplots(nrows=1, ncols=2)
+    ax[0].plot(x1, y1)
+    ax[1].plot(x2, y2)
+    expected_labels = [
+        "time $\\left(\\rm{s}\\right)$",
+        "distance $\\left(\\rm{m}\\right)$",
+        "voltage $\\left(\\rm{V}\\right)$",
+        "current $\\left(\\rm{A}\\right)$",
+    ]
+    generated_labels = []
+    for subplot in ax:
+        xlabel = subplot.xaxis.get_label().get_text()
+        ylabel = subplot.yaxis.get_label().get_text()
+        generated_labels.extend((xlabel, ylabel))
+    assert generated_labels == expected_labels
+    _matplotlib.pyplot.close()
+    matplotlib_support.disable()
