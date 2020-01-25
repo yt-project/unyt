@@ -152,18 +152,6 @@ else:
 
         When used in a with statement, the feature is enabled during the context and
         then disabled after it exits.
-
-        Example
-        -------
-
-        >>> import matplotlib.pyplot as plt
-        >>> from unyt import matplotlib_support, unyt_array
-        >>> x = unyt_array([0,1,2], "s", name="time")
-        >>> y = unyt_array([3,4,5], "m", name="distance")
-        >>> with matplotlib_support:
-        ...     plt.plot(x, y)
-        ...     plt.show()
-        [<matplotlib.lines.Line2D object at ...>]
         """
 
         def __init__(self, label_style="()"):
