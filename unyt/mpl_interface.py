@@ -25,6 +25,8 @@ else:
     from weakref import WeakKeyDictionary
     from unyt import unyt_array, unyt_quantity, Unit
 
+    __all__ = ["matplotlib_support"]
+
     class unyt_arrayConverter(ConversionInterface):
         """Matplotlib interface for unyt_array"""
 
@@ -152,6 +154,17 @@ else:
 
         When used in a with statement, the feature is enabled during the context and
         then disabled after it exits.
+
+        Parameters
+        ----------
+
+        label_style : str
+          One of the following set, ``{'()', '[]', '/'}``. These choices
+          correspond to the following unit labels:
+
+            * ``'()'`` -> ``'(unit)'``
+            * ``'[]'`` -> ``'[unit]'``
+            * ``'/'`` -> ``'q_x / unit'``
         """
 
         def __init__(self, label_style="()"):
@@ -194,6 +207,3 @@ else:
         def disable(self):
             if self._enabled:
                 self.__exit__(None, None, None)
-
-
-__all__ = ["matplotlib_support"]

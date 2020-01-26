@@ -1203,9 +1203,9 @@ advantage of the labeled record fields.
   unyt_quantity(3, 'm')
 
 .. note::
-  The name attribute does not propagate through mathematical operations or even the
-  unyt_array.copy() function. The only exception to this is the unyt_array.convert_to_units()
-  function that performs an in-place conversion.
+  The name attribute does not propagate through mathematical operations.
+  Other operations such as indexing, copying, and unit conversion, will preserve
+  the name attribute where the semantic meaning of the quantity remains the same.
 
 Plotting with Matplotlib
 ++++++++++++++++++++++++
@@ -1219,9 +1219,9 @@ Matplotlib is Unyt aware. After enabling support in :mod:`unyt` using the
 manager, Matplotlib will label the x and y axes with the units.
 
   >>> import matplotlib.pyplot as plt
-  >>> from unyt import matplotlib_support, unyt_array
-  >>> x = unyt_array([0.0, 60.0, 120.0], "s")
-  >>> y = unyt_array([298.15, 308.15, 318.15], "K")
+  >>> from unyt import matplotlib_support, s, K
+  >>> x = [0.0, 60.0, 120.0]*s
+  >>> y = [298.15, 308.15, 318.15]*K
   >>> with matplotlib_support:
   ...   plt.plot(x, y)
   ...   plt.show()
