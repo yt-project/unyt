@@ -1666,7 +1666,7 @@ class unyt_array(np.ndarray):
                     if u1.units.is_dimensionless:
                         pass
                     else:
-                        raise UnitOperationError(ufunc, u0, u1)
+                        raise UnitOperationError(ufunc, u0, u1.units)
                 if u1.shape == ():
                     u1 = float(u1)
                 else:
