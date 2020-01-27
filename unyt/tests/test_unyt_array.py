@@ -63,7 +63,7 @@ from unyt.unit_symbols import cm, m, g, degree
 from unyt.unit_registry import UnitRegistry
 from unyt._on_demand_imports import _astropy, _h5py, _pint, NotAModule
 from unyt._physical_ratios import metallicity_sun, speed_of_light_cm_per_s
-from unyt import dimensions
+from unyt import dimensions, Unit
 
 
 def operate_and_compare(a, b, op, answer):
@@ -497,6 +497,12 @@ def test_power():
     assert_equal(cm_arr ** unyt_quantity(3), unyt_array([1, 1], "cm**3"))
     with pytest.raises(UnitOperationError):
         np.power(cm_arr, unyt_quantity(3, "g"))
+
+    try:
+        np.power(cm_arr, unyt_quantity(3, "g"))
+    except UnitOperationError as err:
+        assert isinstance(err.unit1, Unit)
+        assert isinstance(err.unit2, Unit)
 
 
 def test_comparisons():
