@@ -34,6 +34,8 @@ current_mks = Symbol("(current_mks)", positive=True)
 luminous_intensity = Symbol("(luminous_intensity)", positive=True)
 #: dimensionless
 dimensionless = sympify(1)
+#: logarithmic
+logarithmic = Symbol("(logarithmic)", positive=True)
 
 #: A list of all of the base dimensions
 base_dimensions = [
@@ -45,6 +47,7 @@ base_dimensions = [
     current_mks,
     dimensionless,
     luminous_intensity,
+    logarithmic,
 ]
 
 #

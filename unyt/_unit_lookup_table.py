@@ -67,6 +67,7 @@ from unyt._physical_ratios import (
     eps_0,
     mu_0,
     avogadros_number,
+    neper_per_bel,
 )
 import numpy as np
 
@@ -267,6 +268,9 @@ default_unit_symbol_lut = OrderedDict(
                 False,
             ),
         ),
+        # logarithmic units
+        ("B", (neper_per_bel, dimensions.logarithmic, 0.0, r"\rm{B}", True)),
+        ("Np", (1.0, dimensions.logarithmic, 0.0, r"\rm{Np}", True)),
     ]
 )
 
@@ -426,6 +430,8 @@ default_unit_name_alternatives = OrderedDict(
         ("psi", ("pounds_per_square_inch",)),
         # dimensionless stuff
         ("dimensionless", ("_", "")),
+        ("B", ("bel",)),
+        ("Np", ("neper",)),
         # times
         ("min", ("minute",)),
         ("hr", ("hour",)),

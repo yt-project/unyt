@@ -198,6 +198,7 @@ class UnitSystem(object):
         angle_unit="rad",
         current_mks_unit="A",
         luminous_intensity_unit="cd",
+        logarithmic_unit="Np",
         registry=None,
     ):
         self.registry = registry
@@ -210,6 +211,7 @@ class UnitSystem(object):
                 (dimensions.angle, angle_unit),
                 (dimensions.current_mks, current_mks_unit),
                 (dimensions.luminous_intensity, luminous_intensity_unit),
+                (dimensions.logarithmic, logarithmic_unit),
             ]
         )
         for k, v in self.units_map.items():
@@ -242,6 +244,7 @@ class UnitSystem(object):
             "angle",
             "current_mks",
             "luminous_intensity",
+            "logarithmic",
         ]
         self.registry = registry
         self.base_units = self.units_map.copy()
