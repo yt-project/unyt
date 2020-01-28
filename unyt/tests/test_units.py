@@ -806,7 +806,8 @@ def test_equal_has_same_hash():
 
 def test_bel_neper():
     assert Unit("B").dimensions == Unit("Np").dimensions
-    assert 1 * Unit("B") / (np.log(10) / 2) == 1 * Unit("Np")
+    a = 1 * Unit("B") / (np.log(10) / 2)
+    assert_allclose_units(a.to("Np"), 1 * Unit("Np"))
     a = 2 * Unit("B")
     b = 20 * Unit("decibel")
     assert (a == b).all()
