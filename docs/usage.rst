@@ -224,6 +224,29 @@ The one exception to this rule is for trigonometric functions applied to data wi
   >>> np.sin(45.*degree)
   array(0.70710678)
 
+Logarithmic Quantities and Units
+********************************
+
+The logarithmic quantities level-of-power and level-of-field and the units neper and
+bel are supported. In the next example, we represent the power measurements, p, as
+a logarithmic quantity at reference level, p_ref, in the units decibel.
+
+  >>> import numpy as np
+  >>> from unyt import dB, mW
+  >>> dB.dimensions
+  (logarithmic)
+  >>> p = [1, 100]*mW
+  >>> p_ref = 1*mW
+  >>> level_of_power = 10*np.log10(p/p_ref)*dB
+  >>> level_of_power
+  unyt_array([ 0., 20.], 'dB')
+
+You can convert the logarithmic quantity back to physical units through exponentiation,
+just remember to remove the units using the unyt_array.v property.
+
+  >>> 10**(level_of_power.v/10)*p_ref
+  unyt_array([  1., 100.], 'mW')
+
 Printing Units
 --------------
 
@@ -488,6 +511,7 @@ atoms and molecules:
      angle: rad
      current_mks: A
      luminous_intensity: cd
+     logarithmic: Np
     Other Units:
      energy: eV
    >>> print(atomic_unit_system)
@@ -511,6 +535,7 @@ It is also legal to define a unit system using :class:`unyt.Unit
       angle: rad
       current_mks: A
       luminous_intensity: cd
+      logarithmic: Np
      Other Units:
 
 Or with a quantity:
@@ -525,6 +550,7 @@ Or with a quantity:
       angle: rad
       current_mks: A
       luminous_intensity: cd
+      logarithmic: Np
      Other Units:
 
 
