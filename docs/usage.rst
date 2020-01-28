@@ -1209,6 +1209,31 @@ function. In other words, apply or check units at interfaces, but during an
 internal calculation it is often worth stripping units, especially if the
 calculation involves many operations on arrays with only a few elements.
 
+:class:`unyt_array.name <unyt.array.unyt_array.name>` attribute
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+The unyt_array has a name attribute for use in structured-data applications or
+similar applications that require labeled data. For example, Numpy has record arrays
+and when constructed as shown below, it is possible to retain the units while taking
+advantage of the labeled record fields.
+
+  >>> import numpy as np
+  >>> from unyt import unyt_array
+  >>> x = unyt_array([0, 1, 2], "s", name="time")
+  >>> y = unyt_array([3, 4, 5], "m", name="distance")
+  >>> data = (x, y)
+  >>> dt = [(a.name, "O") for a in data]
+  >>> data_points = np.array(list(zip(*data)), dtype=dt).view(np.recarray)
+  >>> data_points[0].time
+  unyt_quantity(0, 's')
+  >>> data_points[0].distance
+  unyt_quantity(3, 'm')
+
+.. note::
+  The name attribute does not propagate through mathematical operations.
+  Other operations such as indexing, copying, and unit conversion, will preserve
+  the name attribute where the semantic meaning of the quantity remains the same.
+
 Plotting with Matplotlib
 ++++++++++++++++++++++++
 .. note::
@@ -1221,8 +1246,8 @@ Matplotlib is Unyt aware. After enabling support in :mod:`unyt` using the
 manager, Matplotlib will label the x and y axes with the units.
 
   >>> import matplotlib.pyplot as plt
-  >>> from unyt import s, K, matplotlib_support
-  >>> x = [0.0, 0.01, 0.02]*s
+  >>> from unyt import matplotlib_support, s, K
+  >>> x = [0.0, 60.0, 120.0]*s
   >>> y = [298.15, 308.15, 318.15]*K
   >>> with matplotlib_support:
   ...   plt.plot(x, y)
@@ -1234,24 +1259,47 @@ manager, Matplotlib will label the x and y axes with the units.
 You can change the plotted units without affecting the original data.
 
   >>> with matplotlib_support:
-  ...   plt.plot(x, y, xunits="ms", yunits=("J", "thermal"))
+  ...   plt.plot(x, y, xunits="min", yunits=("J", "thermal"))
   ...   plt.show()
   [<matplotlib.lines.Line2D object at ...>]
 
 .. image:: _static/mpl_fig2.png
 
-It is also possible to set the label style, the choices ``"()"``, ``"[]"`` and
+It is also possible to set the label style; the choices ``"()"``, ``"[]"`` and
 ``"/"`` are supported.
 
-  >>> import matplotlib.pyplot as plt
-  >>> from unyt import s, K, matplotlib_support
   >>> matplotlib_support.label_style = "[]"
   >>> with matplotlib_support:
-  ...   plt.plot([0, 1, 2]*s, [3, 4, 5]*K)
+  ...   plt.plot(x, y)
   ...   plt.show()
   [<matplotlib.lines.Line2D object at ...>]
 
 .. image:: _static/mpl_fig3.png
+
+The axis label will include the unyt_array.name attribute if set.
+
+  >>> x.name = "Time"
+  >>> y.name = "Temperature"
+  >>> with matplotlib_support:
+  ...   plt.plot(x, y)
+  ...   plt.show()
+  [<matplotlib.lines.Line2D object at ...>]
+
+.. image:: _static/mpl_fig4.png
+
+With label_style set to "/", the axis label conforms to the SI standard where the
+axis label is a mathematical expression rather than a caption. In this case, set the
+unyt_array.name attribute to the latex expression for the physical quantity symbol.
+
+  >>> x.name = "$t$"
+  >>> y.name = ""
+  >>> matplotlib_support.label_style = "/"
+  >>> with matplotlib_support:
+  ...   plt.plot(x, y)
+  ...   plt.show()
+  [<matplotlib.lines.Line2D object at ...>]
+
+.. image:: _static/mpl_fig5.png
 
 There are three ways to use the context manager:
 

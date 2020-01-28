@@ -355,6 +355,10 @@ class unyt_array(np.ndarray):
         corrupted, invalid units or array data, but can lead to significant
         speedups in the input validation logic adds significant overhead. If
         set, input_units *must* be a valid unit object. Defaults to False.
+    name : string
+        The name of the array. Defaults to None. This attribute does not propagate
+        through mathematical operations, but is preserved under indexing
+        and unit conversions.
 
     Examples
     --------
@@ -482,6 +486,7 @@ class unyt_array(np.ndarray):
         dtype=None,
         bypass_validation=False,
         input_units=None,
+        name=None,
     ):
         # deprecate input_units in favor of units
         if input_units is not None:
@@ -499,6 +504,7 @@ class unyt_array(np.ndarray):
             obj.units = input_units
             if registry is not None:
                 obj.units.registry = registry
+            obj.name = name
             return obj
         if isinstance(input_array, unyt_array):
             ret = input_array.view(cls)
@@ -512,6 +518,7 @@ class unyt_array(np.ndarray):
                 ret.units = input_units
             else:
                 ret.units = Unit(input_units, registry=registry)
+            ret.name = name
             return ret
         elif isinstance(input_array, np.ndarray):
             pass
@@ -539,9 +546,9 @@ class unyt_array(np.ndarray):
             # it's a str.
             units = Unit(input_units, registry=registry)
 
-        # Attach the units
+        # Attach the units and name
         obj.units = units
-
+        obj.name = name
         return obj
 
     def __repr__(self):
@@ -816,7 +823,9 @@ class unyt_array(np.ndarray):
             if offset:
                 np.subtract(ret, offset, ret)
 
-            new_array = type(self)(ret, new_units, bypass_validation=True)
+            new_array = type(self)(
+                ret, new_units, bypass_validation=True, name=self.name
+            )
 
             return new_array
         else:
@@ -986,7 +995,7 @@ class unyt_array(np.ndarray):
 
     def convert_to_equivalent(self, unit, equivalence, **kwargs):
         """
-        Return a copy of the unyt_array in the units specified units, assuming
+        Convert the array in-place to the specified units, assuming
         the given equivalency. The dimensions of the specified units and the
         dimensions of the original array need not match so long as there is an
         appropriate conversion in the specified equivalency.
@@ -1016,6 +1025,8 @@ class unyt_array(np.ndarray):
         if self.has_equivalent(equivalence):
             this_equiv.convert(self, conv_unit.dimensions, **kwargs)
             self.convert_to_units(conv_unit)
+            # set name to None since the semantic meaning has changed
+            self.name = None
         else:
             raise InvalidUnitEquivalence(equivalence, self.units, conv_unit)
 
@@ -1584,7 +1595,9 @@ class unyt_array(np.ndarray):
     def __getitem__(self, item):
         ret = super(unyt_array, self).__getitem__(item)
         if ret.shape == ():
-            return unyt_quantity(ret, self.units, bypass_validation=True)
+            return unyt_quantity(
+                ret, self.units, bypass_validation=True, name=self.name
+            )
         else:
             if hasattr(self, "units"):
                 ret.units = self.units
@@ -1845,10 +1858,12 @@ class unyt_array(np.ndarray):
          [4 5 6]] km
 
         """
-        return type(self)(np.copy(np.asarray(self)), self.units)
+        name = getattr(self, "name", None)
+        return type(self)(np.copy(np.asarray(self)), self.units, name=name)
 
     def __array_finalize__(self, obj):
         self.units = getattr(obj, "units", NULL_UNIT)
+        self.name = getattr(obj, "name", None)
 
     def __pos__(self):
         """ Posify the data. """
@@ -1919,7 +1934,7 @@ class unyt_array(np.ndarray):
         This is necessary for stdlib deepcopy of arrays and quantities.
         """
         ret = super(unyt_array, self).__deepcopy__(memodict)
-        return type(self)(ret, copy.deepcopy(self.units))
+        return type(self)(ret, copy.deepcopy(self.units), name=self.name)
 
 
 class unyt_quantity(unyt_array):
@@ -1941,6 +1956,10 @@ class unyt_quantity(unyt_array):
         of the registry associated with the unit object.
     dtype : data-type
         The dtype of the array data.
+    name : string
+        The name of the scalar. Defaults to None. This attribute does not propagate
+        through mathematical operations, but is preserved under indexing
+        and unit conversions.
 
     Examples
     --------
@@ -1975,6 +1994,7 @@ class unyt_quantity(unyt_array):
         dtype=None,
         bypass_validation=False,
         input_units=None,
+        name=None,
     ):
         if input_units is not None:
             warnings.warn(
@@ -2000,6 +2020,7 @@ class unyt_quantity(unyt_array):
             registry,
             dtype=dtype,
             bypass_validation=bypass_validation,
+            name=name,
         )
         if ret.size > 1:
             raise RuntimeError("unyt_quantity instances must be scalars")

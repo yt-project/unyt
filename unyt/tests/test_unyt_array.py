@@ -2326,3 +2326,32 @@ def test_clip():
     assert positions.units == left_edge.units
     assert positions.max() == 1.0 * km
     assert positions.min() == 0.0 * km
+
+
+def test_name_attribute():
+    a = unyt_array([0, 1, 2], "s")
+    assert a.name is None
+    a.name = "time"
+    assert a.name == "time"
+    assert a[0].name == "time"
+    a.convert_to_units("ms")
+    assert a.name == "time"
+    b = unyt_quantity(1, "m", name="distance")
+    assert b.name == "distance"
+    c = b.copy()
+    assert c.name == "distance"
+    c_1 = copy.deepcopy(b)
+    assert c_1.name == "distance"
+    d = b.in_units("mm")
+    assert d.name == "distance"
+    e = b.to("mm")
+    assert e.name == "distance"
+    f = unyt_array([3, 4, 5], "K", name="temperature")
+    g = f.in_units("J", equivalence="thermal")
+    assert g.name is None
+    g_1 = f.to_equivalent("J", equivalence="thermal")
+    assert g_1.name is None
+    f.convert_to_equivalent("J", equivalence="thermal")
+    assert f.name is None
+    h = f.to("J", equivalence="thermal")
+    assert h.name is None
