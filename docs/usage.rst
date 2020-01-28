@@ -228,8 +228,8 @@ Logarithmic Quantities and Units
 ********************************
 
 The logarithmic quantities level-of-power and level-of-field and the units neper and
-bel are supported. In the next example, we represent the power measurements, p, as
-a logarithmic quantity at reference level, p_ref, in the units decibel.
+bel are supported. In the next example, we represent the power measurements, ``p``, as
+a logarithmic quantity at reference level, ``p_ref``, in the units decibel.
 
   >>> import numpy as np
   >>> from unyt import dB, mW
@@ -242,7 +242,8 @@ a logarithmic quantity at reference level, p_ref, in the units decibel.
   unyt_array([ 0., 20.], 'dB')
 
 You can convert the logarithmic quantity back to physical units through exponentiation,
-just remember to remove the units using the unyt_array.v property.
+just remember to remove the units using the
+:meth:`unyt_array.v <unyt.array.unyt_array.v>` property.
 
   >>> 10**(level_of_power.v/10)*p_ref
   unyt_array([  1., 100.], 'mW')
