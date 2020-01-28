@@ -357,7 +357,8 @@ class unyt_array(np.ndarray):
         set, input_units *must* be a valid unit object. Defaults to False.
     name : string
         The name of the array. Defaults to None. This attribute does not propagate
-        through operations.
+        through mathematical operations, but is preserved under indexing
+        and unit conversions.
 
     Examples
     --------
@@ -545,7 +546,7 @@ class unyt_array(np.ndarray):
             # it's a str.
             units = Unit(input_units, registry=registry)
 
-        # Attach the units
+        # Attach the units and name
         obj.units = units
         obj.name = name
         return obj
@@ -1957,7 +1958,8 @@ class unyt_quantity(unyt_array):
         The dtype of the array data.
     name : string
         The name of the scalar. Defaults to None. This attribute does not propagate
-        through operations.
+        through mathematical operations, but is preserved under indexing
+        and unit conversions.
 
     Examples
     --------
