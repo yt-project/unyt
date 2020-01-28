@@ -802,3 +802,15 @@ def test_equal_has_same_hash():
     assert b == c
     assert hash(a) == hash(b)
     assert hash(b) == hash(c)
+
+
+def test_bel_neper():
+    assert Unit("B").dimensions == Unit("Np").dimensions
+    a = 1 * Unit("B") / (np.log(10) / 2)
+    assert_allclose_units(a.to("Np"), 1 * Unit("Np"))
+    a = 2 * Unit("B")
+    b = 20 * Unit("decibel")
+    assert (a == b).all()
+    c = 2 * Unit("Np")
+    d = 20 * Unit("decineper")
+    assert (c == d).all()
