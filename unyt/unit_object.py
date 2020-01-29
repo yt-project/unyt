@@ -379,7 +379,7 @@ class Unit(object):
             data = np.array(u, subok=True)
             unit = getattr(u, "units", None)
             if unit is not None:
-                if self.dimensions == logarithmic:
+                if self.dimensions is logarithmic:
                     raise InvalidUnitOperation(
                         "Tried to multiply '%s' and '%s'." % (self, unit)
                     )
@@ -394,9 +394,9 @@ class Unit(object):
             if data.shape == ():
                 return _import_cache_singleton.uq(data, units, bypass_validation=True)
             return _import_cache_singleton.ua(data, units, bypass_validation=True)
-        elif self.dimensions == logarithmic and not u.is_dimensionless:
+        elif self.dimensions is logarithmic and not u.is_dimensionless:
             raise InvalidUnitOperation("Tried to multiply '%s' and '%s'." % (self, u))
-        elif u.dimensions == logarithmic and not self.is_dimensionless:
+        elif u.dimensions is logarithmic and not self.is_dimensionless:
             raise InvalidUnitOperation("Tried to multiply '%s' and '%s'." % (self, u))
 
         base_offset = 0.0
@@ -431,9 +431,9 @@ class Unit(object):
                     "Tried to divide a Unit object by '%s' (type %s). This "
                     "behavior is undefined." % (u, type(u))
                 )
-        elif self.dimensions == logarithmic and not u.is_dimensionless:
+        elif self.dimensions is logarithmic and not u.is_dimensionless:
             raise InvalidUnitOperation("Tried to divide '%s' and '%s'." % (self, u))
-        elif u.dimensions == logarithmic and not self.is_dimensionless:
+        elif u.dimensions is logarithmic and not self.is_dimensionless:
             raise InvalidUnitOperation("Tried to divide '%s' and '%s'." % (self, u))
 
         base_offset = 0.0
@@ -468,7 +468,7 @@ class Unit(object):
                 "it to a float." % (p, type(p))
             )
 
-        if self.dimensions == logarithmic and p != 1.0:
+        if self.dimensions is logarithmic and p != 1.0:
             raise InvalidUnitOperation("Tried to raise '%s' to power '%s'" % (self, p))
 
         return Unit(
