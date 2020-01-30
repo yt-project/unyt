@@ -2355,3 +2355,15 @@ def test_name_attribute():
     assert f.name is None
     h = f.to("J", equivalence="thermal")
     assert h.name is None
+
+
+def test_neper_bel():
+    assert 0 * Unit("dB") + 20 * Unit("dB") == unyt_quantity(20, "dB")
+    with pytest.raises(InvalidUnitOperation):
+        unyt_array([1, 10], "V") * Unit("dB")
+    with pytest.raises(InvalidUnitOperation):
+        Unit("Np") * unyt_array([1, 10], "s")
+    with pytest.raises(InvalidUnitOperation):
+        unyt_array([0, 20], "dB") ** 2
+    with pytest.raises(InvalidUnitOperation):
+        np.power(unyt_array([0, 20], "dB"), -2)

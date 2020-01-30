@@ -446,6 +446,16 @@ def test_invalid_operations():
         u1 /= u2
     with pytest.raises(InvalidUnitOperation):
         u1 / "hello!"
+    with pytest.raises(InvalidUnitOperation):
+        Unit("B") * Unit("V")
+    with pytest.raises(InvalidUnitOperation):
+        Unit("V") * Unit("B")
+    with pytest.raises(InvalidUnitOperation):
+        Unit("V") / Unit("Np")
+    with pytest.raises(InvalidUnitOperation):
+        Unit("dB") / Unit("dB")
+    with pytest.raises(InvalidUnitOperation):
+        Unit("B") ** 2
 
 
 def test_base_equivalent():
@@ -814,3 +824,4 @@ def test_bel_neper():
     c = 2 * Unit("Np")
     d = 20 * Unit("decineper")
     assert (c == d).all()
+    assert Unit("dB") ** 1 == Unit("dB")
