@@ -825,3 +825,7 @@ def test_bel_neper():
     d = 20 * Unit("decineper")
     assert (c == d).all()
     assert Unit("dB") ** 1 == Unit("dB")
+
+
+def test_henry():
+    assert (Unit("H") / Unit("Ω")).dimensions == time
