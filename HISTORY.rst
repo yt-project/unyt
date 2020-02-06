@@ -2,6 +2,32 @@
 History
 =======
 
+2.7.0 (2020-02-06)
+------------------
+
+* The ``unyt_array`` and ``unyt_quantity`` classes now have a new, optional
+  ``name`` attribute. The primary purpose of this attribute is to enable
+  automatic generation of matplotlib plot labels. The ``name`` attribute is
+  propagated through unit conversions and copies but is not propagated through
+  mathematical operations. See `PR #129
+  <https://github.com/yt-project/unyt/pull/129>`_ and the documentation for
+  details.
+* Add support for the ``Neper`` and ``Bel`` units with logarithmic
+  dimensions. This includes support for the ``decibel`` unit. Note that
+  logarithmic units can only be used with other logarithmic units and must be
+  applied and stripped manually. See `PR #133
+  <https://github.com/yt-project/unyt/pull/133>`_ and `PR #134
+  <https://github.com/yt-project/unyt/pull/134>`_.
+* Add support for the SI unit of inductance, ``H``. See `PR #135
+  <https://github.com/yt-project/unyt/pull/135>`_.
+* Fix formatting of error message produced when raising a quantity to a power
+  with units. See `PR #131
+  <https://github.com/yt-project/unyt/pull/131>`_. Thank you to Lee Johnston
+  (@l-johnston on GitHub) for all of the above contributions.
+* Fix incorrect unit metadata when loading a pickled array saved by
+  ``yt.units``. See `PR #137 <https://github.com/yt-project/unyt/pull/137>`_.
+
+
 2.6.0 (2020-01-22)
 ------------------
 
@@ -9,7 +35,7 @@ History
   now necessary to use the ``unyt.matplotlib_support`` context manager in code
   where you want unyt to automatically generate plot labels. Enabling Matplotlib
   support by default in the previous release caused crashes in previously
-  working code for some users we have decided to make the plotting support
+  working code for some users so we have decided to make the plotting support
   optional. See the documentation for more details. We are sorry for introducing
   a new feature that broke some user's code. See `PR #126
   <https://github.com/yt-project/unyt/pull/126>`_. Thank you to Lee Johnston
