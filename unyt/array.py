@@ -133,6 +133,7 @@ from unyt.unit_registry import (
     _sanitize_unit_system,
     UnitRegistry,
     default_unit_registry,
+    _correct_old_unit_registry,
 )
 
 NULL_UNIT = Unit()
@@ -1910,6 +1911,7 @@ class unyt_array(np.ndarray):
         """
         super(unyt_array, self).__setstate__(state[1:])
         unit, lut = state[0]
+        lut = _correct_old_unit_registry(lut)
         registry = UnitRegistry(lut=lut, add_default_symbols=False)
         self.units = Unit(unit, registry=registry)
 
