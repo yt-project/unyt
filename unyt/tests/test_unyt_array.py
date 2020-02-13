@@ -1395,7 +1395,16 @@ def test_pint():
 
 def test_subclass():
     class unyt_a_subclass(unyt_array):
-        pass
+        def __new__(
+            cls, input_array, units=None, registry=None, bypass_validation=None
+        ):
+            return super(unyt_a_subclass, cls).__new__(
+                cls,
+                input_array,
+                units,
+                registry=registry,
+                bypass_validation=bypass_validation,
+            )
 
     a = unyt_a_subclass([4, 5, 6], "g")
     b = unyt_a_subclass([7, 8, 9], "kg")
@@ -1428,6 +1437,9 @@ def test_subclass():
     assert_isinstance(a[:], unyt_a_subclass)
     assert_isinstance(a[:2], unyt_a_subclass)
     assert_isinstance(unyt_a_subclass(yta), unyt_a_subclass)
+    assert_isinstance(a.to("kg"), unyt_a_subclass)
+    assert_isinstance(a.copy(), unyt_a_subclass)
+    assert_isinstance(copy.deepcopy(a), unyt_a_subclass)
 
     with pytest.raises(RuntimeError):
         a + "hello"

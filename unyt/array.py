@@ -824,9 +824,13 @@ class unyt_array(np.ndarray):
             if offset:
                 np.subtract(ret, offset, ret)
 
-            new_array = type(self)(
-                ret, new_units, bypass_validation=True, name=self.name
-            )
+            try:
+                new_array = type(self)(
+                    ret, new_units, bypass_validation=True, name=self.name
+                )
+            except TypeError:
+                # subclasses might not take name as a kwarg
+                new_array = type(self)(ret, new_units, bypass_validation=True)
 
             return new_array
         else:
@@ -1860,7 +1864,11 @@ class unyt_array(np.ndarray):
 
         """
         name = getattr(self, "name", None)
-        return type(self)(np.copy(np.asarray(self)), self.units, name=name)
+        try:
+            return type(self)(np.copy(np.asarray(self)), self.units, name=name)
+        except TypeError:
+            # subclasses might not take name as a kwarg
+            return type(self)(np.copy(np.asarray(self)), self.units)
 
     def __array_finalize__(self, obj):
         self.units = getattr(obj, "units", NULL_UNIT)
@@ -1936,7 +1944,11 @@ class unyt_array(np.ndarray):
         This is necessary for stdlib deepcopy of arrays and quantities.
         """
         ret = super(unyt_array, self).__deepcopy__(memodict)
-        return type(self)(ret, copy.deepcopy(self.units), name=self.name)
+        try:
+            return type(self)(ret, copy.deepcopy(self.units), name=self.name)
+        except TypeError:
+            # subclasses might not take name as a kwarg
+            return type(self)(ret, copy.deepcopy(self.units))
 
 
 class unyt_quantity(unyt_array):
