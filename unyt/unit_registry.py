@@ -352,7 +352,7 @@ def _correct_old_unit_registry(data, sympify=False):
                     unsan_v[0] /= 1000 ** float(power)
                 if dim == unyt_dims.length:
                     unsan_v[0] /= 100 ** float(power)
-            lut[k] = tuple(unsan_v)
+        lut[k] = tuple(unsan_v)
     for k in default_unit_symbol_lut:
         if k not in lut:
             lut[k] = default_unit_symbol_lut[k]
