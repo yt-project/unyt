@@ -81,6 +81,7 @@ def test_registry_contains():
 
 def test_registry_json():
     reg = UnitRegistry()
+    reg.add("tayne", 1.0, length)
     json_reg = reg.to_json()
     unserialized_reg = UnitRegistry.from_json(json_reg)
 
@@ -88,6 +89,7 @@ def test_registry_json():
 
     assert reg.lut["m"][1] is length
     assert reg.lut["erg"][1] is energy
+    assert reg.lut["tayne"][1] is length
 
 
 def test_old_registry_json():
