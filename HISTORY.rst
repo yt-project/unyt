@@ -2,6 +2,16 @@
 History
 =======
 
+2.7.1 (2020-02-17)
+------------------
+
+* Fix compatibility with `unyt_array` subclasses that do not have the new
+  ``name`` argument in their initializer. See `PR #140
+  <https://github.com/yt-project/unyt/pull/140>`_.
+* Fix an issue where custom units added to a unit registry were not restored
+  correctly when reloading a unit registry from a JSON or pickle
+  representation. See `PR #140 <https://github.com/yt-project/unyt/pull/140>`_.
+
 2.7.0 (2020-02-06)
 ------------------
 
