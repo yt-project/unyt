@@ -88,6 +88,7 @@ managing your python evironment using your operating system's package manager or
 2. Clone your fork locally::
 
     $ git clone git@github.com:your_name_here/unyt.git
+
 3. Install ``pyenv``::
 
     $ git clone https://github.com/pyenv/pyenv.git $HOME/.pyenv
@@ -101,21 +102,22 @@ managing your python evironment using your operating system's package manager or
     $ pip install tox tox-pyenv
 
 3. Install your local copy into a virtualenv or conda environment. You can also
-   use one of the python interpreters we installed using ``pyenv``:
+   use one of the python interpreters we installed using ``pyenv``::
 
-    $ pyenv local 3.8.1
     $ cd unyt/
+    $ pyenv local 3.8.1
     $ python setup.py develop
 
 4. Create a branch for local development::
 
     $ git checkout -b name-of-your-bugfix-or-feature
 
-   Now you can make your changes locally.
+5. Edit files in the ``unyt`` repository, using your local python installation
+   to test your edits.
 
-5. When you're done making changes, check that your changes pass flake8, format
-   the code with black, and run the tests, including testing several Python
-   versions with tox::
+5. When you're done making changes, check that your changes pass ``flake8``,
+   format the code with ``black``, and run the tests, including testing several
+   Python versions with ``tox``::
 
     $ flake8 unyt
     $ black ./
@@ -161,8 +163,8 @@ that you have multiple python versions visible on your ``$PATH``, then simply
 execute ``tox`` in the root of the ``unyt`` repository. For example, using the
 ``pyenv`` environment we set up above::
 
-   $ pyenv local 3.5.9 3.6.10 3.7.6 3.8.1
    $ cd unyt
+   $ pyenv local 3.5.9 3.6.10 3.7.6 3.8.1
    $ tox
 
 The ``tox`` package itself can be installed using the ``pip`` associated with
