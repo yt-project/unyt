@@ -387,5 +387,5 @@ def _has_dimensions(quant, dim):
     try:
         arg_dim = quant.units.dimensions
     except AttributeError:
-        arg_dim = None
+        arg_dim = dimensionless
     return arg_dim == dim
