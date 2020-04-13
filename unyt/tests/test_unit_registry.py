@@ -93,7 +93,7 @@ def test_registry_json():
 
 
 def test_old_registry_json():
-    path = os.sep.join([os.path.dirname(__file__), "old_json_registry.txt"])
+    path = os.sep.join([os.path.dirname(__file__), "data/old_json_registry.txt"])
     with open(path) as f:
         json_text = f.read()
     reg = UnitRegistry.from_json(json_text)
