@@ -42,6 +42,7 @@ setup(
     license="BSD license",
     long_description=readme + "\n\n" + history,
     include_package_data=True,
+    package_data={"unyt": ["tests/data/old_json_registry.txt"]},
     keywords="unyt",
     name="unyt",
     packages=find_packages(include=["unyt"]),
