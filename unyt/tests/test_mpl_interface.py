@@ -44,8 +44,8 @@ def test_label(ax):
 def test_convert_unit(ax):
     x = [0, 1, 2] * s
     y = [1000, 2000, 3000] * K
-    ax.plot(x, y, yunits="Celcius")
-    expected = y.to("Celcius")
+    ax.plot(x, y, yunits="Celsius")
+    expected = y.to("Celsius")
     line = ax.lines[0]
     original_y_array = line.get_data()[1]
     converted_y_array = line.convert_yunits(original_y_array)

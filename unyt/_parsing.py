@@ -87,6 +87,7 @@ def parse_unyt_expr(unit_expr):
     # Avoid a parse error if someone uses the percent unit and the
     # parser tries to interpret it as the modulo operator
     unit_expr = unit_expr.replace("%", "percent")
+    unit_expr = unit_expr.replace("°", "deg")
     try:
         unit_expr = parse_expr(
             unit_expr, global_dict=global_dict, transformations=unit_text_transform
