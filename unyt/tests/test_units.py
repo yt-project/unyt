@@ -829,3 +829,21 @@ def test_bel_neper():
 
 def test_henry():
     assert (Unit("H") / Unit("Ω")).dimensions == time
+
+
+def test_degC():
+    assert Unit("degree_celsius") == Unit("degC")
+    assert Unit("degree_Celsius") == Unit("degC")
+    assert Unit("Celsius") == Unit("degC")
+    assert Unit("°C") == Unit("degC")
+    a = 1 * Unit("degC")
+    assert str(a) == "1 °C"
+
+
+def test_degF():
+    assert Unit("degree_fahrenheit") == Unit("degF")
+    assert Unit("degree_Fahrenheit") == Unit("degF")
+    assert Unit("Fahrenheit") == Unit("degF")
+    assert Unit("°F") == Unit("degF")
+    a = 1 * Unit("degF")
+    assert str(a) == "1 °F"

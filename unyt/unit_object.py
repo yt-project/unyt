@@ -331,8 +331,13 @@ class Unit(object):
     def __str__(self):
         if self.expr == sympy_one:
             return "dimensionless"
+        unit_str = self.expr.__str__()
+        if unit_str == "degC":
+            return "°C"
+        if unit_str == "degF":
+            return "°F"
         # @todo: don't use dunder method?
-        return self.expr.__str__()
+        return unit_str
 
     #
     # Start unit operations
