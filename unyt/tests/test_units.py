@@ -857,6 +857,11 @@ def test_degC():
     assert str(a) == "1 °C"
 
 
+def test_delta_degC():
+    a = 1 * Unit("delta_degC")
+    assert str(a) == "1 Δ°C"
+
+
 def test_degF():
     assert Unit("degree_fahrenheit") == Unit("degF")
     assert Unit("degree_Fahrenheit") == Unit("degF")
@@ -864,3 +869,8 @@ def test_degF():
     assert Unit("°F") == Unit("degF")
     a = 1 * Unit("degF")
     assert str(a) == "1 °F"
+
+
+def test_delta_degF():
+    a = 1 * Unit("delta_degF")
+    assert str(a) == "1 Δ°F"

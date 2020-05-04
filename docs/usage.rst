@@ -356,6 +356,20 @@ The `degC` symbol has alternative names `degree_Celsius`, `Celsius` and `°C`.
 
 These comments also apply to degree Fahrenheit.
 
+Performing arithmetic with temperature quantities can be ambiguous. To clarify intent,
+Unyt has the convenience units `delta_degC` and `delta_degF`.
+
+  >>> from unyt import degC, delta_degC, V
+  >>> t1 = 23*degC
+  >>> t2 = 1*delta_degC
+  >>> print(t1 + t2)
+  24 °C
+  >>> print(t2 - t1)
+  -22 °C
+  >>> tempco = 10.0*V/delta_degC
+  >>> print(tempco*2*delta_degC)
+  20.0 V
+
 Unit Conversions and Unit Systems
 +++++++++++++++++++++++++++++++++
 

@@ -124,6 +124,7 @@ default_unit_symbol_lut = OrderedDict(
             (1.0, dimensions.luminous_flux / dimensions.area, 0.0, r"\rm{lx}", True),
         ),
         ("degC", (1.0, dimensions.temperature, -273.15, r"^\circ\rm{C}", True)),
+        ("delta_degC", (1.0, dimensions.temperature, 0, r"\Delta^\circ\rm{C}", True)),
         # Imperial and other non-metric units
         ("inch", (m_per_inch, dimensions.length, 0.0, r"\rm{in}", False)),
         ("ft", (m_per_ft, dimensions.length, 0.0, r"\rm{ft}", False)),
@@ -137,6 +138,16 @@ default_unit_symbol_lut = OrderedDict(
                 dimensions.temperature,
                 -459.67,
                 r"^\circ\rm{F}",
+                False,
+            ),
+        ),
+        (
+            "delta_degF",
+            (
+                kelvin_per_rankine,
+                dimensions.temperature,
+                0.0,
+                r"\Delta^\circ\rm{F}",
                 False,
             ),
         ),

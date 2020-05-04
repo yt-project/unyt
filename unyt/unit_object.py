@@ -334,8 +334,12 @@ class Unit(object):
         unit_str = self.expr.__str__()
         if unit_str == "degC":
             return "°C"
+        if unit_str == "delta_degC":
+            return "Δ°C"
         if unit_str == "degF":
             return "°F"
+        if unit_str == "delta_degF":
+            return "Δ°F"
         # @todo: don't use dunder method?
         return unit_str
 
