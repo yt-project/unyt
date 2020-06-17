@@ -506,8 +506,10 @@ def generate_name_alternatives():
         # Are we SI prefixable or not?
         if entry[4]:
             for prefix in unit_prefixes:
-                if prefix in ["u", "μ"]:
-                    used_prefix = "µ"
+                # This is specifically to work around
+                # https://github.com/yt-project/unyt/issues/145
+                if prefix in ["u", "μ", "µ"]:
+                    used_prefix = "μ"
                 else:
                     used_prefix = prefix
                 append_name(names[prefix + key], used_prefix + key, prefix + key)

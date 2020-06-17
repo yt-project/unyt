@@ -769,8 +769,8 @@ def test_attosecond():
 def test_micro():
     from unyt import Unit
 
-    assert str(Unit("um")) == "µm"
-    assert str(Unit("us")) == "µs"
+    assert str(Unit("um")) == "μm"
+    assert str(Unit("us")) == "μs"
 
 
 def test_show_all_units_doc_table_ops():

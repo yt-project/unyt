@@ -269,7 +269,7 @@ you run into issues please let us know by `opening an issue on GitHub
       >>> units.kilometer
       km
       >>> units.microsecond
-      µs
+      μs
 
   See `PR #68 <https://github.com/yt-project/unyt/pull/68>`_.
 * The ``unyt`` codebase is now automatically formatted by `black
