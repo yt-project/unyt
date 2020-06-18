@@ -335,8 +335,8 @@ using the :meth:`@accepts <unyt.dimensions.accepts>` and :meth:`@returns <unyt.d
 Temperature Units
 -----------------
 
-The temperature unit degree Celsius has the symbol °C, but since the degree character
-is an invalid Python identifier, Uynt uses the symbol `degC`. Printing a degree Celsius
+The temperature unit degree Celsius has the symbol ``°C``, but since the degree character
+is an invalid Python identifier, :mod:`unyt` uses the symbol ``degC``. Printing a degree Celsius
 quantity will show the correct symbol.
 
   >>> from unyt import degC
@@ -344,7 +344,7 @@ quantity will show the correct symbol.
   >>> print(Ta)
   23 °C
 
-The `degC` symbol has alternative names `degree_Celsius`, `Celsius` and `°C`.
+The ``degC`` symbol has alternative names ``degree_Celsius``, ``Celsius`` and ``°C``.
 
   >>> from unyt import degree_Celsius, unyt_array
   >>> Ta = 23*degree_Celsius
@@ -357,7 +357,7 @@ The `degC` symbol has alternative names `degree_Celsius`, `Celsius` and `°C`.
 These comments also apply to degree Fahrenheit.
 
 Performing arithmetic with temperature quantities can be ambiguous. To clarify intent,
-Unyt has the convenience units `delta_degC` and `delta_degF`.
+:mod:`unyt` has the convenience units ``delta_degC`` and ``delta_degF``.
 
   >>> from unyt import degC, delta_degC, V
   >>> t1 = 23*degC
