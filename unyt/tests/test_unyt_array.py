@@ -2379,3 +2379,7 @@ def test_neper_bel():
         unyt_array([0, 20], "dB") ** 2
     with pytest.raises(InvalidUnitOperation):
         np.power(unyt_array([0, 20], "dB"), -2)
+
+
+def test_mil():
+    assert unyt_quantity(1, "mil").to("inch") == unyt_quantity(0.001, "inch")

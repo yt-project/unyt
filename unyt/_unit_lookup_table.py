@@ -125,6 +125,7 @@ default_unit_symbol_lut = OrderedDict(
         ),
         ("degC", (1.0, dimensions.temperature, -273.15, r"^\circ\rm{C}", True)),
         # Imperial and other non-metric units
+        ("mil", (1e-3 * m_per_inch, dimensions.length, 0.0, r"\rm{mil}", False)),
         ("inch", (m_per_inch, dimensions.length, 0.0, r"\rm{in}", False)),
         ("ft", (m_per_ft, dimensions.length, 0.0, r"\rm{ft}", False)),
         ("yd", (0.9144, dimensions.length, 0.0, r"\rm{yd}", False)),
