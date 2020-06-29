@@ -21,12 +21,14 @@ Contributors
 * Kacper Kowalik <xarthisius.kk@gmail.com>
 * Nathan Musoke <nathan.musoke@gmail.com>
 * Andrew Myers <atmyers2@gmail.com>
+* Simon Schopferer <simon.schopferer@dlr.de>
 * Sam Skillman <samskillman@gmail.com>
 * Britton Smith <brittonsmith@gmail.com>
 * Josh Soref
 * Kyle Sunden <sunden@wisc.edu>
 * Ben Thompson
 * Matthew Turk <matthewturk@gmail.com>
+* Miguel de Val-Borro <miguel.deval@gmail.com>
 * John ZuHone <jzuhone@gmail.com>
 
 This library was adapted from `dimensionful

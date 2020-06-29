@@ -2,6 +2,31 @@
 History
 =======
 
+2.7.2 (2020-06-29)
+------------------
+
+* The ``unyt.returns`` and ``unyt.accepts`` decorators now work correctly for
+  functions that accept or return data with dimensionless units. See `PR #146
+  <https://github.com/yt-project/unyt/pull/146>`_. Thank you to Simon Schopferer
+  (@simfinite on GitHub) for the initial bug report and fix.
+* Data used in the tests are packaged with the source distribution and
+  ``unyt.test()`` is now itself run as part of unyt's continuous integration
+  tests. See `PR #149 <https://github.com/yt-project/unyt/pull/149>`_ and `PR
+  #150 <https://github.com/yt-project/unyt/pull/150>`_. Thank you to Miguel de
+  Val-Borro (@migueldvb on GitHub) for the initial bug report and fix.
+* The ``degC`` and ``degF`` units now render as ``°C`` and ``°F`` by default,
+  ``°C`` and ``°F`` are now recognized as valid unit names as well. Thank you to
+  Lee Johnston (@l-johnston on GitHub) for the contribution.
+* Use a more canonical representation of the micro symbol when printing units
+  with the micro prefix, avoiding issues with displaying unit names in
+  Matplotlib plot labels. See `PR #153
+  <https://github.com/yt-project/unyt/pull/153>`_. Thank you to Matthew Turk
+  (@matthewturk on GitHub) for the bug report and fix.
+* Add more alternative spellings for solar units. See `PR #155
+  <https://github.com/yt-project/unyt/pull/155>`_. Thank you to Clément Robert
+  (@neutrinoceros on GitHub) for the initial bug report.
+
+
 2.7.1 (2020-02-17)
 ------------------
 
