@@ -440,7 +440,7 @@ default_unit_name_alternatives = OrderedDict(
         ("day", ("d",)),
         ("yr", ("year",)),
         # Solar units
-        ("Msun", ("solar_mass", "solMass")),
+        ("Msun", ("solar_mass", "solMass", "msun", "mass_sun")),
         ("Rsun", ("rsun", "r_sun", "solar_radius", "solRadius")),
         ("Lsun", ("lsun", "l_sun", "solar_luminosity", "solLuminosity")),
         ("Tsun", ("t_sun", "solar_temperature", "solTemperature")),
