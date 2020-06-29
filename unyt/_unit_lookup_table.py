@@ -351,7 +351,14 @@ physical_constants = OrderedDict(
         ("hbar", (0.5 * planck_mks / np.pi, "J*s", ["reduced_planck_constant"])),
         ("σ", (5.670373e-8, "W/m**2/K**4", ["stefan_boltzmann_constant"])),
         ("Tcmb", (2.726, "K", ["CMB_temperature"])),
-        ("Msun", (mass_sun_kg, "kg", ["msun", "solar_mass", "mass_sun"])),
+        (
+            "Msun",
+            (
+                mass_sun_kg,
+                "kg",
+                ["msun", "m_sun", "m_Sun", "M_sun", "M_Sun", "solar_mass", "mass_sun"],
+            ),
+        ),
         ("Mjup", (mass_jupiter_kg, "kg", ["mjup", "jupiter_mass", "mass_jupiter"])),
         ("mercury_mass", (mass_mercury_kg, "kg", ["mass_mercury"])),
         ("venus_mass", (mass_venus_kg, "kg", ["mass_venus"])),
@@ -440,11 +447,23 @@ default_unit_name_alternatives = OrderedDict(
         ("day", ("d",)),
         ("yr", ("year",)),
         # Solar units
-        ("Msun", ("solar_mass", "solMass")),
-        ("Rsun", ("rsun", "r_sun", "solar_radius", "solRadius")),
-        ("Lsun", ("lsun", "l_sun", "solar_luminosity", "solLuminosity")),
-        ("Tsun", ("t_sun", "solar_temperature", "solTemperature")),
-        ("Zsun", ("z_sun", "solar_metallicity", "solMetallicity")),
+        (
+            "Msun",
+            ("msun", "m_sun", "M_sun", "m_Sun", "solar_mass", "solMass", "mass_sun"),
+        ),
+        ("Rsun", ("rsun", "r_sun", "R_sun", "r_Sun", "solar_radius", "solRadius")),
+        (
+            "Lsun",
+            ("lsun", "l_sun", "L_sun", "l_Sun", "solar_luminosity", "solLuminosity"),
+        ),
+        (
+            "Tsun",
+            ("t_sun", "tsun", "T_sun", "t_Sun", "solar_temperature", "solTemperature"),
+        ),
+        (
+            "Zsun",
+            ("z_sun", "zsun", "Z_sun", "z_Sun", "solar_metallicity", "solMetallicity"),
+        ),
         ("Mjup", ("m_jup", "jupiter_mass")),
         ("Mearth", ("m_earth", "earth_mass")),
         ("Rjup", ("r_jup", "jupiter_radius")),

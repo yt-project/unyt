@@ -758,6 +758,23 @@ def test_name_alternatives():
         assert hasattr(unyt.unit_symbols, name)
 
 
+def test_solar_unit_name_alternatives():
+    import unyt
+    from unyt import Unit
+
+    # check that m_sun, m_Sun, M_sun, M_Sun, msun, and Msun all work
+    for lower_name_prefix in "mrltz":
+        base_name = lower_name_prefix + "sun"
+        for name_prefix in [lower_name_prefix, lower_name_prefix.upper()]:
+            alternative_names = [name_prefix + suf for suf in ["sun", "_sun", "_Sun"]]
+            for name in alternative_names:
+                assert Unit(name) == Unit(base_name)
+                assert hasattr(unyt, name)
+                # only solar mass units are in physical constants
+                if lower_name_prefix == "m":
+                    assert hasattr(unyt.physical_constants, name)
+
+
 def test_attosecond():
     from unyt import Unit, attosecond, second
 
