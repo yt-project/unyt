@@ -2022,22 +2022,24 @@ class unyt_quantity(unyt_array):
             bypass_validation
             or isinstance(input_scalar, (numeric_type, np.number, np.ndarray))
         ):
-            raise RuntimeError("unyt_quantity values must be numeric")
+            raise TypeError("unyt_quantity values must be numeric")
         if input_units is None:
             units = getattr(input_scalar, "units", None)
         else:
             units = input_units
+        scalar_array = np.asarray(input_scalar)
+        if scalar_array.size != 1:
+            raise TypeError("input_scalar must be a single scalar")
         ret = unyt_array.__new__(
             cls,
-            np.asarray(input_scalar),
+            scalar_array,
             units,
             registry,
             dtype=dtype,
             bypass_validation=bypass_validation,
             name=name,
         )
-        if ret.size > 1:
-            raise RuntimeError("unyt_quantity instances must be scalars")
+
         return ret
 
     def __round__(self):
