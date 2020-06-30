@@ -164,10 +164,11 @@ def _multiply_units(unit1, unit2):
     return ret.as_coeff_unit()
 
 
-TEMPERATURE_WARNING = """
-After release x, kelvin and Rankine will be temperature deltas in operations with
-heterogeneous units. We recommend using delta_degC and delta_degF to clarify intent.
-"""
+TEMPERATURE_WARNING = (
+    "Ambiguous operation with heterogeneous temperature units.\n"
+    "In the future, such operations will generate UnitOperationError.\n"
+    "Use delta_degC or delta_degF to avoid the ambiguity."
+)
 
 
 @lru_cache(maxsize=128, typed=False)
