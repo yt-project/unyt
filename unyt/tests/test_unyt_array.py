@@ -2212,9 +2212,9 @@ def test_creation():
     assert new_data.units == cm
     assert new_data.units.registry is reg
 
-    with pytest.raises(RuntimeError):
+    with pytest.raises(TypeError):
         unyt_quantity("hello", "cm")
-    with pytest.raises(RuntimeError):
+    with pytest.raises(TypeError):
         unyt_quantity(np.array([1, 2, 3]), "cm")
 
 
