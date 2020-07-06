@@ -21,7 +21,7 @@ from unyt.exceptions import SymbolNotFoundError, UnitParseError
 from unyt._unit_lookup_table import default_unit_symbol_lut, unit_prefixes
 from unyt.unit_systems import mks_unit_system, _split_prefix, unit_system_registry
 from hashlib import md5
-from sympy import sympify
+from sympy import sympify as _sympify
 
 
 def _sanitize_unit_system(unit_system, obj):
@@ -47,7 +47,7 @@ def cached_sympify(u):
     in UnitRegistry.from_json. Even within a single load, this is a
     net improvement because there will often be a few cache hits
     """
-    return sympify(u, locals=vars(unyt_dims))
+    return _sympify(u, locals=vars(unyt_dims))
 
 
 class UnitRegistry:
@@ -346,6 +346,7 @@ def _correct_old_unit_registry(data, sympify=False):
             else:
                 unsan_v.append(False)
             dims = unsan_v[1]
+            expr = _sympify("1")
             for dim_factor in dims.as_ordered_factors():
                 dim, power = dim_factor.as_base_exp()
                 if dim == unyt_dims.mass:
@@ -354,9 +355,15 @@ def _correct_old_unit_registry(data, sympify=False):
                     unsan_v[0] /= 100 ** float(power)
                 # This addresses #157, where sometimes we get equality but not
                 # identity when loading.
+                # Default to having new_factor equal to the old value.
+                new_factor = dim_factor
                 for base_dim in unyt_dims.base_dimensions:
-                    if base_dim == dim:
-                        unsan_v[1] = base_dim
+                    # So if they're *equal* but not *identical*, swap them
+                    if base_dim == dim and base_dim is not dim:
+                        new_factor = base_dim ** power
+                        break
+                expr = expr * new_factor
+            unsan_v[1] = expr
         lut[k] = tuple(unsan_v)
     for k in default_unit_symbol_lut:
         if k not in lut:
