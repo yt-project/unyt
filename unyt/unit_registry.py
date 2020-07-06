@@ -352,6 +352,11 @@ def _correct_old_unit_registry(data, sympify=False):
                     unsan_v[0] /= 1000 ** float(power)
                 if dim == unyt_dims.length:
                     unsan_v[0] /= 100 ** float(power)
+                # This addresses #157, where sometimes we get equality but not
+                # identity when loading.
+                for base_dim in unyt_dims.base_dimensions:
+                    if base_dim == dim:
+                        unsan_v[1] = base_dim
         lut[k] = tuple(unsan_v)
     for k in default_unit_symbol_lut:
         if k not in lut:
