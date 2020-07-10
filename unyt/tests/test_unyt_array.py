@@ -2414,4 +2414,4 @@ def test_delta_degF():
 
 
 def test_mil():
-    assert unyt_quantity(1, "mil").to("inch") == unyt_quantity(0.001, "inch")
+    assert_allclose_units(unyt_quantity(1, "mil"), unyt_quantity(0.001, "inch"))
