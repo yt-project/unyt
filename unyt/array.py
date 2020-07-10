@@ -164,7 +164,22 @@ def _multiply_units(unit1, unit2):
     return ret.as_coeff_unit()
 
 
+TEMPERATURE_WARNING = """
+    Ambiguous operation with heterogeneous temperature units.
+    In the future, such operations will generate UnitOperationError.
+    Use delta_degC or delta_degF to avoid the ambiguity.
+"""
+
+
+@lru_cache(maxsize=128, typed=False)
 def _preserve_units(unit1, unit2=None):
+    if unit2 is None or unit1.dimensions is not temperature:
+        return 1, unit1
+    if unit1.base_offset == 0.0 and unit2.base_offset != 0.0:
+        if str(unit1.expr) in ["K", "R"]:
+            warnings.warn(TEMPERATURE_WARNING, FutureWarning, stacklevel=3)
+            return 1, unit1
+        return 1, unit2
     return 1, unit1
 
 
