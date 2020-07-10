@@ -435,6 +435,7 @@ default_unit_name_alternatives = OrderedDict(
         ("lx", ("lux",)),
         ("degC", ("degree_celsius", "degree_Celsius", "celcius", "celsius", "°C")),
         # Imperial and other non-metric units
+        ("mil", ("thou", "thousandth")),
         ("inch", ("in",)),
         ("ft", ("foot",)),
         ("yd", ("yard",)),
