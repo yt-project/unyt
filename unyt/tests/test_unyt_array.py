@@ -63,7 +63,7 @@ from unyt.unit_symbols import cm, m, g, degree
 from unyt.unit_registry import UnitRegistry
 from unyt._on_demand_imports import _astropy, _h5py, _pint, NotAModule
 from unyt._physical_ratios import metallicity_sun, speed_of_light_cm_per_s
-from unyt import dimensions, Unit
+from unyt import dimensions, Unit, degC, K, delta_degC, degF, R, delta_degF
 
 
 def operate_and_compare(a, b, op, answer):
@@ -2379,6 +2379,38 @@ def test_neper_bel():
         unyt_array([0, 20], "dB") ** 2
     with pytest.raises(InvalidUnitOperation):
         np.power(unyt_array([0, 20], "dB"), -2)
+
+
+def test_delta_degC():
+    t1 = 10 * degC
+    t2 = 1 * K
+    assert t1 + t2 == 11 * degC
+    # In the current implementation 1*K + 10*degC = 11*K
+    # In the future, this will generate UnitOperationError
+    with pytest.warns(FutureWarning):
+        t2 + t1
+    assert t2 + t1 == 11 * K
+    t3 = 1 * delta_degC
+    assert t1 + t3 == 11 * degC
+    assert t3 + t1 == 11 * degC
+    assert 1 * delta_degC + 2 * delta_degC == 3 * delta_degC
+    assert 2 * delta_degC == unyt_quantity(2, "delta_degC")
+
+
+def test_delta_degF():
+    t1 = 10 * degF
+    t2 = 1 * R
+    assert t1 + t2 == 11 * degF
+    # In the current implementation 1*R + 10*degF = 11*R
+    # In the future, this will generate UnitOperationError
+    with pytest.warns(FutureWarning):
+        t2 + t1
+    assert t2 + t1 == 11 * R
+    t3 = 1 * delta_degF
+    assert t1 + t3 == 11 * degF
+    assert t3 + t1 == 11 * degF
+    assert 1 * delta_degF + 2 * delta_degF == 3 * delta_degF
+    assert 2 * delta_degF == unyt_quantity(2, "delta_degF")
 
 
 def test_mil():

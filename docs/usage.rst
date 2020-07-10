@@ -335,8 +335,8 @@ using the :meth:`@accepts <unyt.dimensions.accepts>` and :meth:`@returns <unyt.d
 Temperature Units
 -----------------
 
-The temperature unit degree Celsius has the symbol °C, but since the degree character
-is an invalid Python identifier, Uynt uses the symbol `degC`. Printing a degree Celsius
+The temperature unit degree Celsius has the symbol ``°C``, but since the degree character
+is an invalid Python identifier, :mod:`unyt` uses the symbol ``degC``. Printing a degree Celsius
 quantity will show the correct symbol.
 
   >>> from unyt import degC
@@ -344,7 +344,7 @@ quantity will show the correct symbol.
   >>> print(Ta)
   23 °C
 
-The `degC` symbol has alternative names `degree_Celsius`, `Celsius` and `°C`.
+The ``degC`` symbol has alternative names ``degree_Celsius``, ``Celsius`` and ``°C``.
 
   >>> from unyt import degree_Celsius, unyt_array
   >>> Ta = 23*degree_Celsius
@@ -355,6 +355,20 @@ The `degC` symbol has alternative names `degree_Celsius`, `Celsius` and `°C`.
   [-40  23  70] °C
 
 These comments also apply to degree Fahrenheit.
+
+Performing arithmetic with temperature quantities can be ambiguous. To clarify intent,
+:mod:`unyt` has the convenience units ``delta_degC`` and ``delta_degF``.
+
+  >>> from unyt import degC, delta_degC, V
+  >>> t1 = 23*degC
+  >>> t2 = 1*delta_degC
+  >>> print(t1 + t2)
+  24 °C
+  >>> print(t2 - t1)
+  -22 °C
+  >>> tempco = 10.0*V/delta_degC
+  >>> print(tempco*2*delta_degC)
+  20.0 V
 
 Unit Conversions and Unit Systems
 +++++++++++++++++++++++++++++++++
@@ -1089,11 +1103,11 @@ Of course in this example using ``numpy.save`` we need to hard-code the units be
   ...
   >>> data = [1, 2, 3]*cm
   ...
-  >>> with h5py.File('my_data.h5') as f:
+  >>> with h5py.File('my_data.h5', 'a') as f:
   ...     d = f.create_dataset('my_data', data=data)
   ...     f['my_data'].attrs['units'] = str(data.units)
   ...
-  >>> with h5py.File('my_data.h5') as f:
+  >>> with h5py.File('my_data.h5', 'r') as f:
   ...     new_data = f['my_data'][:]
   ...     unit_str = f['my_data'].attrs['units']
   ...

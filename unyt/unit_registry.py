@@ -340,7 +340,10 @@ def _correct_old_unit_registry(data, sympify=False):
             unsan_v[1] = cached_sympify(v[1])
         if len(unsan_v) == 4:
             # old unit registry so we need to add SI-prefixability to the registry
-            # entry and correct the base_value to be in MKS units
+            # entry, correct the base_value to be in MKS units, and swap dimensions to
+            # use unyt's dimension singletons
+
+            # add SI-prefixability to LUT entry
             if k in default_unit_symbol_lut:
                 unsan_v.append(default_unit_symbol_lut[k][4])
             else:
@@ -348,10 +351,27 @@ def _correct_old_unit_registry(data, sympify=False):
             dims = unsan_v[1]
             for dim_factor in dims.as_ordered_factors():
                 dim, power = dim_factor.as_base_exp()
+
+                # Swap dimensions in the LUT entry to use unyt's dimension singletons
+                for base_dim in unyt_dims.base_dimensions:
+                    # If they're *equal* but not *identical*, swap them
+                    if base_dim == dim and base_dim is not dim:
+                        if power != 1:
+                            unsan_v[1] /= dim ** power
+                            unsan_v[1] *= base_dim ** power
+                        else:
+                            # need a special case for power == 1 because id(symbol ** 1)
+                            # is not necessarily the same as id(symbol)
+                            unsan_v[1] /= dim
+                            unsan_v[1] *= base_dim
+                        break
+
+                # correct base value to be in MKS units
                 if dim == unyt_dims.mass:
                     unsan_v[0] /= 1000 ** float(power)
                 if dim == unyt_dims.length:
                     unsan_v[0] /= 100 ** float(power)
+
         lut[k] = tuple(unsan_v)
     for k in default_unit_symbol_lut:
         if k not in lut:

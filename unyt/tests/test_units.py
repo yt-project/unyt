@@ -758,6 +758,23 @@ def test_name_alternatives():
         assert hasattr(unyt.unit_symbols, name)
 
 
+def test_solar_unit_name_alternatives():
+    import unyt
+    from unyt import Unit
+
+    # check that m_sun, m_Sun, M_sun, M_Sun, msun, and Msun all work
+    for lower_name_prefix in "mrltz":
+        base_name = lower_name_prefix + "sun"
+        for name_prefix in [lower_name_prefix, lower_name_prefix.upper()]:
+            alternative_names = [name_prefix + suf for suf in ["sun", "_sun", "_Sun"]]
+            for name in alternative_names:
+                assert Unit(name) == Unit(base_name)
+                assert hasattr(unyt, name)
+                # only solar mass units are in physical constants
+                if lower_name_prefix == "m":
+                    assert hasattr(unyt.physical_constants, name)
+
+
 def test_attosecond():
     from unyt import Unit, attosecond, second
 
@@ -769,8 +786,8 @@ def test_attosecond():
 def test_micro():
     from unyt import Unit
 
-    assert str(Unit("um")) == "µm"
-    assert str(Unit("us")) == "µs"
+    assert str(Unit("um")) == "μm"
+    assert str(Unit("us")) == "μs"
 
 
 def test_show_all_units_doc_table_ops():
@@ -840,6 +857,11 @@ def test_degC():
     assert str(a) == "1 °C"
 
 
+def test_delta_degC():
+    a = 1 * Unit("delta_degC")
+    assert str(a) == "1 Δ°C"
+
+
 def test_degF():
     assert Unit("degree_fahrenheit") == Unit("degF")
     assert Unit("degree_Fahrenheit") == Unit("degF")
@@ -847,3 +869,8 @@ def test_degF():
     assert Unit("°F") == Unit("degF")
     a = 1 * Unit("degF")
     assert str(a) == "1 °F"
+
+
+def test_delta_degF():
+    a = 1 * Unit("delta_degF")
+    assert str(a) == "1 Δ°F"

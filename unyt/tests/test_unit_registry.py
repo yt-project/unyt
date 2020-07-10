@@ -19,10 +19,11 @@ import pytest
 
 from numpy.testing import assert_allclose
 
-from unyt.dimensions import length, energy
+from unyt.dimensions import length, energy, mass, time, temperature
 from unyt.exceptions import SymbolNotFoundError, UnitParseError
 from unyt.unit_object import Unit
 from unyt.unit_registry import UnitRegistry
+from unyt.unit_systems import UnitSystem
 
 
 def test_add_modify_error():
@@ -92,9 +93,46 @@ def test_registry_json():
     assert reg.lut["tayne"][1] is length
 
 
+OLD_JSON_PATH = os.sep.join([os.path.dirname(__file__), "data/old_json_registry.txt"])
+
+
+def test_old_registry_multiple_load():
+    # See Issue #157 for details
+    reg1 = UnitRegistry()
+    reg1.add("code_length", 1.0, length)
+    reg1.add("code_mass", 1.0, mass)
+    reg1.add("code_time", 1.0, time)
+    reg1.add("code_temperature", 1.0, temperature)
+    UnitSystem(
+        reg1.unit_system_id,
+        "code_length",
+        "code_mass",
+        "code_time",
+        "code_temperature",
+        registry=reg1,
+    )
+
+    cm = Unit("code_mass", registry=reg1)
+    cl = Unit("code_length", registry=reg1)
+
+    (cm / cl).latex_representation()
+
+    with open(OLD_JSON_PATH) as f:
+        json_data = f.read()
+
+    reg2 = UnitRegistry.from_json(json_data)
+    UnitSystem(
+        reg2.unit_system_id,
+        "code_length",
+        "code_mass",
+        "code_time",
+        "code_temperature",
+        registry=reg2,
+    )
+
+
 def test_old_registry_json():
-    path = os.sep.join([os.path.dirname(__file__), "data/old_json_registry.txt"])
-    with open(path) as f:
+    with open(OLD_JSON_PATH) as f:
         json_text = f.read()
     reg = UnitRegistry.from_json(json_text)
     default_reg = UnitRegistry()
