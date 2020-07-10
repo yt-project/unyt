@@ -1089,11 +1089,11 @@ Of course in this example using ``numpy.save`` we need to hard-code the units be
   ...
   >>> data = [1, 2, 3]*cm
   ...
-  >>> with h5py.File('my_data.h5') as f:
+  >>> with h5py.File('my_data.h5', 'a') as f:
   ...     d = f.create_dataset('my_data', data=data)
   ...     f['my_data'].attrs['units'] = str(data.units)
   ...
-  >>> with h5py.File('my_data.h5') as f:
+  >>> with h5py.File('my_data.h5', 'r') as f:
   ...     new_data = f['my_data'][:]
   ...     unit_str = f['my_data'].attrs['units']
   ...

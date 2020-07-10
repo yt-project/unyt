@@ -1408,7 +1408,7 @@ class unyt_array(np.ndarray):
         data = dataset[:]
         units = dataset.attrs.get("units", "")
         unit_lut = default_unit_symbol_lut.copy()
-        unit_lut_load = pickle.loads(dataset.attrs["unit_registry"].tostring())
+        unit_lut_load = pickle.loads(dataset.attrs["unit_registry"].tobytes())
         unit_lut.update(unit_lut_load)
         f.close()
         registry = UnitRegistry(lut=unit_lut, add_default_symbols=False)
