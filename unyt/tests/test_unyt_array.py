@@ -2411,3 +2411,7 @@ def test_delta_degF():
     assert t3 + t1 == 11 * degF
     assert 1 * delta_degF + 2 * delta_degF == 3 * delta_degF
     assert 2 * delta_degF == unyt_quantity(2, "delta_degF")
+
+
+def test_mil():
+    assert_allclose_units(unyt_quantity(1, "mil"), unyt_quantity(0.001, "inch"))
