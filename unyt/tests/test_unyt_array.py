@@ -2415,3 +2415,11 @@ def test_delta_degF():
 
 def test_mil():
     assert_allclose_units(unyt_quantity(1, "mil"), unyt_quantity(0.001, "inch"))
+
+
+def test_kip():
+    assert_allclose_units(unyt_quantity(1, "lbf"), unyt_quantity(0.001, "kip"))
+
+
+def test_ksi():
+    assert_allclose_units(unyt_quantity(1, "lbf/inch**2"), unyt_quantity(0.001, "ksi"))
