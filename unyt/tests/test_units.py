@@ -28,6 +28,7 @@ import pickle
 import pytest
 from sympy import Symbol
 
+from unyt.array import unyt_quantity
 from unyt.testing import assert_allclose_units
 from unyt.unit_registry import UnitRegistry
 from unyt.dimensions import (
@@ -874,3 +875,21 @@ def test_degF():
 def test_delta_degF():
     a = 1 * Unit("delta_degF")
     assert str(a) == "1 Δ°F"
+
+
+def test_mixed_registry_operations():
+
+    reg = UnitRegistry(unit_system="cgs")
+    reg.add("fake_length", 0.001, length)
+    a = unyt_quantity(1, units="fake_length", registry=reg)
+    b = unyt_quantity(1, "cm")
+
+    assert a + b == b + a
+    assert a - b == - (b - a)
+    assert a * b == b * a
+    assert b / a == b / a.in_units("cm")
+    assert a / b == a / b.in_units("cm")
+    assert b // a == b // a.in_units("cm")
+    assert a // b == a // b.in_units("cm")
+    assert b % a == b % a.in_units("cm")
+    assert a % b == b % a.in_units("cm")
