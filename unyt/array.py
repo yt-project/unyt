@@ -123,6 +123,7 @@ from unyt.exceptions import (
     UnitOperationError,
     UnitConversionError,
     UnitsNotReducible,
+    SymbolNotFoundError,
 )
 from unyt.equivalencies import equivalence_registry
 from unyt._on_demand_imports import _astropy, _pint
@@ -1763,7 +1764,13 @@ class unyt_array(np.ndarray):
                         )
                     inp1 = np.asarray(inp1, dtype=new_dtype) * conv
             # get the unit of the result
-            mul, unit = unit_operator(u0, u1)
+            try:
+                mul, unit = unit_operator(u0, u1)
+            except SymbolNotFoundError:
+                # Some operators are not natively commutative when operands are
+                # defined within different unit registries, and conversion
+                # is defined one way but not the other.
+                mul, unit = unit_operator(u1, u0)
             # actually evaluate the ufunc
             out_arr = func(
                 inp0.view(np.ndarray), inp1.view(np.ndarray), out=out_func, **kwargs
