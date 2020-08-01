@@ -205,7 +205,7 @@ def _divide_units(unit1, unit2):
     try:
         ret = (unit1 / unit2).simplify()
     except SymbolNotFoundError:
-        ret = (1/(unit2 / unit1).simplify()).units
+        ret = (1 / (unit2 / unit1).simplify()).units
     return ret.as_coeff_unit()
 
 
