@@ -884,8 +884,8 @@ def test_mixed_registry_operations():
     a = unyt_quantity(1, units="fake_length", registry=reg)
     b = unyt_quantity(1, "cm")
 
-    assert a + b == b + a
-    assert a - b == -(b - a)
-    assert a * b == b * a
+    assert_almost_equal(a + b, b + a)
+    assert_almost_equal(a - b, -(b - a))
+    assert_almost_equal(a * b, b * a)
     assert_almost_equal(b / a, b / a.in_units("km"))
     assert_almost_equal(a / b, a / b.in_units("km"))
