@@ -123,6 +123,7 @@ from unyt.exceptions import (
     UnitOperationError,
     UnitConversionError,
     UnitsNotReducible,
+    SymbolNotFoundError,
 )
 from unyt.equivalencies import equivalence_registry
 from unyt._on_demand_imports import _astropy, _pint
@@ -160,7 +161,13 @@ def _sqrt_unit(unit):
 
 @lru_cache(maxsize=128, typed=False)
 def _multiply_units(unit1, unit2):
-    ret = (unit1 * unit2).simplify()
+    try:
+        ret = (unit1 * unit2).simplify()
+    except SymbolNotFoundError:
+        # Some operators are not natively commutative when operands are
+        # defined within different unit registries, and conversion
+        # is defined one way but not the other.
+        ret = (unit2 * unit1).simplify()
     return ret.as_coeff_unit()
 
 
@@ -195,7 +202,10 @@ def _square_unit(unit):
 
 @lru_cache(maxsize=128, typed=False)
 def _divide_units(unit1, unit2):
-    ret = (unit1 / unit2).simplify()
+    try:
+        ret = (unit1 / unit2).simplify()
+    except SymbolNotFoundError:
+        ret = (1 / (unit2 / unit1).simplify()).units
     return ret.as_coeff_unit()
 
 
