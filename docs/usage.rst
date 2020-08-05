@@ -1036,7 +1036,7 @@ without units.
 
 This behavior is not recommended in general since many of the important benefits
 of :mod:`unyt` are lost, but it can be useful for integrating :mod:`unyt` into
-legacy code which was not previously unit-aware so that until support can be
+legacy code which was not previously unit-aware so that unit support can be
 added gradually.
 
 Custom Unit Systems
