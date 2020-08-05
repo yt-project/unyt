@@ -125,6 +125,7 @@ from unyt.exceptions import (
     UnitConversionError,
     UnitsNotReducible,
     SymbolNotFoundError,
+    UnitOperationWarning
 )
 from unyt.equivalencies import equivalence_registry
 from unyt._on_demand_imports import _astropy, _pint
@@ -166,16 +167,18 @@ def _iterable(obj):
         return False
     return True
 
+
 def _unit_operation_error_raise_or_warn(ufunc, u0, u1, func, *inputs):
-    if STRICT:  # True by default
+    if u0.registry.strict and u1.registry.strict:  # True by default
         raise UnitOperationError(ufunc, u0, u1)
     else:
-        warnings.warn("Performing operation without units!")
+        warnings.warn(UnitOperationWarning(ufunc, u0, u1))
         unwrapped_inputs = [
-            i.value if isinstance(i, unyt_array) or isinstance(i, unyt_quantity)
+            i.value if isinstance(i, unyt_array)
             else i for i in inputs
         ]
         return func(*unwrapped_inputs)
+
 
 @lru_cache(maxsize=128, typed=False)
 def _sqrt_unit(unit):

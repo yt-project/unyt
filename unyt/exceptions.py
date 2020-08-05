@@ -47,6 +47,29 @@ class UnitOperationError(ValueError):
         return err
 
 
+class UnitOperationWarning(UserWarning):
+    """A warning that is raised when unit operations are not allowed but
+    when running with a UnitRegistry with strict=False. In this case,
+    the operation is allowed to continue but with unit information stripped.
+    """
+
+    def __init__(self, operation, unit1, unit2=None):
+        self.operation = operation
+        self.unit1 = unit1
+        self.unit2 = unit2
+        UserWarning.__init__(self)
+
+    def __str__(self):
+        err = (
+            'The %s operator for unyt_arrays with units "%s" '
+            '(dimensions "%s") ' % (self.operation, self.unit1, self.unit1.dimensions)
+        )
+        if self.unit2 is not None:
+            err += 'and "%s" (dimensions "%s") ' % (self.unit2, self.unit2.dimensions)
+        err += "is not well defined. Performing operation without units instead."
+        return err
+
+
 class UnitConversionError(Exception):
     """An error raised when converting to a unit with different dimensions.
 

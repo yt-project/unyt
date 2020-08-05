@@ -55,7 +55,7 @@ class UnitRegistry:
 
     _unit_system_id = None
 
-    def __init__(self, add_default_symbols=True, lut=None, unit_system=None):
+    def __init__(self, add_default_symbols=True, lut=None, unit_system=None, strict=True):
         self._unit_object_cache = {}
         if lut:
             self.lut = lut
@@ -66,6 +66,12 @@ class UnitRegistry:
 
         if add_default_symbols:
             self.lut.update(default_unit_symbol_lut)
+
+        # This boolean determines whether to raise a UnitOperationError or
+        # strip units and provide a UnitOperationWarning if an invalid
+        # operation is attempted. The default is strict=True and this is
+        # strongly recommended.
+        self.strict = strict
 
     def __getitem__(self, key):
         try:
