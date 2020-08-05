@@ -140,6 +140,7 @@ from unyt.unit_registry import (
 
 NULL_UNIT = Unit()
 POWER_SIGN_MAPPING = {multiply: 1, divide: -1}
+STRICT = True
 
 __doctest_requires__ = {
     ("unyt_array.from_pint", "unyt_array.to_pint"): ["pint"],
@@ -165,6 +166,16 @@ def _iterable(obj):
         return False
     return True
 
+def _unit_operation_error_raise_or_warn(ufunc, u0, u1, func, *inputs):
+    if STRICT:  # True by default
+        raise UnitOperationError(ufunc, u0, u1)
+    else:
+        warnings.warn("Performing operation without units!")
+        unwrapped_inputs = [
+            i.value if isinstance(i, unyt_array) or isinstance(i, unyt_quantity)
+            else i for i in inputs
+        ]
+        return func(*unwrapped_inputs)
 
 @lru_cache(maxsize=128, typed=False)
 def _sqrt_unit(unit):
@@ -1759,12 +1770,12 @@ class unyt_array(np.ndarray):
             elif ufunc is power:
                 u1 = inp1
                 if inp0.shape != () and inp1.shape != ():
-                    raise UnitOperationError(ufunc, u0, u1)
+                    return _unit_operation_error_raise_or_warn(ufunc, u0, u1, func, *inputs)
                 if isinstance(u1, unyt_array):
                     if u1.units.is_dimensionless:
                         pass
                     else:
-                        raise UnitOperationError(ufunc, u0, u1.units)
+                        return _unit_operation_error_raise_or_warn(ufunc, u0, u1.units, func, *inputs)
                 if u1.shape == ():
                     u1 = float(u1)
                 else:
@@ -1814,9 +1825,9 @@ class unyt_array(np.ndarray):
                                         ret = bool(ret)
                                     return ret
                                 else:
-                                    raise UnitOperationError(ufunc, u0, u1)
+                                    return _unit_operation_error_raise_or_warn(ufunc, u0, u1, func, *inputs)
                         else:
-                            raise UnitOperationError(ufunc, u0, u1)
+                            return _unit_operation_error_raise_or_warn(ufunc, u0, u1, func, *inputs)
                     conv, offset = u1.get_conversion_factor(u0, inp1.dtype)
                     new_dtype = np.dtype("f" + str(inp1.dtype.itemsize))
                     conv = new_dtype.type(conv)
