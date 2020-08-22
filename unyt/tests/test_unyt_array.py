@@ -2426,8 +2426,24 @@ def test_ksi():
 
 
 def test_masked_array():
-    data = unyt_array([1, 2], "s")
-    mask = [True, False]
+    data = unyt_array([1, 2, 3], "s")
+    mask = [False, False, True]
     marr = np.ma.MaskedArray(data, mask)
+    assert_array_equal(marr.data, data)
+    assert all(marr.mask == mask)
+    assert marr.sum() == unyt_quantity(3, "s")
+    assert np.ma.notmasked_contiguous(marr) == [slice(0, 2, None)]
+    assert marr.argmax() == 1
+    assert marr.max() == unyt_quantity(2, "s")
+    data = unyt_array([1, 2, np.inf], "s")
+    marr = np.ma.MaskedArray(data)
+    marr_masked = np.ma.masked_invalid(marr)
+    assert all(marr_masked.mask == [False, False, True])
+    marr_masked.set_fill_value(unyt_quantity(3, "s"))
+    assert_array_equal(marr_masked.filled(), unyt_array([1, 2, 3], "s"))
+    marr_fixed = np.ma.fix_invalid(marr)
+    assert_array_equal(marr_fixed.data, unyt_array([1, 2, 1e20], "s"))
+    assert_array_equal(np.ma.filled(marr, unyt_quantity(3, "s")), data)
+    assert_array_equal(np.ma.compressed(marr_masked), unyt_array([1, 2], "s"))
     # executing the repr should not raise an exception
     marr.__repr__()
