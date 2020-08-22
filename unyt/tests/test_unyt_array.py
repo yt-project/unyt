@@ -2423,3 +2423,11 @@ def test_kip():
 
 def test_ksi():
     assert_allclose_units(unyt_quantity(1, "lbf/inch**2"), unyt_quantity(0.001, "ksi"))
+
+
+def test_masked_array():
+    data = unyt_array([1, 2], "s")
+    mask = [True, False]
+    marr = np.ma.MaskedArray(data, mask)
+    # executing the repr should not raise an exception
+    marr.__repr__()
