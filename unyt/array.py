@@ -843,9 +843,9 @@ class unyt_array(np.ndarray):
                         RuntimeWarning,
                         stacklevel=2,
                     )
-            new_dtype = np.dtype("f" + str(dsize))
-            conversion_factor = new_dtype.type(conversion_factor)
-            ret = self.v * conversion_factor
+            new_dtypekind = "c" if self.dtype.kind == "c" else "f"
+            new_dtype = np.dtype(new_dtypekind + str(dsize))
+            ret = np.asarray(self.v * conversion_factor, dtype=new_dtype)
             if offset:
                 ret = ret - offset
             ret = type(self)(ret, new_units)

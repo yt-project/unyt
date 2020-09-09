@@ -2245,11 +2245,11 @@ def test_integer_arrays():
         assert arr.dtype.name == "int32"
         answer = (inp * km).astype("int32").to("mile")
         assert_array_equal(ret, answer)
-        assert ret.dtype.name == "float64"
+        assert ret.dtype.name == "float32"
 
         ret = arr.in_units("m")
         assert arr.dtype != ret.dtype
-        assert ret.dtype.name == "float64"
+        assert ret.dtype.name == "float32"
 
         arr.convert_to_units("m")
         assert arr.dtype.name == "float32"
