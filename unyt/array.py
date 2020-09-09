@@ -975,8 +975,6 @@ class unyt_array(np.ndarray):
         else:
             to_units = self.units.get_base_equivalent(unit_system)
             conv, offset = self.units.get_conversion_factor(to_units, self.dtype)
-        new_dtype = np.dtype("f" + str(self.dtype.itemsize))
-        conv = new_dtype.type(conv)
         ret = self.v * conv
         if offset:
             ret = ret - offset

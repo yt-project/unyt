@@ -2453,8 +2453,7 @@ def test_complexvalued():
     assert_allclose_units(arr.in_base(), unyt_array([1j * 0.001, 1j * 0.01], "J"))
     assert_allclose_units(arr.in_cgs(), unyt_array([1j * 10000, 1j * 100000], "erg"))
     assert_allclose_units(arr.in_mks(), unyt_array([1j * 0.001, 1j * 0.01], "J"))
-    file = tempfile.NamedTemporaryFile("wt", delete=False)
+    file = "test_complexvalued.txt"
     savetxt(file, arr)
-    file.close()
-    farr = loadtxt(file.name, dtype=np.complex128)
+    farr = loadtxt(file, dtype=np.complex128)
     assert_allclose_units(farr, unyt_array([1j * 0.001, 1j * 0.01], "J"))
