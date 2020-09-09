@@ -178,11 +178,11 @@ else:
         @property
         def label_style(self):
             """str: One of the following set, ``{'()', '[]', '/'}``.
-               These choices correspond to the following unit labels:
+            These choices correspond to the following unit labels:
 
-                 * ``'()'`` -> ``'(unit)'``
-                 * ``'[]'`` -> ``'[unit]'``
-                 * ``'/'`` -> ``'q_x / unit'``
+              * ``'()'`` -> ``'(unit)'``
+              * ``'[]'`` -> ``'[unit]'``
+              * ``'/'`` -> ``'q_x / unit'``
             """
             return self._labelstyle
 
