@@ -2245,11 +2245,11 @@ def test_integer_arrays():
         assert arr.dtype.name == "int32"
         answer = (inp * km).astype("int32").to("mile")
         assert_array_equal(ret, answer)
-        assert ret.dtype.name == "float32"
+        assert ret.dtype.name == "float64"
 
         ret = arr.in_units("m")
         assert arr.dtype != ret.dtype
-        assert ret.dtype.name == "float32"
+        assert ret.dtype.name == "float64"
 
         arr.convert_to_units("m")
         assert arr.dtype.name == "float32"
@@ -2423,3 +2423,11 @@ def test_kip():
 
 def test_ksi():
     assert_allclose_units(unyt_quantity(1, "lbf/inch**2"), unyt_quantity(0.001, "ksi"))
+
+
+def test_complexvalued():
+    freq = unyt_array([1j, 1j * 10], "Hz")
+    arr = 1 / (Unit("F") * Unit("Ω") * freq)
+    arr = arr.to("dimensionless")
+    assert arr.units.is_dimensionless
+    assert np.all(arr.v == np.asarray([-1j, -1j * 0.1]))
