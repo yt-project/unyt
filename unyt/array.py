@@ -2328,7 +2328,8 @@ def loadtxt(fname, dtype="float", delimiter="\t", usecols=None, comments="#"):
             # Here we catch the first line of numbers
             col_words = line.strip().split(delimiter)
             for word in col_words:
-                float(word)
+                # test that word can be converted to a number
+                complex(word)
             num_cols = len(col_words)
             break
     f.close()
