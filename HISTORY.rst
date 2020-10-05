@@ -2,6 +2,24 @@
 History
 =======
 
+2.7.3 (2020-10-05)
+------------------
+
+* Add ``delta_degC`` and ``delta_degF`` units to support temperature difference
+  arithmetic. See `PR #152 <https://github.com/yt-project/unyt/pull/152>`_. Thank you
+  to Lee Johnston (@l-johnston on GitHub) for the contribution.
+* Fix an issue where a subsequent load of the unit registry with units that are
+  equal but not identical leads to a crash. See `PR #158
+  <https://github.com/yt-project/unyt/pull/158>`_. Thank you to Matthew Turk
+  (@matthewturk on GitHub) for the initial bug report and fix.
+* Add force unit ``kip`` and pressure unit ``psi``. Thank you to P. Talley
+  (@otaithleigh on GitHub) for the contribution.
+* Fix an issue where arithmetic operations on units defined in different registries
+  and having the conversion defined in one direction would lead to a crash.
+  See `PR #164 <https://github.com/yt-project/unyt/pull/164>`_. Thank you to
+  Clément Robert (@neutrinoceros on GitHub) for the initial bug report and fix.
+
+
 2.7.2 (2020-06-29)
 ------------------
 
