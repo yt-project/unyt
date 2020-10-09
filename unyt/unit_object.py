@@ -686,7 +686,7 @@ class Unit(object):
         >>> km.get_conversion_factor(cm)
         (100000.0, None)
         >>> degree_celsius.get_conversion_factor(degree_fahrenheit)
-        (1.7999999999999998, -31.999999999999886)
+        (1.7999999999999998, -31.999999999999943)
         """
         return _get_conversion_factor(self, other_units, dtype)
 
