@@ -858,6 +858,16 @@ def test_degC():
     assert str(a) == "1 °C"
 
 
+def test_degC_with_SIprefixes():
+    assert_allclose_units(1 * Unit("mdegC"), 0.001 * Unit("degC"))
+    assert_allclose_units(1 * Unit("degC"), 1000 * Unit("mdegC"))
+    assert_allclose_units(73 * Unit("degF"), 22777.779 * Unit("mdegC"))
+    assert_allclose_units(22777.779 * Unit("mdegC"), 73 * Unit("degF"))
+    assert_allclose_units(22777.779 * Unit("mdegC"), 532.67 * Unit("R"))
+    assert_allclose_units(1 * Unit("mK"), -273149.0 * Unit("mdegC"))
+    assert_allclose_units(1 * Unit("mdegC"), 273151.0 * Unit("mK"))
+
+
 def test_delta_degC():
     a = 1 * Unit("delta_degC")
     assert str(a) == "1 Δ°C"

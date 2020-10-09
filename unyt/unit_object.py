@@ -940,8 +940,22 @@ def _get_conversion_factor(old_units, new_units, dtype):
     if old_units.base_offset == 0 and new_units.base_offset == 0:
         return (ratio, None)
     else:
-        # the dimensions are the same, so both are temperatures, where
-        # it's legal to convert units so no need to do error checking
+        # dimensions can be either temperature or angle (lat, lon)
+        if old_units.dimensions == temperature:
+            # for degree Celsius, back out the SI prefix scaling from
+            # offset scaling for degree Fahrenheit
+            oldr = repr(old_units)
+            newr = repr(new_units)
+            old_offset = old_units.base_offset
+            new_offset = new_units.base_offset
+            offset_scaler = 1.0
+            if oldr == "degF":
+                old_offset *= old_units.base_value
+            if newr in ["degF", "R"]:
+                old_offset /= new_units.base_value
+            if newr.endswith("degC") or newr.endswith("K"):
+                offset_scaler /= new_units.base_value
+            return ratio, offset_scaler * (old_offset - new_offset)
         return ratio, ratio * old_units.base_offset - new_units.base_offset
 
 
