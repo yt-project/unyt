@@ -845,12 +845,19 @@ class unyt_array(np.ndarray):
                     )
             new_dtypekind = "c" if self.dtype.kind == "c" else "f"
             new_dtype = np.dtype(new_dtypekind + str(dsize))
-            ret = np.asarray(self.v * conversion_factor, dtype=new_dtype)
+            ret = np.asarray(self.ndview * conversion_factor, dtype=new_dtype)
             if offset:
-                ret = ret - offset
-            ret = type(self)(ret, new_units)
-            ret.name = self.name
-            return ret
+                np.subtract(ret, offset, ret)
+
+            try:
+                new_array = type(self)(
+                    ret, new_units, bypass_validation=True, name=self.name
+                )
+            except TypeError:
+                # subclasses might not take name as a kwarg
+                new_array = type(self)(ret, new_units, bypass_validation=True)
+
+            return new_array
         else:
             return self.to_equivalent(units, equivalence, **kwargs)
 
