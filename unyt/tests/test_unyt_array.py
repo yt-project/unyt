@@ -2447,3 +2447,37 @@ def test_masked_array():
     assert_array_equal(np.ma.compressed(marr_masked), unyt_array([1, 2], "s"))
     # executing the repr should not raise an exception
     marr.__repr__()
+
+
+def test_complexvalued():
+    freq = unyt_array([1j, 1j * 10], "Hz")
+    arr = 1 / (Unit("F") * Unit("Ω") * freq)
+    arr = arr.to("dimensionless")
+    assert arr.units.is_dimensionless
+    assert np.all(arr.v == np.asarray([-1j, -1j * 0.1]))
+    arr = unyt_array([1j, 1j * 10], "mJ")
+    arr.convert_to_base()
+    assert_allclose_units(arr, unyt_array([1j * 0.001, 1j * 0.01], "J"))
+    arr.convert_to_units("mJ")
+    assert_allclose_units(arr, unyt_array([1j, 1j * 10], "mJ"))
+    arr.convert_to_mks()
+    assert_allclose_units(arr, unyt_array([1j * 0.001, 1j * 0.01], "J"))
+    arr.convert_to_cgs()
+    assert_allclose_units(arr, unyt_array([1j * 10000, 1j * 100000], "erg"))
+    arr.convert_to_equivalent("K", "thermal")
+    assert_allclose_units(
+        arr, unyt_array([1j * 7.24297157e19, 1j * 7.24297157e20], "K")
+    )
+    arr = arr.to_equivalent("J", "thermal")
+    assert_allclose_units(arr, unyt_array([1j * 0.001, 1j * 0.01], "J"))
+    assert_allclose_units(arr.to_ndarray(), np.asarray([1j * 0.001, 1j * 0.01]))
+    assert_allclose_units(arr.to_value(), np.asarray([1j * 0.001, 1j * 0.01]))
+    assert arr.tolist() == [1j * 0.001, 1j * 0.01]
+    assert_allclose_units(arr.in_units("mJ"), unyt_array([1j, 1j * 10], "mJ"))
+    assert_allclose_units(arr.in_base(), unyt_array([1j * 0.001, 1j * 0.01], "J"))
+    assert_allclose_units(arr.in_cgs(), unyt_array([1j * 10000, 1j * 100000], "erg"))
+    assert_allclose_units(arr.in_mks(), unyt_array([1j * 0.001, 1j * 0.01], "J"))
+    file = "test_complexvalued.txt"
+    savetxt(file, arr)
+    farr = loadtxt(file, dtype=np.complex128)
+    assert_allclose_units(farr, unyt_array([1j * 0.001, 1j * 0.01], "J"))

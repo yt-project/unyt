@@ -843,8 +843,8 @@ class unyt_array(np.ndarray):
                         RuntimeWarning,
                         stacklevel=2,
                     )
-            new_dtype = np.dtype("f" + str(dsize))
-            conversion_factor = new_dtype.type(conversion_factor)
+            new_dtypekind = "c" if self.dtype.kind == "c" else "f"
+            new_dtype = np.dtype(new_dtypekind + str(dsize))
             ret = np.asarray(self.ndview * conversion_factor, dtype=new_dtype)
             if offset:
                 np.subtract(ret, offset, ret)
@@ -982,8 +982,6 @@ class unyt_array(np.ndarray):
         else:
             to_units = self.units.get_base_equivalent(unit_system)
             conv, offset = self.units.get_conversion_factor(to_units, self.dtype)
-        new_dtype = np.dtype("f" + str(self.dtype.itemsize))
-        conv = new_dtype.type(conv)
         ret = self.v * conv
         if offset:
             ret = ret - offset
@@ -2334,7 +2332,8 @@ def loadtxt(fname, dtype="float", delimiter="\t", usecols=None, comments="#"):
             # Here we catch the first line of numbers
             col_words = line.strip().split(delimiter)
             for word in col_words:
-                float(word)
+                # test that word can be converted to a number
+                complex(word)
             num_cols = len(col_words)
             break
     f.close()

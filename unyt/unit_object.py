@@ -936,13 +936,25 @@ def _get_conversion_factor(old_units, new_units, dtype):
         raise UnitConversionError(
             old_units, old_units.dimensions, new_units, new_units.dimensions
         )
-    ratio = old_units.base_value / new_units.base_value
-    if old_units.base_offset == 0 and new_units.base_offset == 0:
+    old_basevalue = old_units.base_value
+    old_baseoffset = old_units.base_offset
+    new_basevalue = new_units.base_value
+    new_baseoffset = new_units.base_offset
+    ratio = old_basevalue / new_basevalue
+    if old_baseoffset == 0 and new_baseoffset == 0:
         return (ratio, None)
     else:
-        # the dimensions are the same, so both are temperatures, where
-        # it's legal to convert units so no need to do error checking
-        return ratio, ratio * old_units.base_offset - new_units.base_offset
+        # the dimensions are either temperature or angle (lat, lon)
+        if old_units.dimensions == temperature:
+            # for degree Celsius, back out the SI prefix scaling from
+            # offset scaling for degree Fahrenheit
+            old_prefix, _ = _split_prefix(str(old_units), old_units.registry.lut)
+            if old_prefix != "":
+                old_baseoffset /= old_basevalue
+            new_prefix, _ = _split_prefix(str(new_units), new_units.registry.lut)
+            if new_prefix != "":
+                new_baseoffset /= new_basevalue
+        return ratio, ratio * old_baseoffset - new_baseoffset
 
 
 #
