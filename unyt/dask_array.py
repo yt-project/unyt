@@ -63,6 +63,7 @@ class unyt_dask_array(Array):
         self.unyt_name = self._unyt_quantity.name
 
     def to(self, units, equivalence=None, **kwargs):
+        # TO DO: append the unyt_quantity docstring... 
         # tracks any time units are converted with a running conversion factor
         # that gets applied after calling dask methods.
         init_val = self._unyt_quantity.value
@@ -70,7 +71,7 @@ class unyt_dask_array(Array):
         self.factor = self.factor * self._unyt_quantity.value / init_val
         self.units = units
         self.unyt_name = self._unyt_quantity.name
-        return
+        return _attach_unyt(self, self)
 
     def __getattribute__(self, name):
         result = super().__getattribute__(name)
