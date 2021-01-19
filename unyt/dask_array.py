@@ -92,13 +92,36 @@ class unyt_dask_array(Array):
 
     # operations involving other arrays (TO DO: use the unyt_array classes
     # better to do all the unit checks...)
+
+    def _apply_factors_to_graphs(self, other):
+        # applies the factors to the dask graphs of each dask array, returns
+        # new unyt_dask arrays for each. Used when two incoming unyt_dask arrays
+        # have the same units but different factors from prior conversions.
+        new_self = unyt_from_dask(super().__mul__(self.factor), self.units)
+        new_other = unyt_from_dask(other * other.factor, self.units)
+        return new_self, new_other
+
     def __add__(self, other):
-        # yikes, what to do about self.factor here????
-        return _attach_unyt(super().__add__(other), self)
+        if self.units == other.units and self.factor != other.factor:
+            # same units, but there was a previous conversion
+            new_self, new_other = self._apply_factors_to_graphs(other)
+            return unyt_from_dask(new_self.__add__(new_other), new_self.units)
+        elif self.units != other.units:
+            raise ValueError("unyt_dask arrays must have the same units to add")
+        else:
+            # same units and same factor, the factor can be applied on compute
+            return _attach_unyt(super().__add__(other), self)
 
     def __sub__(self, other):
-        # yikes, what to do about self.factor here????
-        return _attach_unyt(super().__sub__(other), self)
+        if self.units == other.units and self.factor != other.factor:
+            # same units, but there was a previous conversion
+            new_self, new_other = self._apply_factors_to_graphs(other)
+            return unyt_from_dask(new_self.__sub__(new_other), new_self.units)
+        elif self.units != other.units:
+            raise ValueError("unyt_dask arrays must have the same units to subtract")
+        else:
+            # same units and same factor, the factor can be applied on compute
+            return _attach_unyt(super().__sub__(other), self)
 
     def __mul__(self, other):
         if isinstance(other, unyt_dask_array):
