@@ -6,7 +6,7 @@ dask_array class and helper functions for unyt.
 """
 
 from dask.array.core import Array, finalize  # TO DO: handle optional dep.
-from unyt.array import unyt_array
+from unyt.array import unyt_quantity, unyt_array
 import numpy as np
 
 
@@ -16,6 +16,7 @@ _use_simple_decorator = [
     '__deepcopy__', 'repeat', 'astype', 'reshape', 'topk'
     ]
 
+_unyt_methods = ['to', ]
 
 def _simple_unyt_decorator(dask_func, current_unyt_dask):
     # a decorator for the simpler functions that can just copy over the current
@@ -48,7 +49,7 @@ class unyt_dask_array(Array):
         self.unyt_name = None
         self.dask_name = name
         self.factor = 1.
-        self._unyt_array = None
+        self._unyt_quantity = None
 
     def _attach_units(self, units=None,
                       registry=None,
@@ -56,19 +57,20 @@ class unyt_dask_array(Array):
                       bypass_validation=False,
                       input_units=None,
                       name=None):
-        x_np = np.array([1.])
-        self._unyt_array = unyt_array(x_np, units, registry, dtype, bypass_validation, input_units, name)
-        self.units = self._unyt_array.units
-        self.unyt_name = self._unyt_array.name
+
+        self._unyt_quantity = unyt_quantity(1., units, registry, dtype, bypass_validation, input_units, name)
+        self.units = self._unyt_quantity.units
+        self.unyt_name = self._unyt_quantity.name
 
     def to(self, units, equivalence=None, **kwargs):
         # tracks any time units are converted with a running conversion factor
         # that gets applied after calling dask methods.
-        init_val = self._unyt_array.value[0]
-        self._unyt_array = self._unyt_array.to(units, equivalence, **kwargs)
-        self.factor = self.factor * self._unyt_array.value[0] / init_val
+        init_val = self._unyt_quantity.value
+        self._unyt_quantity = self._unyt_quantity.to(units, equivalence, **kwargs)
+        self.factor = self.factor * self._unyt_quantity.value / init_val
         self.units = units
-        self.unyt_name = self._unyt_array.name
+        self.unyt_name = self._unyt_quantity.name
+        return
 
     def __getattribute__(self, name):
         result = super().__getattribute__(name)
@@ -83,8 +85,8 @@ class unyt_dask_array(Array):
 
     def __pow__(self, other):
         # unyt and dask implement this directly:
-        self._unyt_array = self._unyt_array.__pow__(other)
-        self.units = self._unyt_array.units
+        self._unyt_quantity = self._unyt_quantity.__pow__(other)
+        self.units = self._unyt_quantity.units
         self.factor = self.factor ** other
         return _attach_unyt(super().__pow__(other), self)
 
@@ -101,38 +103,38 @@ class unyt_dask_array(Array):
     def __mul__(self, other):
         if isinstance(other, unyt_dask_array):
             self.factor = self.factor * other.factor
-            self._unyt_array = self._unyt_array * other._unyt_array
-            self.units = self._unyt_array.units
+            self._unyt_quantity = self._unyt_quantity * other._unyt_quantity
+            self.units = self._unyt_quantity.units
 
         return _attach_unyt(super().__mul__(other), self)
 
     def __rmul__(self, other):
         if isinstance(other, unyt_dask_array):
             self.factor = self.factor * other.factor
-            self._unyt_array = self._unyt_array * other._unyt_array
-            self.units = self._unyt_array.units
+            self._unyt_quantity = self._unyt_quantity * other._unyt_quantity
+            self.units = self._unyt_quantity.units
 
         return _attach_unyt(super().__rmul__(other), self)
 
     def __div__(self, other):
         if isinstance(other, unyt_dask_array):
             self.factor = self.factor / other.factor
-            self._unyt_array = self._unyt_array / other._unyt_array
-            self.units = self._unyt_array.units
+            self._unyt_quantity = self._unyt_quantity / other._unyt_quantity
+            self.units = self._unyt_quantity.units
         return _attach_unyt(super().__div__(other), self)
 
     def __rdiv__(self, other):
         if isinstance(other, unyt_dask_array):
             self.factor = other.factor / self.factor
-            self._unyt_array = other._unyt_array / self._unyt_array
-            self.units = self._unyt_array.units
+            self._unyt_quantity = other._unyt_quantity / self._unyt_quantity
+            self.units = self._unyt_quantity.units
         return _attach_unyt(super().__rdiv__(other), self)
 
     def __truediv__(self, other):
         if isinstance(other, unyt_dask_array):
             self.factor = self.factor / other.factor
-            self._unyt_array = self._unyt_array / other._unyt_array
-            self.units = self._unyt_array.units
+            self._unyt_quantity = self._unyt_quantity / other._unyt_quantity
+            self.units = self._unyt_quantity.units
         return _attach_unyt(super().__truediv__(other), self)
 
     def __dask_postcompute__(self):
@@ -193,7 +195,7 @@ def _attach_unyt(dask_array, unyt_da_instance):
     out.unyt_name = unyt_da_instance.unyt_name
     out.dask_name = unyt_da_instance.dask_name
     out.factor = unyt_da_instance.factor
-    out._unyt_array = unyt_da_instance._unyt_array
+    out._unyt_quantity = unyt_da_instance._unyt_quantity
 
     return out
 
