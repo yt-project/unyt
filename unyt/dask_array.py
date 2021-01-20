@@ -51,23 +51,31 @@ class unyt_dask_array(Array):
         --------
     """
 
-    def __init__(self, dask_graph, name, chunks, dtype=None, meta=None, shape=None):
-        self.units = None
-        self.unyt_name = None
-        self.dask_name = name
-        self.factor = 1.
-        self._unyt_quantity = None
+    def __new__(clss,
+                dask_graph,
+                name,
+                chunks,
+                dtype=None,
+                meta=None,
+                shape=None,
+                units=None,
+                registry=None,
+                bypass_validation=False,
+                input_units=None,
+                unyt_name=None,
+                ):
 
-    def _attach_units(self, units=None,
-                      registry=None,
-                      dtype=None,
-                      bypass_validation=False,
-                      input_units=None,
-                      name=None):
+        # get the base dask array
+        obj = super(unyt_dask_array, clss).__new__(clss, dask_graph, name, chunks, dtype, meta, shape)
 
-        self._unyt_quantity = unyt_quantity(1., units, registry, dtype, bypass_validation, input_units, name)
-        self.units = self._unyt_quantity.units
-        self.unyt_name = self._unyt_quantity.name
+        # attach our unyt sidecar quantity
+        dtype = obj.dtype
+        obj._unyt_quantity = unyt_quantity(1., units, registry, dtype, bypass_validation, input_units, unyt_name)
+        obj.units = obj._unyt_quantity.units
+        obj.unyt_name = obj._unyt_quantity.name
+        obj.factor = 1.  # dtype issue here?
+
+        return obj
 
     def to(self, units, equivalence=None, **kwargs):
         # TO DO: append the unyt_quantity docstring...
@@ -93,7 +101,7 @@ class unyt_dask_array(Array):
         return _finalize_unyt, ((self.units, self.factor))
 
     # straightforward operations where the operation applies to the unit
-    # To do: these methods bypass __getattribute__, but maybe there's a way
+    # These methods bypass __getattribute__, but maybe there's a way
     # to more programmatically generate these (e.g., see
     # https://stackoverflow.com/a/57211141/9357244)
     def __abs__(self):
@@ -176,6 +184,16 @@ class unyt_dask_array(Array):
             # same units and same factor, the factor can be applied on compute
             return _attach_unyt(super().__sub__(other), self)
 
+    def _get_unit_state(self):
+        # retuns just the unit state of the object
+        return self.units, self._unyt_quantity, self.unyt_name, self.factor
+
+    def _set_unit_state(self, units, unyt_quantity, unyt_name, factor):
+        # sets just the unit state of the object
+        self.units = units
+        self._unyt_quantity = unyt_quantity
+        self.unyt_name = unyt_name
+        self.factor = factor
 
 def _finalize_unyt(results, unit_name, factor):
     """
@@ -201,15 +219,11 @@ def _finalize_unyt(results, unit_name, factor):
 def _attach_unyt(dask_array, unyt_da_instance):
     """
     helper function to return a new unyt_dask_array instance after an
-    intermediate dask graph construction... would be better to have a
-    unyt_dask_array.__new__ but still working out some conflicts with
-    dask.array.core.Array.__new__
-
-    this works for now...
+    intermediate dask graph construction
 
     Parameters
     ----------
-    dask_array : dask.array.core.Array object
+    dask_array : dask.array.core.Array object or a unyt_dask_array
         the result of applying a dask array method
     unyt_da_instance : unyt_dask_array
         the current unyt_dask_array instance
@@ -220,16 +234,14 @@ def _attach_unyt(dask_array, unyt_da_instance):
 
     """
 
-    # first create our new instance:
-    (cls, da_args) = dask_array.__reduce__()
-    out = unyt_dask_array(*da_args)
+    # extra info: this is primarily needed because the calls to superclass
+    # methods like min(), max(), etc. will return base dask Array objects.
 
-    # now use copy over the unit info from the old instance
-    out.units = unyt_da_instance.units
-    out.unyt_name = unyt_da_instance.unyt_name
-    out.dask_name = unyt_da_instance.dask_name
-    out.factor = unyt_da_instance.factor
-    out._unyt_quantity = unyt_da_instance._unyt_quantity
+    # first create our new instance:
+    out = unyt_from_dask(dask_array)
+
+    # now copy over unit state
+    out._set_unit_state(*unyt_da_instance._get_unit_state())
 
     return out
 
@@ -237,10 +249,9 @@ def _attach_unyt(dask_array, unyt_da_instance):
 def unyt_from_dask(dask_array,
                    units=None,
                    registry=None,
-                   dtype=None,
                    bypass_validation=False,
-                   input_units=None,
-                   name=None):
+                   unyt_name=None,
+                   ):
     """
     creates a unyt_dask_array from a standard dask array.
 
@@ -260,9 +271,11 @@ def unyt_from_dask(dask_array,
     # a new dask.array.core.Array object and then initialize our new unyt_dask
     # array
     (cls, args) = dask_array.__reduce__()
-    da = unyt_dask_array(*args)
 
-    # attach the unyt info to the array
-    da._attach_units(units, registry, dtype, bypass_validation, input_units, name)
+    da = unyt_dask_array(*args,
+                         units=units,
+                         registry=registry,
+                         bypass_validation=bypass_validation,
+                         unyt_name=unyt_name)
 
     return da
