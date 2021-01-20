@@ -1,5 +1,5 @@
 """
-dask_array class and helper functions for unyt.
+a dask array class (unyt_dask_array) and helper functions for unyt.
 
 
 
@@ -9,20 +9,28 @@ from dask.array.core import Array, finalize  # TO DO: handle optional dep.
 from unyt.array import unyt_quantity, unyt_array
 
 _use_simple_decorator = [
-    'min', 'max', 'argmin', 'argmax', 'sum', 'trace', 'mean', 'std', 'cumsum',
-    'squeeze', 'rechunk', 'clip', 'view', 'swapaxes', 'round', 'copy',
-    '__deepcopy__', 'repeat', 'astype', 'reshape', 'topk'
-    ]
-
-_unyt_methods = ['to', ]
-
-# operators that require explicit declaration
-# binary operators that need to enforce unit equivalency
-_bin_ops_apply_factors = ['__add__', '__sub__']
-
-# operators that should apply the operation to the units
-_ops_on_unit = ['__pow__', '__sqrt__']
-_ops_pass = ['__abs__']
+    "min",
+    "max",
+    "argmin",
+    "argmax",
+    "sum",
+    "trace",
+    "mean",
+    "std",
+    "cumsum",
+    "squeeze",
+    "rechunk",
+    "clip",
+    "view",
+    "swapaxes",
+    "round",
+    "copy",
+    "__deepcopy__",
+    "repeat",
+    "astype",
+    "reshape",
+    "topk",
+]
 
 
 def _simple_unyt_decorator(dask_func, current_unyt_dask):
@@ -34,46 +42,65 @@ def _simple_unyt_decorator(dask_func, current_unyt_dask):
     def wrapper(*args, **kwargs):
         da = dask_func(*args, **kwargs)  # will return standard dask array
         return _attach_unyt(da, current_unyt_dask)
+
     return wrapper
 
 
 class unyt_dask_array(Array):
     """
-        a dask.array.core.Array subclass that tracks units. Easiest to use the
-        unyt_from_dask helper function to generate new instances.
+    a dask.array.core.Array subclass that tracks units. Easiest to use the
+    unyt_from_dask helper function to generate new instances.
 
-        Parameters
-        ----------
+    Parameters
+    ----------
 
-        All parameters are those for dask.array.core.Array
+    All parameters are those for dask.array.core.Array
 
-        Examples
-        --------
+    Examples
+    --------
     """
 
-    def __new__(clss,
-                dask_graph,
-                name,
-                chunks,
-                dtype=None,
-                meta=None,
-                shape=None,
-                units=None,
-                registry=None,
-                bypass_validation=False,
-                input_units=None,
-                unyt_name=None,
-                ):
+    def __new__(
+        clss,
+        dask_graph,
+        name,
+        chunks,
+        dtype=None,
+        meta=None,
+        shape=None,
+        units=None,
+        registry=None,
+        bypass_validation=False,
+        input_units=None,
+        unyt_name=None,
+    ):
 
         # get the base dask array
-        obj = super(unyt_dask_array, clss).__new__(clss, dask_graph, name, chunks, dtype, meta, shape)
+        obj = super(unyt_dask_array, clss).__new__(
+            clss,
+            dask_graph,
+            name,
+            chunks,
+            dtype,
+            meta,
+            shape,
+        )
 
         # attach our unyt sidecar quantity
         dtype = obj.dtype
-        obj._unyt_quantity = unyt_quantity(1., units, registry, dtype, bypass_validation, input_units, unyt_name)
+        obj._unyt_quantity = unyt_quantity(
+            1.0,
+            units,
+            registry,
+            dtype,
+            bypass_validation,
+            input_units,
+            unyt_name,
+        )
+
         obj.units = obj._unyt_quantity.units
         obj.unyt_name = obj._unyt_quantity.name
-        obj.factor = 1.  # dtype issue here?
+        obj.factor = 1.0  # dtype issue here?
 
         return obj
 
@@ -195,6 +222,7 @@ class unyt_dask_array(Array):
         self.unyt_name = unyt_name
         self.factor = factor
 
+
 def _finalize_unyt(results, unit_name, factor):
     """
     the function to call from the __dask_postcompute__ hook.
@@ -246,12 +274,13 @@ def _attach_unyt(dask_array, unyt_da_instance):
     return out
 
 
-def unyt_from_dask(dask_array,
-                   units=None,
-                   registry=None,
-                   bypass_validation=False,
-                   unyt_name=None,
-                   ):
+def unyt_from_dask(
+    dask_array,
+    units=None,
+    registry=None,
+    bypass_validation=False,
+    unyt_name=None,
+):
     """
     creates a unyt_dask_array from a standard dask array.
 
@@ -272,10 +301,12 @@ def unyt_from_dask(dask_array,
     # array
     (cls, args) = dask_array.__reduce__()
 
-    da = unyt_dask_array(*args,
-                         units=units,
-                         registry=registry,
-                         bypass_validation=bypass_validation,
-                         unyt_name=unyt_name)
+    da = unyt_dask_array(
+        *args,
+        units=units,
+        registry=registry,
+        bypass_validation=bypass_validation,
+        unyt_name=unyt_name
+    )
 
     return da
