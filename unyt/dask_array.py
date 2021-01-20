@@ -8,7 +8,7 @@ dask_array class and helper functions for unyt.
 from dask.array.core import Array, finalize  # TO DO: handle optional dep.
 from unyt.array import unyt_quantity, unyt_array
 import numpy as np
-
+import operator
 
 _use_simple_decorator = [
     'min', 'max', 'argmin', 'argmax', 'sum', 'trace', 'mean', 'std', 'cumsum',
@@ -17,6 +17,15 @@ _use_simple_decorator = [
     ]
 
 _unyt_methods = ['to', ]
+
+# operators that require explicit declaration
+# binary operators that need to enforce unit equivalency
+_bin_ops_apply_factors = ['__add__', '__sub__']
+
+# operators that should apply the operation to the units
+_ops_on_unit = ['__pow__', '__sqrt__']
+_ops_pass = ['__abs__']
+
 
 def _simple_unyt_decorator(dask_func, current_unyt_dask):
     # a decorator for the simpler functions that can just copy over the current
@@ -29,6 +38,21 @@ def _simple_unyt_decorator(dask_func, current_unyt_dask):
         return _attach_unyt(da, current_unyt_dask)
     return wrapper
 
+
+OPER_DICT = {'__add__': operator.add, '__sub__': operator.sub}
+
+def make_bin_op(oper):
+    def op(self, other):
+        if isinstance(other, Image):
+            return Image(oper(self._data, other._data))
+        else:
+            return Image(oper(self._data, other))
+    return op
+
+def _class_operator(cls):
+    # decorates a class with magic operators
+    for k, v in OPER_DICT.items():
+            setattr(cls, k, make_bin_op(v))
 
 class unyt_dask_array(Array):
     """
@@ -63,7 +87,7 @@ class unyt_dask_array(Array):
         self.unyt_name = self._unyt_quantity.name
 
     def to(self, units, equivalence=None, **kwargs):
-        # TO DO: append the unyt_quantity docstring... 
+        # TO DO: append the unyt_quantity docstring...
         # tracks any time units are converted with a running conversion factor
         # that gets applied after calling dask methods.
         init_val = self._unyt_quantity.value
@@ -80,8 +104,16 @@ class unyt_dask_array(Array):
 
         return result
 
+    def __dask_postcompute__(self):
+        # a dask hook to catch after .compute(), see
+        # https://docs.dask.org/en/latest/custom-collections.html#example-dask-collection
+        return _finalize_unyt, ((self.units, self.factor))
+
+    # straightforward operations where the operation applies to the unit
+    # To do: these methods bypass __getattribute__, but maybe there's a way
+    # to more programmatically generate these (e.g., see
+    # https://stackoverflow.com/a/57211141/9357244)
     def __abs__(self):
-        # hmm, this doesn't get caught if in _use_simple_decorator...
         return _attach_unyt(super().__abs__(), self)
 
     def __pow__(self, other):
@@ -90,39 +122,6 @@ class unyt_dask_array(Array):
         self.units = self._unyt_quantity.units
         self.factor = self.factor ** other
         return _attach_unyt(super().__pow__(other), self)
-
-    # operations involving other arrays (TO DO: use the unyt_array classes
-    # better to do all the unit checks...)
-
-    def _apply_factors_to_graphs(self, other):
-        # applies the factors to the dask graphs of each dask array, returns
-        # new unyt_dask arrays for each. Used when two incoming unyt_dask arrays
-        # have the same units but different factors from prior conversions.
-        new_self = unyt_from_dask(super().__mul__(self.factor), self.units)
-        new_other = unyt_from_dask(other * other.factor, self.units)
-        return new_self, new_other
-
-    def __add__(self, other):
-        if self.units == other.units and self.factor != other.factor:
-            # same units, but there was a previous conversion
-            new_self, new_other = self._apply_factors_to_graphs(other)
-            return unyt_from_dask(new_self.__add__(new_other), new_self.units)
-        elif self.units != other.units:
-            raise ValueError("unyt_dask arrays must have the same units to add")
-        else:
-            # same units and same factor, the factor can be applied on compute
-            return _attach_unyt(super().__add__(other), self)
-
-    def __sub__(self, other):
-        if self.units == other.units and self.factor != other.factor:
-            # same units, but there was a previous conversion
-            new_self, new_other = self._apply_factors_to_graphs(other)
-            return unyt_from_dask(new_self.__sub__(new_other), new_self.units)
-        elif self.units != other.units:
-            raise ValueError("unyt_dask arrays must have the same units to subtract")
-        else:
-            # same units and same factor, the factor can be applied on compute
-            return _attach_unyt(super().__sub__(other), self)
 
     def __mul__(self, other):
         if isinstance(other, unyt_dask_array):
@@ -161,10 +160,38 @@ class unyt_dask_array(Array):
             self.units = self._unyt_quantity.units
         return _attach_unyt(super().__truediv__(other), self)
 
-    def __dask_postcompute__(self):
-        # a dask hook to catch after .compute(), see
-        # https://docs.dask.org/en/latest/custom-collections.html#example-dask-collection
-        return _finalize_unyt, ((self.units, self.factor))
+    # operations involving other arrays (TO DO: use the unyt_array classes
+    # better to do all the unit checks...)
+
+    def _apply_factors_to_graphs(self, other):
+        # applies the factors to the dask graphs of each dask array, returns
+        # new unyt_dask arrays for each. Used when two incoming unyt_dask arrays
+        # have the same units but different factors from prior conversions.
+        new_self = unyt_from_dask(super().__mul__(self.factor), self.units)
+        new_other = unyt_from_dask(other * other.factor, self.units)
+        return new_self, new_other
+
+    def __add__(self, other):
+        if self.units == other.units and self.factor != other.factor:
+            # same units, but there was a previous conversion
+            new_self, new_other = self._apply_factors_to_graphs(other)
+            return unyt_from_dask(new_self.__add__(new_other), new_self.units)
+        elif self.units != other.units:
+            raise ValueError("unyt_dask arrays must have the same units to add")
+        else:
+            # same units and same factor, the factor can be applied on compute
+            return _attach_unyt(super().__add__(other), self)
+
+    def __sub__(self, other):
+        if self.units == other.units and self.factor != other.factor:
+            # same units, but there was a previous conversion
+            new_self, new_other = self._apply_factors_to_graphs(other)
+            return unyt_from_dask(new_self.__sub__(new_other), new_self.units)
+        elif self.units != other.units:
+            raise ValueError("unyt_dask arrays must have the same units to subtract")
+        else:
+            # same units and same factor, the factor can be applied on compute
+            return _attach_unyt(super().__sub__(other), self)
 
 
 def _finalize_unyt(results, unit_name, factor):
