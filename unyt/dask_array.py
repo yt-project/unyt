@@ -7,8 +7,6 @@ dask_array class and helper functions for unyt.
 
 from dask.array.core import Array, finalize  # TO DO: handle optional dep.
 from unyt.array import unyt_quantity, unyt_array
-import numpy as np
-import operator
 
 _use_simple_decorator = [
     'min', 'max', 'argmin', 'argmax', 'sum', 'trace', 'mean', 'std', 'cumsum',
@@ -38,21 +36,6 @@ def _simple_unyt_decorator(dask_func, current_unyt_dask):
         return _attach_unyt(da, current_unyt_dask)
     return wrapper
 
-
-OPER_DICT = {'__add__': operator.add, '__sub__': operator.sub}
-
-def make_bin_op(oper):
-    def op(self, other):
-        if isinstance(other, Image):
-            return Image(oper(self._data, other._data))
-        else:
-            return Image(oper(self._data, other))
-    return op
-
-def _class_operator(cls):
-    # decorates a class with magic operators
-    for k, v in OPER_DICT.items():
-            setattr(cls, k, make_bin_op(v))
 
 class unyt_dask_array(Array):
     """
