@@ -163,6 +163,25 @@ class unyt_dask_array(Array):
 
         return obj
 
+    def _elemwise(self, ufunc, *args, **kwargs):
+        # apply the ufunc to the unyt_quantity first to see if it is compatible
+        # with units (note, first *arg is a dask argument, but we're calling
+        # the unyt ufunc here, so skip that *arg and hope for the best...)
+        un_quan = ufunc(self._unyt_quantity, *args[1:], **kwargs)
+
+        if hasattr(un_quan, 'units'):
+            # operation results in a quantity with units, so track the factor,
+            # get the raw dask result and return a new dask_unyt_array
+            factor = ufunc(self.factor, *args[1:], **kwargs)
+            dask_result = super()._elemwise(ufunc, *args, **kwargs)
+            return _attach_unyt_quantity(dask_result, un_quan, factor)
+        else:
+            # the operation results in a quantity without units, apply the factor
+            # and then call the ufunc!
+            new_self, _ = self._apply_factors_to_graphs()
+            new_args = (new_self, ) + args[1:] # replace the dask arg with the new
+            return super()._elemwise(ufunc, *new_args, **kwargs)
+
     def __getattribute__(self, name):
 
         if name in _unyt_funcs_to_track:
@@ -242,12 +261,14 @@ class unyt_dask_array(Array):
     # operations involving other arrays (TO DO: use the unyt_array classes
     # better to do all the unit checks...)
 
-    def _apply_factors_to_graphs(self, other):
+    def _apply_factors_to_graphs(self, other=None):
         # applies the factors to the dask graphs of each dask array, returns
         # new unyt_dask arrays for each. Used when two incoming unyt_dask arrays
         # have the same units but different factors from prior conversions.
         new_self = unyt_from_dask(super().__mul__(self.factor), self.units)
-        new_other = unyt_from_dask(other * other.factor, self.units)
+        new_other = None
+        if other is not None:
+            new_other = unyt_from_dask(other * other.factor, self.units)
         return new_self, new_other
 
     def __add__(self, other):
