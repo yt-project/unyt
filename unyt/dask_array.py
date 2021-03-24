@@ -164,9 +164,22 @@ class unyt_dask_array(Array):
         return obj
 
     def _elemwise(self, ufunc, *args, **kwargs):
+        """
+        _elemwise is a dask.array hook for catching np ufuncs. So this function
+        attempts to apply the given ufunc to the sidecar unyt_quantity. If
+        successful, this function will return another unyt_dask_array. If
+        unsuccessful, will return a standard dask array.
+
+        *args comes in here with dask objects.
+        args[0] is the current dask graph. args[1] might be another if this is a
+        binary operation? ignore that case for now...
+        """
+
+        # NEED TO CHECK IF THIS IS A BINARY OPERATION AND HANDLE OTHER DASK
+        # OBJECTS IF NECESSARY. DO THIS HERE.
+
         # apply the ufunc to the unyt_quantity first to see if it is compatible
-        # with units (note, first *arg is a dask argument, but we're calling
-        # the unyt ufunc here, so skip that *arg and hope for the best...)
+        # with units. Maybe put this in a try block...
         un_quan = ufunc(self._unyt_quantity, *args[1:], **kwargs)
 
         if hasattr(un_quan, 'units'):
