@@ -34,11 +34,22 @@ _use_simple_decorator = [
 
 
 def _simple_dask_decorator(dask_func, current_unyt_dask):
-    # a decorator for the simpler functions that can just copy over the current
-    # unit info and unit conversion factor after applying the dask function.
-    # this includes functions that return single values (e.g., min()) or
-    # functions that change the array in ways that do not affect units
-    # like reshaping or rounding.
+    """
+    a decorator for the simpler dask functions that can just copy over the current
+    unit info and unit conversion factor after applying the dask function. this
+    includes functions that return single values (e.g., min()) or functions that
+    change the array in ways that do not affect units like reshaping or rounding.
+
+    Parameters
+    ----------
+
+    dask_func: func handle
+       the dask function handle to call
+    current_unyt_dask: unyt_dask_array
+       the current instance of a unyt_dask_array
+
+    Returns a new unyt_dask_array instance with appropriate units and factor
+    """
     def wrapper(*args, **kwargs):
         da = dask_func(*args, **kwargs)  # will return standard dask array
         un_qua = current_unyt_dask._unyt_quantity
@@ -46,6 +57,7 @@ def _simple_dask_decorator(dask_func, current_unyt_dask):
         return _attach_unyt_quantity(da, un_qua, factor)
 
     return wrapper
+
 
 _unyt_funcs_to_track = [
     "to",
@@ -57,8 +69,21 @@ _unyt_funcs_to_track = [
 
 
 def _track_factor(unyt_func_name, current_unyt_dask):
-    # a decorator to use with unyt functions to track the conversion factor
-    # unyt_func_name is the the function to call from the sidecar _unyt_quantity
+    """
+    a decorator to use with unyt functions to track the conversion factor
+
+    Parameters
+    ----------
+
+    unyt_func_name: str
+        the name of the function to call from the sidecar _unyt_quantity. Must be
+        an attribute of unyt.unyt_quantity.
+    current_unyt_dask: unyt_dask_array
+        the current instance of a unyt_dask_array
+
+
+    Returns a new unyt_dask_array instance with appropriate units and factor
+    """
     def wrapper(*args, **kwargs):
 
         # current value of sidecar quantity
@@ -81,6 +106,7 @@ def _track_factor(unyt_func_name, current_unyt_dask):
         return new_obj
     return wrapper
 
+
 class unyt_dask_array(Array):
     """
     a dask.array.core.Array subclass that tracks units. Easiest to use the
@@ -91,8 +117,6 @@ class unyt_dask_array(Array):
 
     All parameters are those for dask.array.core.Array
 
-    Examples
-    --------
     """
 
     def __new__(
@@ -281,6 +305,20 @@ def _finalize_unyt(results, unit_name, factor):
     return unyt_array(finalize(results) * factor, unit_name)
 
 def _attach_unyt_quantity(dask_array, unyt_quantity, factor=None):
+    """
+    this function instantiates a new unyt_dask_array instance and then sets
+    the unit state, including units and conversion factor. Used to wrap
+    dask operations and track the cumulative conversion factor.
+
+    Parameters
+    ----------
+    dask_array : a standard dask array
+    unyt_quantity : a standard unity quantity
+    factor : float
+        the cumulative conversion factor, default to 1.0
+    remaining arguments get passed to unyt.unyt_array, check there for a
+    description.
+    """
     # first create our new instance:
     out = unyt_from_dask(dask_array)
 
@@ -313,6 +351,21 @@ def unyt_from_dask(
 
     Examples
     --------
+
+    >>> from unyt import dask_array
+    >>> import dask.array as da
+    >>> x = da.random.random((10000, 10000), chunks=(1000, 1000))
+    >>> x_da = dask_array.unyt_from_dask(x, 'm')
+    >>> x_da.units
+    m
+    >>> x_da.mean().units()
+    m
+    >>> x_da.mean().compute()
+    unyt_array(0.50001502, 'm')
+    >>> x_da.to('cm').mean().compute()
+    unyt_array(50.00150242, 'cm')
+    >>> (x_da.to('cm')**2).mean().compute()
+    unyt_array(3333.37805754, 'cm**2')
 
     """
 
