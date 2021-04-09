@@ -5,8 +5,47 @@ a dask array class (unyt_dask_array) and helper functions for unyt.
 
 """
 
-from dask.array.core import Array, finalize  # TO DO: handle optional dep.
-from unyt.array import unyt_quantity, unyt_array
+from dask.array.core import Array, finalize, is_valid_array_chunk  # TO DO: handle optional dep.
+
+import unyt.array as ua
+
+
+unyt_quantity = ua.unyt_quantity
+unyt_array = ua.unyt_array
+
+
+# funcs which we can apply to the factor separately from dask
+_apply_func_to_unyt = [ua._multiply_units, ua._divide_units, ua._power_unit, ua._sqrt_unit, ua._square_unit]
+
+# funcs for which we need to apply factor before dask operations (add, logical, exp)
+_apply_fac_before_call = [ua._return_without_unit, ua._preserve_units, ua._comparison_unit, ua._bitop_units]
+_exceptions_that_should_be_applied = 'clip'
+
+# funcs for which the factor does not change
+_pass_through_fac = [ua._passthrough_unit]
+_exceptions_that_should_be_passthrough = ["maximum", "minimum"]
+
+ua_inst = unyt_array([1.], "")
+
+_apply_func_to_unyt = ['matmul', 'power', 'sqrt', 'square', 'multiply', 'divide', 'true_divide', 'reciprocal' ]
+force_apply = ["floor", "ceil", "trunc", "spacing"]  # unyt treats as passthrough, unyt_dask must preseve
+call_without_fac = ['sign', 'isreal', "isinf", "isnan", "isfinite", "iscomplex"]  # unyt treats as _return_without_unit, but we don't need to apply fac
+what_to_do = {}
+for ufunc, op in ua_inst._ufunc_registry.items():
+    fname = ufunc.__name__
+    if op == ua._passthrough_unit and fname not in force_apply:
+        # does nothing to the factor or unit
+        what_to_do[ufunc] = "pass_through_fac"
+    elif fname in _apply_func_to_unyt or fname in force_apply:
+        # these will apply the function to the factors
+        what_to_do[ufunc] = "apply_func_to_unyt"
+    elif fname in call_without_fac:
+        what_to_do[ufunc] = "call_without_fac"
+    else:
+        # need to apply factors prior to dask calls (_preserve_unit, logical operations, add, subtract)
+        what_to_do[ufunc] = "apply_fac_before_dask"
+
+
 
 _use_simple_decorator = [
     "min",
@@ -107,6 +146,7 @@ def _track_factor(unyt_func_name, current_unyt_dask):
     return wrapper
 
 
+
 class unyt_dask_array(Array):
     """
     a dask.array.core.Array subclass that tracks units. Easiest to use the
@@ -165,7 +205,7 @@ class unyt_dask_array(Array):
 
     def _elemwise(self, ufunc, *args, **kwargs):
         """
-        _elemwise is a dask.array hook for catching np ufuncs. So this function
+        _elemwise is a dask.array hook for catching daskified np ufuncs. This
         attempts to apply the given ufunc to the sidecar unyt_quantity. If
         successful, this function will return another unyt_dask_array. If
         unsuccessful, will return a standard dask array.
@@ -174,9 +214,11 @@ class unyt_dask_array(Array):
         args[0] is the current dask graph. args[1] might be another if this is a
         binary operation? ignore that case for now...
         """
+        b = self._track_unyt_ops(ufunc, None, *args, **kwargs)
 
         # NEED TO CHECK IF THIS IS A BINARY OPERATION AND HANDLE OTHER DASK
-        # OBJECTS IF NECESSARY. DO THIS HERE.
+        # OBJECTS IF NECESSARY. DO THIS HERE. should be able to use existing
+        # unyt stuff to check.
 
         # apply the ufunc to the unyt_quantity first to see if it is compatible
         # with units. Maybe put this in a try block...
@@ -194,6 +236,94 @@ class unyt_dask_array(Array):
             new_self, _ = self._apply_factors_to_graphs()
             new_args = (new_self, ) + args[1:] # replace the dask arg with the new
             return super()._elemwise(ufunc, *new_args, **kwargs)
+
+    def to_dask(self):
+        """ return a plain dask array. Only copies high level graphs, should be cheap...
+        """
+        (cls, args) = self.__reduce__()
+        return super().__new__(Array, *args)
+
+    def __array_ufunc__(self, numpy_ufunc, method, *inputs, **kwargs):
+        # this will catch np.sqrt but not dask.array.sqrt
+
+        b = self._track_unyt_ops(numpy_ufunc, method, *inputs, **kwargs)
+
+        # need to hand plain dask arrays to super()...
+        clean_inputs = []
+        for input in inputs:
+            if isinstance(input, unyt_dask_array):
+                clean_inputs.append(input.to_dask())
+            else:
+                clean_inputs.append(input)
+        dask_result = super().__array_ufunc__(numpy_ufunc, method, *clean_inputs, **kwargs)
+
+        # apply the ufunc to the unyt_quantity first to see if it is compatible
+        # with units. Maybe put this in a try block...
+        un_quan = numpy_ufunc(self._unyt_quantity, *clean_inputs[1:], **kwargs)
+
+
+        return dask_result
+
+    def _track_unyt_ops(self, func, method, *inputs, **kwargs):
+
+
+        print("hello")
+        here_from_elemwise = method is None
+
+        is_unyt_da = [isinstance(i, unyt_dask_array) for i in inputs]
+        is_binary = func in binary_operators
+        is_unary = func in unary_operators
+
+        if is_unary:
+            print("hello sdfgdf")
+            # apply the ufunc to the unyt_quantity first to see if it is compatible
+            # with units. Maybe put this in a try block...
+            un_quan = func(self._unyt_quantity, *inputs[1:], **kwargs)
+            if hasattr(un_quan, 'units'):
+                # operation results in a quantity with units, so apply operation to factor
+                factor = func(self.factor, *inputs[1:], **kwargs)
+
+        elif is_binary:
+            if is_unyt_da[1]:
+                # for now, ALWAYS apply factor to each
+                new_self, new_other = self._apply_factors_to_graphs(inputs[1])
+            else:
+                raise ValueError("expected unyt_dask_array as argument")
+
+
+
+
+                other_uq = inputs[1]._unyt_quantity
+                un_quan = func(self._unyt_quantity, other_uq, *inputs[2:], **kwargs)
+
+            if hasattr(un_quan, 'units'):
+                # operation results in a quantity with units, so apply operation to factor
+                factor = func(self.factor, *inputs[1:], **kwargs)
+            else:
+                # the operation results in a quantity without units, apply the factor
+                # and then call the ufunc!
+                new_self, _ = self._apply_factors_to_graphs()
+                new_args = (new_self,) + args[1:]  # replace the dask arg with the new
+
+
+
+
+        f = 1
+        # # a copy of the inputs with unyt_quantities
+        # unyt_dask_indices = [inum for inum, i in enumerate(inputs) if isinstance(i, unyt_dask_array)]
+        #
+        # # determine if we need to multiply unyt factors before calling the dask
+        # # function
+        # unary_operators
+        #
+        #
+        #
+        #
+        # unyt_input = []
+        # clean_inputs = []
+        # for inp in input:
+        #     if isinstance(inp, unyt_dask_array):
+        #         unyt_input.append(inp._unyt_quantity)
 
     def __getattribute__(self, name):
 
