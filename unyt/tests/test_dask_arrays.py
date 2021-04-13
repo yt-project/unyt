@@ -87,6 +87,15 @@ def test_binary():
     assert (result.units == m * g)
     result = x_da_2 * x_da
     assert (result.units == m * g)
+    result = x_da_2 * 2
+    assert (result.units == g)
+    result = 2 * x_da_2
+    assert (result.units == g)
+    result = x_da_2 * unyt_quantity(2, 'm')
+    assert (result.units == m*g)
+    # result = unyt_quantity(2, 'm') * x_da_2
+    # assert (result.units == m*g)
+
     result = x_da_2 / x_da
     assert (result.units == g / m)
     result = x_da / x_da_2

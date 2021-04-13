@@ -253,6 +253,12 @@ class unyt_dask_array(Array):
         # https://docs.dask.org/en/latest/custom-collections.html#example-dask-collection
         return _finalize_unyt, ((self.units, ))
 
+    def _set_unit_state(self, units, new_unyt_quantity, unyt_name):
+        # sets just the unit state of the object
+        self.units = units
+        self._unyt_quantity = new_unyt_quantity
+        self.unyt_name = unyt_name
+
     # straightforward operations where the operation applies to the unit
     # These methods bypass __getattribute__ and numpy hooks, but maybe there's a way
     # to more programmatically generate these (e.g., see
@@ -269,6 +275,9 @@ class unyt_dask_array(Array):
         if isinstance(other, unyt_dask_array):
             un_qua = self._unyt_quantity * other._unyt_quantity
             other = other.to_dask()
+        elif type(other) == ua.unyt_quantity:
+            un_qua = self._unyt_quantity * other
+            other = other.value
         else:
             un_qua = self._unyt_quantity
 
@@ -278,6 +287,9 @@ class unyt_dask_array(Array):
         if isinstance(other, unyt_dask_array):
             un_qua = self._unyt_quantity * other._unyt_quantity
             other = other.to_dask()
+        elif type(other) == ua.unyt_quantity:
+            un_qua = self._unyt_quantity * other
+            other = other.value
         else:
             un_qua = self._unyt_quantity
 
@@ -287,6 +299,9 @@ class unyt_dask_array(Array):
         if isinstance(other, unyt_dask_array):
             un_qua = self._unyt_quantity / other._unyt_quantity
             other = other.to_dask()
+        elif type(other) == ua.unyt_quantity:
+            un_qua = self._unyt_quantity / other
+            other = other.value
         else:
             un_qua = self._unyt_quantity
         return _create_with_quantity(self.to_dask() / other, un_qua)
@@ -295,6 +310,9 @@ class unyt_dask_array(Array):
         if isinstance(other, unyt_dask_array):
             un_qua = other._unyt_quantity / self._unyt_quantity
             other = other.to_dask()
+        elif type(other) == ua.unyt_quantity:
+            un_qua = other / self._unyt_quantity
+            other = other.value
         else:
             un_qua = self._unyt_quantity
         return _create_with_quantity(other / self.to_dask(), un_qua)
@@ -303,9 +321,14 @@ class unyt_dask_array(Array):
         if isinstance(other, unyt_dask_array):
             un_qua = self._unyt_quantity / other._unyt_quantity
             other = other.to_dask()
+        elif type(other) == ua.unyt_quantity:
+            un_qua = self._unyt_quantity / other
+            other = other.value
         else:
             un_qua = self._unyt_quantity
-        return _create_with_quantity(self.to_dask() / other, un_qua)
+        return _create_with_quantity(self.to_dask().__truediv__(other), un_qua)
+
+    # handle some slightly more complex binary operations
 
     def _sanitize_other(self, other, units_must_match=True):
         if type(other) == unyt_dask_array:
@@ -325,15 +348,7 @@ class unyt_dask_array(Array):
         new_other = self._sanitize_other(other)
         return _create_with_quantity(self.to_dask() - new_other, self._unyt_quantity)
 
-    def _get_unit_state(self):
-        # returns the unit state of the object
-        return self.units, self._unyt_quantity, self.unyt_name
 
-    def _set_unit_state(self, units, new_unyt_quantity, unyt_name):
-        # sets just the unit state of the object
-        self.units = units
-        self._unyt_quantity = new_unyt_quantity
-        self.unyt_name = unyt_name
 
 
 def _finalize_unyt(results, unit_name):
@@ -408,6 +423,9 @@ def unyt_from_dask(
     >>> import dask.array as da
     >>> x = da.random.random((10000, 10000), chunks=(1000, 1000))
     >>> x_da = dask_array.unyt_from_dask(x, 'm')
+    >>> x_da
+    unyt_dask_array<random_sample, shape=(10000, 10000), dtype=float64, ...
+                    chunksize=(1000, 1000), chunktype=numpy.ndarray, units=m>
     >>> x_da.units
     m
     >>> x_da.mean().units()
