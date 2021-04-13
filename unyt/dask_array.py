@@ -14,8 +14,6 @@ import dask.array as dask_array
 _use_simple_decorator = [
     "min",
     "max",
-    "argmin",
-    "argmax",
     "sum",
     "mean",
     "std",
