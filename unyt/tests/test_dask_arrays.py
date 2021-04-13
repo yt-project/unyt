@@ -1,24 +1,17 @@
-from numpy.testing import (
-    assert_array_equal,
-    assert_equal,
-    assert_array_almost_equal,
-    assert_almost_equal,
-)
+from numpy.testing import  assert_array_equal
 from numpy import sqrt, ones
-import pytest
 from unyt.dask_array import unyt_from_dask, unyt_dask_array
 import dask.array as dask_array
 from unyt import unyt_array, unyt_quantity
 
-from unyt.testing import assert_allclose_units, _process_warning
 from unyt.unit_symbols import cm, m, g, degree
 
 
 def test_unyt_dask_creation():
     x = dask_array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
-    assert(type(x_da) == unyt_dask_array)
-    assert(x_da.units == m)
+    assert (type(x_da) == unyt_dask_array)
+    assert (x_da.units == m)
     assert (type(x_da.compute()) == unyt_array)
 
 
@@ -26,9 +19,9 @@ def test_unit_conversions():
     x = dask_array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
     x_da = x_da.to(cm)
-    assert(type(x_da) == unyt_dask_array)
-    assert(x_da.units == cm)
-    assert(x_da.compute().units == cm)
+    assert (type(x_da) == unyt_dask_array)
+    assert (x_da.units == cm)
+    assert (x_da.compute().units == cm)
 
     x_da_2 = unyt_from_dask(x, cm)
     result = x_da + x_da_2
@@ -42,7 +35,7 @@ def test_conversion_to_dask():
     x_da = unyt_from_dask(x, m)
     x_again = x_da.to_dask()
     assert_array_equal(x.compute(), x_again.compute())
-    assert(type(x_again) == type(x))
+    assert (type(x_again) == type(x))
 
 
 def unary_test(the_func, unyt_dask_obj, unyt_array_in, *args, **kwargs):
@@ -51,7 +44,7 @@ def unary_test(the_func, unyt_dask_obj, unyt_array_in, *args, **kwargs):
     result_delay = the_func(unyt_dask_obj, *args, **kwargs)
     correct_unyt = the_func(unyt_array_in, *args, **kwargs)
 
-    assert(result_delay.units == correct_unyt.units)  # units should already match
+    assert (result_delay.units == correct_unyt.units)  # units should already match
     unary_result_test(result_delay, correct_unyt)
 
 
@@ -91,7 +84,7 @@ def test_binary():
     x_da_2 = unyt_from_dask(x2, g)
 
     result = x_da * x_da_2
-    assert(result.units == m * g)
+    assert (result.units == m * g)
     result = x_da_2 * x_da
     assert (result.units == m * g)
     result = x_da_2 / x_da
@@ -127,6 +120,8 @@ def test_binary():
     assert (result.units == m)
     result = x_da - unyt_quantity(1, 'm')
     assert (result.units == m)
+    assert (result.min().compute() == unyt_quantity(0, 'm'))
+
 
 def test_unyt_type_result():
     # test that the return type of a compute is unyt_array or unyt_quantity when

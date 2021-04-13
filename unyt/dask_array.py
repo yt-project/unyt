@@ -5,10 +5,9 @@ a dask array class (unyt_dask_array) and helper functions for unyt.
 
 """
 
-from dask.array.core import Array, finalize, is_valid_array_chunk  # TO DO: handle optional dep.
-
 import unyt.array as ua
 from numpy import ndarray
+from dask.array.core import Array, finalize
 
 # the following attributes hang off of dask.array.core.Array and do not modify units
 _use_simple_decorator = [
@@ -116,6 +115,7 @@ def _extract_dask(obj):
     if isinstance(obj, unyt_dask_array):
         return obj.to_dask()
     return obj
+
 
 def _prep_ufunc(ufunc, *input, extract_dask=False, **kwargs):
     # this function:
@@ -251,7 +251,7 @@ class unyt_dask_array(Array):
 
     def __pow__(self, other):
         # unyt and dask implement this directly:
-        un_qua = self._unyt_quantity.__pow__(other)
+        un_qua = self._unyt_quantity ** other
         return _create_with_quantity(self.to_dask()**other, un_qua)
 
     def __mul__(self, other):
