@@ -116,6 +116,11 @@ def _extract_dask(obj):
         return obj.to_dask()
     return obj
 
+def _extract_unyt_val(obj):
+    # returns the value of a unyt_quantity if obj is a unyt_quantity
+    if isinstance(obj, ua.unyt_quantity):
+        return obj.to_value()
+    return obj
 
 def _prep_ufunc(ufunc, *input, extract_dask=False, **kwargs):
     # this function:
@@ -128,8 +133,9 @@ def _prep_ufunc(ufunc, *input, extract_dask=False, **kwargs):
     unyt_result = ufunc(*unyt_inputs, **kwargs)
 
     if extract_dask:
-        new_inputs = [_extract_dask(i) for i in input]
-        return new_inputs, unyt_result
+        input = [_extract_dask(i) for i in input]
+
+    input = [_extract_unyt_val(i) for i in input]
     return input, unyt_result
 
 
@@ -314,7 +320,7 @@ class unyt_dask_array(Array):
             un_qua = other / self._unyt_quantity
             other = other.value
         else:
-            un_qua = self._unyt_quantity
+            un_qua = 1 / self._unyt_quantity
         return _create_with_quantity(other / self.to_dask(), un_qua)
 
     def __truediv__(self, other):
@@ -327,6 +333,17 @@ class unyt_dask_array(Array):
         else:
             un_qua = self._unyt_quantity
         return _create_with_quantity(self.to_dask().__truediv__(other), un_qua)
+
+    def __rtruediv__(self, other):
+        if isinstance(other, unyt_dask_array):
+            un_qua = other._unyt_quantity / self._unyt_quantity
+            other = other.to_dask()
+        elif type(other) == ua.unyt_quantity:
+            un_qua = other / self._unyt_quantity
+            other = other.value
+        else:
+            un_qua = 1 / self._unyt_quantity
+        return _create_with_quantity(self.to_dask().__rtruediv__(other), un_qua)
 
     # handle some slightly more complex binary operations
 

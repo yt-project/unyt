@@ -136,6 +136,7 @@ from unyt.unit_registry import (
     default_unit_registry,
     _correct_old_unit_registry,
 )
+from unyt.dask_array import unyt_dask_array
 
 NULL_UNIT = Unit()
 POWER_SIGN_MAPPING = {multiply: 1, divide: -1}
@@ -1689,6 +1690,14 @@ class unyt_array(np.ndarray):
             # binary ufuncs
             i0 = inputs[0]
             i1 = inputs[1]
+
+            if isinstance(i1, unyt_dask_array):
+                # need to short circuit all this to handle binary operations
+                # like unyt_quantity(2,'m') / unyt_dask_array_instance
+                # only need to check the second argument as if the first arg
+                # is a unyt_dask_array, it won't end up here.
+                return i1.__array_ufunc__(ufunc, method, *inputs, **kwargs)
+
             # coerce inputs to be ndarrays if they aren't already
             inp0 = _coerce_iterable_units(i0)
             inp1 = _coerce_iterable_units(i1)
