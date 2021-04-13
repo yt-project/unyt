@@ -205,6 +205,12 @@ class unyt_dask_array(Array):
         obj.units = obj._unyt_quantity.units
         obj.unyt_name = obj._unyt_quantity.name
 
+        # set the unit conversion attributes so they are discoverable. no name
+        # conflicts for now, but this could be an issue if _unyt_funcs_to_track
+        # is expanded.
+        for attr in _unyt_funcs_to_track:
+            setattr(obj, attr, getattr(obj._unyt_quantity, attr))
+
         return obj
 
     def _elemwise(self, ufunc, *args, **kwargs):
@@ -219,6 +225,11 @@ class unyt_dask_array(Array):
         args, unyt_result = _prep_ufunc(func, *args, extract_dask=True, **kwargs)
         types = [type(i) for i in args]
         return _post_ufunc(super().__array_function__, unyt_result)(func, types, args, kwargs)
+
+    def __repr__(self):
+        disp_str = super().__repr__().replace('dask.array', 'unyt_dask_array')
+        units_str = f", units={self.units.__str__()}>"
+        return disp_str.replace(">", units_str)
 
     def to_dask(self):
         """ return a plain dask array. Only copies high level graphs, should be cheap...
@@ -296,9 +307,9 @@ class unyt_dask_array(Array):
             un_qua = self._unyt_quantity
         return _create_with_quantity(self.to_dask() / other, un_qua)
 
-    def _sanitize_other(self, other):
+    def _sanitize_other(self, other, units_must_match=True):
         if type(other) == unyt_dask_array:
-            if self.units != other.units:
+            if units_must_match and self.units != other.units:
                 raise ValueError("units must match for this operation.")
             return other
         elif type(other) == ua.unyt_quantity:
@@ -336,7 +347,7 @@ def _finalize_unyt(results, unit_name):
 
     Returns
     -------
-    unyt_array
+    unyt_array or unyt_quantity
 
     """
 

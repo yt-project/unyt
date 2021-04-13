@@ -140,5 +140,13 @@ def test_unyt_type_result():
     assert (result == unyt_quantity(1, m))
 
 
+def test_dask_passthroughs():
+
+    # tests the simple dask functions that do not modify units
+    x = dask_array.ones((10, 10), chunks=(2, 2))
+    x_da = unyt_from_dask(x, m)
+    assert(x_da.reshape((100, 1)).units == m)
+
+
 
 
