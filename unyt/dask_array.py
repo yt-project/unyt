@@ -8,7 +8,7 @@ a dask array class (unyt_dask_array) and helper functions for unyt.
 import unyt.array as ua
 from numpy import ndarray
 from dask.array.core import Array, finalize
-import dask.array as dask_array
+from functools import wraps
 
 # the following attributes hang off of dask.array.core.Array and do not modify units
 _use_simple_decorator = [
@@ -50,6 +50,7 @@ def _simple_dask_decorator(dask_func, current_unyt_dask):
 
     Returns a new unyt_dask_array instance with appropriate units
     """
+    @wraps(dask_func)
     def wrapper(*args, **kwargs):
         da = dask_func(*args, **kwargs)  # will return standard dask array
         return _create_with_quantity(da, current_unyt_dask._unyt_quantity)
@@ -66,6 +67,7 @@ _unyt_funcs_to_track = [
     "in_base",
     "in_mks"
 ]
+
 
 def _track_conversion(unyt_func_name, current_unyt_dask):
     """
@@ -100,28 +102,26 @@ def _track_conversion(unyt_func_name, current_unyt_dask):
         new_obj = unyt_from_dask(current_unyt_dask * factor, units)
 
         return new_obj
+    # functools wrap fails here, copy docstring manually:
+    wrapper.__doc__ = getattr(current_unyt_dask._unyt_quantity, unyt_func_name).__doc__
     return wrapper
 
 
 # helper sanitizing functions for handling ufunc, array operations
 def _extract_unyt(obj):
     # returns the hidden _unyt_quantity if it exists in obj, otherwise return obj
-    if isinstance(obj, unyt_dask_array):
-        return obj._unyt_quantity
-    return obj
+    return obj._unyt_quantity if isinstance(obj, unyt_dask_array) else obj
 
 
 def _extract_dask(obj):
     # returns a plain dask array if the obj is a unyt_dask_array, otherwise return obj
-    if isinstance(obj, unyt_dask_array):
-        return obj.to_dask()
-    return obj
+    return obj.to_dask() if isinstance(obj, unyt_dask_array) else obj
+
 
 def _extract_unyt_val(obj):
     # returns the value of a unyt_quantity if obj is a unyt_quantity
-    if isinstance(obj, ua.unyt_quantity):
-        return obj.to_value()
-    return obj
+    return obj.to_value() if isinstance(obj, ua.unyt_quantity) else obj
+
 
 def _prep_ufunc(ufunc, *input, extract_dask=False, **kwargs):
     # this function:
@@ -149,6 +149,7 @@ def _post_ufunc(dask_superfunk, unyt_result):
         return dask_result
     return wrapper
 
+
 def _special_dec(the_func):
     # decorator for special operations like __mul__ , __truediv__
     def wrapper(*args, **kwargs):
@@ -161,8 +162,7 @@ def _special_dec(the_func):
 
         if hasattr(unyt_result, 'units'):
             return _create_with_quantity(daskresult, unyt_result)
-        else:
-            return daskresult
+        return daskresult
     return wrapper
 
 # note: the unyt_dask_array class has no way of catching daskified reductions (yet?).
