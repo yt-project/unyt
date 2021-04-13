@@ -76,6 +76,7 @@ def test_unary():
     unary_result_test(x_da.mean(), x_unyt.mean())
     unary_result_test(x_da.std(), x_unyt.std())
     unary_result_test(x_da.cumsum(0), x_unyt.cumsum(0))
+    unary_result_test(abs(x_da), abs(x_unyt))  # __abs__
 
 def test_binary():
     x = dask_array.ones((10, 10), chunks=(2, 2))

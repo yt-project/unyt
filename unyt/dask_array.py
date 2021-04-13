@@ -8,6 +8,7 @@ a dask array class (unyt_dask_array) and helper functions for unyt.
 import unyt.array as ua
 from numpy import ndarray
 from dask.array.core import Array, finalize
+import dask.array as dask_array
 
 # the following attributes hang off of dask.array.core.Array and do not modify units
 _use_simple_decorator = [
@@ -57,7 +58,9 @@ def _simple_dask_decorator(dask_func, current_unyt_dask):
 
     return wrapper
 
-
+# the following list are the unyt_quantity/array attributes that will also
+# be attributes of the unyt_dask_array. These methods are wrapped with a unit
+# conversion decorator.
 _unyt_funcs_to_track = [
     "to",
     "in_units",
@@ -146,6 +149,22 @@ def _post_ufunc(dask_superfunk, unyt_result):
         if hasattr(unyt_result, 'units'):
             return _create_with_quantity(dask_result, unyt_result)
         return dask_result
+    return wrapper
+
+def _special_dec(the_func):
+    # decorator for special operations like __mul__ , __truediv__
+    def wrapper(*args, **kwargs):
+        funcname = the_func.__name__
+        ufunc = getattr(ua.unyt_quantity, funcname)
+        newargs, unyt_result = _prep_ufunc(ufunc, *args, extract_dask=True, **kwargs)
+
+        dasksuperfunk = getattr(Array, funcname)
+        daskresult = dasksuperfunk(*newargs, **kwargs)
+
+        if hasattr(unyt_result, 'units'):
+            return _create_with_quantity(daskresult, unyt_result)
+        else:
+            return daskresult
     return wrapper
 
 # note: the unyt_dask_array class has no way of catching daskified reductions (yet?).
@@ -266,96 +285,53 @@ class unyt_dask_array(Array):
         self.unyt_name = unyt_name
 
     # straightforward operations where the operation applies to the unit
-    # These methods bypass __getattribute__ and numpy hooks, but maybe there's a way
-    # to more programmatically generate these (e.g., see
-    # https://stackoverflow.com/a/57211141/9357244)
+    # These methods bypass __getattribute__ and numpy hooks, so they are defined
+    # explicitly here (but are handled generically by the _special_dec decorator).
+
+    @_special_dec
     def __abs__(self):
-        return _create_with_quantity(super().__abs__(), self._unyt_quantity)
+        pass
 
+    @_special_dec
     def __pow__(self, other):
-        # unyt and dask implement this directly:
-        un_qua = self._unyt_quantity ** other
-        return _create_with_quantity(self.to_dask()**other, un_qua)
+        pass
 
+    @_special_dec
     def __mul__(self, other):
-        if isinstance(other, unyt_dask_array):
-            un_qua = self._unyt_quantity * other._unyt_quantity
-            other = other.to_dask()
-        elif type(other) == ua.unyt_quantity:
-            un_qua = self._unyt_quantity * other
-            other = other.value
-        else:
-            un_qua = self._unyt_quantity
+        pass
 
-        return _create_with_quantity(self.to_dask() * other, un_qua)
-
+    @_special_dec
     def __rmul__(self, other):
-        if isinstance(other, unyt_dask_array):
-            un_qua = self._unyt_quantity * other._unyt_quantity
-            other = other.to_dask()
-        elif type(other) == ua.unyt_quantity:
-            un_qua = self._unyt_quantity * other
-            other = other.value
-        else:
-            un_qua = self._unyt_quantity
+        pass
 
-        return _create_with_quantity(self.to_dask() * other, un_qua)
-
+    @_special_dec
     def __div__(self, other):
-        if isinstance(other, unyt_dask_array):
-            un_qua = self._unyt_quantity / other._unyt_quantity
-            other = other.to_dask()
-        elif type(other) == ua.unyt_quantity:
-            un_qua = self._unyt_quantity / other
-            other = other.value
-        else:
-            un_qua = self._unyt_quantity
-        return _create_with_quantity(self.to_dask() / other, un_qua)
+        pass
 
+    @_special_dec
     def __rdiv__(self, other):
-        if isinstance(other, unyt_dask_array):
-            un_qua = other._unyt_quantity / self._unyt_quantity
-            other = other.to_dask()
-        elif type(other) == ua.unyt_quantity:
-            un_qua = other / self._unyt_quantity
-            other = other.value
-        else:
-            un_qua = 1 / self._unyt_quantity
-        return _create_with_quantity(other / self.to_dask(), un_qua)
+        pass
 
+    @_special_dec
     def __truediv__(self, other):
-        if isinstance(other, unyt_dask_array):
-            un_qua = self._unyt_quantity / other._unyt_quantity
-            other = other.to_dask()
-        elif type(other) == ua.unyt_quantity:
-            un_qua = self._unyt_quantity / other
-            other = other.value
-        else:
-            un_qua = self._unyt_quantity
-        return _create_with_quantity(self.to_dask().__truediv__(other), un_qua)
+        pass
 
+    @_special_dec
     def __rtruediv__(self, other):
-        if isinstance(other, unyt_dask_array):
-            un_qua = other._unyt_quantity / self._unyt_quantity
-            other = other.to_dask()
-        elif type(other) == ua.unyt_quantity:
-            un_qua = other / self._unyt_quantity
-            other = other.value
-        else:
-            un_qua = 1 / self._unyt_quantity
-        return _create_with_quantity(self.to_dask().__rtruediv__(other), un_qua)
+        pass
 
-    # handle some slightly more complex binary operations
+    # handle add/sub, which requires some additional checks
 
     def _sanitize_other(self, other, units_must_match=True):
-        if type(other) == unyt_dask_array:
+        # checks that we can handle other.
+        if type(other) in [unyt_dask_array, ua.unyt_quantity]:
             if units_must_match and self.units != other.units:
                 raise ValueError("units must match for this operation.")
+            if type(other) == ua.unyt_quantity:
+                return other.value
             return other
-        elif type(other) == ua.unyt_quantity:
-            return other.value
         else:
-            raise ValueError("Argument must be unyt_dask_array or unyt_quantity object.")
+            raise TypeError("Argument must be unyt_dask_array or unyt_quantity object.")
 
     def __add__(self, other):
         new_other = self._sanitize_other(other)
@@ -364,8 +340,6 @@ class unyt_dask_array(Array):
     def __sub__(self, other):
         new_other = self._sanitize_other(other)
         return _create_with_quantity(self.to_dask() - new_other, self._unyt_quantity)
-
-
 
 
 def _finalize_unyt(results, unit_name):
