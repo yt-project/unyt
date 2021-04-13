@@ -30,6 +30,12 @@ def test_unit_conversions():
     assert(x_da.units == cm)
     assert(x_da.compute().units == cm)
 
+    x_da_2 = unyt_from_dask(x, cm)
+    result = x_da + x_da_2
+    assert (type(result) == unyt_dask_array)
+    assert (result.units == cm)
+    assert (result.compute().units == cm)
+
 
 def test_conversion_to_dask():
     x = dask_array.ones((10, 10), chunks=(2, 2))
@@ -78,6 +84,49 @@ def test_unary():
     unary_result_test(x_da.std(), x_unyt.std())
     unary_result_test(x_da.cumsum(0), x_unyt.cumsum(0))
 
+def test_binary():
+    x = dask_array.ones((10, 10), chunks=(2, 2))
+    x2 = dask_array.full((10, 10), 2, chunks=(2, 2))
+    x_da = unyt_from_dask(x, m)
+    x_da_2 = unyt_from_dask(x2, g)
+
+    result = x_da * x_da_2
+    assert(result.units == m * g)
+    result = x_da_2 * x_da
+    assert (result.units == m * g)
+    result = x_da_2 / x_da
+    assert (result.units == g / m)
+    result = x_da / x_da_2
+    assert (result.units == m / g)
+
+    result = x_da / 2
+    assert (result.units == m)
+    # result = 1 / x_da  # hmm, does NOT catch the hook
+    # assert (result.units == 1/m)
+
+    result = x_da ** 2
+    assert (result.units == m*m)
+
+    x_da_2 = unyt_from_dask(x2, m)
+    result = x_da + x_da_2
+    assert (result.units == m)
+    result = x_da_2 + x_da
+    assert (result.units == m)
+    result = x_da + unyt_quantity(1, 'm')
+    assert (result.units == m)
+
+    # currently fails due to forced conversion to ndarray and failure to
+    # instantiate a new unyt_dask_quantity. need to refactor unyt_array.__array_ufunc__
+    # to get this working...
+    # result = unyt_quantity(1, 'm') + x_da
+    # assert (result.units == m)
+
+    result = x_da - x_da_2
+    assert (result.units == m)
+    result = x_da_2 - x_da
+    assert (result.units == m)
+    result = x_da - unyt_quantity(1, 'm')
+    assert (result.units == m)
 
 def test_unyt_type_result():
     # test that the return type of a compute is unyt_array or unyt_quantity when
