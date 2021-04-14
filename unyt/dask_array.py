@@ -9,6 +9,7 @@ import unyt.array as ua
 from numpy import ndarray
 from dask.array.core import Array, finalize
 from functools import wraps
+from unyt.unit_object import _get_conversion_factor
 
 # the following attributes hang off of dask.array.core.Array and do not modify units
 _use_simple_decorator = [
@@ -95,6 +96,7 @@ def _track_conversion(unyt_func_name, current_unyt_dask):
         new_unyt_quantity = the_func(*args, **kwargs)
 
         # calculate the conversion factor and pull out the new name and units
+        # might be able to use _get_conversion_factor here too...
         factor = new_unyt_quantity.value / init_val
         units = new_unyt_quantity.units
 
@@ -102,7 +104,7 @@ def _track_conversion(unyt_func_name, current_unyt_dask):
         new_obj = unyt_from_dask(current_unyt_dask * factor, units)
 
         return new_obj
-    # functools wrap fails here, copy docstring manually:
+    # functools wrap fails here because unyt_func_name is a string, copy manually:
     wrapper.__doc__ = getattr(current_unyt_dask._unyt_quantity, unyt_func_name).__doc__
     return wrapper
 
@@ -123,6 +125,43 @@ def _extract_unyt_val(obj):
     return obj.to_value() if isinstance(obj, ua.unyt_quantity) else obj
 
 
+def _sanitize_unit_args(*input):
+    # returns sanitized inputs and unyt_inputs for calling the ufunc
+    unyt_inputs = [_extract_unyt(i) for i in input]
+
+    if len(unyt_inputs) > 1:
+        # note 1: even though we rely on the ufunc applied to the unyt quantities
+        # to get the final units of our unyt_dask_array after an operation,
+        # we need to first ensure that if our arguments have the same dimensions
+        # they are in the same units. This happens internally for unyt_quantities
+        # but we also need to apply those internal unit conversions to our
+        # dask_unyt_array objects, so we do those checks manually here.
+        # note 2: we do NOT check for validity of the operation here. The subsequent
+        # call to the ufunc with the unyt_inputs will enforce the unyt rules
+        # (e.g., addition must have same dimensions).
+        ui_0, ui_1 = unyt_inputs[0], unyt_inputs[1]
+        if (hasattr(ui_0, 'units') and
+            hasattr(ui_1, 'units') and
+            ui_0.units != ui_1.units and
+            ui_0.units.dimensions == ui_1.units.dimensions):
+
+            if type(input[0]) == unyt_dask_array:
+                # get the conversion factor and apply it to our array
+                factor, offset = ui_0.units.get_conversion_factor(ui_1.units)
+                ui_0 = factor * input[0]
+                if offset:
+                    ui_0 = ui_0 - offset
+                ui_0.units = ui_1.units
+            elif isinstance(input[0], ua.unyt_array):
+                ui_0 = input[0].to(ui_1.units)
+            else:
+                raise TypeError
+            input = list(input)
+            input[0] = ui_0
+            unyt_inputs[0] = ui_0
+
+    return input, unyt_inputs
+
 def _prep_ufunc(ufunc, *input, extract_dask=False, **kwargs):
     # this function:
     # (1) sanitizes inputs for calls to __array_func__, __array__ and _elementwise
@@ -130,7 +169,7 @@ def _prep_ufunc(ufunc, *input, extract_dask=False, **kwargs):
     # (3) (optional) makes inputs extra clean: converts unyt_dask_array args to plain dask array objects
 
     # apply the operation to the hidden unyt_quantities
-    unyt_inputs = [_extract_unyt(i) for i in input]
+    input, unyt_inputs = _sanitize_unit_args(*input)
     unyt_result = ufunc(*unyt_inputs, **kwargs)
 
     if extract_dask:
@@ -261,7 +300,8 @@ class unyt_dask_array(Array):
         return super().__new__(Array, *args)
 
     def __getattribute__(self, name):
-
+        # huh, add ends up here. unyt_quantity(blah) + unyt_dask_instance. but not
+        # unyt_quantity(blah) + unyt_dask_instance
         if name in _unyt_funcs_to_track:
             return _track_conversion(name, self)
 
@@ -323,21 +363,33 @@ class unyt_dask_array(Array):
     def _sanitize_other(self, other, units_must_match=True):
         # checks that we can handle other.
         if type(other) in [unyt_dask_array, ua.unyt_quantity]:
+            new_args, _ = _sanitize_unit_args(other, self)
+            other = new_args[0]
             if units_must_match and self.units != other.units:
                 raise ValueError("units must match for this operation.")
-            if type(other) == ua.unyt_quantity:
+            if isinstance(other, ua.unyt_array):
                 return other.value
+            elif isinstance(other, unyt_dask_array):
+                other = other.to_dask()
             return other
         else:
             raise TypeError("Argument must be unyt_dask_array or unyt_quantity object.")
 
     def __add__(self, other):
         new_other = self._sanitize_other(other)
-        return _create_with_quantity(self.to_dask() + new_other, self._unyt_quantity)
+        return _create_with_quantity(self.to_dask().__add__(new_other), self._unyt_quantity)
 
     def __sub__(self, other):
         new_other = self._sanitize_other(other)
-        return _create_with_quantity(self.to_dask() - new_other, self._unyt_quantity)
+        return _create_with_quantity(self.to_dask().__sub__(new_other), self._unyt_quantity)
+
+    def __radd__(self, other):
+        new_other = self._sanitize_other(other)
+        return _create_with_quantity(self.to_dask().__radd__(new_other), self._unyt_quantity)
+
+    def __rsub__(self, other):
+        new_other = self._sanitize_other(other)
+        return _create_with_quantity(self.to_dask().__rsub__(new_other), self._unyt_quantity)
 
 
 def _finalize_unyt(results, unit_name):
