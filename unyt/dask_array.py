@@ -7,9 +7,11 @@ a dask array class (unyt_dask_array) and helper functions for unyt.
 
 import unyt.array as ua
 from numpy import ndarray
-from dask.array.core import Array, finalize
+from unyt._on_demand_imports import _dask as dask
 from functools import wraps
-from unyt.unit_object import _get_conversion_factor
+
+Array = dask.array.core.Array
+finalize = dask.array.core.finalize
 
 # the following attributes hang off of dask.array.core.Array and do not modify units
 _use_simple_decorator = [

@@ -1,14 +1,13 @@
 from numpy.testing import  assert_array_equal
 from numpy import sqrt, ones
 from unyt.dask_array import unyt_from_dask, unyt_dask_array
-import dask.array as dask_array
+from unyt._on_demand_imports import _dask as dask
 from unyt import unyt_array, unyt_quantity
-
-from unyt.unit_symbols import cm, m, g, degree
+from unyt.unit_symbols import cm, m, g
 
 
 def test_unyt_dask_creation():
-    x = dask_array.ones((10, 10), chunks=(2, 2))
+    x = dask.array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
     assert (type(x_da) == unyt_dask_array)
     assert (x_da.units == m)
@@ -16,7 +15,7 @@ def test_unyt_dask_creation():
 
 
 def test_unit_conversions():
-    x = dask_array.ones((10, 10), chunks=(2, 2))
+    x = dask.array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
     x_da = x_da.to(cm)
     assert (type(x_da) == unyt_dask_array)
@@ -31,7 +30,7 @@ def test_unit_conversions():
 
 
 def test_conversion_to_dask():
-    x = dask_array.ones((10, 10), chunks=(2, 2))
+    x = dask.array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
     x_again = x_da.to_dask()
     assert_array_equal(x.compute(), x_again.compute())
@@ -62,11 +61,11 @@ def unary_result_test(dask_unyt_delayed, correct_unyt):
 
 def test_unary():
 
-    x = dask_array.ones((10, 10), chunks=(2, 2))
+    x = dask.array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
     x_unyt = unyt_array(ones((10, 10)), m)
 
-    for unary_op in [sqrt, dask_array.sqrt]:
+    for unary_op in [sqrt, dask.array.sqrt]:
         unary_test(unary_op, x_da, x_unyt)
 
     # some of the daskified ufunc attributes need to be called directly
@@ -80,8 +79,8 @@ def test_unary():
 
 
 def test_binary():
-    x = dask_array.ones((10, 10), chunks=(2, 2))
-    x2 = dask_array.full((10, 10), 2, chunks=(2, 2))
+    x = dask.array.ones((10, 10), chunks=(2, 2))
+    x2 = dask.array.full((10, 10), 2, chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
     x_da_2 = unyt_from_dask(x2, g)
 
@@ -118,8 +117,8 @@ def test_binary():
 
 
 def test_addition():
-    x = dask_array.ones((10, 10), chunks=(2, 2))
-    x2 = dask_array.full((10, 10), 2, chunks=(2, 2))
+    x = dask.array.ones((10, 10), chunks=(2, 2))
+    x2 = dask.array.full((10, 10), 2, chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
 
     # two unyt_dask_array objects, any order, any units with same dimension
@@ -148,8 +147,8 @@ def test_addition():
 
 
 def test_subtraction():
-    x = dask_array.ones((10, 10), chunks=(2, 2))
-    x2 = dask_array.full((10, 10), 2, chunks=(2, 2))
+    x = dask.array.ones((10, 10), chunks=(2, 2))
+    x2 = dask.array.full((10, 10), 2, chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
 
     # two unyt_dask_array objects, any order, any units with same dimension
@@ -181,7 +180,7 @@ def test_unyt_type_result():
     # test that the return type of a compute is unyt_array or unyt_quantity when
     # appropriate
 
-    x = dask_array.ones((10, 10), chunks=(2, 2))
+    x = dask.array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
     x_unyt = unyt_array(ones((10, 10)), m)
 
@@ -197,7 +196,7 @@ def test_unyt_type_result():
 def test_dask_passthroughs():
 
     # tests the simple dask functions that do not modify units
-    x = dask_array.ones((10, 10), chunks=(2, 2))
+    x = dask.array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
     assert(x_da.reshape((100, 1)).units == m)
 
