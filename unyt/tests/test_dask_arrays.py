@@ -128,10 +128,9 @@ def test_addition():
     assert (result.units == m)
     result = x_da_2 + x_da
     assert (result.units == m)
-
     x_da_3 = unyt_from_dask(x2, 'cm')
     result = x_da + x_da_3
-    assert (result.units == m)  # units will be same as other
+    assert (result.units == m)
     result = x_da_3 + x_da
     assert (result.units == m)
 
@@ -146,6 +145,7 @@ def test_addition():
     result = x_da + unyt_quantity(100, 'cm')  # test same dimensions
     assert (result.units == m)
     assert (result.max().compute() == unyt_quantity(200, 'cm'))
+
 
 def test_subtraction():
     x = dask_array.ones((10, 10), chunks=(2, 2))
@@ -175,6 +175,7 @@ def test_subtraction():
     result = x_da - unyt_quantity(100, 'cm')  # test same dimensions
     assert (result.units == m)
     assert (result.max().compute() == unyt_quantity(0, 'cm'))
+
 
 def test_unyt_type_result():
     # test that the return type of a compute is unyt_array or unyt_quantity when
