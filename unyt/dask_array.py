@@ -319,52 +319,40 @@ class unyt_dask_array(Array):
     # explicitly here (but are handled generically by the _special_dec decorator).
 
     @_special_dec
-    def __abs__(self):
-        pass
+    def __abs__(self): pass
 
     @_special_dec
-    def __pow__(self, other):
-        pass
+    def __pow__(self, other): pass
 
     @_special_dec
-    def __mul__(self, other):
-        pass
+    def __mul__(self, other): pass
 
     @_special_dec
-    def __rmul__(self, other):
-        pass
+    def __rmul__(self, other): pass
 
     @_special_dec
-    def __div__(self, other):
-        pass
+    def __div__(self, other): pass
 
     @_special_dec
-    def __rdiv__(self, other):
-        pass
+    def __rdiv__(self, other): pass
 
     @_special_dec
-    def __truediv__(self, other):
-        pass
+    def __truediv__(self, other): pass
 
     @_special_dec
-    def __rtruediv__(self, other):
-        pass
+    def __rtruediv__(self, other): pass
 
     @_special_dec
-    def __add__(self, other):
-        pass
+    def __add__(self, other): pass
 
     @_special_dec
-    def __radd__(self, other):
-        pass
+    def __radd__(self, other): pass
 
     @_special_dec
-    def __sub__(self, other):
-        pass
+    def __sub__(self, other): pass
 
     @_special_dec
-    def __rsub__(self, other):
-        pass
+    def __rsub__(self, other): pass
 
 
 def _finalize_unyt(results, unit_name):
