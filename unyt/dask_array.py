@@ -145,20 +145,9 @@ def _sanitize_unit_args(*input):
             ui_0.units != ui_1.units and
             ui_0.units.dimensions == ui_1.units.dimensions):
 
-            if type(input[0]) == unyt_dask_array:
-                # get the conversion factor and apply it to our array
-                factor, offset = ui_0.units.get_conversion_factor(ui_1.units)
-                ui_0 = factor * input[0]
-                if offset:
-                    ui_0 = ui_0 - offset
-                ui_0.units = ui_1.units
-            elif isinstance(input[0], ua.unyt_array):
-                ui_0 = input[0].to(ui_1.units)
-            else:
-                raise TypeError
             input = list(input)
-            input[0] = ui_0
-            unyt_inputs[0] = ui_0
+            input[0] = input[0].to(ui_1.units)
+            unyt_inputs = [_extract_unyt(i) for i in input]
 
     return input, unyt_inputs
 
@@ -322,7 +311,6 @@ class unyt_dask_array(Array):
         self._unyt_quantity = new_unyt_quantity
         self.unyt_name = unyt_name
 
-    # straightforward operations where the operation applies to the unit
     # These methods bypass __getattribute__ and numpy hooks, so they are defined
     # explicitly here (but are handled generically by the _special_dec decorator).
 
@@ -358,38 +346,21 @@ class unyt_dask_array(Array):
     def __rtruediv__(self, other):
         pass
 
-    # handle add/sub, which requires some additional checks
-
-    def _sanitize_other(self, other, units_must_match=True):
-        # checks that we can handle other.
-        if type(other) in [unyt_dask_array, ua.unyt_quantity]:
-            new_args, _ = _sanitize_unit_args(other, self)
-            other = new_args[0]
-            if units_must_match and self.units != other.units:
-                raise ValueError("units must match for this operation.")
-            if isinstance(other, ua.unyt_array):
-                return other.value
-            elif isinstance(other, unyt_dask_array):
-                other = other.to_dask()
-            return other
-        else:
-            raise TypeError("Argument must be unyt_dask_array or unyt_quantity object.")
-
+    @_special_dec
     def __add__(self, other):
-        new_other = self._sanitize_other(other)
-        return _create_with_quantity(self.to_dask().__add__(new_other), self._unyt_quantity)
+        pass
 
-    def __sub__(self, other):
-        new_other = self._sanitize_other(other)
-        return _create_with_quantity(self.to_dask().__sub__(new_other), self._unyt_quantity)
-
+    @_special_dec
     def __radd__(self, other):
-        new_other = self._sanitize_other(other)
-        return _create_with_quantity(self.to_dask().__radd__(new_other), self._unyt_quantity)
+        pass
 
+    @_special_dec
+    def __sub__(self, other):
+        pass
+
+    @_special_dec
     def __rsub__(self, other):
-        new_other = self._sanitize_other(other)
-        return _create_with_quantity(self.to_dask().__rsub__(new_other), self._unyt_quantity)
+        pass
 
 
 def _finalize_unyt(results, unit_name):
