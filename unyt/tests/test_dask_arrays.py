@@ -131,7 +131,7 @@ def test_addition():
 
     x_da_3 = unyt_from_dask(x2, 'cm')
     result = x_da + x_da_3
-    assert (result.units == cm)  # units will be same as other
+    assert (result.units == m)  # units will be same as other
     result = x_da_3 + x_da
     assert (result.units == m)
 
@@ -144,7 +144,7 @@ def test_addition():
     assert (result.units == m)
     assert (result.max().compute() == unyt_quantity(2, 'm'))
     result = x_da + unyt_quantity(100, 'cm')  # test same dimensions
-    assert (result.units == cm)
+    assert (result.units == m)
     assert (result.max().compute() == unyt_quantity(200, 'cm'))
 
 def test_subtraction():
@@ -160,7 +160,7 @@ def test_subtraction():
     assert (result.units == m)
     x_da_3 = unyt_from_dask(x2, 'cm')
     result = x_da - x_da_3
-    assert (result.units == cm)
+    assert (result.units == m)
     result = x_da_3 - x_da
     assert (result.units == m)
 
@@ -173,7 +173,7 @@ def test_subtraction():
     assert (result.units == m)
     assert (result.max().compute() == unyt_quantity(0, 'm'))
     result = x_da - unyt_quantity(100, 'cm')  # test same dimensions
-    assert (result.units == cm)
+    assert (result.units == m)
     assert (result.max().compute() == unyt_quantity(0, 'cm'))
 
 def test_unyt_type_result():

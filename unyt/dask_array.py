@@ -145,8 +145,12 @@ def _sanitize_unit_args(*input):
             ui_0.units != ui_1.units and
             ui_0.units.dimensions == ui_1.units.dimensions):
 
+            # convert to the unit with the larger base
             input = list(input)
-            input[0] = input[0].to(ui_1.units)
+            if ui_0.units.base_value < ui_1.units.base_value:
+                input[0] = input[0].to(ui_1.units)
+            else:
+                input[1] = input[1].to(ui_0.units)
             unyt_inputs = [_extract_unyt(i) for i in input]
 
     return input, unyt_inputs
