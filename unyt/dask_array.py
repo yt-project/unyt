@@ -288,6 +288,22 @@ class unyt_dask_array(Array):
         units_str = f", units={self.units.__str__()}>"
         return disp_str.replace(">", units_str)
 
+    def _repr_html_table(self):
+        # controls jupyter notebook display of an array. called from _repr_html_
+        base_table = super()._repr_html_table()
+        table = base_table.split("\n")
+        new_table = []
+        unit_s = self.units.__str__()
+        for row in table:
+            if "</tbody>" in row:
+                new_table.append(
+                    f"    <tr><th> Units </th><td> {unit_s} </td> <td> {unit_s} </td></tr>"
+                )
+            new_table.append(row)
+        return "\n".join(new_table)
+
+
+
     def to_dask(self):
         """ return a plain dask array. Only copies high level graphs, should be cheap...
         """
