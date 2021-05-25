@@ -2457,3 +2457,10 @@ def test_complexvalued():
     savetxt(file, arr)
     farr = loadtxt(file, dtype=np.complex128)
     assert_allclose_units(farr, unyt_array([1j * 0.001, 1j * 0.01], "J"))
+
+
+def test_string_formatting():
+    d = unyt_array((1, 2, 3), "Msun")
+    expected = "[1 2 3] Msun"
+    assert "%s" % d == expected
+    assert "{}".format(d) == expected
