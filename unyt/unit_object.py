@@ -383,7 +383,7 @@ class Unit(object):
         return self.__mul__(u)
 
     def __mul__(self, u):
-        """ Multiply Unit with u (Unit object). """
+        """Multiply Unit with u (Unit object)."""
         if not getattr(u, "is_Unit", False):
             data = np.array(u, subok=True)
             unit = getattr(u, "units", None)
@@ -429,7 +429,7 @@ class Unit(object):
         )
 
     def __truediv__(self, u):
-        """ Divide Unit by u (Unit object). """
+        """Divide Unit by u (Unit object)."""
         if not isinstance(u, Unit):
             if isinstance(u, (numeric_type, list, tuple, np.ndarray)):
                 from unyt.array import unyt_quantity
@@ -467,7 +467,7 @@ class Unit(object):
         return u * self ** -1
 
     def __pow__(self, p):
-        """ Take Unit to power p (float). """
+        """Take Unit to power p (float)."""
         try:
             p = Rational(str(p)).limit_denominator()
         except (ValueError, TypeError):
@@ -488,7 +488,7 @@ class Unit(object):
         )
 
     def __eq__(self, u):
-        """ Test unit equality. """
+        """Test unit equality."""
         if not isinstance(u, Unit):
             return False
         return (
@@ -497,7 +497,7 @@ class Unit(object):
         )
 
     def __ne__(self, u):
-        """ Test unit inequality. """
+        """Test unit inequality."""
         if not isinstance(u, Unit):
             return True
         if not math.isclose(self.base_value, u.base_value):
