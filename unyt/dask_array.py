@@ -283,6 +283,9 @@ class unyt_dask_array(Array):
         types = [type(i) for i in args]
         return _post_ufunc(super().__array_function__, unyt_result)(func, types, args, kwargs)
 
+    def __getitem__(self, index):
+        return _simple_dask_decorator(super().__getitem__, self)(index)
+
     def __repr__(self):
         disp_str = super().__repr__().replace('dask.array', 'unyt_dask_array')
         units_str = f", units={self.units.__str__()}>"
@@ -311,8 +314,6 @@ class unyt_dask_array(Array):
         return super().__new__(Array, *args)
 
     def __getattribute__(self, name):
-        # huh, add ends up here. unyt_quantity(blah) + unyt_dask_instance. but not
-        # unyt_quantity(blah) + unyt_dask_instance
         if name in _unyt_funcs_to_track:
             return _track_conversion(name, self)
 
