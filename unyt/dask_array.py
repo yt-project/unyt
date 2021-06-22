@@ -10,8 +10,8 @@ from numpy import ndarray
 from unyt._on_demand_imports import _dask as dask
 from functools import wraps
 
-Array = dask.array.core.Array
-finalize = dask.array.core.finalize
+_dask_Array = dask.array.core.Array
+_dask_finalize = dask.array.core.finalize
 
 # the following attributes hang off of dask.array.core.Array and do not modify units
 _use_simple_decorator = [
@@ -199,7 +199,7 @@ def _special_dec(the_func):
         ufunc = getattr(ua.unyt_quantity, funcname)
         newargs, unyt_result = _prep_ufunc(ufunc, *args, extract_dask=True, **kwargs)
 
-        dasksuperfunk = getattr(Array, funcname)
+        dasksuperfunk = getattr(_dask_Array, funcname)
         daskresult = dasksuperfunk(*newargs, **kwargs)
 
         if hasattr(unyt_result, "units"):
@@ -219,7 +219,7 @@ def _special_dec(the_func):
 # x_da.min().compute()  #  returns a unyt quantity
 
 
-class unyt_dask_array(Array):
+class unyt_dask_array(_dask_Array):
     """
     a dask.array.core.Array subclass that tracks units. Easiest to use the
     unyt_from_dask helper function to generate new instances.
@@ -319,9 +319,26 @@ class unyt_dask_array(Array):
         return "\n".join(new_table)
 
     def to_dask(self):
-        """return a plain dask array. Only copies high level graphs, should be cheap..."""
+        """
+        convert to a plain dask array
+
+        Returns
+        -------
+        dask.array object
+
+        Examples
+        --------
+
+        >>> from unyt import dask_array
+        >>> import dask.array as da
+        >>> x = da.random.random((10000, 10000), chunks=(1000, 1000))
+        >>> x_da = dask_array.unyt_from_dask(x, 'm')
+        >>> x_da.to_dask()
+        dask.array<random_sample, shape=(10000, 10000), dtype=float64, chunksize=(1000, 1000),
+            chunktype=numpy.ndarray>
+        """
         (cls, args) = self.__reduce__()
-        return super().__new__(Array, *args)
+        return super().__new__(_dask_Array, *args)
 
     def __getattribute__(self, name):
         if name in _unyt_funcs_to_track:
@@ -414,7 +431,7 @@ def _finalize_unyt(results, unit_name):
     # here, we first call the standard finalize function for a dask array
     # and then return a standard unyt_array from the now in-memory result if
     # the result is an array, otherwise return a unyt_quantity.
-    result = finalize(results)
+    result = _dask_finalize(results)
 
     if type(result) == ndarray:
         return ua.unyt_array(result, unit_name)
