@@ -334,8 +334,8 @@ class unyt_dask_array(_dask_Array):
         >>> x = da.random.random((10000, 10000), chunks=(1000, 1000))
         >>> x_da = dask_array.unyt_from_dask(x, 'm')
         >>> x_da.to_dask()
-        dask.array<random_sample, shape=(10000, 10000), dtype=float64, chunksize=(1000, 1000),
-            chunktype=numpy.ndarray>
+        dask.array<random_sample, shape=(10000, 10000), dtype=float64,
+             chunksize=(1000, 1000), chunktype=numpy.ndarray>
         """
         (cls, args) = self.__reduce__()
         return super().__new__(_dask_Array, *args)

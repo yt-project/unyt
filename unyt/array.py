@@ -1907,7 +1907,7 @@ class unyt_array(np.ndarray):
         self.name = getattr(obj, "name", None)
 
     def __pos__(self):
-        """ Posify the data. """
+        """Posify the data."""
         # this needs to be defined for all numpy versions, see
         # numpy issue #9081
         return type(self)(super(unyt_array, self).__pos__(), self.units)
