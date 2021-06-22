@@ -13,6 +13,13 @@ def test_unyt_dask_creation():
     assert (x_da.units == m)
     assert (type(x_da.compute()) == unyt_array)
 
+def test_unyt_dask_slice():
+    x = dask.array.ones((10, 10), chunks=(2, 2))
+    x_da = unyt_from_dask(x, m) 
+    slc = x_da[:,0]   
+    assert (slc.units == m)
+    assert (slc.compute().units == m)
+    assert (type(slc.compute()) == unyt_array)
 
 def test_unit_conversions():
     x = dask.array.ones((10, 10), chunks=(2, 2))
