@@ -1,4 +1,4 @@
-from numpy.testing import  assert_array_equal
+from numpy.testing import assert_array_equal
 from numpy import sqrt, ones
 from unyt.dask_array import unyt_from_dask, unyt_dask_array
 from unyt._on_demand_imports import _dask as dask
@@ -9,31 +9,33 @@ from unyt.unit_symbols import cm, m, g
 def test_unyt_dask_creation():
     x = dask.array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
-    assert (type(x_da) == unyt_dask_array)
-    assert (x_da.units == m)
-    assert (type(x_da.compute()) == unyt_array)
+    assert type(x_da) == unyt_dask_array
+    assert x_da.units == m
+    assert type(x_da.compute()) == unyt_array
+
 
 def test_unyt_dask_slice():
     x = dask.array.ones((10, 10), chunks=(2, 2))
-    x_da = unyt_from_dask(x, m) 
-    slc = x_da[:,0]   
-    assert (slc.units == m)
-    assert (slc.compute().units == m)
-    assert (type(slc.compute()) == unyt_array)
+    x_da = unyt_from_dask(x, m)
+    slc = x_da[:, 0]
+    assert slc.units == m
+    assert slc.compute().units == m
+    assert type(slc.compute()) == unyt_array
+
 
 def test_unit_conversions():
     x = dask.array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
     x_da = x_da.to(cm)
-    assert (type(x_da) == unyt_dask_array)
-    assert (x_da.units == cm)
-    assert (x_da.compute().units == cm)
+    assert type(x_da) == unyt_dask_array
+    assert x_da.units == cm
+    assert x_da.compute().units == cm
 
     x_da_2 = unyt_from_dask(x, cm)
     result = x_da + x_da_2
-    assert (type(result) == unyt_dask_array)
-    assert (result.units == cm)
-    assert (result.compute().units == cm)
+    assert type(result) == unyt_dask_array
+    assert result.units == cm
+    assert result.compute().units == cm
 
 
 def test_conversion_to_dask():
@@ -41,7 +43,7 @@ def test_conversion_to_dask():
     x_da = unyt_from_dask(x, m)
     x_again = x_da.to_dask()
     assert_array_equal(x.compute(), x_again.compute())
-    assert (type(x_again) == type(x))
+    assert type(x_again) == type(x)
 
 
 def unary_test(the_func, unyt_dask_obj, unyt_array_in, *args, **kwargs):
@@ -50,20 +52,20 @@ def unary_test(the_func, unyt_dask_obj, unyt_array_in, *args, **kwargs):
     result_delay = the_func(unyt_dask_obj, *args, **kwargs)
     correct_unyt = the_func(unyt_array_in, *args, **kwargs)
 
-    assert (result_delay.units == correct_unyt.units)  # units should already match
+    assert result_delay.units == correct_unyt.units  # units should already match
     unary_result_test(result_delay, correct_unyt)
 
 
 def unary_result_test(dask_unyt_delayed, correct_unyt):
     # computes a delayed dask_unyt_array and compares resulting units and values
     result = dask_unyt_delayed.compute()
-    assert (result.units == correct_unyt.units)
-    assert (type(result) == type(correct_unyt))
+    assert result.units == correct_unyt.units
+    assert type(result) == type(correct_unyt)
     # value comparison:
     if type(result) == unyt_array:
         assert_array_equal(result, correct_unyt)
     else:
-        assert(result == correct_unyt)
+        assert result == correct_unyt
 
 
 def test_unary():
@@ -93,34 +95,34 @@ def test_binary():
 
     # multiplications
     result = x_da * x_da_2
-    assert (result.units == m * g)
+    assert result.units == m * g
     result = x_da_2 * x_da
-    assert (result.units == m * g)
+    assert result.units == m * g
     result = x_da_2 * 2
-    assert (result.units == g)
+    assert result.units == g
     result = 2 * x_da_2
-    assert (result.units == g)
-    result = x_da_2 * unyt_quantity(2, 'm')
-    assert (result.units == m*g)
-    result = unyt_quantity(2, 'm') * x_da_2
-    assert (result.units == m*g)
+    assert result.units == g
+    result = x_da_2 * unyt_quantity(2, "m")
+    assert result.units == m * g
+    result = unyt_quantity(2, "m") * x_da_2
+    assert result.units == m * g
 
     # divisions
     result = x_da_2 / x_da
-    assert (result.units == g / m)
+    assert result.units == g / m
     result = x_da / x_da_2
-    assert (result.units == m / g)
+    assert result.units == m / g
     result = x_da_2 / 2
-    assert (result.units == g)
+    assert result.units == g
     result = 2 / x_da_2  # __rtruediv__
-    assert (result.units == g ** -1)
-    result = x_da_2 / unyt_quantity(2, 'm')
-    assert (result.units == g / m)
-    result = unyt_quantity(2, 'm') / x_da_2
-    assert (result.units == m / g)
+    assert result.units == g ** -1
+    result = x_da_2 / unyt_quantity(2, "m")
+    assert result.units == g / m
+    result = unyt_quantity(2, "m") / x_da_2
+    assert result.units == m / g
 
     result = x_da ** 2
-    assert (result.units == m*m)
+    assert result.units == m * m
 
 
 def test_addition():
@@ -131,26 +133,26 @@ def test_addition():
     # two unyt_dask_array objects, any order, any units with same dimension
     x_da_2 = unyt_from_dask(x2, m)
     result = x_da + x_da_2
-    assert (result.units == m)
+    assert result.units == m
     result = x_da_2 + x_da
-    assert (result.units == m)
-    x_da_3 = unyt_from_dask(x2, 'cm')
+    assert result.units == m
+    x_da_3 = unyt_from_dask(x2, "cm")
     result = x_da + x_da_3
-    assert (result.units == m)
+    assert result.units == m
     result = x_da_3 + x_da
-    assert (result.units == m)
+    assert result.units == m
 
     # one unyt_dask_array, one unyt_quantity, any order, any units with same dim
-    result = x_da + unyt_quantity(1, 'm')
-    assert (result.units == m)
-    result = unyt_quantity(1, 'm') + x_da
-    assert (result.units == m)
-    result = unyt_quantity(100, 'cm') + x_da  # test same dimensions
-    assert (result.units == m)
-    assert (result.max().compute() == unyt_quantity(2, 'm'))
-    result = x_da + unyt_quantity(100, 'cm')  # test same dimensions
-    assert (result.units == m)
-    assert (result.max().compute() == unyt_quantity(200, 'cm'))
+    result = x_da + unyt_quantity(1, "m")
+    assert result.units == m
+    result = unyt_quantity(1, "m") + x_da
+    assert result.units == m
+    result = unyt_quantity(100, "cm") + x_da  # test same dimensions
+    assert result.units == m
+    assert result.max().compute() == unyt_quantity(2, "m")
+    result = x_da + unyt_quantity(100, "cm")  # test same dimensions
+    assert result.units == m
+    assert result.max().compute() == unyt_quantity(200, "cm")
 
 
 def test_subtraction():
@@ -161,26 +163,26 @@ def test_subtraction():
     # two unyt_dask_array objects, any order, any units with same dimension
     x_da_2 = unyt_from_dask(x2, m)
     result = x_da - x_da_2
-    assert (result.units == m)
+    assert result.units == m
     result = x_da_2 - x_da
-    assert (result.units == m)
-    x_da_3 = unyt_from_dask(x2, 'cm')
+    assert result.units == m
+    x_da_3 = unyt_from_dask(x2, "cm")
     result = x_da - x_da_3
-    assert (result.units == m)
+    assert result.units == m
     result = x_da_3 - x_da
-    assert (result.units == m)
+    assert result.units == m
 
     # one unyt_dask_array, one unyt_quantity, any order, any units with same dim
-    result = x_da - unyt_quantity(1, 'm')
-    assert (result.units == m)
-    result = unyt_quantity(1, 'm') - x_da
-    assert (result.units == m)
-    result = unyt_quantity(100, 'cm') - x_da  # test same dimensions
-    assert (result.units == m)
-    assert (result.max().compute() == unyt_quantity(0, 'm'))
-    result = x_da - unyt_quantity(100, 'cm')  # test same dimensions
-    assert (result.units == m)
-    assert (result.max().compute() == unyt_quantity(0, 'cm'))
+    result = x_da - unyt_quantity(1, "m")
+    assert result.units == m
+    result = unyt_quantity(1, "m") - x_da
+    assert result.units == m
+    result = unyt_quantity(100, "cm") - x_da  # test same dimensions
+    assert result.units == m
+    assert result.max().compute() == unyt_quantity(0, "m")
+    result = x_da - unyt_quantity(100, "cm")  # test same dimensions
+    assert result.units == m
+    assert result.max().compute() == unyt_quantity(0, "cm")
 
 
 def test_unyt_type_result():
@@ -192,12 +194,12 @@ def test_unyt_type_result():
     x_unyt = unyt_array(ones((10, 10)), m)
 
     result = x_da.compute()
-    assert (type(result) == unyt_array)
+    assert type(result) == unyt_array
     assert_array_equal(result, x_unyt)
 
     result = x_da.min().compute()
-    assert (type(result) == unyt_quantity)
-    assert (result == unyt_quantity(1, m))
+    assert type(result) == unyt_quantity
+    assert result == unyt_quantity(1, m)
 
 
 def test_dask_passthroughs():
@@ -205,8 +207,4 @@ def test_dask_passthroughs():
     # tests the simple dask functions that do not modify units
     x = dask.array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
-    assert(x_da.reshape((100, 1)).units == m)
-
-
-
-
+    assert x_da.reshape((100, 1)).units == m

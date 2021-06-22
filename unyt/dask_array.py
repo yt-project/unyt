@@ -53,6 +53,7 @@ def _simple_dask_decorator(dask_func, current_unyt_dask):
 
     Returns a new unyt_dask_array instance with appropriate units
     """
+
     @wraps(dask_func)
     def wrapper(*args, **kwargs):
         da = dask_func(*args, **kwargs)  # will return standard dask array
@@ -60,16 +61,11 @@ def _simple_dask_decorator(dask_func, current_unyt_dask):
 
     return wrapper
 
+
 # the following list are the unyt_quantity/array attributes that will also
 # be attributes of the unyt_dask_array. These methods are wrapped with a unit
 # conversion decorator.
-_unyt_funcs_to_track = [
-    "to",
-    "in_units",
-    "in_cgs",
-    "in_base",
-    "in_mks"
-]
+_unyt_funcs_to_track = ["to", "in_units", "in_cgs", "in_base", "in_mks"]
 
 
 def _track_conversion(unyt_func_name, current_unyt_dask):
@@ -88,6 +84,7 @@ def _track_conversion(unyt_func_name, current_unyt_dask):
 
     Returns a new unyt_dask_array instance with appropriate units
     """
+
     def wrapper(*args, **kwargs):
 
         # current value of sidecar quantity
@@ -106,6 +103,7 @@ def _track_conversion(unyt_func_name, current_unyt_dask):
         new_obj = unyt_from_dask(current_unyt_dask * factor, units)
 
         return new_obj
+
     # functools wrap fails here because unyt_func_name is a string, copy manually:
     wrapper.__doc__ = getattr(current_unyt_dask._unyt_quantity, unyt_func_name).__doc__
     return wrapper
@@ -127,6 +125,15 @@ def _extract_unyt_val(obj):
     return obj.to_value() if isinstance(obj, ua.unyt_quantity) else obj
 
 
+def _check_unyt_inputs(ui_0, ui_1):
+    # returns True if the args need to be converted to the same unit
+    both_args_have_units = hasattr(ui_0, "units") and hasattr(ui_1, "units")
+    if both_args_have_units:
+        un_0, un_1 = ui_0.units, ui_1.units
+        return un_0 != un_1 and un_0.dimensions == un_1.dimensions
+    return False
+
+
 def _sanitize_unit_args(*input):
     # returns sanitized inputs and unyt_inputs for calling the ufunc
     unyt_inputs = [_extract_unyt(i) for i in input]
@@ -142,10 +149,7 @@ def _sanitize_unit_args(*input):
         # call to the ufunc with the unyt_inputs will enforce the unyt rules
         # (e.g., addition must have same dimensions).
         ui_0, ui_1 = unyt_inputs[0], unyt_inputs[1]
-        if (hasattr(ui_0, 'units') and
-            hasattr(ui_1, 'units') and
-            ui_0.units != ui_1.units and
-            ui_0.units.dimensions == ui_1.units.dimensions):
+        if _check_unyt_inputs(ui_0, ui_1):
 
             # convert to the unit with the larger base
             input = list(input)
@@ -157,11 +161,13 @@ def _sanitize_unit_args(*input):
 
     return input, unyt_inputs
 
+
 def _prep_ufunc(ufunc, *input, extract_dask=False, **kwargs):
     # this function:
     # (1) sanitizes inputs for calls to __array_func__, __array__ and _elementwise
     # (2) applies the function to the hidden unyt quantities
-    # (3) (optional) makes inputs extra clean: converts unyt_dask_array args to plain dask array objects
+    # (3) (optional) makes inputs extra clean: converts unyt_dask_array args to
+    #     plain dask array objects
 
     # apply the operation to the hidden unyt_quantities
     input, unyt_inputs = _sanitize_unit_args(*input)
@@ -175,12 +181,14 @@ def _prep_ufunc(ufunc, *input, extract_dask=False, **kwargs):
 
 
 def _post_ufunc(dask_superfunk, unyt_result):
-    # a decorator to attach hidden unyt quantity to result of a ufunc, array or elemwise calculation
+    # a decorator to attach hidden unyt quantity to result of a ufunc, array or
+    # elemwise calculation
     def wrapper(*args, **kwargs):
         dask_result = dask_superfunk(*args, **kwargs)
-        if hasattr(unyt_result, 'units'):
+        if hasattr(unyt_result, "units"):
             return _create_with_quantity(dask_result, unyt_result)
         return dask_result
+
     return wrapper
 
 
@@ -194,10 +202,12 @@ def _special_dec(the_func):
         dasksuperfunk = getattr(Array, funcname)
         daskresult = dasksuperfunk(*newargs, **kwargs)
 
-        if hasattr(unyt_result, 'units'):
+        if hasattr(unyt_result, "units"):
             return _create_with_quantity(daskresult, unyt_result)
         return daskresult
+
     return wrapper
+
 
 # note: the unyt_dask_array class has no way of catching daskified reductions (yet?).
 # operations like dask.array.min() get routed through dask.array.reductions.min()
@@ -275,19 +285,23 @@ class unyt_dask_array(Array):
         return _post_ufunc(super()._elemwise, unyt_result)(ufunc, *args, **kwargs)
 
     def __array_ufunc__(self, numpy_ufunc, method, *inputs, **kwargs):
-        inputs, unyt_result = _prep_ufunc(numpy_ufunc, *inputs, extract_dask=True, **kwargs)
-        return _post_ufunc(super().__array_ufunc__, unyt_result)(numpy_ufunc, method, *inputs, **kwargs)
+        inputs, unyt_result = _prep_ufunc(
+            numpy_ufunc, *inputs, extract_dask=True, **kwargs
+        )
+        wrapped_func = _post_ufunc(super().__array_ufunc__, unyt_result)
+        return wrapped_func(numpy_ufunc, method, *inputs, **kwargs)
 
     def __array_function__(self, func, types, args, kwargs):
         args, unyt_result = _prep_ufunc(func, *args, extract_dask=True, **kwargs)
         types = [type(i) for i in args]
-        return _post_ufunc(super().__array_function__, unyt_result)(func, types, args, kwargs)
+        wrapped_func = _post_ufunc(super().__array_function__, unyt_result)
+        return wrapped_func(func, types, args, kwargs)
 
     def __getitem__(self, index):
         return _simple_dask_decorator(super().__getitem__, self)(index)
 
     def __repr__(self):
-        disp_str = super().__repr__().replace('dask.array', 'unyt_dask_array')
+        disp_str = super().__repr__().replace("dask.array", "unyt_dask_array")
         units_str = f", units={self.units.__str__()}>"
         return disp_str.replace(">", units_str)
 
@@ -296,20 +310,16 @@ class unyt_dask_array(Array):
         base_table = super()._repr_html_table()
         table = base_table.split("\n")
         new_table = []
-        unit_s = self.units.__str__()
         for row in table:
             if "</tbody>" in row:
-                new_table.append(
-                    f"    <tr><th> Units </th><td> {unit_s} </td> <td> {unit_s} </td></tr>"
-                )
+                u = self.units.__str__()
+                newrow = f"    <tr><th> Units </th><td> {u} </td> <td> {u} </td></tr>"
+                new_table.append(newrow)
             new_table.append(row)
         return "\n".join(new_table)
 
-
-
     def to_dask(self):
-        """ return a plain dask array. Only copies high level graphs, should be cheap...
-        """
+        """return a plain dask array. Only copies high level graphs, should be cheap..."""
         (cls, args) = self.__reduce__()
         return super().__new__(Array, *args)
 
@@ -326,7 +336,7 @@ class unyt_dask_array(Array):
     def __dask_postcompute__(self):
         # a dask hook to catch after .compute(), see
         # https://docs.dask.org/en/latest/custom-collections.html#example-dask-collection
-        return _finalize_unyt, ((self.units, ))
+        return _finalize_unyt, ((self.units,))
 
     def _set_unit_state(self, units, new_unyt_quantity, unyt_name):
         # sets just the unit state of the object
@@ -338,40 +348,52 @@ class unyt_dask_array(Array):
     # explicitly here (but are handled generically by the _special_dec decorator).
 
     @_special_dec
-    def __abs__(self): pass
+    def __abs__(self):
+        pass
 
     @_special_dec
-    def __pow__(self, other): pass
+    def __pow__(self, other):
+        pass
 
     @_special_dec
-    def __mul__(self, other): pass
+    def __mul__(self, other):
+        pass
 
     @_special_dec
-    def __rmul__(self, other): pass
+    def __rmul__(self, other):
+        pass
 
     @_special_dec
-    def __div__(self, other): pass
+    def __div__(self, other):
+        pass
 
     @_special_dec
-    def __rdiv__(self, other): pass
+    def __rdiv__(self, other):
+        pass
 
     @_special_dec
-    def __truediv__(self, other): pass
+    def __truediv__(self, other):
+        pass
 
     @_special_dec
-    def __rtruediv__(self, other): pass
+    def __rtruediv__(self, other):
+        pass
 
     @_special_dec
-    def __add__(self, other): pass
+    def __add__(self, other):
+        pass
 
     @_special_dec
-    def __radd__(self, other): pass
+    def __radd__(self, other):
+        pass
 
     @_special_dec
-    def __sub__(self, other): pass
+    def __sub__(self, other):
+        pass
 
     @_special_dec
-    def __rsub__(self, other): pass
+    def __rsub__(self, other):
+        pass
 
 
 def _finalize_unyt(results, unit_name):
@@ -472,7 +494,7 @@ def unyt_from_dask(
         units=units,
         registry=registry,
         bypass_validation=bypass_validation,
-        unyt_name=unyt_name
+        unyt_name=unyt_name,
     )
 
     return da

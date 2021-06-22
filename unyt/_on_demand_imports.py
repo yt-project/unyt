@@ -177,6 +177,7 @@ class matplotlib_imports(object):
 
 _matplotlib = matplotlib_imports()
 
+
 class dask_imports(object):
     _name = "dask"
     _array = None
@@ -190,5 +191,6 @@ class dask_imports(object):
                 array = NotAModule(self._name)
             self._array = array
         return self._array
+
 
 _dask = dask_imports()
