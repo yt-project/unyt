@@ -182,6 +182,13 @@ class dask_imports(object):
     _name = "dask"
     _array = None
 
+    def __init__(self):
+        try:
+            _ = self.array
+            self._available = True
+        except ImportError:
+            self._available = False
+
     @property
     def array(self):
         if self._array is None:

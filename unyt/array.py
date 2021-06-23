@@ -126,7 +126,7 @@ from unyt.exceptions import (
     SymbolNotFoundError,
 )
 from unyt.equivalencies import equivalence_registry
-from unyt._on_demand_imports import _astropy, _pint
+from unyt._on_demand_imports import _astropy, _pint, _dask
 from unyt._pint_conversions import convert_pint_units
 from unyt._unit_lookup_table import default_unit_symbol_lut
 from unyt.unit_object import _check_em_conversion, _em_conversion, Unit
@@ -136,7 +136,6 @@ from unyt.unit_registry import (
     default_unit_registry,
     _correct_old_unit_registry,
 )
-from unyt.dask_array import unyt_dask_array
 
 NULL_UNIT = Unit()
 POWER_SIGN_MAPPING = {multiply: 1, divide: -1}
@@ -1691,7 +1690,7 @@ class unyt_array(np.ndarray):
             i0 = inputs[0]
             i1 = inputs[1]
 
-            if isinstance(i1, unyt_dask_array):
+            if _dask._available and isinstance(i1, _dask.array.core.Array):
                 # need to short circuit all this to handle binary operations
                 # like unyt_quantity(2,'m') / unyt_dask_array_instance
                 # only need to check the second argument as if the first arg
