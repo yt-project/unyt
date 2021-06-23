@@ -183,11 +183,7 @@ class dask_imports(object):
     _array = None
 
     def __init__(self):
-        try:
-            _ = self.array
-            self._available = True
-        except ImportError:
-            self._available = False
+        self._available = isinstance(self.array, NotAModule) is False
 
     @property
     def array(self):
