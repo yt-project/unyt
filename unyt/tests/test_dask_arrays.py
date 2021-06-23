@@ -1,9 +1,11 @@
 from numpy.testing import assert_array_equal
 from numpy import sqrt, ones
-from unyt.dask_array import unyt_from_dask, unyt_dask_array
+from unyt.dask_array import unyt_from_dask, unyt_dask_array, _create_with_quantity
 from unyt._on_demand_imports import _dask as dask
 from unyt import unyt_array, unyt_quantity
 from unyt.unit_symbols import cm, m, g
+from unyt.exceptions import UnitOperationError
+import pytest
 
 
 def test_unyt_dask_creation():
@@ -13,6 +15,13 @@ def test_unyt_dask_creation():
     assert x_da.units == m
     assert type(x_da.compute()) == unyt_array
 
+    x_da = _create_with_quantity(x, unyt_quantity(1, m))
+    assert type(x_da) == unyt_dask_array
+    assert x_da.units == m
+    assert type(x_da.compute()) == unyt_array
+
+    x_dask = x_da.to_dask()
+    assert_array_equal(x.compute(), x_dask.compute())
 
 def test_unyt_dask_slice():
     x = dask.array.ones((10, 10), chunks=(2, 2))
@@ -31,11 +40,16 @@ def test_unit_conversions():
     assert x_da.units == cm
     assert x_da.compute().units == cm
 
-    x_da_2 = unyt_from_dask(x, cm)
-    result = x_da + x_da_2
+    x_da_2 = unyt_from_dask(x, m)
+    result = x_da + x_da_2 
     assert type(result) == unyt_dask_array
-    assert result.units == cm
-    assert result.compute().units == cm
+    assert result.units == m
+    assert result.compute().units == m
+
+    x_da_2 = unyt_from_dask(x, "g")
+    with pytest.raises(UnitOperationError):
+        x_da + x_da_2
+
 
 
 def test_conversion_to_dask():

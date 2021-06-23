@@ -10,6 +10,11 @@ from numpy import ndarray
 from unyt._on_demand_imports import _dask as dask
 from functools import wraps
 
+__doctest_requires__ = {
+    ("dask_array.unyt_from_dask"): ["dask"],
+}
+
+
 _dask_Array = dask.array.core.Array
 _dask_finalize = dask.array.core.finalize
 
@@ -481,23 +486,22 @@ def unyt_from_dask(
     Examples
     --------
 
-    >>> from unyt import dask_array
+    >>> from unyt import dask_array, unyt_quantity
     >>> import dask.array as da
-    >>> x = da.random.random((10000, 10000), chunks=(1000, 1000))
+    >>> x = da.ones((1000, 1000), chunks=(100, 100))
     >>> x_da = dask_array.unyt_from_dask(x, 'm')
-    >>> x_da
-    unyt_dask_array<random_sample, shape=(10000, 10000), dtype=float64, ...
-                    chunksize=(1000, 1000), chunktype=numpy.ndarray, units=m>
+    >>> type(x_da)
+    <class 'unyt.dask_array.unyt_dask_array'>
     >>> x_da.units
     m
-    >>> x_da.mean().units()
+    >>> x_da.mean().units
     m
     >>> x_da.mean().compute()
-    unyt_array(0.50001502, 'm')
+    unyt_quantity(1., 'm')
     >>> x_da.to('cm').mean().compute()
-    unyt_array(50.00150242, 'cm')
-    >>> (x_da.to('cm')**2).mean().compute()
-    unyt_array(3333.37805754, 'cm**2')
+    unyt_quantity(100., 'cm')
+    >>> (x_da.to('cm')/unyt_quantity(10, 's')).mean().compute()
+    unyt_quantity(10., 'cm/s')
 
     """
 
