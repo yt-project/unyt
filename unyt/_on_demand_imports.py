@@ -181,6 +181,7 @@ _matplotlib = matplotlib_imports()
 class dask_imports(object):
     _name = "dask"
     _array = None
+    _version = None
 
     def __init__(self):
         self._available = isinstance(self.array, NotAModule) is False
@@ -194,6 +195,18 @@ class dask_imports(object):
                 array = NotAModule(self._name)
             self._array = array
         return self._array
+
+    @property
+    def __version__(self):
+        if self._version is None:
+            try:
+                import dask
+
+                version = dask.__version__
+            except ImportError:
+                version = NotAModule(self._name)
+            self._version = version
+        return self._version
 
 
 _dask = dask_imports()

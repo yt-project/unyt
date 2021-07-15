@@ -145,13 +145,15 @@ def _check_unyt_inputs(ui_0, ui_1):
         return un_0 != un_1 and un_0.dimensions == un_1.dimensions
     return False
 
+
 def _is_iterable(obj):
     return type(obj) is tuple or type(obj) is list
+
 
 def _sanitize_unit_args(*input):
     # returns sanitized inputs and unyt_inputs for calling the ufunc
     # what if i is a list or tuple????? np.concatenate([x,x2]) is one arg...
-    unyt_inputs = [_extract_unyt(i) for i in input]
+    unyt_inputs = _extract_unyt(input)
 
     if len(unyt_inputs) > 1:
         # note 1: even though we rely on the ufunc applied to the unyt quantities
@@ -172,7 +174,7 @@ def _sanitize_unit_args(*input):
                 input[0] = input[0].to(ui_1.units)
             else:
                 input[1] = input[1].to(ui_0.units)
-            unyt_inputs = [_extract_unyt(i) for i in input]
+            unyt_inputs = _extract_unyt(input)
 
     return input, unyt_inputs
 
@@ -189,10 +191,9 @@ def _prep_ufunc(ufunc, *input, extract_dask=False, **kwargs):
     unyt_result = ufunc(*unyt_inputs, **kwargs)
 
     if extract_dask:
-        # this will end up with a nested list -- bad.
-        input = [_extract_dask(i) for i in input]
+        input = _extract_dask(input)
 
-    input = [_extract_unyt_val(i) for i in input]
+    input = _extract_unyt_val(input)
     return input, unyt_result
 
 
@@ -215,12 +216,11 @@ def _special_dec(the_func):
         funcname = the_func.__name__
         ufunc = getattr(ua.unyt_quantity, funcname)
         ufunc_args = (self,) + args
-        newargs, unyt_result = _prep_ufunc(ufunc, *ufunc_args, extract_dask=True, **kwargs)
-        if len(newargs) == 1:
-            newargs = []
-        else:
-            newargs = newargs[1:]
-        daskresult = the_func(self, *newargs, **kwargs)
+        args, unyt_result = _prep_ufunc(ufunc, *ufunc_args, extract_dask=True, **kwargs)
+
+        # remove the first arg, cause we need to supply self as first arg
+        _ = args.pop(0)
+        daskresult = the_func(self, *args, **kwargs)
 
         if hasattr(unyt_result, "units"):
             return _create_with_quantity(daskresult, unyt_result)
@@ -321,6 +321,7 @@ class unyt_dask_array(_dask_Array):
         return _simple_dask_decorator(super().__getitem__, self)(index)
 
     def __setitem__(self, key, value):
+        # requires dask >= 2021.4.1
         super().__setitem__(key, value)
 
     def __repr__(self):

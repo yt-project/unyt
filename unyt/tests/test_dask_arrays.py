@@ -1,12 +1,43 @@
 from numpy.testing import assert_array_equal
 from numpy import sqrt, ones, min, add, isfinite, sum
-from unyt.dask_array import unyt_from_dask, unyt_dask_array
 from unyt.dask_array import unyt_from_dask, unyt_dask_array, _create_with_quantity
 from unyt._on_demand_imports import _dask as dask
 from unyt import unyt_array, unyt_quantity
 from unyt.unit_symbols import cm, m, g
 from unyt.exceptions import UnitOperationError
 import pytest
+
+
+def dask_is_too_old(dask_version_str):
+
+    if dask_version_str is None:
+        return True
+
+    major, minor, revis = [int(mmr) for mmr in dask_version_str.split(".")]
+    # version 2021.04.1 is min for the __setitem__ test
+    if major > 2021:
+        return False
+    if major < 2021:
+        return True
+    # major version == 2021 if we are here
+    if (minor == 4 and revis >= 1) or minor > 4:  # == 2021
+        return False
+    return True
+
+
+requires_dask_2021421 = pytest.mark.skipif(
+    dask_is_too_old(dask.__version__), reason="test requires dask>=2021.04.1"
+)
+
+
+def test_dask_version_check():
+    assert dask_is_too_old(None) is True
+    assert dask_is_too_old("2.9.0") is True
+    assert dask_is_too_old("2021.3.0") is True
+    assert dask_is_too_old("2021.4.0") is True
+    assert dask_is_too_old("2021.4.1") is False
+    assert dask_is_too_old("2021.7.0") is False
+    assert dask_is_too_old("2022.1.0") is False
 
 
 def test_unyt_dask_creation():
@@ -24,9 +55,10 @@ def test_unyt_dask_creation():
     x_dask = x_da.to_dask()
     assert_array_equal(x.compute(), x_dask.compute())
 
+
 def test_unyt_dask_slice():
 
-    # tests __getitem__, __setitem__
+    # tests __getitem__
     x = dask.array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
     slc = x_da[:, 0]
@@ -34,9 +66,14 @@ def test_unyt_dask_slice():
     assert slc.compute().units == m
     assert type(slc.compute()) == unyt_array
 
-    # needs dask >= 2021.04.1
-    x_da[:, 0] = 3.
-    assert sum(x_da[:, 0].compute() == 3.) == 10
+
+@requires_dask_2021421
+def test_unyt_set():
+    # tests __setitem__
+    x = dask.array.ones((10, 10), chunks=(2, 2))
+    x_da = unyt_from_dask(x, m)
+    x_da[:, 0] = 3.0
+    assert sum(x_da[:, 0].compute() == 3.0) == 10
 
 
 def test_unit_conversions():
@@ -48,7 +85,7 @@ def test_unit_conversions():
     assert x_da.compute().units == cm
 
     x_da_2 = unyt_from_dask(x, m)
-    result = x_da + x_da_2 
+    result = x_da + x_da_2
     assert type(result) == unyt_dask_array
     assert result.units == m
     assert result.compute().units == m
@@ -58,7 +95,6 @@ def test_unit_conversions():
         x_da + x_da_2
 
 
-
 def test_conversion_to_dask():
     x = dask.array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
@@ -66,7 +102,7 @@ def test_conversion_to_dask():
     assert_array_equal(x.compute(), x_again.compute())
     assert type(x_again) == type(x)
 
-    result = isfinite(x_da) # should return plain dask array
+    result = isfinite(x_da)  # should return plain dask array
     assert type(result) == dask.array.core.Array
 
 
@@ -112,7 +148,6 @@ def test_unary():
 
 
 def test_logical():
-
     def logical_operators(x_da, other):
         # comparisons should return plain dask arrays
         result = x_da < other
@@ -155,15 +190,10 @@ def test_logical():
         assert type(result) == dask.array.Array
 
     x = dask.array.ones((10, 10), chunks=(2, 2))
-    x2 = dask.array.full((10, 10), 2, chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
-    x_da_2 = unyt_from_dask(x2, g)
 
     logical_operators(x_da, 2)
-    logical_operators(x_da, 2*x_da)
-
-
-
+    logical_operators(x_da, 2 * x_da)
 
 
 def test_binary():
@@ -302,4 +332,3 @@ def test_np_ufuncs():
     assert type(min(x_da).compute()) == unyt_quantity
     result = add(x_da, unyt_quantity(2, m)).compute()
     assert type(result) == unyt_array
-
