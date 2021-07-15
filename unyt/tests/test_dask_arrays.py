@@ -1,5 +1,5 @@
 from numpy.testing import assert_array_equal
-from numpy import sqrt, ones
+from numpy import sqrt, ones, min, add, isfinite, sum
 from unyt.dask_array import unyt_from_dask, unyt_dask_array
 from unyt._on_demand_imports import _dask as dask
 from unyt import unyt_array, unyt_quantity
@@ -15,12 +15,18 @@ def test_unyt_dask_creation():
 
 
 def test_unyt_dask_slice():
+
+    # tests __getitem__, __setitem__
     x = dask.array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
     slc = x_da[:, 0]
     assert slc.units == m
     assert slc.compute().units == m
     assert type(slc.compute()) == unyt_array
+
+    # needs dask >= 2021.04.1
+    x_da[:, 0] = 3.
+    assert sum(x_da[:, 0].compute() == 3.) == 10
 
 
 def test_unit_conversions():
@@ -44,6 +50,9 @@ def test_conversion_to_dask():
     x_again = x_da.to_dask()
     assert_array_equal(x.compute(), x_again.compute())
     assert type(x_again) == type(x)
+
+    result = isfinite(x_da) # should return plain dask array
+    assert type(result) == dask.array.core.Array
 
 
 def unary_test(the_func, unyt_dask_obj, unyt_array_in, *args, **kwargs):
@@ -85,6 +94,61 @@ def test_unary():
     unary_result_test(x_da.std(), x_unyt.std())
     unary_result_test(x_da.cumsum(0), x_unyt.cumsum(0))
     unary_result_test(abs(x_da), abs(x_unyt))  # __abs__
+
+
+def test_logical():
+
+    def logical_operators(x_da, other):
+        # comparisons should return plain dask arrays
+        result = x_da < other
+        assert type(result) == dask.array.Array
+
+        result = other > x_da
+        assert type(result) == dask.array.Array
+
+        result = x_da > other
+        assert type(result) == dask.array.Array
+
+        result = other < x_da
+        assert type(result) == dask.array.Array
+
+        result = x_da < other
+        assert type(result) == dask.array.Array
+
+        result = x_da <= other
+        assert type(result) == dask.array.Array
+
+        result = other >= x_da
+        assert type(result) == dask.array.Array
+
+        result = x_da >= other
+        assert type(result) == dask.array.Array
+
+        result = other <= x_da
+        assert type(result) == dask.array.Array
+
+        result = x_da <= other
+        assert type(result) == dask.array.Array
+
+        result = other == x_da
+        assert type(result) == dask.array.Array
+
+        result = x_da == other
+        assert type(result) == dask.array.Array
+
+        result = x_da != other
+        assert type(result) == dask.array.Array
+
+    x = dask.array.ones((10, 10), chunks=(2, 2))
+    x2 = dask.array.full((10, 10), 2, chunks=(2, 2))
+    x_da = unyt_from_dask(x, m)
+    x_da_2 = unyt_from_dask(x2, g)
+
+    logical_operators(x_da, 2)
+    logical_operators(x_da, 2*x_da)
+
+
+
 
 
 def test_binary():
@@ -208,3 +272,19 @@ def test_dask_passthroughs():
     x = dask.array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
     assert x_da.reshape((100, 1)).units == m
+
+
+def test_repr():
+    x = dask.array.ones((10, 10), chunks=(2, 2))
+    x_da = unyt_from_dask(x, m)
+    assert "unyt_dask_array" in x_da.__repr__()
+    assert "Units" in x_da._repr_html_()
+
+
+def test_np_ufuncs():
+    x = dask.array.ones((10, 10), chunks=(2, 2))
+    x_da = unyt_from_dask(x, m)
+    assert type(min(x_da).compute()) == unyt_quantity
+    result = add(x_da, unyt_quantity(2, m)).compute()
+    assert type(result) == unyt_array
+
