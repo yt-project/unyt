@@ -95,7 +95,6 @@ managing your python evironment using your operating system's package manager or
     $ export PYENV_ROOT="$HOME/.pyenv"
     $ export PATH="$HOME/.pyenv/bin:$PATH
     $ eval "$(pyenv init -)"
-    $ pyenv install -s 3.5.9
     $ pyenv install -s 3.6.10
     $ pyenv install -s 3.7.6
     $ pyenv install -s 3.8.1
@@ -122,7 +121,7 @@ managing your python evironment using your operating system's package manager or
     $ flake8 unyt
     $ black ./
     $ pytest --doctest-modules --doctest-rst --doctest-plus
-    $ pyenv local 3.5.9 3.6.10 3.7.6 3.8.1
+    $ pyenv local 3.6.10 3.7.6 3.8.1
     $ tox
     $ pyenv local 3.8.1
 
@@ -153,7 +152,7 @@ following arguments::
 
 These enable testing the docstrings and doctest examples scattered throughout
 the unyt and its documentation.
-   
+
 You will need to install ``pytest`` and ``pytest-doctestplus`` to run this
 command. Some tests depend on ``h5py``, ``Pint``, ``astropy``, ``matplotlib``
 ``black``, and ``flake8`` being installed.
@@ -164,7 +163,7 @@ execute ``tox`` in the root of the ``unyt`` repository. For example, using the
 ``pyenv`` environment we set up above::
 
    $ cd unyt
-   $ pyenv local 3.5.9 3.6.10 3.7.6 3.8.1
+   $ pyenv local 3.6.10 3.7.6 3.8.1
    $ tox
 
 The ``tox`` package itself can be installed using the ``pip`` associated with
@@ -191,7 +190,7 @@ Before you submit a pull request, check that it meets these guidelines:
    please update the existing docstrings. If you modify private implementation
    details, please use your judgment on documenting it with comments or
    docstrings.
-3. The pull request should work for Python 3.5, 3.6, 3.7, and 3.8. Check in the
+3. The pull request should work for Python 3.6, 3.7, and 3.8. Check in the
    GitHub interface for your pull request and make sure that the tests pass for
    all supported Python versions.
 
