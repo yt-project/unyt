@@ -135,3 +135,6 @@ def test():  # pragma: no cover
     import os
 
     pytest.main([os.path.dirname(os.path.abspath(__file__))])
+
+from . import _version
+__version__ = _version.get_versions()['version']
