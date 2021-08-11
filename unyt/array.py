@@ -719,7 +719,7 @@ class unyt_array(np.ndarray):
         self.convert_to_units(
             self.units.get_base_equivalent(unit_system),
             equivalence=equivalence,
-            **kwargs
+            **kwargs,
         )
 
     def convert_to_cgs(self, equivalence=None, **kwargs):
