@@ -746,6 +746,17 @@ def test_temperature_conversions():
     assert_array_almost_equal(balmy.in_cgs(), unyt_quantity(300, "K"))
 
 
+@pytest.mark.parametrize("itemsize", (8, 16, 32, 64))
+def test_conversion_from_int_types(itemsize):
+    a = unyt_array([1], "cm", dtype=f"int{itemsize}")
+
+    # check copy conversion
+    a.in_units("m")
+
+    # check in place conversion
+    a.convert_to_units("m")
+
+
 def test_unyt_array_unyt_quantity_ops():
     """
     Test operations that combine unyt_array and unyt_quantity
