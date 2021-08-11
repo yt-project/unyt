@@ -653,6 +653,12 @@ class unyt_array(np.ndarray):
                 # form, it's possible this may lose precision for very
                 # large integers
                 dsize = values.dtype.itemsize
+                if dsize == 1:
+                    raise ValueError(
+                        "Can't convert memory buffer in place. "
+                        f"Input dtype ({self.dtype}) has a smaller itemsize than the "
+                        "smallest floating point representation possible."
+                    )
                 new_dtype = "f" + str(dsize)
                 large = LARGE_INPUT.get(dsize, 0)
                 if large and np.any(np.abs(values) > large):
@@ -833,7 +839,7 @@ class unyt_array(np.ndarray):
                 (conversion_factor, offset) = self.units.get_conversion_factor(
                     new_units, self.dtype
                 )
-            dsize = self.dtype.itemsize
+            dsize = max(2, self.dtype.itemsize)
             if self.dtype.kind in ("u", "i"):
                 large = LARGE_INPUT.get(dsize, 0)
                 if large and np.any(np.abs(self.d) > large):
