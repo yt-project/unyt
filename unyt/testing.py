@@ -12,7 +12,7 @@ Utilities for writing tests
 # -----------------------------------------------------------------------------
 
 import warnings
-
+from numpy.testing import assert_equal
 from unyt.array import allclose_units
 
 
@@ -54,6 +54,60 @@ def assert_allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
     """
     if not allclose_units(actual, desired, rtol, atol, **kwargs):
         raise AssertionError
+
+
+def assert_equal_units(actual, desired, **kwargs):
+    """Raise an error if two objects are not equal or have different units
+
+    This is a wrapper for :func:`numpy.testing.assert_equal` that also
+    verifies unit consistency
+
+    Parameters
+    ----------
+    actual : array-like
+        Array obtained (possibly with attached units)
+    desired : array-like
+        Array to compare with (possibly with attached units)
+
+    See Also
+    --------
+    :func:`unyt.array.equal_units`
+
+    Notes
+    -----
+    Also accepts additional keyword arguments accepted by
+    :func:`numpy.testing.assert_equal`, see the documentation of that
+    function for details.
+
+    Examples
+    --------
+    >>> import unyt as u
+    >>> actual = [1e-5, 1e-3, 1e-1]*u.m
+    >>> desired = actual.to("cm")
+    >>> assert_equal_units(actual, desired)
+    Traceback (most recent call last):
+    ...
+    AssertionError: Mismatching units. Got 'm', expected 'cm'.
+    """
+    __tracebackhide__ = True  # Hide traceback for pytest
+
+    # check units are present and compatible
+    if not hasattr(actual, "units"):
+        raise AssertionError("First argument is missing a `units` attribute.")
+    if not hasattr(desired, "units"):
+        raise AssertionError("Second argument is missing a `units` attribute.")
+
+    if not actual.is_convertible_to(desired.units):
+        raise AssertionError(
+            f"Incompatible units. Got '{actual.units}', expected '{desired.units}'."
+        )
+
+    if not actual.units == desired.units:
+        raise AssertionError(
+            f"Mismatching units. Got '{actual.units}', expected '{desired.units}'."
+        )
+
+    assert_equal(actual, desired, **kwargs)
 
 
 def _process_warning(op, message, warning_class, args=(), kwargs=None):

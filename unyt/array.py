@@ -596,6 +596,14 @@ class unyt_array(np.ndarray):
     # Start unit conversion methods
     #
 
+    def is_convertible_to(self, units, equivalence=None, **kwargs) -> bool:
+        a = self[0]
+        try:
+            a.in_units(units, equivalence=equivalence, **kwargs)
+            return True
+        except UnitConversionError:
+            return False
+
     def convert_to_units(self, units, equivalence=None, **kwargs):
         """
         Convert the array to the given units in-place.
@@ -2491,3 +2499,37 @@ def allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
     at = at.value
 
     return np.allclose(act, des, rt, at, **kwargs)
+
+
+def equal_units(actual, desired, out=None, **kwargs) -> bool:
+    """Returns False if two objects are not equal or have different units.
+
+    This is a wrapper for :func:`numpy.equal` that also
+    verifies unit consistency
+
+    Parameters
+    ----------
+    actual : array-like
+        Array obtained (possibly with attached units)
+    desired : array-like
+        Array to compare with (possibly with attached units)
+
+    See Also
+    --------
+    :func:`unyt.testing.assert_equal_units`
+
+    Notes
+    -----
+    Also accepts additional keyword arguments accepted by
+    :func:`numpy.equal`, see the documentation of that
+    function for details.
+
+    Examples
+    --------
+    >>> import unyt as u
+    >>> actual = [1e-5, 1e-3, 1e-1]*u.m
+    >>> desired = actual.to("cm")
+    >>> equal_units(actual, desired)
+    False
+    """
+    return actual.units == desired.units and np.equal(actual, desired, **kwargs)

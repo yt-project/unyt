@@ -90,11 +90,12 @@ from unyt.array import (  # NOQA: F401
     unyt_array,
     unyt_quantity,
     allclose_units,
+    equal_units,
 )
 from unyt.unit_object import Unit, define_unit  # NOQA: F401
 from unyt.unit_registry import UnitRegistry  # NOQA: F401
 from unyt.unit_systems import UnitSystem  # NOQA: F401
-from unyt.testing import assert_allclose_units  # NOQA: F401
+from unyt.testing import assert_allclose_units, assert_equal_units  # NOQA: F401
 from unyt.dimensions import accepts, returns  # NOQA: F401
 
 try:
