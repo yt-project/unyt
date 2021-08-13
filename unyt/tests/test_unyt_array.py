@@ -2494,6 +2494,7 @@ def test_string_formatting():
         ("+inf g", float("inf") * Unit("g")),
         ("-inf g", -float("inf") * Unit("g")),
         ("1", 1.0 * Unit()),
+        ("g", 1.0 * Unit("g")),
     ],
 )
 def test_valid_quantity_from_string(s, expected):
@@ -2509,7 +2510,6 @@ def test_valid_quantity_from_string(s, expected):
     [
         "++1cm",
         "--1cm",
-        "infcm",  # space sep is required here
         "cm10",
         "cm 10.",
         ".cm",
@@ -2526,13 +2526,14 @@ def test_invalid_expression_quantity_from_string(s):
         "10 cmmmm",
         "50. Km",
         ".6   MSUN",
+        "infcm",  # space sep is required here
     ],
 )
 def test_invalid_unit_quantity_from_string(s):
     # using a lazy solution here
     # this test would need to be refactored if we want to add other cases
     # without a space separator between number and unit.
-    un_str = s.split()[1]
+    un_str = s.split()[-1]
     with pytest.raises(
         UnitParseError,
         match="Could not find unit symbol '{}' in the provided symbols.".format(un_str),

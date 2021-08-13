@@ -1366,8 +1366,10 @@ class unyt_array(np.ndarray):
         unyt_quantity(1., 'g/cm**3')
         """
         v = s.strip()
-        if re.fullmatch(_NUMB_PATTERN, v):
-            return float(re.match(_NUMB_PATTERN, v).group()) * Unit()
+        if re.fullmatch(_NUMB_REGEXP, v):
+            return float(re.match(_NUMB_REGEXP, v).group()) * Unit()
+        if re.fullmatch(_UNIT_REGEXP, v):
+            return 1 * Unit(re.match(_UNIT_REGEXP, v).group())
         if not re.match(_QUAN_REGEXP, v):
             raise ValueError("Received invalid quantity expression '{}'.".format(s))
         res = re.search(_NUMB_REGEXP, v)
