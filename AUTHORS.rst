@@ -21,6 +21,7 @@ Contributors
 * Kacper Kowalik <xarthisius.kk@gmail.com>
 * Nathan Musoke <nathan.musoke@gmail.com>
 * Andrew Myers <atmyers2@gmail.com>
+* Clément Robert
 * Simon Schopferer <simon.schopferer@dlr.de>
 * Sam Skillman <samskillman@gmail.com>
 * Britton Smith <brittonsmith@gmail.com>
