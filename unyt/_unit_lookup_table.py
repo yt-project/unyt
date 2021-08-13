@@ -261,7 +261,6 @@ default_unit_symbol_lut = OrderedDict(
         ("counts", (1.0, dimensions.dimensionless, 0.0, r"\rm{counts}", False)),
         ("photons", (1.0, dimensions.dimensionless, 0.0, r"\rm{photons}", False)),
         ("dBZ", (1.0, dimensions.dimensionless, 0.0, r"\rm{dBZ}", False)),
-        ("dB", (1.0, dimensions.dimensionless, 0.0, r"\rm{dB}", False)),
         ("me", (mass_electron_kg, dimensions.mass, 0.0, r"m_e", False)),
         ("mp", (mass_hydrogen_kg, dimensions.mass, 0.0, r"m_p", False)),
         ("Sv", (1.0, dimensions.specific_energy, 0.0, r"\rm{Sv}", True)),
