@@ -827,6 +827,25 @@ method:
   <Quantity([1 2 3], 'centimeter')>
 
 
+Reading quantities from text
+----------------------------
+
+Quantities can also be parsed from strings with the :func:`unyt_quantity.from_string <unyt.unyt_quantity.from_string>` function:
+
+  >>> from unyt import unyt_quantity
+  >>> unyt_quantity.from_string("1 cm")
+  unyt_quantity(1., 'cm')
+  >>> unyt_quantity.from_string("1e3 Msun")
+  unyt_quantity(1000., 'Msun')
+  >>> unyt_quantity.from_string("1e-3 g/cm**3")
+  unyt_quantity(0.001, 'g/cm**3')
+
+This method is helpful to read data from text files, for instance configuration
+files. It is intended to be as flexible as possible on the string format, though
+it requires that the numerical value and the unit name be separated with some
+kind of whitespace.
+
+
 User-Defined Units
 ++++++++++++++++++
 
