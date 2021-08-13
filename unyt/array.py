@@ -17,6 +17,7 @@ import copy
 
 from functools import lru_cache
 from numbers import Number as numeric_type
+import re
 import numpy as np
 from numpy import (
     add,
@@ -144,6 +145,17 @@ __doctest_requires__ = {
     ("unyt_array.from_pint", "unyt_array.to_pint"): ["pint"],
     ("unyt_array.from_astropy", "unyt_array.to_astropy"): ["astropy"],
 }
+
+# This is partially adapted from the following SO thread
+# https://stackoverflow.com/questions/41668588/regex-to-match-scientific-notation
+_NUMB_PATTERN = r"^[+/-]?((?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)|\d*\.?\d+|\d+\.?\d*|nan\s|inf\s)"  # noqa: E501
+# *all* greek letters are considered valid unit string elements.
+# This may be an overshoot. We rely on unyt.Unit to do the actual validation
+_UNIT_PATTERN = r"([α-ωΑ-Ωa-zA-Z]+(\*\*([+/-]?[0-9]+)|[*/])?)+"
+_QUAN_PATTERN = r"{}\s*{}".format(_NUMB_PATTERN, _UNIT_PATTERN)
+_NUMB_REGEXP = re.compile(_NUMB_PATTERN)
+_UNIT_REGEXP = re.compile(_UNIT_PATTERN)
+_QUAN_REGEXP = re.compile(_QUAN_PATTERN)
 
 
 def _iterable(obj):
@@ -1204,8 +1216,8 @@ class unyt_array(np.ndarray):
         ----------
         arr : AstroPy Quantity
             The Quantity to convert from.
-        unit_registry : yt UnitRegistry, optional
-            A yt unit registry to use in the conversion. If one is not
+        unit_registry : unyt.UnitRegistry, optional
+            A unyt unit registry to use in the conversion. If one is not
             supplied, the default one will be used.
 
         Example
@@ -1262,8 +1274,8 @@ class unyt_array(np.ndarray):
         ----------
         arr : Pint Quantity
             The Quantity to convert from.
-        unit_registry : yt UnitRegistry, optional
-            A yt unit registry to use in the conversion. If one is not
+        unit_registry : unyt.UnitRegistry, optional
+            A unyt unit registry to use in the conversion. If one is not
             supplied, the default one will be used.
 
         Examples
@@ -1300,7 +1312,7 @@ class unyt_array(np.ndarray):
         unit_registry : Pint UnitRegistry, optional
             The Pint UnitRegistry to use in the conversion. If one is not
             supplied, the default one will be used. NOTE: This is not
-            the same as a yt UnitRegistry object.
+            the same as a unyt.UnitRegistry object.
 
         Examples
         --------
@@ -1323,6 +1335,52 @@ class unyt_array(np.ndarray):
             units.append("%s**(%s)" % (unit, Rational(pow)))
         units = "*".join(units)
         return unit_registry.Quantity(self.value, units)
+
+    @staticmethod
+    def from_string(s, unit_registry=None):
+        """
+        Parse a string to a unyt_quantity object.
+
+        Parameters
+        ----------
+        s: str
+           A string representing a single quantity.
+        unit_registry: unyt.UnitRegistry, optional
+            A unyt unit registry to use in the conversion. If one is not
+            supplied, the default one will be used.
+
+        Examples
+        --------
+        >>> from unyt import unyt_quantity
+        >>> unyt_quantity.from_string("1cm")
+        unyt_quantity(1., 'cm')
+        >>> unyt_quantity.from_string("+1e3 Mearth")
+        unyt_quantity(1000., 'Mearth')
+        >>> unyt_quantity.from_string("-10. kg")
+        unyt_quantity(-10., 'kg')
+        >>> unyt_quantity.from_string(".66\tum")
+        unyt_quantity(0.66, 'μm')
+        >>> unyt_quantity.from_string("42")
+        unyt_quantity(42., '(dimensionless)')
+        >>> unyt_quantity.from_string("1.0 g/cm**3")
+        unyt_quantity(1., 'g/cm**3')
+        """
+        v = s.strip()
+        if re.fullmatch(_NUMB_REGEXP, v):
+            return float(re.match(_NUMB_REGEXP, v).group()) * Unit()
+        if re.fullmatch(_UNIT_REGEXP, v):
+            return 1 * Unit(re.match(_UNIT_REGEXP, v).group())
+        if not re.match(_QUAN_REGEXP, v):
+            raise ValueError("Received invalid quantity expression '{}'.".format(s))
+        res = re.search(_NUMB_REGEXP, v)
+        num = res.group()
+        res = re.search(_UNIT_REGEXP, v[res.span()[1] :])
+        unit = res.group()
+        return float(num) * Unit(unit, registry=unit_registry)
+
+    def to_string(self):
+        # this is implemented purely for symmetry's sake
+        return str(self)
 
     #
     # End unit conversion methods
