@@ -55,7 +55,9 @@ class UnitRegistry:
 
     _unit_system_id = None
 
-    def __init__(self, add_default_symbols=True, lut=None, unit_system=None, strict=True):
+    def __init__(
+        self, add_default_symbols=True, lut=None, unit_system=None, strict=True
+    ):
         self._unit_object_cache = {}
         if lut:
             self.lut = lut
