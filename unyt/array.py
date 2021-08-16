@@ -125,7 +125,7 @@ from unyt.exceptions import (
     UnitConversionError,
     UnitsNotReducible,
     SymbolNotFoundError,
-    UnitOperationWarning
+    UnitOperationWarning,
 )
 from unyt.equivalencies import equivalence_registry
 from unyt._on_demand_imports import _astropy, _pint
@@ -173,10 +173,7 @@ def _unit_operation_error_raise_or_warn(ufunc, u0, u1, func, *inputs):
         raise UnitOperationError(ufunc, u0, u1)
     else:
         warnings.warn(UnitOperationWarning(ufunc, u0, u1))
-        unwrapped_inputs = [
-            i.value if isinstance(i, unyt_array)
-            else i for i in inputs
-        ]
+        unwrapped_inputs = [i.value if isinstance(i, unyt_array) else i for i in inputs]
         return func(*unwrapped_inputs)
 
 
@@ -1773,12 +1770,16 @@ class unyt_array(np.ndarray):
             elif ufunc is power:
                 u1 = inp1
                 if inp0.shape != () and inp1.shape != ():
-                    return _unit_operation_error_raise_or_warn(ufunc, u0, u1, func, *inputs)
+                    return _unit_operation_error_raise_or_warn(
+                        ufunc, u0, u1, func, *inputs
+                    )
                 if isinstance(u1, unyt_array):
                     if u1.units.is_dimensionless:
                         pass
                     else:
-                        return _unit_operation_error_raise_or_warn(ufunc, u0, u1.units, func, *inputs)
+                        return _unit_operation_error_raise_or_warn(
+                            ufunc, u0, u1.units, func, *inputs
+                        )
                 if u1.shape == ():
                     u1 = float(u1)
                 else:
@@ -1828,9 +1829,13 @@ class unyt_array(np.ndarray):
                                         ret = bool(ret)
                                     return ret
                                 else:
-                                    return _unit_operation_error_raise_or_warn(ufunc, u0, u1, func, *inputs)
+                                    return _unit_operation_error_raise_or_warn(
+                                        ufunc, u0, u1, func, *inputs
+                                    )
                         else:
-                            return _unit_operation_error_raise_or_warn(ufunc, u0, u1, func, *inputs)
+                            return _unit_operation_error_raise_or_warn(
+                                ufunc, u0, u1, func, *inputs
+                            )
                     conv, offset = u1.get_conversion_factor(u0, inp1.dtype)
                     new_dtype = np.dtype("f" + str(inp1.dtype.itemsize))
                     conv = new_dtype.type(conv)
