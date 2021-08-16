@@ -2507,7 +2507,14 @@ def test_valid_quantity_from_string(s, expected):
 
 
 @pytest.mark.parametrize(
-    "s", ["++1cm", "--1cm", "cm10", "cm 10.", ".cm", ],
+    "s",
+    [
+        "++1cm",
+        "--1cm",
+        "cm10",
+        "cm 10.",
+        ".cm",
+    ],
 )
 def test_invalid_expression_quantity_from_string(s):
     with pytest.raises(ValueError, match=r"^(Received invalid quantity expression )"):
@@ -2515,7 +2522,13 @@ def test_invalid_expression_quantity_from_string(s):
 
 
 @pytest.mark.parametrize(
-    "s", ["10 cmmmm", "50. Km", ".6   MSUN", "infcm", ],  # space sep is required here
+    "s",
+    [
+        "10 cmmmm",
+        "50. Km",
+        ".6   MSUN",
+        "infcm",
+    ],  # space sep is required here
 )
 def test_invalid_unit_quantity_from_string(s):
     # using a lazy solution here
