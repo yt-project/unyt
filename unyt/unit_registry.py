@@ -71,7 +71,7 @@ class UnitRegistry:
 
         # This boolean determines whether to raise a UnitOperationError or
         # strip units and provide a UnitOperationWarning if an invalid
-        # operation is attempted. The default is strict=True and this is
+        # operation is attempted. The default is strict=True and is
         # strongly recommended.
         self.strict = strict
 
