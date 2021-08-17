@@ -168,12 +168,17 @@ def _iterable(obj):
 
 
 def _unit_operation_error_raise_or_warn(ufunc, u0, u1, func, *inputs):
-    if u0.registry.strict and u1.registry.strict:  # True by default
-        raise UnitOperationError(ufunc, u0, u1)
-    else:
+    if (
+        hasattr(u0, "units")
+        and not u0.units.registry.strict
+        and hasattr(u1, "units")
+        and not u1.units.registry.strict
+    ):
         warnings.warn(UnitOperationWarning(ufunc, u0, u1))
         unwrapped_inputs = [i.value if isinstance(i, unyt_array) else i for i in inputs]
         return func(*unwrapped_inputs)
+    else:
+        raise UnitOperationError(ufunc, u0, u1)
 
 
 @lru_cache(maxsize=128, typed=False)
