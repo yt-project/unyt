@@ -13,6 +13,7 @@ A registry for units that can be added to and modified.
 # -----------------------------------------------------------------------------
 
 
+import copy
 import json
 from functools import lru_cache
 from hashlib import md5
@@ -270,6 +271,10 @@ class UnitRegistry:
         equiv = [k for k, v in self.lut.items() if v[1] is unit_object.dimensions]
         equiv = list(sorted(set(equiv)))
         return equiv
+
+    def __deepcopy__(self, memodict=None):
+        lut = copy.deepcopy(self.lut)
+        return type(self)(lut=lut)
 
 
 #: The default unit registry

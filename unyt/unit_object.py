@@ -57,7 +57,7 @@ from unyt.exceptions import (
     UnitParseError,
     UnitsNotReducible,
 )
-from unyt.unit_registry import UnitRegistry, _lookup_unit_symbol, default_unit_registry
+from unyt.unit_registry import _lookup_unit_symbol, default_unit_registry
 from unyt.unit_systems import _split_prefix
 
 sympy_one = sympify(1)
@@ -517,8 +517,7 @@ class Unit:
         base_value = copy.deepcopy(self.base_value)
         base_offset = copy.deepcopy(self.base_offset)
         dimensions = copy.deepcopy(self.dimensions)
-        lut = copy.deepcopy(self.registry.lut)
-        registry = UnitRegistry(lut=lut)
+        registry = copy.deepcopy(self.registry)
         return Unit(expr, base_value, base_offset, dimensions, registry)
 
     #
