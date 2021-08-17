@@ -14,10 +14,10 @@ unyt_array class.
 # -----------------------------------------------------------------------------
 
 import copy
-
+import re
 from functools import lru_cache
 from numbers import Number as numeric_type
-import re
+
 import numpy as np
 from numpy import (
     add,
@@ -123,9 +123,9 @@ from unyt.exceptions import (
     MKSCGSConversionError,
     UnitOperationError,
     UnitConversionError,
+    UnitOperationWarning,
     UnitsNotReducible,
     SymbolNotFoundError,
-    UnitOperationWarning,
 )
 from unyt.equivalencies import equivalence_registry
 from unyt._on_demand_imports import _astropy, _pint
