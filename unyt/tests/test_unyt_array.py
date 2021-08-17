@@ -2527,8 +2527,8 @@ def test_invalid_expression_quantity_from_string(s):
         "10 cmmmm",
         "50. Km",
         ".6   MSUN",
-        "infcm",
-    ],  # space sep is required here
+        "infcm",  # space sep is required here
+    ],
 )
 def test_invalid_unit_quantity_from_string(s):
     # using a lazy solution here
