@@ -827,6 +827,25 @@ method:
   <Quantity([1 2 3], 'centimeter')>
 
 
+Reading quantities from text
+----------------------------
+
+Quantities can also be parsed from strings with the :func:`unyt_quantity.from_string <unyt.unyt_quantity.from_string>` function:
+
+  >>> from unyt import unyt_quantity
+  >>> unyt_quantity.from_string("1 cm")
+  unyt_quantity(1., 'cm')
+  >>> unyt_quantity.from_string("1e3 Msun")
+  unyt_quantity(1000., 'Msun')
+  >>> unyt_quantity.from_string("1e-3 g/cm**3")
+  unyt_quantity(0.001, 'g/cm**3')
+
+This method is helpful to read data from text files, for instance configuration
+files. It is intended to be as flexible as possible on the string format, though
+it requires that the numerical value and the unit name be separated with some
+kind of whitespace.
+
+
 User-Defined Units
 ++++++++++++++++++
 
@@ -1122,7 +1141,7 @@ HDF5 Files
 
 The :mod:`unyt` library provides a hook for writing data both to a new HDF5 file and an existing file and then subsequently reading that data back in to restore the array. This works via the :meth:`unyt_array.write_hdf5 <unyt.array.unyt_array.write_hdf5>` and :meth:`unyt_array.from_hdf5 <unyt.array.unyt_array.from_hdf5>` methods. The simplest way to use these functions is to write data to a file that does not exist yet:
 
-  >>> from unyt import cm
+  >>> from unyt import cm, unyt_array
   >>> import os
   >>> data = [1, 2, 3]*cm
   >>> data.write_hdf5('my_data.h5')
@@ -1143,7 +1162,7 @@ the data to be saved in a particular group or dataset in the file:
 
 You can even write to files and groups that already exist:
 
-  >>> with h5py.File('my_data.h5') as f:
+  >>> with h5py.File('my_data.h5', 'w') as f:
   ...     g = f.create_group('my_custom_group')
   ...
   >>> data.write_hdf5('my_data.h5', group_name='my_custom_group')

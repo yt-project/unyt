@@ -2457,3 +2457,85 @@ def test_complexvalued():
     savetxt(file, arr)
     farr = loadtxt(file, dtype=np.complex128)
     assert_allclose_units(farr, unyt_array([1j * 0.001, 1j * 0.01], "J"))
+
+
+def test_string_formatting():
+    d = unyt_array((1, 2, 3), "Msun")
+    expected = "[1 2 3] Msun"
+    assert "%s" % d == expected
+    assert "{}".format(d) == expected
+
+
+@pytest.mark.parametrize(
+    "s, expected",
+    [
+        ("+1cm", 1.0 * Unit("cm")),
+        ("1cm", 1.0 * Unit("cm")),
+        ("1.cm", 1.0 * Unit("cm")),
+        ("1.0 cm", 1.0 * Unit("cm")),
+        ("1.0\tcm", 1.0 * Unit("cm")),
+        ("1.0\t cm", 1.0 * Unit("cm")),
+        ("1.0  cm", 1.0 * Unit("cm")),
+        ("1.0\t\tcm", 1.0 * Unit("cm")),
+        ("10e-1cm", 1.0 * Unit("cm")),
+        ("10E-1cm", 1.0 * Unit("cm")),
+        ("+1cm", 1.0 * Unit("cm")),
+        ("1um", 1.0 * Unit("μm")),
+        ("1μm", 1.0 * Unit("μm")),
+        ("-5 Msun", -5.0 * Unit("Msun")),
+        ("1e3km", 1e3 * Unit("km")),
+        ("-1e3    km", -1e3 * Unit("km")),
+        ("1.0 g/cm**3", 1.0 * Unit("g/cm**3")),
+        ("1 g*cm**-3", 1.0 * Unit("g/cm**3")),
+        ("1.0 g*cm", 1.0 * Unit("g*cm")),
+        ("nan g", float("nan") * Unit("g")),
+        ("-nan g", float("nan") * Unit("g")),
+        ("inf g", float("inf") * Unit("g")),
+        ("+inf g", float("inf") * Unit("g")),
+        ("-inf g", -float("inf") * Unit("g")),
+        ("1", 1.0 * Unit()),
+        ("g", 1.0 * Unit("g")),
+    ],
+)
+def test_valid_quantity_from_string(s, expected):
+    actual = unyt_quantity.from_string(s)
+    if "nan" in s:
+        assert actual != expected
+    else:
+        assert actual == expected
+
+
+@pytest.mark.parametrize(
+    "s",
+    [
+        "++1cm",
+        "--1cm",
+        "cm10",
+        "cm 10.",
+        ".cm",
+    ],
+)
+def test_invalid_expression_quantity_from_string(s):
+    with pytest.raises(ValueError, match=r"^(Received invalid quantity expression )"):
+        unyt_quantity.from_string(s)
+
+
+@pytest.mark.parametrize(
+    "s",
+    [
+        "10 cmmmm",
+        "50. Km",
+        ".6   MSUN",
+        "infcm",  # space sep is required here
+    ],
+)
+def test_invalid_unit_quantity_from_string(s):
+    # using a lazy solution here
+    # this test would need to be refactored if we want to add other cases
+    # without a space separator between number and unit.
+    un_str = s.split()[-1]
+    with pytest.raises(
+        UnitParseError,
+        match="Could not find unit symbol '{}' in the provided symbols.".format(un_str),
+    ):
+        unyt_quantity.from_string(s)

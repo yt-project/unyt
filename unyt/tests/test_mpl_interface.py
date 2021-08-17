@@ -234,3 +234,9 @@ def test_multiple_subplots():
     assert generated_labels == expected_labels
     _matplotlib.pyplot.close()
     matplotlib_support.disable()
+
+
+@check_matplotlib
+def test_empty_plot(ax):
+    ax.set_xlim(*unyt_array([0, 1], "s"))
+    _matplotlib.pyplot.close()

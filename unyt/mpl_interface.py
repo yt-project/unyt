@@ -102,12 +102,20 @@ else:
 
             Unit object
             """
-            name = getattr(x, "name", "")
+            # In the case where the first matplotlib command is setting limits,
+            # x may be a tuple of length two (with the same units).
+            if isinstance(x, tuple):
+                name = getattr(x[0], "name", "")
+                units = x[0].units
+            else:
+                name = getattr(x, "name", "")
+                units = x.units
+
             # maintain a mapping between Axis and name since Axis does not point to
             # its underlying data and we want to propagate the name to the axis
             # label in the subsequent call to axisinfo
             unyt_arrayConverter._axisnames[axis] = name if name is not None else ""
-            return x.units
+            return units
 
         @staticmethod
         def convert(value, unit, axis):
