@@ -61,8 +61,8 @@ class UnitOperationWarning(UserWarning):
 
     def __str__(self):
         err = (
-            'The %s operator for unyt_arrays with units "%s" '
-            '(dimensions "%s") ' % (self.operation, self.unit1, self.unit1.dimensions)
+            f"The {self.operation.__name__} operator for unyt_arrays"
+            f" with units {self.unit1!r} (dimensions {self.unit1.dimensions!r})"
         )
         if self.unit2 is not None:
             err += f" and {self.units2!r} (dimensions {self.units2.dimenstions!r})"
