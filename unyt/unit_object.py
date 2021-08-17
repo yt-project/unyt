@@ -509,16 +509,19 @@ class Unit:
         # fall back to expensive sympy comparison
         return self.dimensions != u.dimensions
 
-    def copy(self):
-        return copy.deepcopy(self)
-
-    def __deepcopy__(self, memodict=None):
+    def copy(self, *, deep=False):
         expr = str(self.expr)
         base_value = copy.deepcopy(self.base_value)
         base_offset = copy.deepcopy(self.base_offset)
         dimensions = copy.deepcopy(self.dimensions)
-        registry = copy.deepcopy(self.registry)
+        if deep:
+            registry = copy.deepcopy(self.registry)
+        else:
+            registry = copy.copy(self.registry)
         return Unit(expr, base_value, base_offset, dimensions, registry)
+
+    def __deepcopy__(self, memodict=None):
+        return self.copy(deep=True)
 
     #
     # End unit operations
