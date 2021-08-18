@@ -65,7 +65,7 @@ class UnitOperationWarning(UserWarning):
             f" with units {self.unit1!r} (dimensions {self.unit1.dimensions!r})"
         )
         if self.unit2 is not None:
-            err += f" and {self.units2!r} (dimensions {self.units2.dimenstions!r})"
+            err += f" and {self.unit2!r} (dimensions {self.unit2.dimenstions!r})"
         err += " is not well defined. Performing operation without units instead."
         return err
 
