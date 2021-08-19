@@ -1679,14 +1679,13 @@ class unyt_array(np.ndarray):
 
     def __getitem__(self, item):
         ret = super(unyt_array, self).__getitem__(item)
-        if ret.shape == ():
-            return unyt_quantity(
-                ret, self.units, bypass_validation=True, name=self.name
-            )
-        else:
-            if hasattr(self, "units"):
-                ret.units = self.units
-            return ret
+        if getattr(ret, "shape", None) == ():
+            ret = unyt_quantity(ret, bypass_validation=True, name=self.name)
+        try:
+            setattr(ret, "units", self.units)
+        except AttributeError:
+            pass
+        return ret
 
     #
     # Start operation methods
