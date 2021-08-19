@@ -16,3 +16,8 @@ def implements(numpy_function):
 @implements(np.array2string)
 def array2string(a, *args, **kwargs):
     return np.array2string._implementation(a, *args, **kwargs) + f" {a.units}"
+
+
+@implements(np.linalg.inv)
+def linalg_inv(a, *args, **kwargs):
+    return np.linalg.inv._implementation(a, *args, **kwargs).ndview / a.units
