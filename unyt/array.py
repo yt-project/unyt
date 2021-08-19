@@ -110,6 +110,7 @@ from numpy import (
 from numpy.core.umath import _ones_like, clip
 from sympy import Rational
 
+from unyt._array_functions import _HANDLED_FUNCTIONS
 from unyt._on_demand_imports import _astropy, _dask, _pint
 from unyt._pint_conversions import convert_pint_units
 from unyt._unit_lookup_table import default_unit_symbol_lut
@@ -1946,6 +1947,18 @@ class unyt_array(np.ndarray):
         if mul == 1:
             return out_arr
         return mul * out_arr
+
+    def __array_function__(self, func, types, args, kwargs):
+        # Follow NEP 18 guidelines
+        # https://numpy.org/neps/nep-0018-array-function-protocol.html
+        if func not in _HANDLED_FUNCTIONS:
+            # default to numpy's private implementation
+            return func._implementation(*args, **kwargs)
+        # Note: this allows subclasses that don't override
+        # __array_function__ to handle unyt_array objects
+        if not all(issubclass(t, unyt_array) for t in types):
+            return NotImplemented
+        return _HANDLED_FUNCTIONS[func](*args, **kwargs)
 
     def copy(self, order="C"):
         """
