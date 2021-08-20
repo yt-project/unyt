@@ -98,6 +98,24 @@ def test_outer():
     assert res.units == cm * s
 
 
+def test_matmul():
+    a = np.array([[1, 0], [0, 1]]) * cm
+    b = np.array([[4, 1], [2, 2]]) * s
+    expected = np.array([[4, 1], [2, 2]]) * cm * s
+    out = np.empty_like(expected)
+    res = np.matmul(a, b, out=out)
+    np.testing.assert_array_equal(res, expected)
+    assert res.units == expected.units
+
+    with pytest.xfail(
+        reason=(
+            "At of numpy 1.21.2, np.matmul seem to "
+            "escape the __unyt_array__ protocol"
+        )
+    ):
+        assert res is out
+
+
 def test_linalg_inv():
     arr = np.random.random_sample((3, 3)) * cm
     iarr = np.linalg.inv(arr)
