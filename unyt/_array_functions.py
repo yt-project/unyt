@@ -68,6 +68,11 @@ def outer(a, b, out=None):
     return out
 
 
+@implements(np.kron)
+def kron(a, b):
+    return np.kron._implementation(a.ndview, b.ndview) * (a.units * b.units)
+
+
 @implements(np.matmul)
 def matmul(a, b, out=None, **kwargs):
     prod_units = a.units * b.units

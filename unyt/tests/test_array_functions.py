@@ -98,6 +98,13 @@ def test_outer():
     assert res.units == cm * s
 
 
+def test_kron():
+    a = np.eye(2) * cm
+    b = np.ones((2, 2)) * s
+    res = np.kron(a, b)
+    assert res.units == cm * s
+
+
 def test_matmul():
     a = np.array([[1, 0], [0, 1]]) * cm
     b = np.array([[4, 1], [2, 2]]) * s
