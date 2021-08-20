@@ -20,7 +20,18 @@ def array2string(a, *args, **kwargs):
 
 @implements(np.linalg.inv)
 def linalg_inv(a, *args, **kwargs):
-    return np.linalg.inv._implementation(a, *args, **kwargs).ndview / a.units
+    return np.linalg.inv._implementation(a.ndview, *args, **kwargs) / a.units
+
+
+@implements(np.linalg.tensorinv)
+def linalg_tensorinv(a, *args, **kwargs):
+    return np.linalg.tensorinv._implementation(a, *args, **kwargs) / a.units
+
+
+@implements(np.linalg.pinv)
+def linalg_pinv(a, rcond=1e-15, **kwargs):
+    # TODO: handle rcond's dimensionality...
+    return np.linalg.pinv._implementation(a, rcond=rcond, **kwargs).ndview / a.units
 
 
 def _sanitize_range(_range, units):
