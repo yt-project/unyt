@@ -89,6 +89,15 @@ def test_inner():
     assert res.units == cm * s
 
 
+def test_outer():
+    a = np.array([1, 2, 3]) * cm
+    b = np.array([0, 1, 0]) * s
+    res = np.outer(a, b)
+    expected = np.array([[0, 1, 0], [0, 2, 0], [0, 3, 0]])
+    np.testing.assert_array_equal(res.ndview, expected)
+    assert res.units == cm * s
+
+
 def test_linalg_inv():
     arr = np.random.random_sample((3, 3)) * cm
     iarr = np.linalg.inv(arr)
