@@ -1,4 +1,5 @@
 import numpy as np
+from unyt.exceptions import UnitConversionError
 
 _HANDLED_FUNCTIONS = {}
 
@@ -16,6 +17,26 @@ def implements(numpy_function):
 @implements(np.array2string)
 def array2string(a, *args, **kwargs):
     return np.array2string._implementation(a, *args, **kwargs) + f" {a.units}"
+
+
+@implements(np.dot)
+def dot(a, b, out=None):
+    prod_units = a.units * b.units
+    if out is None:
+        return np.dot._implementation(a.ndview, b.ndview) * prod_units
+
+    try:
+        conv_factor = (1 * out.units).to(prod_units).d
+    except (AttributeError, UnitConversionError) as exc:
+        raise TypeError(
+            "output array is not acceptable "
+            f"(units '{out.units}' cannot be converted to '{prod_units}')"
+        ) from exc
+
+    np.dot._implementation(a.ndview, b.ndview, out=out.ndview)
+    if not out.units == prod_units:
+        out[:] *= conv_factor
+    return out
 
 
 @implements(np.linalg.inv)

@@ -1,12 +1,77 @@
 # tests for NEP 18
-import numpy as np
+import re
 
-from unyt import cm, s, g
+import numpy as np
+import pytest
+
+from unyt import cm, s, g, km
+from unyt.array import unyt_array
 
 
 def test_array_repr():
     arr = [1, 2, 3] * cm
     assert np.array_repr(arr) == "unyt_array([1, 2, 3] cm)"
+
+
+def test_dot_vectors():
+    a = [1, 2, 3] * cm
+    b = [1, 2, 3] * s
+    res = np.dot(a, b)
+    assert res.units == cm * s
+    assert res.d == 14
+
+
+# NOTE: explicitly setting the dtype of out arrays as `dtype=np.int_` is the
+# cross-platform way to guarantee that their dtype matches that of np.arange(x)
+# (on POSIX system it's int64, while on windows it's int32)
+@pytest.mark.parametrize(
+    "out",
+    [
+        None,
+        np.empty((3, 3), dtype=np.int_),
+        np.empty((3, 3), dtype=np.int_, order="C") * cm * s,
+        np.empty((3, 3), dtype=np.int_, order="C") * km * s,
+    ],
+    ids=[
+        "None",
+        "pure ndarray",
+        "same units",
+        "convertible units",
+    ],
+)
+def test_dot_matrices(out):
+    a = np.arange(9) * cm
+    a.shape = (3, 3)
+    b = np.arange(9) * s
+    b.shape = (3, 3)
+
+    res = np.dot(a, b, out=out)
+
+    if out is not None:
+        np.testing.assert_array_equal(res, out)
+        assert res is out
+
+    if isinstance(out, unyt_array):
+        # check that the result can be converted to predictible units
+        res.in_units("cm * s")
+        assert out.units == res.units
+
+
+def test_invalid_dot_matrices():
+    a = np.arange(9) * cm
+    a.shape = (3, 3)
+    b = np.arange(9) * s
+    b.shape = (3, 3)
+
+    out = np.empty((3, 3), dtype=np.int_, order="C") * s ** 2
+    with pytest.raises(
+        TypeError,
+        match=re.escape(
+            "output array is not acceptable "
+            "(units 's**2' cannot be converted to 'cm*s')"
+        ),
+    ):
+        np.dot(a, b, out=out)
 
 
 def test_linalg_inv():
