@@ -6,7 +6,7 @@ a dask array class (unyt_dask_array) and helper functions for unyt.
 """
 
 import unyt.array as ua
-from numpy import ndarray
+import numpy as np
 from unyt._on_demand_imports import _dask as dask
 from functools import wraps
 
@@ -24,6 +24,7 @@ _use_simple_decorator = [
     "max",
     "sum",
     "mean",
+    "median",
     "std",
     "cumsum",
     "squeeze",
@@ -203,6 +204,7 @@ def _post_ufunc(dask_superfunk, unyt_result):
     def wrapper(*args, **kwargs):
         dask_result = dask_superfunk(*args, **kwargs)
         if hasattr(unyt_result, "units"):
+            print(dask_superfunk)
             return _create_with_quantity(dask_result, unyt_result)
         return dask_result
 
@@ -227,16 +229,6 @@ def _special_dec(the_func):
         return daskresult  # __lt__, __le__, etc. will hit this
 
     return wrapper
-
-
-# note: the unyt_dask_array class has no way of catching daskified reductions (yet?).
-# operations like dask.array.min() get routed through dask.array.reductions.min()
-# and will return plain arrays or float/int values. When these operations exist as
-# attributes, they can be called and will return unyt objects. i.e., :
-# import dask; import unyt
-# x_da = unyt_from_dask(dask.array.ones((10, 10), chunks=(2, 2)), unyt.m)
-# dask.array.min(x_da).compute()  #  returns a plain float
-# x_da.min().compute()  #  returns a unyt quantity
 
 
 class unyt_dask_array(_dask_Array):
@@ -444,6 +436,11 @@ class unyt_dask_array(_dask_Array):
     def __ne__(self, other):
         return super().__ne__(other)
 
+    def prod(self, *args, **kwargs):
+        _, unit = ua._reduced_muldiv_units(np.multiply, self._unyt_array.units, self.shape, self.size, **kwargs)
+        dask_result = super().prod(*args, **kwargs)
+        return _create_with_quantity(dask_result, ua.unyt_array([1,], unit))
+
 
 def _finalize_unyt(results, unit_name):
     """
@@ -465,7 +462,7 @@ def _finalize_unyt(results, unit_name):
     # the result is an array, otherwise return a unyt_quantity.
     result = _dask_finalize(results)
 
-    if type(result) == ndarray:
+    if type(result) == np.ndarray:
         return ua.unyt_array(result, unit_name)
     else:
         return ua.unyt_quantity(result, unit_name)
@@ -546,3 +543,86 @@ def unyt_from_dask(
     )
 
     return da
+
+# note: the unyt_dask_array class has no way of catching daskified reductions.
+# operations like dask.array.min() get routed through dask.array.reductions.min()
+# and will return plain arrays or float/int values.
+#
+# When these operations exist as attributes, they can be called and will return
+# unyt objects. i.e., :
+#
+# import dask; import unyt
+# x_da = unyt_from_dask(dask.array.ones((10, 10), chunks=(2, 2)), unyt.m)
+# dask.array.min(x_da).compute()  #  returns a plain float
+# x_da.min().compute()  #  returns a unyt quantity
+#
+# but when the functions do not exist as attributes, like dask.array.nanmin(),
+# it is difficult to handle without manually wrapping all of those reductions
+# functions and exposing them here. The following function, reduce_with_units,
+# is a compromise: it is a simple helper function for calling
+# a general dask.array.reductions method on a unyt_dask array to correctly
+# handle units.
+
+_nan_ops = ['nansum', 'nanmean', 'nanmedian', 'nanstd', 'nanmax', 'nanmin']
+_passthrough_reductions = ['diagonal',]
+
+def reduce_with_units(dask_func, unyt_dask_in, *args, **kwargs):
+    """
+    Call a dask.array.reduction function and preserve units.
+
+    Parameters
+    ----------
+    dask_func : function
+        a function handle from dask.array.reduction (e.g., dask.array.min,
+        dask.array.var, dask.array.nanstd) to call.
+    unyt_dask_in : unyt_dask_array
+        the unyt dask array, first argument to dask_func
+    args:
+        any arguments to the dask_func
+    kwargs:
+        any keyword arguments to the dask_func
+
+    Returns
+    -------
+    unyt_dask_array:
+        the result of dask_func with units preserved
+
+    Examples
+    --------
+    >>> from unyt import dask_array
+    >>> from numpy import nan
+    >>> a = dask_array.unyt_from_dask(dask_array.dask.array.random.random((10000,), chunks=(100,)), 'm')
+    >>> a[a<0.1] = nan
+    >>> b = dask_array.reduce_with_units(dask_array.dask.array.nanmin, a)
+    >>> b.compute()
+    unyt_quantity(0.10004147, 'm')
+    >>> a.min().compute()
+    unyt_quantity(nan, 'm')
+    >>> b = dask_array.reduce_with_units(dask_array.dask.array.nanvar, a)
+    >>> b.compute()
+    >>> unyt_quantity(0.06780716, 'm**2')
+
+    """
+
+    if dask_func.__name__ in _use_simple_decorator + _nan_ops + _passthrough_reductions:
+        # e.g., min, max, nanstd. functions that return the same units can
+        # be called directly as the dask function will treat unyt_dask_in as
+        # a standard dask array and then we copy over the initial units.
+        dask_result = dask_func(unyt_dask_in, *args, **kwargs)
+        return _create_with_quantity(dask_result, unyt_dask_in._unyt_array)
+    else:
+        # the operation may change the units
+        npfunc = getattr(np, dask_func.__name__, None)
+        if npfunc:
+            newargs, unyt_result = _prep_ufunc(npfunc, unyt_dask_in, *args, extract_dask=True, **kwargs)
+            new_input = newargs[0]
+            if len(newargs) > 1:
+                newargs = newargs[1:]
+            else:
+                newargs = ()
+            dask_result = dask_func(new_input, *newargs)
+            if hasattr(unyt_result, "units"):
+                return _create_with_quantity(dask_result, unyt_result)
+            return dask_result
+        else:
+            raise ValueError("could not deduce np equivalent of dask reduction")

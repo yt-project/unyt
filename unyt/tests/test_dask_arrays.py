@@ -1,6 +1,6 @@
 from numpy.testing import assert_array_equal
 from numpy import sqrt, ones, min, add, isfinite, sum
-from unyt.dask_array import unyt_from_dask, unyt_dask_array, _create_with_quantity
+from unyt.dask_array import unyt_from_dask, unyt_dask_array, _create_with_quantity, reduce_with_units
 from unyt._on_demand_imports import _dask as dask
 from unyt import unyt_array, unyt_quantity
 from unyt.unit_symbols import cm, m, g
@@ -332,3 +332,38 @@ def test_np_ufuncs():
     assert type(min(x_da).compute()) == unyt_quantity
     result = add(x_da, unyt_quantity(2, m)).compute()
     assert type(result) == unyt_array
+
+
+@pytest.mark.parametrize(
+    ("dask_func_str", "actual", "axis", "check_nan"),
+    [
+        ("mean", unyt_quantity(1., "m"), None, True),
+        ("min", unyt_quantity(1., "m"), None, True),
+        ("max", unyt_quantity(1., "m"), None, True),
+        ("std", unyt_quantity(0., "m"), None, True),
+        ("median", unyt_quantity(1., "m"), 1, True),  # median requires an axis for dask
+        ("var", unyt_quantity(0., "m**2"), None, True),
+        ("sum", unyt_quantity(100., "m"), None, True),
+        ("cumsum", unyt_array(ones((10,10)), "m").cumsum(axis=1), 1, False), # nancumsum dask bug?
+        ("average", unyt_quantity(1., "m"), None, False),
+        ("diagonal", unyt_array(ones((10,)), "m"), None, False),
+        ("unique", unyt_array([1.], "m"), None, False),
+
+    ]
+)
+def test_dask_array_reductions(dask_func_str, actual, axis, check_nan):
+
+    extra_kwargs = {}
+    if axis:
+        extra_kwargs["axis"] = axis
+
+    func_strs = [dask_func_str, ]
+    if check_nan:
+        func_strs.append("nan" + dask_func_str)
+
+    for func_str in func_strs:
+        dask_func = getattr(dask.array, func_str)
+        x_da = unyt_from_dask(dask.array.ones((10, 10), chunks=(2, 2)), m)
+
+        result = reduce_with_units(dask_func, x_da, **extra_kwargs).compute()
+        assert_array_equal(result, actual)

@@ -48,6 +48,8 @@ from unyt.array import (
     uvstack,
     loadtxt,
     savetxt,
+    _reduced_muldiv_units,
+    POWER_SIGN_MAPPING,
 )
 from unyt.exceptions import (
     InvalidUnitEquivalence,
@@ -2539,3 +2541,29 @@ def test_invalid_unit_quantity_from_string(s):
         match="Could not find unit symbol '{}' in the provided symbols.".format(un_str),
     ):
         unyt_quantity.from_string(s)
+
+
+@pytest.mark.parametrize(
+    "op",
+    [
+        "multiply",
+        "divide",
+    ],
+)
+def test_reduced_muldiv_units(op):
+    b = unyt_array(np.ones((5, 5)), 'm')
+    print(op)
+    ufunc = getattr(np, op)
+    for axis in [None, 0]:
+        kwargs = {}
+        if axis:
+            kwargs["axis"] = axis
+            actual = b.units ** (POWER_SIGN_MAPPING[ufunc] * 5)
+        else:
+            actual = b.units ** (POWER_SIGN_MAPPING[ufunc] * 25)
+
+        mul, unit = _reduced_muldiv_units(ufunc, b.units, b.shape, b.size, **kwargs)
+
+        assert actual == unit
+        assert mul == 1
+

@@ -1728,14 +1728,7 @@ class unyt_array(np.ndarray):
             # evaluate the ufunc
             out_arr = func(np.asarray(inp), out=out_func, **kwargs)
             if ufunc in (multiply, divide) and method == "reduce":
-                # a reduction of a multiply or divide corresponds to
-                # a repeated product which we implement as an exponent
-                mul = 1
-                power_sign = POWER_SIGN_MAPPING[ufunc]
-                if "axis" in kwargs and kwargs["axis"] is not None:
-                    unit = u ** (power_sign * inp.shape[kwargs["axis"]])
-                else:
-                    unit = u ** (power_sign * inp.size)
+                mul, unit = _reduced_muldiv_units(ufunc, u, inp.shape, inp.size, **kwargs)
             else:
                 # get unit of result
                 mul, unit = self._ufunc_registry[ufunc](u)
@@ -2556,3 +2549,15 @@ def allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
     at = at.value
 
     return np.allclose(act, des, rt, at, **kwargs)
+
+
+def _reduced_muldiv_units(ufunc, in_unit, shp, sz, **kwargs):
+    # a reduction of a multiply or divide corresponds to
+    # a repeated product which we implement as an exponent
+    mul = 1
+    power_sign = POWER_SIGN_MAPPING[ufunc]
+    if "axis" in kwargs and kwargs["axis"] is not None:
+        unit = in_unit ** (power_sign * shp[kwargs["axis"]])
+    else:
+        unit = in_unit ** (power_sign * sz)
+    return mul, unit
