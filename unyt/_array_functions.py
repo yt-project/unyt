@@ -97,9 +97,8 @@ def linalg_tensorinv(a, *args, **kwargs):
 
 
 @implements(np.linalg.pinv)
-def linalg_pinv(a, rcond=1e-15, **kwargs):
-    # TODO: handle rcond's dimensionality...
-    return np.linalg.pinv._implementation(a, rcond=rcond, **kwargs).ndview / a.units
+def linalg_pinv(a, *args, **kwargs):
+    return np.linalg.pinv._implementation(a, *args, **kwargs).ndview / a.units
 
 
 def _sanitize_range(_range, units):
