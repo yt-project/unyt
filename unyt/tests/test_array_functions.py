@@ -74,6 +74,13 @@ def test_invalid_dot_matrices():
         np.dot(a, b, out=out)
 
 
+def test_vdot():
+    a = np.arange(9) * cm
+    b = np.arange(9) * s
+    res = np.vdot(a, b)
+    assert res.units == cm * s
+
+
 def test_linalg_inv():
     arr = np.random.random_sample((3, 3)) * cm
     iarr = np.linalg.inv(arr)
