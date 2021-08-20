@@ -56,6 +56,7 @@ def linalg_pinv(a, rcond=1e-15, **kwargs):
 
 
 def _sanitize_range(_range, units):
+    # helper function to histogram* functions
     ndim = len(units)
     if _range is None:
         return _range

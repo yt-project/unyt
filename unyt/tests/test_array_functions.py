@@ -95,6 +95,36 @@ def test_linalg_pinv():
     np.testing.assert_allclose(B, np.dot(B, np.dot(a, B)))
 
 
+@pytest.mark.xfail(
+    reason=(
+        "as of numpy 1.21.2, the __array_function__ protocol doesn't let "
+        "us overload np.linalg.pinv when the first argument isn't a unyt_array"
+    )
+)
+def test_matrix_stack_linalg_pinv():
+    stack = [np.eye(4) * g for _ in range(3)]
+    B = np.linalg.pinv(stack)
+    assert 1 * B.units == 1 / g
+
+
+@pytest.mark.xfail(
+    reason=(
+        "as of numpy 1.21.2, the __array_function__ protocol doesn't let "
+        "us overload np.linalg.pinv when the first argument isn't a unyt_array"
+    )
+)
+def test_invalid_matrix_stack_linalg_pinv():
+    stack = [np.eye(4) * g, np.eye(4) * s]
+    with pytest.raises(
+        TypeError,
+        match=re.escape(
+            "numpy.linalg.pinv cannot operate on a stack "
+            "of matrices with different units."
+        ),
+    ):
+        np.linalg.pinv(stack)
+
+
 def test_histogram():
     arr = np.random.normal(size=1000) * cm
     counts, bins = np.histogram(arr, bins=10, range=(arr.min(), arr.max()))
