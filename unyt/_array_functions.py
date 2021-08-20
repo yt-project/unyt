@@ -44,6 +44,11 @@ def vdot(a, b):
     return np.vdot._implementation(a.ndview, b.ndview) * (a.units * b.units)
 
 
+@implements(np.inner)
+def inner(a, b):
+    return np.inner._implementation(a.ndview, b.ndview) * (a.units * b.units)
+
+
 @implements(np.linalg.inv)
 def linalg_inv(a, *args, **kwargs):
     return np.linalg.inv._implementation(a.ndview, *args, **kwargs) / a.units

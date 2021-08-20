@@ -81,6 +81,14 @@ def test_vdot():
     assert res.units == cm * s
 
 
+def test_inner():
+    a = np.array([1, 2, 3]) * cm
+    b = np.array([0, 1, 0]) * s
+    res = np.inner(a, b)
+    assert res.d == 2
+    assert res.units == cm * s
+
+
 def test_linalg_inv():
     arr = np.random.random_sample((3, 3)) * cm
     iarr = np.linalg.inv(arr)
