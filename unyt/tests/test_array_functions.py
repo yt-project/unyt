@@ -15,6 +15,21 @@ def test_linalg_inv():
     assert 1 * iarr.units == 1 / cm
 
 
+def test_linalg_tensorinv():
+    a = np.eye(4 * 6) * cm
+    a.shape = (4, 6, 8, 3)
+    ia = np.linalg.tensorinv(a)
+    assert 1 * ia.units == 1 / cm
+
+
+def test_linalg_pinv():
+    a = np.random.randn(9, 6) * cm
+    B = np.linalg.pinv(a)
+    assert 1 * B.units == 1 / cm
+    np.testing.assert_allclose(a, np.dot(a, np.dot(B, a)))
+    np.testing.assert_allclose(B, np.dot(B, np.dot(a, B)))
+
+
 def test_histogram():
     arr = np.random.normal(size=1000) * cm
     counts, bins = np.histogram(arr, bins=10, range=(arr.min(), arr.max()))
