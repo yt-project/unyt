@@ -605,17 +605,17 @@ def reduce_with_units(dask_func, unyt_dask_in, *args, **kwargs):
     --------
     >>> from unyt import dask_array
     >>> from numpy import nan
-    >>> a = dask_array.dask.array.random.random((10000,), chunks=(100,))
+    >>> a = dask_array.dask.array.ones((10000,), chunks=(100,))
     >>> a = dask_array.unyt_from_dask(a, 'm')
     >>> a[a<0.1] = nan
     >>> b = dask_array.reduce_with_units(dask_array.dask.array.nanmin, a)
     >>> b.compute()
-    unyt_quantity(0.10004147, 'm')
+    unyt_quantity(1, 'm')
     >>> a.min().compute()
     unyt_quantity(nan, 'm')
     >>> b = dask_array.reduce_with_units(dask_array.dask.array.nanvar, a)
     >>> b.compute()
-    >>> unyt_quantity(0.06780716, 'm**2')
+    >>> unyt_quantity(0., 'm**2')
 
     """
 
