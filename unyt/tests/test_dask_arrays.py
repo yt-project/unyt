@@ -328,7 +328,8 @@ def test_repr():
     x = dask.array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
     assert "unyt_dask_array" in x_da.__repr__()
-    assert "Units" in x_da._repr_html_()
+    table_str = x_da._repr_html_()
+    assert "Units" in table_str
 
 
 def test_np_ufuncs():
@@ -383,3 +384,13 @@ def test_dask_array_reductions(dask_func_str, actual, axis, check_nan):
 
         result = reduce_with_units(dask_func, x_da, **extra_kwargs).compute()
         assert_array_equal(result, actual)
+
+
+def test_bad_dask_array_reductions():
+    x_da = unyt_from_dask(dask.array.ones((10, 10), chunks=(2, 2)), m)
+
+    def empty_func():
+        pass
+
+    with pytest.raises(ValueError):
+        _ = reduce_with_units(empty_func, x_da).compute()
