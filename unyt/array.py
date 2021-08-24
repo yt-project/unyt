@@ -1728,7 +1728,9 @@ class unyt_array(np.ndarray):
             # evaluate the ufunc
             out_arr = func(np.asarray(inp), out=out_func, **kwargs)
             if ufunc in (multiply, divide) and method == "reduce":
-                mul, unit = _reduced_muldiv_units(ufunc, u, inp.shape, inp.size, **kwargs)
+                mul, unit = _reduced_muldiv_units(
+                    ufunc, u, inp.shape, inp.size, **kwargs
+                )
             else:
                 # get unit of result
                 mul, unit = self._ufunc_registry[ufunc](u)

@@ -2551,7 +2551,7 @@ def test_invalid_unit_quantity_from_string(s):
     ],
 )
 def test_reduced_muldiv_units(op):
-    b = unyt_array(np.ones((5, 5)), 'm')
+    b = unyt_array(np.ones((5, 5)), "m")
     print(op)
     ufunc = getattr(np, op)
     for axis in [None, 0]:
@@ -2566,4 +2566,3 @@ def test_reduced_muldiv_units(op):
 
         assert actual == unit
         assert mul == 1
-
