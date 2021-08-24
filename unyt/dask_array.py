@@ -608,21 +608,12 @@ def reduce_with_units(dask_func, unyt_dask_in, *args, **kwargs):
         # e.g., min, max, nanstd. functions that return the same units can
         # be called directly as the dask function will treat unyt_dask_in as
         # a standard dask array and then we copy over the initial units.
-        dask_result = dask_func(unyt_dask_in, *args, **kwargs)
-        return _create_with_quantity(dask_result, unyt_dask_in._unyt_array)
+        return _simple_dask_decorator(dask_func, unyt_dask_in)(unyt_dask_in, *args, **kwargs)
     else:
         # the operation may change the units
         npfunc = getattr(np, dask_func.__name__, None)
         if npfunc:
             newargs, unyt_result = _prep_ufunc(npfunc, unyt_dask_in, *args, extract_dask=True, **kwargs)
-            new_input = newargs[0]
-            if len(newargs) > 1:
-                newargs = newargs[1:]
-            else:
-                newargs = ()
-            dask_result = dask_func(new_input, *newargs)
-            if hasattr(unyt_result, "units"):
-                return _create_with_quantity(dask_result, unyt_result)
-            return dask_result
+            return _post_ufunc(dask_func, unyt_result)(*newargs)
         else:
             raise ValueError("could not deduce np equivalent of dask reduction")
