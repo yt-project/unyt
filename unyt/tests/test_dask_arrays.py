@@ -1,3 +1,4 @@
+from collections import defaultdict
 from numpy.testing import assert_array_equal
 from numpy import sqrt, ones, min, add, isfinite, sum
 from unyt.dask_array import (
@@ -5,6 +6,7 @@ from unyt.dask_array import (
     unyt_dask_array,
     _create_with_quantity,
     reduce_with_units,
+    _use_simple_decorator,
 )
 from unyt._on_demand_imports import _dask as dask
 from unyt import unyt_array, unyt_quantity
@@ -316,19 +318,33 @@ def test_unyt_type_result():
     assert result == unyt_quantity(1, m)
 
 
-def test_dask_passthroughs():
+_func_args = defaultdict(lambda: ())
+_func_args["reshape"] = ((100, 1),)
+_func_args["rechunk"] = ((5, 5),)
+_func_args["cumsum"] = (0,)
+_func_args["clip"] = (0, 2)
+_func_args["swapaxes"] = (0, 1)
+_func_args["repeat"] = (1, 0)
+_func_args["astype"] = (int,)
+_func_args["topk"] = (1,)
 
-    # tests the simple dask functions that do not modify units
+
+@pytest.mark.parametrize(
+    ("da_func", "args"), [(f, _func_args[f]) for f in _use_simple_decorator]
+)
+def test_dask_passthroughs(da_func, args):
+
+    # tests the array class functions that do not modify units
     x = dask.array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
-    assert x_da.reshape((100, 1)).units == m
+    assert getattr(x_da, da_func)(*args).units == m
 
 
 def test_repr():
     x = dask.array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
     assert "unyt_dask_array" in x_da.__repr__()
-    table_str = x_da._repr_html_()
+    table_str = x_da._repr_html_table()
     assert "Units" in table_str
 
 

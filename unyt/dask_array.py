@@ -24,7 +24,6 @@ _use_simple_decorator = [
     "max",
     "sum",
     "mean",
-    "median",
     "std",
     "cumsum",
     "squeeze",
@@ -34,7 +33,6 @@ _use_simple_decorator = [
     "swapaxes",
     "round",
     "copy",
-    "__deepcopy__",
     "repeat",
     "astype",
     "reshape",
@@ -574,9 +572,7 @@ def unyt_from_dask(
 # handle units.
 
 _nan_ops = ["nansum", "nanmean", "nanmedian", "nanstd", "nanmax", "nanmin"]
-_passthrough_reductions = [
-    "diagonal",
-]
+_passthrough_reductions = ["diagonal", "median", "nanmedian"]
 
 
 def reduce_with_units(dask_func, unyt_dask_in, *args, **kwargs):
