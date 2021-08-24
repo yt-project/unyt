@@ -1,6 +1,6 @@
 from collections import defaultdict
 from numpy.testing import assert_array_equal
-from numpy import sqrt, ones, min, add, isfinite, sum
+from numpy import sqrt, ones, isfinite
 from unyt.dask_array import (
     unyt_from_dask,
     unyt_dask_array,
@@ -80,7 +80,7 @@ def test_unyt_set():
     x = dask.array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
     x_da[:, 0] = 3.0
-    assert sum(x_da[:, 0].compute() == 3.0) == 10
+    assert (x_da[:, 0].compute() == 3.0).sum() == 10
 
 
 def test_unit_conversions():
@@ -348,14 +348,6 @@ def test_repr():
     assert "Units" in table_str
 
 
-def test_np_ufuncs():
-    x = dask.array.ones((10, 10), chunks=(2, 2))
-    x_da = unyt_from_dask(x, m)
-    assert type(min(x_da).compute()) == unyt_quantity
-    result = add(x_da, unyt_quantity(2, m)).compute()
-    assert type(result) == unyt_array
-
-
 @pytest.mark.parametrize(
     ("dask_func_str", "actual", "axis", "check_nan"),
     [
@@ -410,3 +402,8 @@ def test_bad_dask_array_reductions():
 
     with pytest.raises(ValueError):
         _ = reduce_with_units(empty_func, x_da).compute()
+
+
+def test_prod():
+    x_da = unyt_from_dask(dask.array.ones((10, 10), chunks=(2, 2)), m)
+    assert x_da.prod().units == m ** 100
