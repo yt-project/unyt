@@ -437,9 +437,19 @@ class unyt_dask_array(_dask_Array):
         return super().__ne__(other)
 
     def prod(self, *args, **kwargs):
-        _, unit = ua._reduced_muldiv_units(np.multiply, self._unyt_array.units, self.shape, self.size, **kwargs)
+        _, unit = ua._reduced_muldiv_units(
+            np.multiply, self._unyt_array.units, self.shape, self.size, **kwargs
+        )
         dask_result = super().prod(*args, **kwargs)
-        return _create_with_quantity(dask_result, ua.unyt_array([1,], unit))
+        return _create_with_quantity(
+            dask_result,
+            ua.unyt_array(
+                [
+                    1,
+                ],
+                unit,
+            ),
+        )
 
 
 def _finalize_unyt(results, unit_name):
@@ -544,6 +554,7 @@ def unyt_from_dask(
 
     return da
 
+
 # note: the unyt_dask_array class has no way of catching daskified reductions.
 # operations like dask.array.min() get routed through dask.array.reductions.min()
 # and will return plain arrays or float/int values.
@@ -563,8 +574,11 @@ def unyt_from_dask(
 # a general dask.array.reductions method on a unyt_dask array to correctly
 # handle units.
 
-_nan_ops = ['nansum', 'nanmean', 'nanmedian', 'nanstd', 'nanmax', 'nanmin']
-_passthrough_reductions = ['diagonal',]
+_nan_ops = ["nansum", "nanmean", "nanmedian", "nanstd", "nanmax", "nanmin"]
+_passthrough_reductions = [
+    "diagonal",
+]
+
 
 def reduce_with_units(dask_func, unyt_dask_in, *args, **kwargs):
     """
@@ -591,7 +605,8 @@ def reduce_with_units(dask_func, unyt_dask_in, *args, **kwargs):
     --------
     >>> from unyt import dask_array
     >>> from numpy import nan
-    >>> a = dask_array.unyt_from_dask(dask_array.dask.array.random.random((10000,), chunks=(100,)), 'm')
+    >>> a = dask_array.dask.array.random.random((10000,), chunks=(100,))
+    >>> a = dask_array.unyt_from_dask(a, 'm')
     >>> a[a<0.1] = nan
     >>> b = dask_array.reduce_with_units(dask_array.dask.array.nanmin, a)
     >>> b.compute()
@@ -608,12 +623,16 @@ def reduce_with_units(dask_func, unyt_dask_in, *args, **kwargs):
         # e.g., min, max, nanstd. functions that return the same units can
         # be called directly as the dask function will treat unyt_dask_in as
         # a standard dask array and then we copy over the initial units.
-        return _simple_dask_decorator(dask_func, unyt_dask_in)(unyt_dask_in, *args, **kwargs)
+        return _simple_dask_decorator(dask_func, unyt_dask_in)(
+            unyt_dask_in, *args, **kwargs
+        )
     else:
         # the operation may change the units
         npfunc = getattr(np, dask_func.__name__, None)
         if npfunc:
-            newargs, unyt_result = _prep_ufunc(npfunc, unyt_dask_in, *args, extract_dask=True, **kwargs)
+            newargs, unyt_result = _prep_ufunc(
+                npfunc, unyt_dask_in, *args, extract_dask=True, **kwargs
+            )
             return _post_ufunc(dask_func, unyt_result)(*newargs)
         else:
             raise ValueError("could not deduce np equivalent of dask reduction")
