@@ -599,18 +599,11 @@ def reduce_with_units(dask_func, unyt_dask_in, *args, **kwargs):
     Examples
     --------
     >>> from unyt import dask_array
-    >>> from numpy import nan
     >>> a = dask_array.dask.array.ones((10000,), chunks=(100,))
     >>> a = dask_array.unyt_from_dask(a, 'm')
-    >>> a[0] = nan
-    >>> b = dask_array.reduce_with_units(dask_array.dask.array.nanmin, a)
+    >>> b = dask_array.reduce_with_units(dask_array.dask.array.median, a, axis=0)
     >>> b.compute()
     unyt_quantity(1., 'm')
-    >>> a.min().compute()
-    unyt_quantity(nan, 'm')
-    >>> b = dask_array.reduce_with_units(dask_array.dask.array.nanvar, a, axis=0)
-    >>> b.compute()
-    unyt_quantity(0., 'm**2')
 
     """
 
