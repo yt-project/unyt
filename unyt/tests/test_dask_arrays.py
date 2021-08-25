@@ -344,7 +344,7 @@ def test_repr():
     x = dask.array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
     assert "unyt_dask_array" in x_da.__repr__()
-    table_str = x_da._repr_html_table()
+    table_str = x_da._repr_html_()
     assert "Units" in table_str
 
 
@@ -367,8 +367,8 @@ def test_repr():
             "cumsum",
             unyt_array(ones((10, 10)), "m").cumsum(axis=1),
             1,
-            False,
-        ),  # nancumsum dask bug?
+            True,
+        ),
         ("average", unyt_quantity(1.0, "m"), None, False),
         ("diagonal", unyt_array(ones((10,)), "m"), None, False),
         ("unique", unyt_array([1.0], "m"), None, False),

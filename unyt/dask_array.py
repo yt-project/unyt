@@ -318,9 +318,9 @@ class unyt_dask_array(_dask_Array):
         units_str = f", units={self.units.__str__()}>"
         return disp_str.replace(">", units_str)
 
-    def _repr_html_table(self):
+    def _repr_html_(self):
         # controls jupyter notebook display of an array. called from _repr_html_
-        base_table = super()._repr_html_table()
+        base_table = super()._repr_html_()
         table = base_table.split("\n")
         new_table = []
         for row in table:
@@ -571,7 +571,7 @@ def unyt_from_dask(
 # a general dask.array.reductions method on a unyt_dask array to correctly
 # handle units.
 
-_nan_ops = ["nansum", "nanmean", "nanmedian", "nanstd", "nanmax", "nanmin"]
+_nan_ops = ["nansum", "nanmean", "nanmedian", "nanstd", "nanmax", "nanmin", "nancumsum"]
 _passthrough_reductions = ["diagonal", "median", "nanmedian"]
 
 
