@@ -2563,3 +2563,11 @@ def test_invalid_unit_quantity_from_string(s):
         match="Could not find unit symbol '{}' in the provided symbols.".format(un_str),
     ):
         unyt_quantity.from_string(s)
+
+
+def test_sized_quantity():
+    # https://github.com/yt-project/unyt/issues/201
+    from collections.abc import Sized
+
+    q = 1 * cm
+    assert not isinstance(q, Sized)
