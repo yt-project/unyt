@@ -10,7 +10,7 @@ from unyt.array import unyt_array
 
 def test_array_repr():
     arr = [1, 2, 3] * cm
-    assert np.array_repr(arr) == "unyt_array([1, 2, 3] cm)"
+    assert np.array_repr(arr) == "unyt_array([1, 2, 3], units='cm')"
 
 
 def test_dot_vectors():

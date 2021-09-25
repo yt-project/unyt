@@ -16,7 +16,10 @@ def implements(numpy_function):
 
 @implements(np.array2string)
 def array2string(a, *args, **kwargs):
-    return np.array2string._implementation(a, *args, **kwargs) + f" {a.units}"
+    return (
+        np.array2string._implementation(a, *args, **kwargs)
+        + f", units={str(a.units)!r}"
+    )
 
 
 def _get_conversion_factor(out, units) -> float:
