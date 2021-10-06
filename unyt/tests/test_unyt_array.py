@@ -504,6 +504,9 @@ def test_power():
         assert isinstance(err.unit1, Unit)
         assert isinstance(err.unit2, Unit)
 
+    assert_equal(cm_arr ** 0, unyt_array([1.0, 1.0], "dimensionless"))
+    assert_equal(cm_arr ** 0.0, unyt_array([1.0, 1.0], "dimensionless"))
+
 
 def test_comparisons():
     """
