@@ -1689,7 +1689,7 @@ class unyt_array(np.ndarray):
 
     def __pow__(self, p):
         """
-        Power function, over-rides the ufunc as 
+        Power function, over-rides the ufunc as
         ``numpy`` passes the ``_ones_like`` ufunc for
         powers of zero, which leads to an incorrect unit
         calculation.
