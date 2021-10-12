@@ -467,9 +467,7 @@ class Unit(object):
         return u * self ** -1
 
     def __pow__(self, p):
-        """Take Unit to power p (float). Note that powers of 0.0
-        are passed to the _ones_like ufunc and are intercepted in
-        the array class."""
+        """Take Unit to power p (float)."""
         try:
             p = Rational(str(p)).limit_denominator()
         except (ValueError, TypeError):

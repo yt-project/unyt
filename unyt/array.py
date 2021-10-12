@@ -1691,8 +1691,8 @@ class unyt_array(np.ndarray):
         """
         Power function, over-rides the ufunc as
         ``numpy`` passes the ``_ones_like`` ufunc for
-        powers of zero, which leads to an incorrect unit
-        calculation.
+        powers of zero (in some cases), which leads to an
+        incorrect unit calculation.
         """
 
         if p == 0.0:
