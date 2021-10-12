@@ -483,6 +483,7 @@ def test_power():
     from unyt import cm
 
     cm_arr = np.array([1.0, 1.0]) * cm
+    cm_quant = 1.0 * cm
 
     assert_equal((1 * cm) ** 3, unyt_quantity(1, "cm**3"))
     assert_equal(np.power((1 * cm), 3), unyt_quantity(1, "cm**3"))
@@ -504,8 +505,8 @@ def test_power():
         assert isinstance(err.unit1, Unit)
         assert isinstance(err.unit2, Unit)
 
-    assert_equal(cm_arr ** 0, unyt_array([1.0, 1.0], "dimensionless"))
-    assert_equal(cm_arr ** 0.0, unyt_array([1.0, 1.0], "dimensionless"))
+    assert_equal(cm_quant, unyt_quantity(1.0, "dimensionless"))
+    assert_equal(cm_quant, unyt_quantity(1.0, "dimensionless"))
 
 
 def test_comparisons():
