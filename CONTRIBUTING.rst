@@ -95,17 +95,17 @@ managing your python evironment using your operating system's package manager or
     $ export PYENV_ROOT="$HOME/.pyenv"
     $ export PATH="$HOME/.pyenv/bin:$PATH
     $ eval "$(pyenv init -)"
-    $ pyenv install -s 3.5.9
-    $ pyenv install -s 3.6.10
-    $ pyenv install -s 3.7.6
-    $ pyenv install -s 3.8.1
+    $ pyenv install -s 3.6.14
+    $ pyenv install -s 3.7.11
+    $ pyenv install -s 3.8.11
+    $ pyenv install -s 3.9.6
     $ pip install tox tox-pyenv
 
 3. Install your local copy into a virtualenv or conda environment. You can also
    use one of the python interpreters we installed using ``pyenv``::
 
     $ cd unyt/
-    $ pyenv local 3.8.1
+    $ pyenv local 3.9.6
     $ python setup.py develop
 
 4. Create a branch for local development::
@@ -122,9 +122,9 @@ managing your python evironment using your operating system's package manager or
     $ flake8 unyt
     $ black ./
     $ pytest --doctest-modules --doctest-rst --doctest-plus
-    $ pyenv local 3.5.9 3.6.10 3.7.6 3.8.1
+    $ pyenv local 3.6.14 3.7.11 3.8.11 3.9.6
     $ tox
-    $ pyenv local 3.8.1
+    $ pyenv local 3.9.6
 
    To get ``flake8``, ``black``, ``pytest``, ``pytest-doctestplus``, and
    ``tox``, just ``pip`` or ``conda`` install them into your python environment,
@@ -153,7 +153,7 @@ following arguments::
 
 These enable testing the docstrings and doctest examples scattered throughout
 the unyt and its documentation.
-   
+
 You will need to install ``pytest`` and ``pytest-doctestplus`` to run this
 command. Some tests depend on ``h5py``, ``Pint``, ``astropy``, ``matplotlib``
 ``black``, and ``flake8`` being installed.
@@ -164,7 +164,7 @@ execute ``tox`` in the root of the ``unyt`` repository. For example, using the
 ``pyenv`` environment we set up above::
 
    $ cd unyt
-   $ pyenv local 3.5.9 3.6.10 3.7.6 3.8.1
+   $ pyenv local 3.6.14 3.7.11 3.8.11 3.9.6
    $ tox
 
 The ``tox`` package itself can be installed using the ``pip`` associated with
@@ -191,7 +191,7 @@ Before you submit a pull request, check that it meets these guidelines:
    please update the existing docstrings. If you modify private implementation
    details, please use your judgment on documenting it with comments or
    docstrings.
-3. The pull request should work for Python 3.5, 3.6, 3.7, and 3.8. Check in the
+3. The pull request should work for Python 3.6, 3.7, 3.8, and 3.9. Check in the
    GitHub interface for your pull request and make sure that the tests pass for
    all supported Python versions.
 
@@ -205,7 +205,7 @@ AUTHORS.rst).  Then run::
   $ git tag v1.x.x
   $ git push upstream master --tags
 
-If the tests pass you can then subsequently manually upload to PyPi::
+If the tests pass you can then subsequently manually upload to PyPI::
 
   $ rm -r build dist
   $ python setup.py sdist bdist_wheel --universal
