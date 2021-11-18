@@ -161,15 +161,15 @@ class IterableUnitCoercionError(Exception):
     Example
     -------
 
-    >>> from unyt import km, cm, unyt_array
-    >>> data = [2*cm, 3*km]
+    >>> from unyt import g, cm, unyt_array
+    >>> data = [2*cm, 3*g]
     >>> unyt_array(data)\
   # doctest: +IGNORE_EXCEPTION_DETAIL +NORMALIZE_WHITESPACE
     Traceback (most recent call last):
     ...
     unyt.exceptions.IterableUnitCoercionError: Received a list or
     tuple of quantities with nonuniform units:
-    [unyt_quantity(2., 'cm'), unyt_quantity(3., 'km')]
+    [unyt_quantity(2., 'cm'), unyt_quantity(3., 'g')]
     """
 
     def __init__(self, quantity_list):
