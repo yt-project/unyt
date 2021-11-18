@@ -2161,17 +2161,21 @@ def test_ones_and_zeros_like():
 
 
 def test_coerce_iterable():
-    from unyt import cm, km
+    from unyt import cm, m, g
 
     a = unyt_array([1, 2, 3], "cm")
-    b = [1 * cm, 2 * km, 3 * cm]
+    b = [1 * cm, 2 * m, 3 * cm]
+    c = [1 * g, 2 * m, 3 * cm]
 
+    assert_equal(a + b, unyt_array([2, 202, 6], "cm"))
+    assert_equal(b + a, unyt_array([2, 202, 6], "cm"))
     with pytest.raises(IterableUnitCoercionError):
-        a + b
+        a + c
     with pytest.raises(IterableUnitCoercionError):
-        b + a
+        c + a
+    assert_equal(unyt_array(b), unyt_array([1, 200, 3], "cm"))
     with pytest.raises(IterableUnitCoercionError):
-        unyt_array(b)
+        unyt_array(c)
 
 
 def test_bypass_validation():

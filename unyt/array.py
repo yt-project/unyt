@@ -257,7 +257,13 @@ def _coerce_iterable_units(input_object, registry=None):
         if any([isinstance(o, unyt_array) for o in input_object]):
             ff = getattr(input_object[0], "units", NULL_UNIT)
             if any([ff != getattr(_, "units", NULL_UNIT) for _ in input_object]):
-                raise IterableUnitCoercionError(input_object)
+                ret = []
+                for datum in input_object:
+                    try:
+                        ret.append(datum.in_units(ff.units))
+                    except UnitConversionError:
+                        raise IterableUnitCoercionError(str(input_object))
+                return unyt_array(np.array(ret), ff, registry=registry)
             # This will create a copy of the data in the iterable.
             return unyt_array(np.array(input_object), ff, registry=registry)
     return np.asarray(input_object)
