@@ -2453,7 +2453,7 @@ def test_masked_array():
     marr.__repr__()
 
 
-def test_complexvalued():
+def test_complexvalued(tmp_path):
     freq = unyt_array([1j, 1j * 10], "Hz")
     arr = 1 / (Unit("F") * Unit("Ω") * freq)
     arr = arr.to("dimensionless")
@@ -2481,9 +2481,9 @@ def test_complexvalued():
     assert_allclose_units(arr.in_base(), unyt_array([1j * 0.001, 1j * 0.01], "J"))
     assert_allclose_units(arr.in_cgs(), unyt_array([1j * 10000, 1j * 100000], "erg"))
     assert_allclose_units(arr.in_mks(), unyt_array([1j * 0.001, 1j * 0.01], "J"))
-    file = "test_complexvalued.txt"
-    savetxt(file, arr)
-    farr = loadtxt(file, dtype=np.complex128)
+    fname = tmp_path / "testcomplexvalued.txt"
+    savetxt(fname, arr)
+    farr = loadtxt(fname, dtype=np.complex128)
     assert_allclose_units(farr, unyt_array([1j * 0.001, 1j * 0.01], "J"))
 
 
