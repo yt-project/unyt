@@ -13,6 +13,9 @@ unyt
 .. image:: https://github.com/yt-project/unyt/actions/workflows/ci.yml/badge.svg?branch=master
         :target: https://github.com/yt-project/unyt/actions/workflows/ci.yml
 
+.. image:: https://github.com/yt-project/unyt/actions/workflows/bleeding-edge.yaml/badge.svg?branch=master
+        :target: https://github.com/yt-project/unyt/actions/workflows/bleeding-edge.yaml
+
 .. image:: https://readthedocs.org/projects/unyt/badge/?version=latest
         :target: https://unyt.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
