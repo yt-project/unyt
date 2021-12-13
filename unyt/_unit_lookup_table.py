@@ -529,7 +529,7 @@ default_unit_name_alternatives = OrderedDict(
         ("hp", ("horsepower",)),
         ("oz", ("ounce",)),
         ("cal", ("calorie",)),
-        ("BTU", ("british_thermal_unit",)),        
+        ("BTU", ("british_thermal_unit",)),
         ("pli", ("pounds_per_inch",)),
         ("plf", ("pounds_per_ft",)),
         ("psi", ("pounds_per_square_inch",)),
