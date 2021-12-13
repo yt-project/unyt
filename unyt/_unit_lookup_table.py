@@ -194,6 +194,26 @@ default_unit_symbol_lut = OrderedDict(
         ("cal", (4.184, dimensions.energy, 0.0, r"\rm{cal}", True)),
         ("BTU", (1055.0559, dimensions.energy, 0.0, r"\rm{BTU}", False)),
         (
+            "pli",
+            (
+                kg_per_pound * standard_gravity_m_per_s2 / m_per_inch,
+                dimensions.tension,
+                0.0,
+                r"\rm{pli}",
+                False,
+            ),
+        ),
+        (
+            "plf",
+            (
+                kg_per_pound * standard_gravity_m_per_s2 / m_per_ft,
+                dimensions.tension,
+                0.0,
+                r"\rm{plf}",
+                False,
+            ),
+        ),
+        (
             "psi",
             (
                 kg_per_pound * standard_gravity_m_per_s2 / m_per_inch ** 2,
@@ -204,12 +224,52 @@ default_unit_symbol_lut = OrderedDict(
             ),
         ),
         (
+            "psf",
+            (
+                kg_per_pound * standard_gravity_m_per_s2 / m_per_ft ** 2,
+                dimensions.pressure,
+                0.0,
+                r"\rm{psf}",
+                False,
+            ),
+        ),
+        (
+            "kli",
+            (
+                1000 * kg_per_pound * standard_gravity_m_per_s2 / m_per_inch,
+                dimensions.tension,
+                0.0,
+                r"\rm{kli}",
+                False,
+            ),
+        ),
+        (
+            "klf",
+            (
+                1000 * kg_per_pound * standard_gravity_m_per_s2 / m_per_ft,
+                dimensions.tension,
+                0.0,
+                r"\rm{klf}",
+                False,
+            ),
+        ),
+        (
             "ksi",
             (
                 1000 * kg_per_pound * standard_gravity_m_per_s2 / m_per_inch ** 2,
                 dimensions.pressure,
                 0.0,
                 r"\rm{ksi}",
+                False,
+            ),
+        ),
+        (
+            "ksf",
+            (
+                1000 * kg_per_pound * standard_gravity_m_per_s2 / m_per_ft ** 2,
+                dimensions.pressure,
+                0.0,
+                r"\rm{ksf}",
                 False,
             ),
         ),
@@ -469,9 +529,15 @@ default_unit_name_alternatives = OrderedDict(
         ("hp", ("horsepower",)),
         ("oz", ("ounce",)),
         ("cal", ("calorie",)),
-        ("BTU", ("british_thermal_unit",)),
+        ("BTU", ("british_thermal_unit",)),        
+        ("pli", ("pounds_per_inch",)),
+        ("plf", ("pounds_per_ft",)),
         ("psi", ("pounds_per_square_inch",)),
+        ("psf", ("pounds_per_square_ft",)),
+        ("kli", ("kips_per_inch",)),
+        ("klf", ("kips_per_ft",)),
         ("ksi", ("kips_per_square_inch",)),
+        ("ksf", ("kips_per_square_ft",)),
         # dimensionless stuff
         ("dimensionless", ("_", "")),
         ("B", ("bel",)),
