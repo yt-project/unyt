@@ -85,6 +85,8 @@ volume = area * length
 momentum = mass * velocity
 #: force
 force = mass * acceleration
+#: surface tension
+tension = force / length
 #: pressure
 pressure = force / area
 #: energy
