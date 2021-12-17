@@ -14,10 +14,10 @@ unyt_array class.
 # -----------------------------------------------------------------------------
 
 import copy
-
+import re
 from functools import lru_cache
 from numbers import Number as numeric_type
-import re
+
 import numpy as np
 from numpy import (
     add,
@@ -123,6 +123,7 @@ from unyt.exceptions import (
     MKSCGSConversionError,
     UnitOperationError,
     UnitConversionError,
+    UnitOperationWarning,
     UnitsNotReducible,
     SymbolNotFoundError,
 )
@@ -164,6 +165,20 @@ def _iterable(obj):
     except Exception:
         return False
     return True
+
+
+def _unit_operation_error_raise_or_warn(ufunc, u0, u1, func, *inputs):
+    if (
+        hasattr(u0, "units")
+        and not u0.units.registry.strict
+        and hasattr(u1, "units")
+        and not u1.units.registry.strict
+    ):
+        warnings.warn(UnitOperationWarning(ufunc, u0, u1))
+        unwrapped_inputs = [i.value if isinstance(i, unyt_array) else i for i in inputs]
+        return func(*unwrapped_inputs)
+    else:
+        raise UnitOperationError(ufunc, u0, u1)
 
 
 @lru_cache(maxsize=128, typed=False)
@@ -1780,12 +1795,16 @@ class unyt_array(np.ndarray):
             elif ufunc is power:
                 u1 = inp1
                 if inp0.shape != () and inp1.shape != ():
-                    raise UnitOperationError(ufunc, u0, u1)
+                    return _unit_operation_error_raise_or_warn(
+                        ufunc, u0, u1, func, *inputs
+                    )
                 if isinstance(u1, unyt_array):
                     if u1.units.is_dimensionless:
                         pass
                     else:
-                        raise UnitOperationError(ufunc, u0, u1.units)
+                        return _unit_operation_error_raise_or_warn(
+                            ufunc, u0, u1.units, func, *inputs
+                        )
                 if u1.shape == ():
                     u1 = float(u1)
                 else:
@@ -1835,9 +1854,13 @@ class unyt_array(np.ndarray):
                                         ret = bool(ret)
                                     return ret
                                 else:
-                                    raise UnitOperationError(ufunc, u0, u1)
+                                    return _unit_operation_error_raise_or_warn(
+                                        ufunc, u0, u1, func, *inputs
+                                    )
                         else:
-                            raise UnitOperationError(ufunc, u0, u1)
+                            return _unit_operation_error_raise_or_warn(
+                                ufunc, u0, u1, func, *inputs
+                            )
                     conv, offset = u1.get_conversion_factor(u0, inp1.dtype)
                     new_dtype = np.dtype("f" + str(inp1.dtype.itemsize))
                     conv = new_dtype.type(conv)

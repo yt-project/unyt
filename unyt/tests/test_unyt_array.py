@@ -17,22 +17,25 @@ Test ndarray subclass that handles symbolic units.
 import copy
 import itertools
 import math
-import numpy as np
 import operator
 import os
 import pickle
-import pytest
 import shutil
 import tempfile
 import warnings
 
+import numpy as np
+import pytest
+from numpy import array
 from numpy.testing import (
     assert_array_equal,
     assert_equal,
     assert_array_almost_equal,
     assert_almost_equal,
 )
-from numpy import array
+from unyt import dimensions, Unit, degC, K, delta_degC, degF, R, delta_degF
+from unyt._on_demand_imports import _astropy, _h5py, _pint, NotAModule
+from unyt._physical_ratios import metallicity_sun, speed_of_light_cm_per_s
 from unyt.array import (
     unyt_array,
     unyt_quantity,
@@ -55,15 +58,13 @@ from unyt.exceptions import (
     IterableUnitCoercionError,
     UnitConversionError,
     UnitOperationError,
+    UnitOperationWarning,
     UnitParseError,
     UnitsNotReducible,
 )
 from unyt.testing import assert_allclose_units, _process_warning
-from unyt.unit_symbols import cm, m, g, degree
 from unyt.unit_registry import UnitRegistry
-from unyt._on_demand_imports import _astropy, _h5py, _pint, NotAModule
-from unyt._physical_ratios import metallicity_sun, speed_of_light_cm_per_s
-from unyt import dimensions, Unit, degC, K, delta_degC, degF, R, delta_degF
+from unyt.unit_symbols import cm, m, g, degree
 
 
 def operate_and_compare(a, b, op, answer):
@@ -2571,3 +2572,15 @@ def test_invalid_unit_quantity_from_string(s):
         match="Could not find unit symbol '{}' in the provided symbols.".format(un_str),
     ):
         unyt_quantity.from_string(s)
+
+
+def test_non_strict_registry():
+
+    reg = UnitRegistry(strict=False)
+
+    a1 = unyt_array([1, 2, 3], "m", registry=reg)
+    a2 = unyt_array([4, 5, 6], "kg", registry=reg)
+
+    with pytest.warns(UnitOperationWarning):
+        answer = operator.add(a1, a2)
+        assert_array_equal(answer, [5, 7, 9])

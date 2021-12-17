@@ -1024,6 +1024,20 @@ When writing tests, it is convenient to use :mod:`unyt.testing`. In particular, 
   >>> desired = actual.to("cm")
   >>> assert_allclose_units(actual, desired)
 
+Integrating :mod:`unyt` Into a Legacy Code with Non-Strict Mode
+---------------------------------------------------------------
+
+If using a custom :class:`UnitRegistry <unyt.unit_registry.UnitRegistry>`, it
+is possible to supply ``strict=False`` when initializing. This will change the behavior
+when an invalid operation is attempted. Instead of raising a :class:`UnitOperationError <unyt.exceptions.UnitOperationError>`,
+a :class:`UnitOperationWarning <unyt.exceptions.UnitOperationError>` will be
+provided instead, units will be stripped, and the operation will return a value
+without units.
+
+This behavior is not recommended in general since many of the important benefits
+of :mod:`unyt` are lost, but it can be useful for integrating :mod:`unyt` into
+legacy code which was not previously unit-aware so that unit support can be
+added gradually.
 
 Custom Unit Systems
 -------------------
