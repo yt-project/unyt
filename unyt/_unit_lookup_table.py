@@ -382,7 +382,8 @@ unit_prefixes = OrderedDict(
         ("da", (1e1, "deca")),
         ("d", (1e-1, "deci")),
         ("c", (1e-2, "centi")),
-        ("m", (1e-3, "mili")),
+        ("m", (1e-3, "mili")),  # typo, kept for backward compatibility
+        ("m", (1e-3, "milli")),
         ("µ", (1e-6, "micro")),  # ('MICRO SIGN' U+00B5)
         ("u", (1e-6, "micro")),
         ("μ", (1e-6, "micro")),  # ('GREEK SMALL LETTER MU' U+03BC)
@@ -418,7 +419,12 @@ physical_constants = OrderedDict(
             (
                 6.65245854533e-29,
                 "m**2",
-                ["sigma_thompson", "thompson_cross_section", "cross_section_thompson"],
+                [
+                    "sigma_thompson",
+                    "thompson_cross_section",
+                    "cross_section_thompson",
+                ]  # typos, kept for backwards compatibility
+                + ["sigma_thomson", "thomson_cross_section", "cross_section_thomson"],
             ),
         ),
         (
