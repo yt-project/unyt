@@ -2,7 +2,8 @@ name: CI (bleeding edge)
 # this workflow is heavily inspired from pandas, see
 # https://github.com/pandas-dev/pandas/blob/master/.github/workflows/python-dev.yml
 
-# gcheck stability against dev version of Python, numpy, and matplotlib
+# check stability against dev version of Python, numpy, and matplotlib
+# and sympy pre-releases
 
 on:
   push:
@@ -40,6 +41,7 @@ jobs:
         python3 -m pip install git+https://github.com/numpy/numpy.git
         python3 -m pip install git+https://github.com/matplotlib/matplotlib.git
         python3 -m pip install pytest
+        python3 -m pip install --pre sympy
 
     - name: Build unyt
       run: python3 -m pip install --no-build-isolation .
