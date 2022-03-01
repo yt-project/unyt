@@ -1377,3 +1377,26 @@ There are three ways to use the context manager:
   >>> import unyt
   >>> unyt.matplotlib_support()
   >>> import matplotlib.pyplot as plt
+
+Working with Dask arrays
+++++++++++++++++++++++++
+
+As of v2.9.0, :mod:`unyt` provides the ability to wrap dask arrays with :mod:`unyt`
+behavior. The main access point is the :mod:`unyt.dask_array.unyt_from_dask`
+function, which allows you to build a :mod:`unyt_dask_array` from a plain array
+analagous to the creation of a plain :mod:`unyt_array`:
+
+    >>> from unyt import dask_array
+    >>> import dask.array as da
+    >>> x = da.ones((1000, 1000), chunks=(100, 100))
+    >>> x_da = dask_array.unyt_from_dask(x, 'm')
+
+Any operations on the dask array will respect units as with a plain :mod:`unyt_array`
+with the caveat that Dask does not implement the full set of underlying :mod:`numpy`
+operations (see the Dask documentation for more details https://docs.dask.org/en/stable/array.html ).
+
+The initial Dask array provided to :mod:`dask_array.unyt_from_dask(x, 'm')` can be
+constructed in any of the usual ways of constructing Dask arrays -- from :mod:`numpy`-like
+array instantation as in the above example to reading from file or delayed operations.
+See the Dask documentation on creating arrays: https://docs.dask.org/en/stable/array-creation.html
+
