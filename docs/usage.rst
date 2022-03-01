@@ -1383,20 +1383,47 @@ Working with Dask arrays
 
 As of v2.9.0, :mod:`unyt` provides the ability to wrap dask arrays with :mod:`unyt`
 behavior. The main access point is the :mod:`unyt.dask_array.unyt_from_dask`
-function, which allows you to build a :mod:`unyt_dask_array` from a plain array
-analagous to the creation of a plain :mod:`unyt_array`:
+function, which allows you to build a :mod:`unyt_dask_array` from a plain dask array
+analagous to the creation of a :mod:`unyt_array` from a plain :mod:`numpy.ndarray`:
 
-    >>> from unyt import dask_array
+    >>> from unyt import dask_array as uda
     >>> import dask.array as da
-    >>> x = da.ones((1000, 1000), chunks=(100, 100))
-    >>> x_da = dask_array.unyt_from_dask(x, 'm')
+    >>> x = da.arange(10000, chunks=(1000,))
+    >>> x_da = uda.unyt_from_dask(x, 'm')
 
-Any operations on the dask array will respect units as with a plain :mod:`unyt_array`
-with the caveat that Dask does not implement the full set of underlying :mod:`numpy`
-operations (see the Dask documentation for more details https://docs.dask.org/en/stable/array.html ).
+Methods that hang off of a :mod:`unyt_dask_array` object and operations on
+:mod:`unyt_dask_array` objects will generally preserve units:
 
-The initial Dask array provided to :mod:`dask_array.unyt_from_dask(x, 'm')` can be
+    >>> x_da.sum().compute()
+    unyt_quantity(49995000, 'm')
+    >>> (x_da[:5000] * x_da[5000:]).compute()[:5]
+    unyt_array([    0,  5001, 10004, 15009, 20016], 'm**2')
+
+One important caveat is that using Dask array functions may strip units:
+
+    >>> da.sum(x_da).compute()
+    49995000
+
+For simple reductions, you can use the :mod:`reduce_with_units` function:
+
+    >>> result = uda.reduce_with_units(da.sum, x_da)
+    >>> result.compute()
+    unyt_quantity(49995000, 'm')
+
+But more complex operations may require more careful management of units. Note
+that :mod:`reduce_with_units` will accept any of the positional or keyword
+arguments for the array function:
+
+    >>> import numpy as np
+    >>> x = da.ones((10000, 3), chunks=(1000, 1000))
+    >>> x[:,0] = np.nan
+    >>> x_da = uda.unyt_from_dask(x, 'm')
+    >>> result = uda.reduce_with_units(da.nansum, x_da, axis=1)
+    >>> result.compute()[:5]
+    unyt_array([2., 2., 2., 2., 2.], 'm')
+
+As a final note: the initial Dask array provided to :mod:`dask_array.unyt_from_dask` can be
 constructed in any of the usual ways of constructing Dask arrays -- from :mod:`numpy`-like
-array instantation as in the above example to reading from file or delayed operations.
-See the Dask documentation on creating arrays: https://docs.dask.org/en/stable/array-creation.html
+array instantiation as in the above examples to reading from file or delayed operations.
+For more on creating arrays, check out the `Dask documentation <https://docs.dask.org/en/stable/array-creation.html>`_.
 
