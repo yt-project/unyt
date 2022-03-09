@@ -25,7 +25,9 @@ import pytest
 import shutil
 import tempfile
 import warnings
+from pathlib import Path
 
+import sympy
 from numpy.testing import (
     assert_array_equal,
     assert_equal,
@@ -33,6 +35,8 @@ from numpy.testing import (
     assert_almost_equal,
 )
 from numpy import array
+from packaging.version import Version
+
 from unyt.array import (
     unyt_array,
     unyt_quantity,
@@ -826,6 +830,23 @@ def test_ytarray_pickle():
         assert_equal(data.units, loaded_data.units)
         assert_array_equal(array(data.in_cgs()), array(loaded_data.in_cgs()))
         assert_equal(float(data.units.base_value), float(loaded_data.units.base_value))
+
+
+@pytest.mark.xfail(
+    condition=(
+        (Version(sympy.__version__) == Version("1.9"))
+        or (Version(sympy.__version__) == Version("1.10"))
+    ),
+    reason="Not resolved upstream as of sympy 1.10",
+    raises=AttributeError,
+    strict=True,
+)
+def test_unpickling_old_array():
+    # see https://github.com/sympy/sympy/issues/22241
+    # the expected error is "AttributeError: 'One' object has no attribute '__dict__'"
+    PFILE = Path(__file__).parent / "data" / "unyt_array_sympy1.8.pickle"
+    with open(PFILE, "rb") as fh:
+        pickle.load(fh)
 
 
 def test_copy():
