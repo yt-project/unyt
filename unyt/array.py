@@ -257,7 +257,13 @@ def _coerce_iterable_units(input_object, registry=None):
         if any([isinstance(o, unyt_array) for o in input_object]):
             ff = getattr(input_object[0], "units", NULL_UNIT)
             if any([ff != getattr(_, "units", NULL_UNIT) for _ in input_object]):
-                raise IterableUnitCoercionError(input_object)
+                ret = []
+                for datum in input_object:
+                    try:
+                        ret.append(datum.in_units(ff.units))
+                    except UnitConversionError:
+                        raise IterableUnitCoercionError(str(input_object))
+                return unyt_array(np.array(ret), ff, registry=registry)
             # This will create a copy of the data in the iterable.
             return unyt_array(np.array(input_object), ff, registry=registry)
     return np.asarray(input_object)
@@ -1679,14 +1685,29 @@ class unyt_array(np.ndarray):
 
     def __getitem__(self, item):
         ret = super(unyt_array, self).__getitem__(item)
-        if ret.shape == ():
-            return unyt_quantity(
-                ret, self.units, bypass_validation=True, name=self.name
-            )
+        if getattr(ret, "shape", None) == ():
+            ret = unyt_quantity(ret, bypass_validation=True, name=self.name)
+        try:
+            setattr(ret, "units", self.units)
+        except AttributeError:
+            pass
+        return ret
+
+    def __pow__(self, p):
+        """
+        Power function, over-rides the ufunc as
+        ``numpy`` passes the ``_ones_like`` ufunc for
+        powers of zero (in some cases), which leads to an
+        incorrect unit calculation.
+        """
+
+        if p == 0.0:
+            ret = self.ua
+            ret.units = Unit("dimensionless")
         else:
-            if hasattr(self, "units"):
-                ret.units = self.units
-            return ret
+            ret = self.__array_ufunc__(power, "__call__", self, p)
+
+        return ret
 
     #
     # Start operation methods

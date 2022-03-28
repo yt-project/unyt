@@ -387,6 +387,7 @@ def test_power():
 
     """
     from sympy import nsimplify
+    from unyt import dimensionless
 
     pc_mks = m_per_pc
     mK_mks = 1e-3
@@ -404,6 +405,8 @@ def test_power():
     assert_allclose_units(
         u3.base_value, (pc_mks ** 2 * mK_mks ** 4) ** (-1.0 / 3), 1e-12
     )
+
+    assert u1 ** 0.0 == dimensionless
 
 
 def test_equality():

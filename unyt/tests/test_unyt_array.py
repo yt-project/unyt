@@ -485,6 +485,7 @@ def test_power():
     from unyt import cm
 
     cm_arr = np.array([1.0, 1.0]) * cm
+    cm_quant = 1.0 * cm
 
     assert_equal((1 * cm) ** 3, unyt_quantity(1, "cm**3"))
     assert_equal(np.power((1 * cm), 3), unyt_quantity(1, "cm**3"))
@@ -505,6 +506,9 @@ def test_power():
     except UnitOperationError as err:
         assert isinstance(err.unit1, Unit)
         assert isinstance(err.unit2, Unit)
+
+    assert_equal(cm_quant, unyt_quantity(1.0, "dimensionless"))
+    assert_equal(cm_quant, unyt_quantity(1.0, "dimensionless"))
 
 
 def test_comparisons():
@@ -2159,17 +2163,21 @@ def test_ones_and_zeros_like():
 
 
 def test_coerce_iterable():
-    from unyt import cm, km
+    from unyt import cm, m, g
 
     a = unyt_array([1, 2, 3], "cm")
-    b = [1 * cm, 2 * km, 3 * cm]
+    b = [1 * cm, 2 * m, 3 * cm]
+    c = [1 * g, 2 * m, 3 * cm]
 
+    assert_equal(a + b, unyt_array([2, 202, 6], "cm"))
+    assert_equal(b + a, unyt_array([2, 202, 6], "cm"))
     with pytest.raises(IterableUnitCoercionError):
-        a + b
+        a + c
     with pytest.raises(IterableUnitCoercionError):
-        b + a
+        c + a
+    assert_equal(unyt_array(b), unyt_array([1, 200, 3], "cm"))
     with pytest.raises(IterableUnitCoercionError):
-        unyt_array(b)
+        unyt_array(c)
 
 
 def test_bypass_validation():
@@ -2427,7 +2435,31 @@ def test_ksi():
     assert_allclose_units(unyt_quantity(1, "lbf/inch**2"), unyt_quantity(0.001, "ksi"))
 
 
-def test_complexvalued():
+def test_masked_array():
+    data = unyt_array([1, 2, 3], "s")
+    mask = [False, False, True]
+    marr = np.ma.MaskedArray(data, mask)
+    assert_array_equal(marr.data, data)
+    assert all(marr.mask == mask)
+    assert marr.sum() == unyt_quantity(3, "s")
+    assert np.ma.notmasked_contiguous(marr) == [slice(0, 2, None)]
+    assert marr.argmax() == 1
+    assert marr.max() == unyt_quantity(2, "s")
+    data = unyt_array([1, 2, np.inf], "s")
+    marr = np.ma.MaskedArray(data)
+    marr_masked = np.ma.masked_invalid(marr)
+    assert all(marr_masked.mask == [False, False, True])
+    marr_masked.set_fill_value(unyt_quantity(3, "s"))
+    assert_array_equal(marr_masked.filled(), unyt_array([1, 2, 3], "s"))
+    marr_fixed = np.ma.fix_invalid(marr)
+    assert_array_equal(marr_fixed.data, unyt_array([1, 2, 1e20], "s"))
+    assert_array_equal(np.ma.filled(marr, unyt_quantity(3, "s")), data)
+    assert_array_equal(np.ma.compressed(marr_masked), unyt_array([1, 2], "s"))
+    # executing the repr should not raise an exception
+    marr.__repr__()
+
+
+def test_complexvalued(tmp_path):
     freq = unyt_array([1j, 1j * 10], "Hz")
     arr = 1 / (Unit("F") * Unit("Ω") * freq)
     arr = arr.to("dimensionless")
@@ -2455,9 +2487,9 @@ def test_complexvalued():
     assert_allclose_units(arr.in_base(), unyt_array([1j * 0.001, 1j * 0.01], "J"))
     assert_allclose_units(arr.in_cgs(), unyt_array([1j * 10000, 1j * 100000], "erg"))
     assert_allclose_units(arr.in_mks(), unyt_array([1j * 0.001, 1j * 0.01], "J"))
-    file = "test_complexvalued.txt"
-    savetxt(file, arr)
-    farr = loadtxt(file, dtype=np.complex128)
+    fname = tmp_path / "testcomplexvalued.txt"
+    savetxt(fname, arr)
+    farr = loadtxt(fname, dtype=np.complex128)
     assert_allclose_units(farr, unyt_array([1j * 0.001, 1j * 0.01], "J"))
 
 

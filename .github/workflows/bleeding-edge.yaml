@@ -1,0 +1,48 @@
+name: CI (bleeding edge)
+# this workflow is heavily inspired from pandas, see
+# https://github.com/pandas-dev/pandas/blob/master/.github/workflows/python-dev.yml
+
+# gcheck stability against dev version of Python, numpy, and matplotlib
+
+on:
+  push:
+    branches:
+      - master
+  # Run daily at 0:01 UTC
+  schedule:
+    - cron:  '1 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Python3.10-dev
+    timeout-minutes: 60
+
+    concurrency:
+      group: ${{ github.ref }}-dev
+      cancel-in-progress: true
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python Dev Version
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10-dev'
+
+    - name: Install dependencies
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install --upgrade setuptools wheel
+        python3 -m pip install git+https://github.com/numpy/numpy.git
+        python3 -m pip install git+https://github.com/matplotlib/matplotlib.git
+        python3 -m pip install pytest
+
+    - name: Build unyt
+      run: python3 -m pip install --no-build-isolation .
+
+    - name: Run Tests
+      run: pytest -vvv unyt/
