@@ -1897,8 +1897,10 @@ class unyt_array(np.ndarray):
             out_arr = np.array(out_arr, copy=False)
         elif ufunc in (modf, divmod_):
             out_arr = tuple((ret_class(o, unit) for o in out_arr))
-        elif out_arr.size == 1:
+        elif out_arr.shape == ():
             out_arr = unyt_quantity(np.asarray(out_arr), unit)
+        elif out_arr.size == 1:
+            out_arr = unyt_array(np.asarray(out_arr), unit)
         else:
             if ret_class is unyt_quantity:
                 # This happens if you do ndarray * unyt_quantity.

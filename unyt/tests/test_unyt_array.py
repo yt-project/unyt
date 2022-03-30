@@ -2592,3 +2592,11 @@ def test_invalid_unit_quantity_from_string(s):
         match="Could not find unit symbol '{}' in the provided symbols.".format(un_str),
     ):
         unyt_quantity.from_string(s)
+
+
+def test_constant_type():
+    # see https://github.com/yt-project/unyt/issues/224
+    a = [1] * cm
+    assert type(a) is unyt_array
+    b = 2 * a
+    assert type(b) is unyt_array
