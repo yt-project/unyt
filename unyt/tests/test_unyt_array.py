@@ -2600,3 +2600,20 @@ def test_constant_type():
     assert type(a) is unyt_array
     b = 2 * a
     assert type(b) is unyt_array
+
+
+def test_composite_meshgrid():
+    # see https://github.com/yt-project/unyt/issues/224
+    a = np.array(1)
+    # pure numpy call to illustrate that the problem
+    # is only with units
+    np.meshgrid(np.array([1, 2]), a)
+    np.meshgrid(np.array([1, 2]), a * m)
+
+
+@pytest.mark.parametrize("shape", ((), None))
+def test_noop_quantity_reshape(shape):
+    a = unyt_quantity(1, "m")
+    b = a.reshape(shape)
+    assert b.shape == a.shape == ()
+    assert type(b) is unyt_quantity
