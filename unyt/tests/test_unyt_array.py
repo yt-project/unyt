@@ -2611,8 +2611,24 @@ def test_composite_meshgrid():
     np.meshgrid(np.array([1, 2]), a * m)
 
 
+@pytest.mark.parametrize(
+    "shape, expected_output_shape",
+    [
+        (1, (1,)),
+        ((1,), (1,)),
+        ((1, 1), (1, 1)),
+        ((1, -1), (1, 1)),
+    ],
+)
+def test_reshape_quantity_to_array(shape, expected_output_shape):
+    a = unyt_quantity(1, "m")
+    b = a.reshape(shape)
+    assert b.shape == expected_output_shape
+    assert type(b) is unyt_array
+
+
 @pytest.mark.parametrize("shape", ((), None))
-def test_noop_quantity_reshape(shape):
+def test_reshape_quantity_noop(shape):
     a = unyt_quantity(1, "m")
     b = a.reshape(shape)
     assert b.shape == a.shape == ()
