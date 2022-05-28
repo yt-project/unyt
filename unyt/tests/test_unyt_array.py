@@ -22,6 +22,7 @@ import operator
 import os
 import pickle
 import pytest
+import re
 import shutil
 import tempfile
 import warnings
@@ -2257,6 +2258,29 @@ def test_round():
 
     with pytest.raises(TypeError):
         round([1, 2, 3] * km)
+
+
+@pytest.mark.parametrize("itemsize", (8, 16, 32, 64))
+def test_conversion_from_int_types(itemsize):
+    a = unyt_array([1], "cm", dtype=f"int{itemsize}")
+
+    # check copy conversion
+    a.in_units("m")
+
+    # check in place conversion
+    if itemsize == 8:
+        with pytest.raises(
+            ValueError,
+            match=re.escape(
+                "Can't convert memory buffer in place. "
+                "Input dtype (int8) has a smaller itemsize than the "
+                "smallest floating point representation possible."
+            ),
+        ):
+            a.convert_to_units("m")
+    else:
+        a.convert_to_units("m")
+        assert a.dtype == f"float{itemsize}"
 
 
 def test_integer_arrays():
