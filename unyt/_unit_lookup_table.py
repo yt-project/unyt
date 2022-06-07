@@ -313,6 +313,7 @@ default_unit_symbol_lut = OrderedDict(
         ("sr", (1.0, dimensions.solid_angle, 0.0, r"\rm{sr}", False)),
         ("lat", (-np.pi / 180.0, dimensions.angle, 90.0, r"\rm{Latitude}", False)),
         ("lon", (np.pi / 180.0, dimensions.angle, -180.0, r"\rm{Longitude}", False)),
+        ("rpm", (2.0 * np.pi / 60.0, dimensions.angular_frequency, 0.0, r"\rm{RPM}", False)),
         # misc
         ("eV", (J_per_eV, dimensions.energy, 0.0, r"\rm{eV}", True)),
         ("amu", (amu_kg, dimensions.mass, 0.0, r"\rm{amu}", False)),
