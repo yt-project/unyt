@@ -69,6 +69,8 @@ from unyt._physical_ratios import (
     avogadros_number,
     neper_per_bel,
     elementary_charge,
+    rydberg_constant,
+    rydberg_unit,
 )
 import numpy as np
 
@@ -325,6 +327,7 @@ default_unit_symbol_lut = OrderedDict(
         ("me", (mass_electron_kg, dimensions.mass, 0.0, r"m_e", False)),
         ("mp", (mass_hydrogen_kg, dimensions.mass, 0.0, r"m_p", False)),
         ("Sv", (1.0, dimensions.specific_energy, 0.0, r"\rm{Sv}", True)),
+        ("Ry", (rydberg_unit, dimensions.energy, 0.0, r"\rm{Ry}", False)),
         (
             "rayleigh",
             (2.5e9 / np.pi, dimensions.count_intensity, 0.0, r"\rm{R}", False),
@@ -482,6 +485,7 @@ physical_constants = OrderedDict(
                 ["vacuum_permittivity", "electric_constant", "ε_0", "epsilon_0"],
             ),
         ),
+        ("R_inf", (rydberg_constant, "m**-1", ["rydberg_constant", "R_∞"])),
         ("standard_gravity", (standard_gravity_m_per_s2, "m/s**2", [])),
     ]
 )

@@ -102,6 +102,7 @@ mu_0 = 4.0e-7 * np.pi
 # permittivity of Free Space
 eps_0 = 1.0 / (speed_of_light_m_per_s ** 2 * mu_0)
 avogadros_number = 6.02214085774 * 10 ** 23
+rydberg_constant = 0.125*mass_electron_kg*elementary_charge**4/(eps_0**2*planck_mks**3*speed_of_light_m_per_s)
 
 # temperature / energy
 boltzmann_constant_J_per_K = 1.3806488e-23
@@ -116,6 +117,7 @@ eV_per_erg = 1.0 / erg_per_eV
 kelvin_per_rankine = 5.0 / 9.0
 watt_per_horsepower = 745.69987158227022
 erg_per_s_per_watt = 1e7
+rydberg_unit = planck_mks*speed_of_light_m_per_s*rydberg_constant
 
 # Solar System masses
 # Standish, E.M. (1995) "Report of the IAU WGAS Sub-Group on Numerical
