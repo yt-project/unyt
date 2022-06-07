@@ -68,6 +68,7 @@ from unyt._physical_ratios import (
     mu_0,
     avogadros_number,
     neper_per_bel,
+    elementary_charge,
 )
 import numpy as np
 
@@ -431,12 +432,12 @@ physical_constants = OrderedDict(
         (
             "qp",
             (
-                1.6021766208e-19,
+                elementary_charge,
                 "C",
                 ["proton_charge", "elementary_charge", "charge_proton"],
             ),
         ),
-        ("qe", (-1.6021766208e-19, "C", ["electron_charge", "charge_electron"])),
+        ("qe", (-elementary_charge, "C", ["electron_charge", "charge_electron"])),
         ("kb", (boltzmann_constant_J_per_K, "J/K", ["kboltz", "boltzmann_constant"])),
         (
             "G",

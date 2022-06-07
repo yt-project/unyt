@@ -96,6 +96,7 @@ standard_gravity_m_per_s2 = 9.80665
 # some constants
 newton_mks = 6.67408e-11
 planck_mks = 6.62606957e-34
+elementary_charge = 1.6021766208e-19
 # permeability of Free Space
 mu_0 = 4.0e-7 * np.pi
 # permittivity of Free Space
