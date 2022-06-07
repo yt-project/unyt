@@ -101,7 +101,7 @@ elementary_charge = 1.6021766208e-19
 mu_0 = 4.0e-7 * np.pi
 # permittivity of Free Space
 eps_0 = 1.0 / (speed_of_light_m_per_s ** 2 * mu_0)
-avogadros_number = 6.02214085774 * 10 ** 23
+avogadros_number = 6.022141410704091e+23
 rydberg_constant = 0.125*mass_electron_kg*elementary_charge**4/(eps_0**2*planck_mks**3*speed_of_light_m_per_s)
 
 # temperature / energy
