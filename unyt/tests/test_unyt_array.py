@@ -390,10 +390,18 @@ def test_multiplication():
     operate_and_compare(a1, a3, np.multiply, answer)
     operate_and_compare(a3, a1, np.multiply, answer)
 
+    # With np.multiply.reduce
+    a = unyt_array([1.0, 2.0, 3.0], "cm")
+    answer = unyt_quantity(6.0, "cm**3")
+    assert_equal(np.multiply.reduce(a), answer)
+    a = unyt_array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], "cm")
+    answer = unyt_array([6.0, 120.0], "cm**3")
+    assert_equal(np.multiply.reduce(a, axis=1), answer)
+
 
 def test_division():
     """
-    Test multiplication of two unyt_arrays
+    Test division of two unyt_arrays
 
     """
 
@@ -477,6 +485,14 @@ def test_division():
     operate_and_compare(a3, a1, np.divide, answer2)
     operate_and_compare(a1, a3, np.divide, answer1)
     operate_and_compare(a3, a1, np.divide, answer2)
+
+    # With np.multiply.reduce
+    a = unyt_array([3.0, 2.0, 1.0], "cm")
+    answer = unyt_quantity(1.5, "cm**-1")
+    assert_equal(np.divide.reduce(a), answer)
+    a = unyt_array([[3.0, 2.0, 1.0], [6.0, 5.0, 4.0]], "cm")
+    answer = unyt_array([1.5, 0.3], "cm**-1")
+    assert_equal(np.divide.reduce(a, axis=1), answer)
 
 
 def test_power():
