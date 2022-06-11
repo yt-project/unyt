@@ -139,7 +139,7 @@ from unyt.unit_registry import (
 )
 
 NULL_UNIT = Unit()
-POWER_SIGN_MAPPING = {multiply: 1, divide: -1}
+POWER_MAPPING = {multiply: lambda x: x, divide: lambda x: 2 - x}
 
 __doctest_requires__ = {
     ("unyt_array.from_pint", "unyt_array.to_pint"): ["pint"],
@@ -1758,11 +1758,11 @@ class unyt_array(np.ndarray):
                 # a reduction of a multiply or divide corresponds to
                 # a repeated product which we implement as an exponent
                 mul = 1
-                power_sign = POWER_SIGN_MAPPING[ufunc]
+                power_map = POWER_MAPPING[ufunc]
                 if "axis" in kwargs and kwargs["axis"] is not None:
-                    unit = u ** (power_sign * inp.shape[kwargs["axis"]])
+                    unit = u ** (power_map(inp.shape[kwargs["axis"]]))
                 else:
-                    unit = u ** (power_sign * inp.size)
+                    unit = u ** (power_map(inp.size))
             else:
                 # get unit of result
                 mul, unit = self._ufunc_registry[ufunc](u)
