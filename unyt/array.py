@@ -14,97 +14,97 @@ unyt_array class.
 # -----------------------------------------------------------------------------
 
 import copy
-
+import re
 from functools import lru_cache
 from numbers import Number as numeric_type
-import re
+
 import numpy as np
 from numpy import (
-    add,
-    subtract,
-    multiply,
-    divide,
-    logaddexp,
-    logaddexp2,
-    true_divide,
-    floor_divide,
-    negative,
-    power,
-    remainder,
-    mod,
     absolute,
-    rint,
-    sign,
-    conj,
-    exp,
-    exp2,
-    log,
-    log2,
-    log10,
-    expm1,
-    log1p,
-    sqrt,
-    square,
-    reciprocal,
-    sin,
-    cos,
-    tan,
-    arcsin,
+    add,
     arccos,
+    arccosh,
+    arcsin,
+    arcsinh,
     arctan,
     arctan2,
-    hypot,
-    sinh,
-    cosh,
-    tanh,
-    arcsinh,
-    arccosh,
     arctanh,
-    deg2rad,
-    rad2deg,
     bitwise_and,
     bitwise_or,
     bitwise_xor,
-    invert,
-    left_shift,
-    right_shift,
-    greater,
-    greater_equal,
-    less,
-    less_equal,
-    not_equal,
+    ceil,
+    conj,
+    copysign,
+    cos,
+    cosh,
+    deg2rad,
+    divide,
+    divmod as divmod_,
     equal,
-    logical_and,
-    logical_or,
-    logical_xor,
-    logical_not,
-    maximum,
-    minimum,
+    exp,
+    exp2,
+    expm1,
+    fabs,
+    floor,
+    floor_divide,
     fmax,
     fmin,
-    isreal,
+    fmod,
+    frexp,
+    greater,
+    greater_equal,
+    heaviside,
+    hypot,
+    invert,
     iscomplex,
     isfinite,
     isinf,
     isnan,
-    signbit,
-    copysign,
-    nextafter,
-    modf,
-    ldexp,
-    frexp,
-    fmod,
-    floor,
-    ceil,
-    trunc,
-    fabs,
-    spacing,
-    positive,
-    divmod as divmod_,
     isnat,
-    heaviside,
-    ones_like,
+    isreal,
+    ldexp,
+    left_shift,
+    less,
+    less_equal,
+    log,
+    log1p,
+    log2,
+    log10,
+    logaddexp,
+    logaddexp2,
+    logical_and,
+    logical_not,
+    logical_or,
+    logical_xor,
     matmul,
+    maximum,
+    minimum,
+    mod,
+    modf,
+    multiply,
+    negative,
+    nextafter,
+    not_equal,
+    ones_like,
+    positive,
+    power,
+    rad2deg,
+    reciprocal,
+    remainder,
+    right_shift,
+    rint,
+    sign,
+    signbit,
+    sin,
+    sinh,
+    spacing,
+    sqrt,
+    square,
+    subtract,
+    tan,
+    tanh,
+    true_divide,
+    trunc,
 )
 from numpy.core.umath import _ones_like
 
@@ -112,30 +112,31 @@ try:
     from numpy.core.umath import clip
 except ImportError:
     clip = None
-from sympy import Rational
 import warnings
 
-from unyt.dimensions import angle, temperature
-from unyt.exceptions import (
-    IterableUnitCoercionError,
-    InvalidUnitEquivalence,
-    InvalidUnitOperation,
-    MKSCGSConversionError,
-    UnitOperationError,
-    UnitConversionError,
-    UnitsNotReducible,
-    SymbolNotFoundError,
-)
-from unyt.equivalencies import equivalence_registry
+from sympy import Rational
+
 from unyt._on_demand_imports import _astropy, _pint
 from unyt._pint_conversions import convert_pint_units
 from unyt._unit_lookup_table import default_unit_symbol_lut
-from unyt.unit_object import _check_em_conversion, _em_conversion, Unit
+from unyt.dimensions import angle, temperature
+from unyt.equivalencies import equivalence_registry
+from unyt.exceptions import (
+    InvalidUnitEquivalence,
+    InvalidUnitOperation,
+    IterableUnitCoercionError,
+    MKSCGSConversionError,
+    SymbolNotFoundError,
+    UnitConversionError,
+    UnitOperationError,
+    UnitsNotReducible,
+)
+from unyt.unit_object import Unit, _check_em_conversion, _em_conversion
 from unyt.unit_registry import (
-    _sanitize_unit_system,
     UnitRegistry,
-    default_unit_registry,
     _correct_old_unit_registry,
+    _sanitize_unit_system,
+    default_unit_registry,
 )
 
 NULL_UNIT = Unit()
@@ -168,7 +169,7 @@ def _iterable(obj):
 
 @lru_cache(maxsize=128, typed=False)
 def _sqrt_unit(unit):
-    return 1, unit ** 0.5
+    return 1, unit**0.5
 
 
 @lru_cache(maxsize=128, typed=False)
@@ -204,7 +205,7 @@ def _preserve_units(unit1, unit2=None):
 
 @lru_cache(maxsize=128, typed=False)
 def _power_unit(unit, power):
-    return 1, unit ** power
+    return 1, unit**power
 
 
 @lru_cache(maxsize=128, typed=False)
@@ -223,7 +224,7 @@ def _divide_units(unit1, unit2):
 
 @lru_cache(maxsize=128, typed=False)
 def _reciprocal_unit(unit):
-    return 1, unit ** -1
+    return 1, unit**-1
 
 
 def _passthrough_unit(unit, unit2=None):
@@ -1425,8 +1426,9 @@ class unyt_array(np.ndarray):
         >>> a.write_hdf5('test_array_data.h5', dataset_name='dinosaurs',
         ...              info=myinfo)  # doctest: +SKIP
         """
-        from unyt._on_demand_imports import _h5py as h5py
         import pickle
+
+        from unyt._on_demand_imports import _h5py as h5py
 
         if info is None:
             info = {}
@@ -1485,8 +1487,9 @@ class unyt_array(np.ndarray):
             arrays are datasets at the top level by default.
 
         """
-        from unyt._on_demand_imports import _h5py as h5py
         import pickle
+
+        from unyt._on_demand_imports import _h5py as h5py
 
         if dataset_name is None:
             dataset_name = "array_data"

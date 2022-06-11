@@ -248,7 +248,7 @@ you run into issues please let us know by `opening an issue on GitHub
   .. doctest::
 
      >>> from unyt import kg, g
-     >>> print((12*kg)/(4*g))
+     >>> print((12 * kg) / (4 * g))
      3000.0 dimensionless
 
   older versions of ``unyt`` would have returned ``4.0 kg/g``. See `PR #58
@@ -264,10 +264,10 @@ you run into issues please let us know by `opening an issue on GitHub
   .. doctest::
 
      >>> from unyt import meter, second
-     >>> data = 1000.*meter/second
-     >>> data.to('kilometer/second')
+     >>> data = 1000.0 * meter / second
+     >>> data.to("kilometer/second")
      unyt_quantity(1., 'km/s')
-     >>> data.to('metre/s')
+     >>> data.to("metre/s")
      unyt_quantity(1000., 'm/s')
 
   The documentation now has a table of units recognized by ``unyt`` along with
@@ -293,8 +293,8 @@ you run into issues please let us know by `opening an issue on GitHub
   .. doctest::
 
      >>> from unyt import UnitRegistry, unyt_quantity
-     >>> ureg = UnitRegistry(unit_system='cgs')
-     >>> data = unyt_quantity(12, 'N', registry=ureg)
+     >>> ureg = UnitRegistry(unit_system="cgs")
+     >>> data = unyt_quantity(12, "N", registry=ureg)
      >>> data.in_base()
      unyt_quantity(1200000., 'dyn')
 
@@ -310,8 +310,9 @@ you run into issues please let us know by `opening an issue on GitHub
       >>> from unyt.unit_systems import add_symbols
       >>> from unyt.unit_registry import UnitRegistry
       >>> class UnitContainer(object):
-      ...    def __init__(self):
-      ...        add_symbols(vars(self), registry=UnitRegistry())
+      ...     def __init__(self):
+      ...         add_symbols(vars(self), registry=UnitRegistry())
+      ...
       >>> units = UnitContainer()
       >>> units.kilometer
       km

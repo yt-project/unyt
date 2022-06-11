@@ -13,10 +13,10 @@ Dimensions of physical quantities
 # -----------------------------------------------------------------------------
 
 
+from functools import wraps
 from itertools import chain
 
-from sympy import Symbol, sympify, Rational
-from functools import wraps
+from sympy import Rational, Symbol, sympify
 
 #: mass
 mass = Symbol("(mass)", positive=True)
@@ -69,15 +69,15 @@ solid_angle = angle * angle
 #: velocity
 velocity = length / time
 #: acceleration
-acceleration = length / time ** 2
+acceleration = length / time**2
 #: jerk
-jerk = length / time ** 3
+jerk = length / time**3
 #: snap
-snap = length / time ** 4
+snap = length / time**4
 #: crackle
-crackle = length / time ** 5
+crackle = length / time**5
 #: pop
-pop = length / time ** 6
+pop = length / time**6
 
 #: area
 area = length * length
@@ -124,7 +124,7 @@ charge_cgs = (energy * length) ** Rational(1, 2)  # proper 1/2 power
 #: current_cgs
 current_cgs = charge_cgs / time
 #: electric_field_cgs
-electric_field_cgs = charge_cgs / length ** 2
+electric_field_cgs = charge_cgs / length**2
 #: magnetic_field_cgs
 magnetic_field_cgs = electric_field_cgs
 #: electric_potential_cgs

@@ -18,12 +18,13 @@ manager.
 
 
 try:
-    from matplotlib.units import ConversionInterface, AxisInfo, registry
+    from matplotlib.units import AxisInfo, ConversionInterface, registry
 except ImportError:
     pass
 else:
     from weakref import WeakKeyDictionary
-    from unyt import unyt_array, unyt_quantity, Unit
+
+    from unyt import Unit, unyt_array, unyt_quantity
 
     __all__ = ["matplotlib_support"]
 

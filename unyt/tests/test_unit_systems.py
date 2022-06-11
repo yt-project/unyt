@@ -14,17 +14,16 @@ Test unit systems.
 import pytest
 
 import unyt.unit_symbols as us
-
+from unyt import dimensions
 from unyt.exceptions import IllDefinedUnitSystem, MissingMKSCurrent
 from unyt.unit_object import Unit
+from unyt.unit_registry import UnitRegistry
 from unyt.unit_systems import (
     UnitSystem,
     cgs_unit_system,
     mks_unit_system,
     unit_system_registry,
 )
-from unyt.unit_registry import UnitRegistry
-from unyt import dimensions
 
 
 def test_unit_systems():
