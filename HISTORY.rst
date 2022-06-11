@@ -52,7 +52,7 @@ History
 2.7.1 (2020-02-17)
 ------------------
 
-* Fix compatibility with `unyt_array` subclasses that do not have the new
+* Fix compatibility with ``unyt_array`` subclasses that do not have the new
   ``name`` argument in their initializer. See `PR #140
   <https://github.com/yt-project/unyt/pull/140>`_.
 * Fix an issue where custom units added to a unit registry were not restored
@@ -143,7 +143,7 @@ History
 * Fixed a corner case in the implementation of ``clip``. See `PR #108
   <https://github.com/yt-project/unyt/pull/108>`_. Thank you to Matthew Turk
   (@matthewturk on GitHub) for the contribution.
-* Added ``%`` as a valid dimensionless unit with a value of `0.01`, also
+* Added ``%`` as a valid dimensionless unit with a value of ``0.01``, also
   available under the name ``percent``. See `PR #106
   <https://github.com/yt-project/unyt/pull/106>`_. Thank you to Thomas Hisch for
   the contribution.
@@ -333,7 +333,7 @@ you run into issues please let us know by `opening an issue on GitHub
   `PR #61 <https://github.com/yt-project/unyt/pull/61>`_.
 * Fixed issues with installing ``unyt`` from source with newer versions of
   ``pip``. See `PR #63 <https://github.com/yt-project/unyt/pull/62>`_.
-* Fixed bug when using `define_unit` that caused crashes when using a custom
+* Fixed bug when using ``define_unit`` that caused crashes when using a custom
   unit registry. Thank you to Bili Dong (@qobilidob on GitHub) for the pull
   request. See `PR #64 <https://github.com/yt-project/unyt/pull/64>`_.
 
@@ -360,7 +360,7 @@ JOSS method paper. The peer reviewers were Stuart Mumfork (`@cadair
 <https://github.com/cadair>`_), Trevor Bekolay (`@tbekolay
 <https://github.com/tbekolay>`_), and Yan Grange (`@ygrange
 <https://github.com/ygrange>`_). The editor was Kyle Niemeyer (`@kyleniemeyer
-<https://github.com/kyleniemeyer>`_). The` `unyt`` development team thank our
+<https://github.com/kyleniemeyer>`_). The ``unyt`` development team thank our
 reviewers and editor for their help getting the ``unyt`` paper out the door as
 well as for the numerous comments and suggestions that improved the paper and
 package as a whole.

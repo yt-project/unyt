@@ -198,7 +198,7 @@ Powers, Logarithms, Exponentials, and Trigonometric Functions
 -------------------------------------------------------------
 
 The :mod:`unyt` library represents powers using standard python syntax. This
-means you must use `**` and not `^`, even when writing a unit as a string:
+means you must use ``**`` and not ``^``, even when writing a unit as a string:
 
   >>> from unyt import kg, m
   >>> print((10.*kg/m**3).to('g/cm**3'))
