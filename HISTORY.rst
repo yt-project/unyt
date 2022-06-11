@@ -309,7 +309,7 @@ you run into issues please let us know by `opening an issue on GitHub
 
       >>> from unyt.unit_systems import add_symbols
       >>> from unyt.unit_registry import UnitRegistry
-      >>> class UnitContainer(object):
+      >>> class UnitContainer:
       ...     def __init__(self):
       ...         add_symbols(vars(self), registry=UnitRegistry())
       ...

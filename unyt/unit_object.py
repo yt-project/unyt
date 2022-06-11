@@ -111,7 +111,7 @@ def _get_latex_representation(expr, registry):
         return latex_repr
 
 
-class _ImportCache(object):
+class _ImportCache:
 
     __slots__ = ["_ua", "_uq"]
 
@@ -139,7 +139,7 @@ class _ImportCache(object):
 _import_cache_singleton = _ImportCache()
 
 
-class Unit(object):
+class Unit:
     """
     A symbolic unit, using sympy functionality. We only add "dimensions" so
     that sympy understands relations between different units.

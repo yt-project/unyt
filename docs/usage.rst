@@ -987,7 +987,7 @@ class. Let's give this class two methods named ``array`` and ``quantity`` to
 create new :mod:`unyt_array <unyt.array.unyt_array>` and :mod:`unyt_quantity
 <unyt.array.unyt_quantity>` instances, respectively:
 
-  >>> class Simulation(object):
+  >>> class Simulation:
   ...     def __init__(self, registry):
   ...         self.registry = registry
   ...
@@ -1034,7 +1034,7 @@ their users by creating a unit registry with a custom unit system. For example,
 to make CGS units the default unit for all operations, one might modify the
 ``Simulation`` class defined above like so::
 
-  >>> class Simulation(object):
+  >>> class Simulation:
   ...     def __init__(self, registry):
   ...         self.registry = registry
   ...
@@ -1069,7 +1069,7 @@ contains units that are compatible with the ``Simulation`` instance we named
 ``s_cgs`` in the example above::
 
   >>> from unyt.unit_systems import add_symbols
-  >>> class UnitContainer(object):
+  >>> class UnitContainer:
   ...    def __init__(self, registry):
   ...        add_symbols(vars(self), registry)
   >>> units = UnitContainer(s_cgs.registry)

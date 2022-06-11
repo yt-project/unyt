@@ -667,7 +667,7 @@ def test_code_unit():
     assert ue.base_value == 10
     assert ue.dimensions is length
 
-    class FakeDataset(object):
+    class FakeDataset:
         unit_registry = ureg
 
     ds = FakeDataset()

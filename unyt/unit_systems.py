@@ -157,7 +157,7 @@ unit_system_registry = {}
 cmks = dimensions.current_mks
 
 
-class UnitSystem(object):
+class UnitSystem:
     """
     Create a UnitSystem for facilitating conversions to a default set of units.
 
