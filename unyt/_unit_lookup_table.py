@@ -68,9 +68,9 @@ from unyt._physical_ratios import (
     mu_0,
     avogadros_number,
     neper_per_bel,
-    elementary_charge,
-    rydberg_constant,
-    rydberg_unit,
+    elementary_charge_C,
+    rydberg_constant_mks,
+    rydberg_unit_mks,
 )
 import numpy as np
 
@@ -330,7 +330,7 @@ default_unit_symbol_lut = OrderedDict(
         ("me", (mass_electron_kg, dimensions.mass, 0.0, r"m_e", False)),
         ("mp", (mass_hydrogen_kg, dimensions.mass, 0.0, r"m_p", False)),
         ("Sv", (1.0, dimensions.specific_energy, 0.0, r"\rm{Sv}", True)),
-        ("Ry", (rydberg_unit, dimensions.energy, 0.0, r"\rm{Ry}", False)),
+        ("Ry", (rydberg_unit_mks, dimensions.energy, 0.0, r"\rm{Ry}", False)),
         (
             "rayleigh",
             (2.5e9 / np.pi, dimensions.count_intensity, 0.0, r"\rm{R}", False),
@@ -438,12 +438,12 @@ physical_constants = OrderedDict(
         (
             "qp",
             (
-                elementary_charge,
+                elementary_charge_C,
                 "C",
                 ["proton_charge", "elementary_charge", "charge_proton"],
             ),
         ),
-        ("qe", (-elementary_charge, "C", ["electron_charge", "charge_electron"])),
+        ("qe", (-elementary_charge_C, "C", ["electron_charge", "charge_electron"])),
         ("kb", (boltzmann_constant_J_per_K, "J/K", ["kboltz", "boltzmann_constant"])),
         (
             "G",
@@ -488,7 +488,7 @@ physical_constants = OrderedDict(
                 ["vacuum_permittivity", "electric_constant", "ε_0", "epsilon_0"],
             ),
         ),
-        ("R_inf", (rydberg_constant, "m**-1", ["rydberg_constant", "R_∞"])),
+        ("R_inf", (rydberg_constant_mks, "m**-1", ["rydberg_constant", "R_∞"])),
         ("standard_gravity", (standard_gravity_m_per_s2, "m/s**2", [])),
     ]
 )
