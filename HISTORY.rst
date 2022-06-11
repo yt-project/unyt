@@ -245,7 +245,7 @@ you run into issues please let us know by `opening an issue on GitHub
   operations that combine distinct dimensionally equivalent units will cancel in
   many situations. For example
 
-  .. code-block:: python
+  .. doctest::
 
      >>> from unyt import kg, g
      >>> print((12*kg)/(4*g))
@@ -261,7 +261,7 @@ you run into issues please let us know by `opening an issue on GitHub
   ``unyt`` namespace as well as when a unit name is passed as a string to
   ``unyt``. For example:
 
-  .. code-block:: python
+  .. doctest::
 
      >>> from unyt import meter, second
      >>> data = 1000.*meter/second
@@ -290,7 +290,7 @@ you run into issues please let us know by `opening an issue on GitHub
   system so that conversions to "base" units will end up in that non-MKS
   system. For example:
 
-  .. code-block:: python
+  .. doctest::
 
      >>> from unyt import UnitRegistry, unyt_quantity
      >>> ureg = UnitRegistry(unit_system='cgs')
@@ -305,7 +305,7 @@ you run into issues please let us know by `opening an issue on GitHub
   populated. For example, the author of a library making use of ``unyt`` could
   create an object that users can use to access unit data like this:
 
-  .. code-block:: python
+  .. doctest::
 
       >>> from unyt.unit_systems import add_symbols
       >>> from unyt.unit_registry import UnitRegistry
