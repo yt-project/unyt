@@ -1694,7 +1694,7 @@ class unyt_array(np.ndarray):
         if getattr(ret, "shape", None) == ():
             ret = unyt_quantity(ret, bypass_validation=True, name=self.name)
         try:
-            setattr(ret, "units", self.units)
+            ret.units = self.units
         except AttributeError:
             pass
         return ret

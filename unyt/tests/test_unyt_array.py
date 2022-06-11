@@ -588,11 +588,11 @@ def test_comparisons():
     with pytest.raises(UnitOperationError):
         np.greater(a1, a4)
     with pytest.raises(UnitOperationError):
-        a1 > a4
+        a1 > a4  # noqa: B015
     with pytest.raises(UnitOperationError):
         np.greater(el1, el4)
     with pytest.raises(UnitOperationError):
-        el1 > el4
+        el1 > el4  # noqa: B015
 
 
 def test_unit_conversions():
