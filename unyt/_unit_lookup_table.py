@@ -68,6 +68,9 @@ from unyt._physical_ratios import (
     mu_0,
     avogadros_number,
     neper_per_bel,
+    elementary_charge_C,
+    rydberg_constant_mks,
+    rydberg_unit_mks,
 )
 import numpy as np
 
@@ -313,6 +316,10 @@ default_unit_symbol_lut = OrderedDict(
         ("sr", (1.0, dimensions.solid_angle, 0.0, r"\rm{sr}", False)),
         ("lat", (-np.pi / 180.0, dimensions.angle, 90.0, r"\rm{Latitude}", False)),
         ("lon", (np.pi / 180.0, dimensions.angle, -180.0, r"\rm{Longitude}", False)),
+        (
+            "rpm",
+            (2.0 * np.pi / 60.0, dimensions.angular_frequency, 0.0, r"\rm{RPM}", False),
+        ),
         # misc
         ("eV", (J_per_eV, dimensions.energy, 0.0, r"\rm{eV}", True)),
         ("amu", (amu_kg, dimensions.mass, 0.0, r"\rm{amu}", False)),
@@ -323,6 +330,7 @@ default_unit_symbol_lut = OrderedDict(
         ("me", (mass_electron_kg, dimensions.mass, 0.0, r"m_e", False)),
         ("mp", (mass_hydrogen_kg, dimensions.mass, 0.0, r"m_p", False)),
         ("Sv", (1.0, dimensions.specific_energy, 0.0, r"\rm{Sv}", True)),
+        ("Ry", (rydberg_unit_mks, dimensions.energy, 0.0, r"\rm{Ry}", False)),
         (
             "rayleigh",
             (2.5e9 / np.pi, dimensions.count_intensity, 0.0, r"\rm{R}", False),
@@ -430,12 +438,12 @@ physical_constants = OrderedDict(
         (
             "qp",
             (
-                1.6021766208e-19,
+                elementary_charge_C,
                 "C",
                 ["proton_charge", "elementary_charge", "charge_proton"],
             ),
         ),
-        ("qe", (-1.6021766208e-19, "C", ["electron_charge", "charge_electron"])),
+        ("qe", (-elementary_charge_C, "C", ["electron_charge", "charge_electron"])),
         ("kb", (boltzmann_constant_J_per_K, "J/K", ["kboltz", "boltzmann_constant"])),
         (
             "G",
@@ -480,6 +488,7 @@ physical_constants = OrderedDict(
                 ["vacuum_permittivity", "electric_constant", "ε_0", "epsilon_0"],
             ),
         ),
+        ("R_inf", (rydberg_constant_mks, "m**-1", ["rydberg_constant", "R_∞"])),
         ("standard_gravity", (standard_gravity_m_per_s2, "m/s**2", [])),
     ]
 )

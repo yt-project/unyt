@@ -58,6 +58,8 @@ base_dimensions = [
 rate = 1 / time
 # frequency (alias for rate)
 frequency = rate
+# angular frequency
+angular_frequency = angle * rate
 
 # spatial frequency
 spatial_frequency = 1 / length
@@ -184,6 +186,7 @@ derived_dimensions = [
     magnetic_flux_cgs,
     luminance,
     spatial_frequency,
+    angular_frequency,
 ]
 
 
