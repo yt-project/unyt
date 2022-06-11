@@ -1903,8 +1903,10 @@ class unyt_array(np.ndarray):
             out_arr = np.array(out_arr, copy=False)
         elif ufunc in (modf, divmod_):
             out_arr = tuple((ret_class(o, unit) for o in out_arr))
-        elif out_arr.size == 1:
+        elif out_arr.shape == ():
             out_arr = unyt_quantity(np.asarray(out_arr), unit)
+        elif out_arr.size == 1:
+            out_arr = unyt_array(np.asarray(out_arr), unit)
         else:
             if ret_class is unyt_quantity:
                 # This happens if you do ndarray * unyt_quantity.
@@ -2149,6 +2151,17 @@ class unyt_quantity(unyt_array):
 
     def __round__(self):
         return type(self)(round(float(self)), self.units)
+
+    def reshape(self, shape, order="C"):
+        # this is necessary to support some numpy operations
+        # natively, like numpy.meshgrid, which internally performs
+        # reshaping, e.g., arr.reshape(1, -1), which doesn't affect the size,
+        # but does change the object's internal representation to a >0D array
+        # see https://github.com/yt-project/unyt/issues/224
+        if shape == () or shape is None:
+            return super().reshape(shape, order=order)
+        else:
+            return unyt_array(self).reshape(shape, order=order)
 
 
 def _validate_numpy_wrapper_units(v, arrs):

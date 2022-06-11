@@ -2632,3 +2632,44 @@ def test_invalid_unit_quantity_from_string(s):
         match="Could not find unit symbol '{}' in the provided symbols.".format(un_str),
     ):
         unyt_quantity.from_string(s)
+
+
+def test_constant_type():
+    # see https://github.com/yt-project/unyt/issues/224
+    a = [1] * cm
+    assert type(a) is unyt_array
+    b = 2 * a
+    assert type(b) is unyt_array
+
+
+def test_composite_meshgrid():
+    # see https://github.com/yt-project/unyt/issues/224
+    a = np.array(1)
+    # pure numpy call to illustrate that the problem
+    # is only with units
+    np.meshgrid(np.array([1, 2]), a)
+    np.meshgrid(np.array([1, 2]), a * m)
+
+
+@pytest.mark.parametrize(
+    "shape, expected_output_shape",
+    [
+        (1, (1,)),
+        ((1,), (1,)),
+        ((1, 1), (1, 1)),
+        ((1, -1), (1, 1)),
+    ],
+)
+def test_reshape_quantity_to_array(shape, expected_output_shape):
+    a = unyt_quantity(1, "m")
+    b = a.reshape(shape)
+    assert b.shape == expected_output_shape
+    assert type(b) is unyt_array
+
+
+@pytest.mark.parametrize("shape", ((), None))
+def test_reshape_quantity_noop(shape):
+    a = unyt_quantity(1, "m")
+    b = a.reshape(shape)
+    assert b.shape == a.shape == ()
+    assert type(b) is unyt_quantity
