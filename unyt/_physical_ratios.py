@@ -23,6 +23,15 @@ mass_sun_kg = 1.98841586e30
 temp_sun_kelvin = 5870.0
 luminosity_sun_watts = 3.8270e26
 
+# metallicity options
+metallicity_sun_values = {
+    'angr': 0.01937,
+    'aspl': 0.01337,
+    'feld': 0.01909,
+    'lodd': 0.01321,
+    'cloudy': 0.01295
+}
+
 # Consistent with solar abundances used in Cloudy
 metallicity_sun = 0.01295
 
