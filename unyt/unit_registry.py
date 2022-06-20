@@ -228,6 +228,10 @@ class UnitRegistry:
 
         self.lut[symbol] = (float(base_value), new_dimensions) + self.lut[symbol][2:]
 
+    def change_solar_metallicity_table(self, table_name):
+        from unyt._physical_ratios import metallicity_sun_values
+        self.modify("Zsun", metallicity_sun_values[table_name])
+
     def keys(self):
         """
         Print out the units contained in the lookup table.
