@@ -16,20 +16,24 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ['3.8', '3.9']
+        os: [ubuntu-latest]
+        python-version: ['3.8', '3.9', '3.10']
         # Test all on ubuntu, test ends on macos and windows
-        exclude:
+        include:
           - os: macos-latest
-            python-version: 3.8
+            python-version: '3.8'
           - os: windows-latest
-            python-version: 3.8
+            python-version: '3.8'
+          - os: macos-latest
+            python-version: '3.10'
+          - os: windows-latest
+            python-version: '3.10'
 
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install Tox and any other packages
@@ -52,7 +56,7 @@ jobs:
         if: matrix.python-version == '3.8'
         run: tox -e py38-unyt-module-test-function
       - name: Report coverage with Codecov
-        if: github.event_name == 'push' && matrix.python-version == 3.9 && matrix.os == 'ubuntu-latest'
+        if: github.event_name == 'push' && matrix.python-version == '3.10' && matrix.os == 'ubuntu-latest'
         uses: codecov/codecov-action@v1
         with:
           # token: ${{ secrets.CODECOV_TOKEN }}
