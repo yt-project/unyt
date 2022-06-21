@@ -20,7 +20,7 @@ with open("README.rst") as readme_file:
 with open("HISTORY.rst") as history_file:
     history = history_file.read()
 
-requirements = ['numpy>="1.13.0"', "sympy>=1.2"]
+requirements = ['numpy>="1.17.4"', "sympy>=1.5"]
 
 test_requirements = ["pytest"]
 
