@@ -49,7 +49,7 @@ setup(
     packages=find_packages(include=["unyt"]),
     test_suite="tests",
     tests_require=test_requirements,
-    python_requires=">=3.6.1",
+    python_requires=">=3.8",
     url="https://github.com/yt-project/unyt",
     version=versioneer.get_version(),
     zip_safe=False,

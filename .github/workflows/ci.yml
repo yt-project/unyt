@@ -17,15 +17,11 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: ['3.8', '3.9']
         # Test all on ubuntu, test ends on macos and windows
         exclude:
           - os: macos-latest
-            python-version: 3.7
-          - os: macos-latest
             python-version: 3.8
-          - os: windows-latest
-            python-version: 3.7
           - os: windows-latest
             python-version: 3.8
 
@@ -40,10 +36,21 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel
           python -m pip install tox tox-pyenv coverage
-      - name: Run Tox
+      - name: Build Docs
+        if: matrix.python-version == '3.8'
+        run: tox -e py38-docs -vvv
+      - name: Run Minimal Dependency Build
+        if: matrix.python-version == '3.8'
+        run: tox -e py38-dependencies
+      - name: Run Minimal Dependency Version Build
+        if: matrix.python-version == '3.8'
+        run: tox -e py38-versions
+      - name: Run Main Build
         # Run tox using the version of Python in `PATH`
         run: tox -e py -vvv
-
+      - name: Run In-place Tests
+        if: matrix.python-version == '3.8'
+        run: tox -e py38-unyt-module-test-function
       - name: Report coverage with Codecov
         if: github.event_name == 'push' && matrix.python-version == 3.9 && matrix.os == 'ubuntu-latest'
         uses: codecov/codecov-action@v1
