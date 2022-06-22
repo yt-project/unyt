@@ -123,9 +123,8 @@ class ShowAllConstants(Directive):
     def run(self):
         lines = []
 
-        for name, (value, _unit, alternate_names) in physical_constants.items():
+        for name, (_value, _unit, alternate_names) in physical_constants.items():
             val = getattr(unyt.physical_constants, name)
-            assert value == val
             if val > 1e4 or val < 1e-4:
                 default_value = "{:.4e}".format(val)
             else:
