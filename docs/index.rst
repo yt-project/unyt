@@ -17,8 +17,8 @@ that can be directly imported from from the ``unyt`` namespace:
 .. doctest::
 
   >>> from unyt import G, Mearth, Rearth
-  >>> v_esc = (2*G*Mearth/Rearth)**(1./2)
-  >>> print(v_esc.to('km/s'))
+  >>> v_esc = (2 * G * Mearth / Rearth) ** (1.0 / 2)
+  >>> print(v_esc.to("km/s"))
   11.254544657958482 km/s
 
 

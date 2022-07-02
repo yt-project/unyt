@@ -15,13 +15,14 @@ A registry for units that can be added to and modified.
 
 import json
 from functools import lru_cache
+from hashlib import md5
+
+from sympy import sympify
 
 from unyt import dimensions as unyt_dims
-from unyt.exceptions import SymbolNotFoundError, UnitParseError
 from unyt._unit_lookup_table import default_unit_symbol_lut, unit_prefixes
-from unyt.unit_systems import mks_unit_system, _split_prefix, unit_system_registry
-from hashlib import md5
-from sympy import sympify
+from unyt.exceptions import SymbolNotFoundError, UnitParseError
+from unyt.unit_systems import _split_prefix, mks_unit_system, unit_system_registry
 
 
 def _sanitize_unit_system(unit_system, obj):
@@ -357,8 +358,8 @@ def _correct_old_unit_registry(data, sympify=False):
                     # If they're *equal* but not *identical*, swap them
                     if base_dim == dim and base_dim is not dim:
                         if power != 1:
-                            unsan_v[1] /= dim ** power
-                            unsan_v[1] *= base_dim ** power
+                            unsan_v[1] /= dim**power
+                            unsan_v[1] *= base_dim**power
                         else:
                             # need a special case for power == 1 because id(symbol ** 1)
                             # is not necessarily the same as id(symbol)

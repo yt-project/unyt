@@ -22,9 +22,9 @@ For example::
 # The full license is in the LICENSE file, distributed with this software.
 # -----------------------------------------------------------------------------
 
-from unyt.unit_registry import default_unit_registry as _registry
-from unyt.unit_object import Unit as _Unit
 from unyt._unit_lookup_table import name_alternatives as _name_alternatives
+from unyt.unit_object import Unit as _Unit
+from unyt.unit_registry import default_unit_registry as _registry
 
 _namespace = globals()
 

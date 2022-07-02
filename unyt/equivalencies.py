@@ -15,22 +15,22 @@ from __future__ import division
 
 from collections import OrderedDict
 
+import numpy as np
+
 from unyt.dimensions import (
-    temperature,
-    mass,
-    energy,
-    length,
-    rate,
-    velocity,
-    dimensionless,
     density,
-    number_density,
+    dimensionless,
+    energy,
     flux,
+    length,
+    mass,
+    number_density,
+    rate,
     spatial_frequency,
+    temperature,
+    velocity,
 )
 from unyt.exceptions import InvalidUnitEquivalence
-
-import numpy as np
 
 equivalence_registry = OrderedDict()
 

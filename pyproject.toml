@@ -1,4 +1,5 @@
 [tool.black]
+target-version = ['py36']
 line-length = 88
 exclude = '''
 (
@@ -19,3 +20,9 @@ exclude = '''
   )
 )
 '''
+
+
+[tool.isort]
+profile = "black"
+combine_as_imports = true
+skip =  ["venv", "benchmarks"]

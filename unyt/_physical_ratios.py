@@ -100,13 +100,13 @@ elementary_charge_C = 1.6021766208e-19
 # permeability of Free Space
 mu_0 = 4.0e-7 * np.pi
 # permittivity of Free Space
-eps_0 = 1.0 / (speed_of_light_m_per_s ** 2 * mu_0)
+eps_0 = 1.0 / (speed_of_light_m_per_s**2 * mu_0)
 avogadros_number = 6.022141410704091e23
 rydberg_constant_mks = (
     0.125
     * mass_electron_kg
-    * elementary_charge_C ** 4
-    / (eps_0 ** 2 * planck_mks ** 3 * speed_of_light_m_per_s)
+    * elementary_charge_C**4
+    / (eps_0**2 * planck_mks**3 * speed_of_light_m_per_s)
 )
 
 # temperature / energy
@@ -157,7 +157,7 @@ TINY = 1.0e-40
 # Planck units
 hbar_mks = 0.5 * planck_mks / np.pi
 planck_mass_kg = np.sqrt(hbar_mks * speed_of_light_m_per_s / newton_mks)
-planck_length_m = np.sqrt(hbar_mks * newton_mks / speed_of_light_m_per_s ** 3)
+planck_length_m = np.sqrt(hbar_mks * newton_mks / speed_of_light_m_per_s**3)
 planck_time_s = planck_length_m / speed_of_light_m_per_s
 planck_energy_J = planck_mass_kg * speed_of_light_m_per_s * speed_of_light_m_per_s
 planck_temperature_K = planck_energy_J / boltzmann_constant_J_per_K

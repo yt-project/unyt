@@ -16,48 +16,49 @@ Test symbolic unit handling.
 # -----------------------------------------------------------------------------
 
 
+import operator
+import pickle
+
 import numpy as np
+import pytest
 from numpy.testing import (
-    assert_almost_equal,
     assert_allclose,
+    assert_almost_equal,
     assert_array_almost_equal_nulp,
     assert_equal,
 )
-import operator
-import pickle
-import pytest
 from sympy import Symbol
 
-from unyt.array import unyt_quantity
-from unyt.testing import assert_allclose_units
-from unyt.unit_registry import UnitRegistry
-from unyt.dimensions import (
-    mass,
-    length,
-    time,
-    temperature,
-    energy,
-    magnetic_field_cgs,
-    magnetic_field_mks,
-    power,
-    rate,
+import unyt.unit_symbols as unit_symbols
+from unyt._physical_ratios import (
+    m_per_km,
+    m_per_mpc,
+    m_per_pc,
+    mass_sun_kg,
+    sec_per_year,
 )
-from unyt.exceptions import InvalidUnitOperation, UnitsNotReducible, UnitConversionError
-from unyt.unit_object import default_unit_registry, Unit, UnitParseError
-from unyt.unit_systems import cgs_unit_system, UnitSystem
 from unyt._unit_lookup_table import (
     default_unit_symbol_lut,
     name_alternatives,
     unit_prefixes,
 )
-import unyt.unit_symbols as unit_symbols
-from unyt._physical_ratios import (
-    m_per_pc,
-    sec_per_year,
-    m_per_km,
-    m_per_mpc,
-    mass_sun_kg,
+from unyt.array import unyt_quantity
+from unyt.dimensions import (
+    energy,
+    length,
+    magnetic_field_cgs,
+    magnetic_field_mks,
+    mass,
+    power,
+    rate,
+    temperature,
+    time,
 )
+from unyt.exceptions import InvalidUnitOperation, UnitConversionError, UnitsNotReducible
+from unyt.testing import assert_allclose_units
+from unyt.unit_object import Unit, UnitParseError, default_unit_registry
+from unyt.unit_registry import UnitRegistry
+from unyt.unit_systems import UnitSystem, cgs_unit_system
 
 
 def test_no_conflicting_symbols():
@@ -139,9 +140,9 @@ def test_create_from_string():
 
     # nonzero CGS conversion factor
     u6 = Unit("Msun/pc**3")
-    assert u6.dimensions == mass / length ** 3
+    assert u6.dimensions == mass / length**3
     assert_array_almost_equal_nulp(
-        np.array([u6.base_value]), np.array([mass_sun_kg / m_per_pc ** 3])
+        np.array([u6.base_value]), np.array([mass_sun_kg / m_per_pc**3])
     )
 
     with pytest.raises(UnitParseError):
@@ -184,7 +185,7 @@ def test_create_from_expr():
     # Mul expr
     s3 = s1 * s2
     # Pow expr
-    s4 = s1 ** 2 * s2 ** (-1)
+    s4 = s1**2 * s2 ** (-1)
 
     u1 = Unit(s1)
     u2 = Unit(s2)
@@ -199,12 +200,12 @@ def test_create_from_expr():
     assert_allclose_units(u1.base_value, pc_mks, 1e-12)
     assert_allclose_units(u2.base_value, yr_mks, 1e-12)
     assert_allclose_units(u3.base_value, pc_mks * yr_mks, 1e-12)
-    assert_allclose_units(u4.base_value, pc_mks ** 2 / yr_mks, 1e-12)
+    assert_allclose_units(u4.base_value, pc_mks**2 / yr_mks, 1e-12)
 
     assert u1.dimensions == length
     assert u2.dimensions == time
     assert u3.dimensions == length * time
-    assert u4.dimensions == length ** 2 / time
+    assert u4.dimensions == length**2 / time
 
 
 def test_create_with_duplicate_dimensions():
@@ -236,20 +237,20 @@ def test_create_new_symbol():
     assert u1.base_value == 42
     assert u1.dimensions == mass / time
 
-    u1 = Unit("abc", base_value=42, dimensions=length ** 3)
+    u1 = Unit("abc", base_value=42, dimensions=length**3)
 
     assert u1.expr == Symbol("abc", positive=True)
     assert u1.base_value == 42
-    assert u1.dimensions == length ** 3
+    assert u1.dimensions == length**3
 
     u1 = Unit("abc", base_value=42, dimensions=length * (mass * length))
 
     assert u1.expr == Symbol("abc", positive=True)
     assert u1.base_value == 42
-    assert u1.dimensions == length ** 2 * mass
+    assert u1.dimensions == length**2 * mass
 
     with pytest.raises(UnitParseError):
-        Unit("abc", base_value=42, dimensions=length ** length)
+        Unit("abc", base_value=42, dimensions=length**length)
     with pytest.raises(UnitParseError):
         Unit("abc", base_value=42, dimensions=length ** (length * length))
     with pytest.raises(UnitParseError):
@@ -352,9 +353,9 @@ def test_multiplication():
 
     u6 = u4 * u5
 
-    assert u6.expr == pc_sym ** 2 * msun_sym * s_sym
-    assert_allclose_units(u6.base_value, pc_mks ** 2 * msun_mks, 1e-12)
-    assert u6.dimensions == length ** 2 * mass * time
+    assert u6.expr == pc_sym**2 * msun_sym * s_sym
+    assert_allclose_units(u6.base_value, pc_mks**2 * msun_mks, 1e-12)
+    assert u6.dimensions == length**2 * mass * time
 
 
 def test_division():
@@ -387,26 +388,27 @@ def test_power():
 
     """
     from sympy import nsimplify
+
     from unyt import dimensionless
 
     pc_mks = m_per_pc
     mK_mks = 1e-3
-    u1_dims = mass * length ** 2 * time ** -3 * temperature ** 4
+    u1_dims = mass * length**2 * time**-3 * temperature**4
     u1 = Unit("kg * pc**2 * s**-3 * mK**4")
 
-    u2 = u1 ** 2
+    u2 = u1**2
 
-    assert u2.dimensions == u1_dims ** 2
-    assert_allclose_units(u2.base_value, (pc_mks ** 2 * mK_mks ** 4) ** 2, 1e-12)
+    assert u2.dimensions == u1_dims**2
+    assert_allclose_units(u2.base_value, (pc_mks**2 * mK_mks**4) ** 2, 1e-12)
 
     u3 = u1 ** (-1.0 / 3)
 
     assert u3.dimensions == nsimplify(u1_dims ** (-1.0 / 3))
     assert_allclose_units(
-        u3.base_value, (pc_mks ** 2 * mK_mks ** 4) ** (-1.0 / 3), 1e-12
+        u3.base_value, (pc_mks**2 * mK_mks**4) ** (-1.0 / 3), 1e-12
     )
 
-    assert u1 ** 0.0 == dimensionless
+    assert u1**0.0 == dimensionless
 
 
 def test_equality():
@@ -477,18 +479,18 @@ def test_base_equivalent():
     assert u2.expr == u3.expr
     assert u2 == u3
 
-    assert_allclose_units(u1.base_value, Msun_mks / Mpc_mks ** 3, 1e-12)
+    assert_allclose_units(u1.base_value, Msun_mks / Mpc_mks**3, 1e-12)
     assert u2.base_value == 1
     assert u3.base_value == 1
 
-    mass_density = mass / length ** 3
+    mass_density = mass / length**3
 
     assert u1.dimensions == mass_density
     assert u2.dimensions == mass_density
     assert u3.dimensions == mass_density
 
     assert_allclose_units(
-        u1.get_conversion_factor(u3)[0], Msun_mks / Mpc_mks ** 3, 1e-12
+        u1.get_conversion_factor(u3)[0], Msun_mks / Mpc_mks**3, 1e-12
     )
 
     with pytest.raises(UnitConversionError):
@@ -665,7 +667,7 @@ def test_code_unit():
     assert ue.base_value == 10
     assert ue.dimensions is length
 
-    class FakeDataset(object):
+    class FakeDataset:
         unit_registry = ureg
 
     ds = FakeDataset()
@@ -711,13 +713,13 @@ def test_simplify():
         u.Hz * u.s * u.km: "km",
         u.kHz * u.s: "1000",
         u.kHz * u.s * u.km: "1000*km",
-        u.kHz * u.s ** 2: "1000*s",
-        u.kHz * u.s ** 2 * u.km: "1000*km*s",
-        u.Hz ** -1 * u.s: "s/Hz",
-        u.Hz ** -1 * u.s * u.km: "km*s/Hz",
-        u.Hz ** 1.5 * u.s ** 1.7: "sqrt(Hz)*s**(7/10)",
-        u.Hz ** 1.5 * u.s ** 1.7 * u.km: "sqrt(Hz)*km*s**(7/10)",
-        u.m ** 2 / u.cm ** 2: "10000",
+        u.kHz * u.s**2: "1000*s",
+        u.kHz * u.s**2 * u.km: "1000*km*s",
+        u.Hz**-1 * u.s: "s/Hz",
+        u.Hz**-1 * u.s * u.km: "km*s/Hz",
+        u.Hz**1.5 * u.s**1.7: "sqrt(Hz)*s**(7/10)",
+        u.Hz**1.5 * u.s**1.7 * u.km: "sqrt(Hz)*km*s**(7/10)",
+        u.m**2 / u.cm**2: "10000",
     }
 
     for unit, answer in answers.items():
@@ -740,8 +742,8 @@ def test_name_alternatives():
     import unyt
     from unyt._unit_lookup_table import (
         default_unit_name_alternatives,
-        name_alternatives,
         inv_name_alternatives,
+        name_alternatives,
     )
 
     # concatenated list of all alternative unit names

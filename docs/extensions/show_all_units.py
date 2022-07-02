@@ -6,19 +6,17 @@ except AttributeError:
     # python2 fallback
     from string import maketrans
 
+import numpy as np
+from sympy.core.mul import Mul
+from sympy.core.symbol import Symbol
+
 import unyt
 import unyt.dimensions as dims
-
 from unyt import Unit
-from unyt.exceptions import UnitsNotReducible
 from unyt._unit_lookup_table import name_alternatives, physical_constants
-from unyt.unit_systems import _split_prefix
+from unyt.exceptions import UnitsNotReducible
 from unyt.unit_registry import default_unit_registry
-
-from sympy.core.symbol import Symbol
-from sympy.core.mul import Mul
-
-import numpy as np
+from unyt.unit_systems import _split_prefix
 
 all_dims = {}
 for d in dims.__dict__.keys():
@@ -125,7 +123,7 @@ class ShowAllConstants(Directive):
     def run(self):
         lines = []
 
-        for name, (value, unit, alternate_names) in physical_constants.items():
+        for name, (_value, _unit, alternate_names) in physical_constants.items():
             val = getattr(unyt.physical_constants, name)
             if val > 1e4 or val < 1e-4:
                 default_value = "{:.4e}".format(val)

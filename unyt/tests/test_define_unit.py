@@ -1,8 +1,8 @@
 import pytest
 
+from unyt.array import unyt_quantity
 from unyt.unit_object import define_unit
 from unyt.unit_registry import UnitRegistry
-from unyt.array import unyt_quantity
 
 
 def test_define_unit():

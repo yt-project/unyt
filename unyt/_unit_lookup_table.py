@@ -13,66 +13,67 @@ The default unit symbol lookup table.
 # The full license is in the LICENSE file, distributed with this software.
 # -----------------------------------------------------------------------------
 
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict, defaultdict
+
+import numpy as np
 
 from unyt import dimensions
 from unyt._physical_ratios import (
-    m_per_pc,
-    m_per_ly,
+    J_per_eV,
+    amu_grams,
+    amu_kg,
+    avogadros_number,
+    boltzmann_constant_J_per_K,
+    elementary_charge_C,
+    eps_0,
+    jansky_mks,
+    kelvin_per_rankine,
+    kg_per_pound,
+    luminosity_sun_watts,
+    m_per_ang,
     m_per_au,
-    m_per_rsun,
-    m_per_inch,
     m_per_ft,
-    watt_per_horsepower,
-    mass_sun_kg,
-    mass_jupiter_kg,
+    m_per_inch,
+    m_per_ly,
+    m_per_pc,
+    m_per_rearth,
+    m_per_rjup,
+    m_per_rsun,
     mass_earth_kg,
-    mass_mercury_kg,
-    mass_venus_kg,
+    mass_electron_kg,
+    mass_hydrogen_kg,
+    mass_jupiter_kg,
     mass_mars_kg,
-    mass_saturn_kg,
-    mass_uranus_kg,
+    mass_mercury_kg,
     mass_neptune_kg,
-    sec_per_year,
+    mass_proton_kg,
+    mass_saturn_kg,
+    mass_sun_kg,
+    mass_uranus_kg,
+    mass_venus_kg,
+    metallicity_sun,
+    mu_0,
+    neper_per_bel,
+    newton_mks,
+    pascal_per_atm,
+    planck_charge_C,
+    planck_energy_J,
+    planck_length_m,
+    planck_mass_kg,
+    planck_mks,
+    planck_temperature_K,
+    planck_time_s,
+    rydberg_constant_mks,
+    rydberg_unit_mks,
     sec_per_day,
     sec_per_hr,
     sec_per_min,
-    temp_sun_kelvin,
-    luminosity_sun_watts,
-    metallicity_sun,
-    J_per_eV,
-    amu_kg,
-    amu_grams,
-    mass_electron_kg,
-    mass_hydrogen_kg,
-    mass_proton_kg,
-    m_per_ang,
-    jansky_mks,
-    kelvin_per_rankine,
+    sec_per_year,
     speed_of_light_m_per_s,
-    planck_length_m,
-    planck_charge_C,
-    planck_energy_J,
-    planck_mass_kg,
-    planck_temperature_K,
-    planck_time_s,
-    kg_per_pound,
-    pascal_per_atm,
-    m_per_rearth,
-    m_per_rjup,
-    boltzmann_constant_J_per_K,
     standard_gravity_m_per_s2,
-    newton_mks,
-    planck_mks,
-    eps_0,
-    mu_0,
-    avogadros_number,
-    neper_per_bel,
-    elementary_charge_C,
-    rydberg_constant_mks,
-    rydberg_unit_mks,
+    temp_sun_kelvin,
+    watt_per_horsepower,
 )
-import numpy as np
 
 # Lookup a unit symbol with the symbol string, and provide a tuple with the
 # conversion factor to cgs and dimensionality.
@@ -92,13 +93,13 @@ default_unit_symbol_lut = OrderedDict(
         ("dyn", (1.0e-5, dimensions.force, 0.0, r"\rm{dyn}", True)),
         ("erg", (1.0e-7, dimensions.energy, 0.0, r"\rm{erg}", True)),
         ("Ba", (0.1, dimensions.pressure, 0.0, r"\rm{Ba}", True)),
-        ("G", (0.1 ** 0.5, dimensions.magnetic_field_cgs, 0.0, r"\rm{G}", True)),
-        ("statC", (1.0e-3 ** 1.5, dimensions.charge_cgs, 0.0, r"\rm{statC}", True)),
-        ("statA", (1.0e-3 ** 1.5, dimensions.current_cgs, 0.0, r"\rm{statA}", True)),
+        ("G", (0.1**0.5, dimensions.magnetic_field_cgs, 0.0, r"\rm{G}", True)),
+        ("statC", (1.0e-3**1.5, dimensions.charge_cgs, 0.0, r"\rm{statC}", True)),
+        ("statA", (1.0e-3**1.5, dimensions.current_cgs, 0.0, r"\rm{statA}", True)),
         (
             "statV",
             (
-                0.1 * 1.0e-3 ** 0.5,
+                0.1 * 1.0e-3**0.5,
                 dimensions.electric_potential_cgs,
                 0.0,
                 r"\rm{statV}",
@@ -106,7 +107,7 @@ default_unit_symbol_lut = OrderedDict(
             ),
         ),
         ("statohm", (100.0, dimensions.resistance_cgs, 0.0, r"\rm{statohm}", True)),
-        ("Mx", (1.0e-3 ** 1.5, dimensions.magnetic_flux_cgs, 0.0, r"\rm{Mx}", True)),
+        ("Mx", (1.0e-3**1.5, dimensions.magnetic_flux_cgs, 0.0, r"\rm{Mx}", True)),
         # some SI
         ("J", (1.0, dimensions.energy, 0.0, r"\rm{J}", True)),
         ("W", (1.0, dimensions.power, 0.0, r"\rm{W}", True)),
@@ -219,7 +220,7 @@ default_unit_symbol_lut = OrderedDict(
         (
             "psi",
             (
-                kg_per_pound * standard_gravity_m_per_s2 / m_per_inch ** 2,
+                kg_per_pound * standard_gravity_m_per_s2 / m_per_inch**2,
                 dimensions.pressure,
                 0.0,
                 r"\rm{psi}",
@@ -229,7 +230,7 @@ default_unit_symbol_lut = OrderedDict(
         (
             "psf",
             (
-                kg_per_pound * standard_gravity_m_per_s2 / m_per_ft ** 2,
+                kg_per_pound * standard_gravity_m_per_s2 / m_per_ft**2,
                 dimensions.pressure,
                 0.0,
                 r"\rm{psf}",
@@ -259,7 +260,7 @@ default_unit_symbol_lut = OrderedDict(
         (
             "ksi",
             (
-                1000 * kg_per_pound * standard_gravity_m_per_s2 / m_per_inch ** 2,
+                1000 * kg_per_pound * standard_gravity_m_per_s2 / m_per_inch**2,
                 dimensions.pressure,
                 0.0,
                 r"\rm{ksi}",
@@ -269,7 +270,7 @@ default_unit_symbol_lut = OrderedDict(
         (
             "ksf",
             (
-                1000 * kg_per_pound * standard_gravity_m_per_s2 / m_per_ft ** 2,
+                1000 * kg_per_pound * standard_gravity_m_per_s2 / m_per_ft**2,
                 dimensions.pressure,
                 0.0,
                 r"\rm{ksf}",
@@ -352,7 +353,7 @@ default_unit_symbol_lut = OrderedDict(
         (
             "l_geom",
             (
-                newton_mks * mass_sun_kg / speed_of_light_m_per_s ** 2,
+                newton_mks * mass_sun_kg / speed_of_light_m_per_s**2,
                 dimensions.length,
                 0.0,
                 r"\rm{M}_\odot",
@@ -362,7 +363,7 @@ default_unit_symbol_lut = OrderedDict(
         (
             "t_geom",
             (
-                newton_mks * mass_sun_kg / speed_of_light_m_per_s ** 3,
+                newton_mks * mass_sun_kg / speed_of_light_m_per_s**3,
                 dimensions.time,
                 0.0,
                 r"\rm{M}_\odot",

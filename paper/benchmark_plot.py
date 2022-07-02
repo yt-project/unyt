@@ -1,6 +1,7 @@
+from collections import OrderedDict
+
 import numpy as np
 import perf
-from collections import OrderedDict
 from matplotlib import pyplot as plt
 from matplotlib.patches import Patch
 

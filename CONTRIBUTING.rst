@@ -114,18 +114,16 @@ managing your python evironment using your operating system's package manager or
 6. Edit files in the ``unyt`` repository, using your local python installation
    to test your edits.
 
-7. When you're done making changes, check that your changes pass ``flake8``,
-   format the code with ``black``, and run the tests, including testing several
-   Python versions with ``tox``::
+7. When you're done making changes, check that your changes pass linting,
+   and run the tests, including testing several Python versions with ``tox``::
 
-    $ flake8 unyt
-    $ black ./
+    $ pre-commit run --all-files
     $ pytest --doctest-modules --doctest-rst --doctest-plus
     $ pyenv local 3.8.13 3.9.12 3.10.4
     $ tox
     $ pyenv local 3.10.4
 
-   To get ``flake8``, ``black``, ``pytest``, ``pytest-doctestplus``, and
+   To get ``pre-commit``, ``pytest``, ``pytest-doctestplus``, and
    ``tox``, just ``pip`` or ``conda`` install them into your python environment,
    as appropriate. For a ``pyenv`` environment you would use ``pip``.
 
@@ -154,8 +152,8 @@ These enable testing the docstrings and doctest examples scattered throughout
 the unyt and its documentation.
 
 You will need to install ``pytest`` and ``pytest-doctestplus`` to run this
-command. Some tests depend on ``h5py``, ``Pint``, ``astropy``, ``matplotlib``
-``black``, and ``flake8`` being installed.
+command. Some tests depend on ``h5py``, ``Pint``, ``astropy`` and ``matplotlib``
+being installed.
 
 If you would like to run the tests on multiple python versions, first ensure
 that you have multiple python versions visible on your ``$PATH``, then simply

@@ -1,8 +1,9 @@
 """Test Matplotlib ConversionInterface"""
 import numpy as np
 import pytest
-from unyt._on_demand_imports import _matplotlib, NotAModule
-from unyt import m, s, K, unyt_array, unyt_quantity
+
+from unyt import K, m, s, unyt_array, unyt_quantity
+from unyt._on_demand_imports import NotAModule, _matplotlib
 from unyt.exceptions import UnitConversionError
 
 try:

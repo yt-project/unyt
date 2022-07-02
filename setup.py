@@ -1,11 +1,9 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """The setup script."""
 
 import os
-from setuptools import setup, find_packages
 import sys
+
+from setuptools import find_packages, setup
 
 # ensure the current directory is on sys.path
 # so versioneer can be imported when pip uses

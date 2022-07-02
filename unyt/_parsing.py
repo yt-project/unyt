@@ -14,12 +14,13 @@ parsing utilities
 # -----------------------------------------------------------------------------
 
 
-from sympy.parsing.sympy_parser import parse_expr, auto_number, rationalize
-from sympy import Basic, Float, Integer, Rational, sqrt, Symbol
 import token
 
-from unyt.exceptions import UnitParseError
+from sympy import Basic, Float, Integer, Rational, Symbol, sqrt
+from sympy.parsing.sympy_parser import auto_number, parse_expr, rationalize
+
 from unyt._unit_lookup_table import inv_name_alternatives
+from unyt.exceptions import UnitParseError
 
 
 def _auto_positive_symbol(tokens, local_dict, global_dict):
