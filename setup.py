@@ -44,7 +44,7 @@ setup(
     package_data={"unyt": ["tests/data/old_json_registry.txt"]},
     keywords="unyt",
     name="unyt",
-    packages=find_packages(include=["unyt"]),
+    packages=find_packages(include=["unyt", "unyt.tests", "unyt.tests.data"]),
     test_suite="tests",
     tests_require=test_requirements,
     python_requires=">=3.8",
