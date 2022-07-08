@@ -1038,7 +1038,7 @@ def _validate_dimensions(dimensions):
 
 
 def define_unit(
-    symbol, value, tex_repr=None, offset=None, prefixable=False, registry=None
+    symbol, value, tex_repr=None, offset=None, prefixable=False, registry=None, override=False
 ):
     """
     Define a new unit and add it to the specified unit registry.
@@ -1064,6 +1064,9 @@ def define_unit(
         unit object will be added as an attribute to the top-level :mod:`unyt`
         namespace to ease working with the newly defined unit. See the example
         below.
+    override : boolean, optional
+        Whether or not to allow an override to an existing unit in the given 
+        unit registry.
 
     Examples
     --------
@@ -1080,7 +1083,7 @@ def define_unit(
 
     if registry is None:
         registry = default_unit_registry
-    if symbol in registry:
+    if symbol in registry and not override:
         raise RuntimeError(
             "Unit symbol '%s' already exists in the provided " "registry" % symbol
         )
