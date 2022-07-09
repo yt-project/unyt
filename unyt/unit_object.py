@@ -1108,4 +1108,40 @@ def define_unit(
         setattr(unyt, symbol, u)
 
 
+def change_solar_metallicity_value(self, value_ref, registry=None):
+    """
+    A number of values for the solar metallicity are present
+    in the astronomical literature, and different groups may
+    use different values. This function changes the default
+    value of the solar metallicity for conversions between the
+    "Zsun" unit and the metal mass fraction.
+
+    Parameters
+    ----------
+    value_ref : string
+        The reference value for the solar metallicity. Options
+        are:
+
+        "cloudy": 0.01295, from Cloudy 17.03
+        "angr": 0.01937, from Anders E. & Grevesse N. (1989, Geochimica et
+            Cosmochimica Acta 53, 197)
+        "aspl": 0.01337, from Asplund M., Grevesse N., Sauval A.J. & Scott
+            P. (2009, ARAA, 47, 481)
+        "feld": 0.01909, from Feldman U. (Physica Scripta, 46, 202)
+        "lodd": 0.01321, from Lodders, K (2003, ApJ 591, 1220)
+
+        The default value in unyt is "cloudy".
+    registry : :class:`unyt.unit_registry.UnitRegistry` or None
+        The unit registry for which the metallicity value will be adjusted.
+        If None, then defaults to the global default unit registry.
+
+    """
+    from unyt._physical_ratios import metallicity_sun_values
+
+    if registry is None:
+        registry = default_unit_registry
+
+    registry.modify("Zsun", metallicity_sun_values[value_ref])
+
+
 NULL_UNIT = Unit()

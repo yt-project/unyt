@@ -62,7 +62,11 @@ from unyt.array import (  # NOQA: F401
 )
 from unyt.dimensions import accepts, returns  # NOQA: F401
 from unyt.testing import assert_allclose_units  # NOQA: F401
-from unyt.unit_object import Unit, define_unit  # NOQA: F401
+from unyt.unit_object import (  # NOQA: F401
+    Unit,
+    change_solar_metallicity_value,
+    define_unit,
+)
 from unyt.unit_registry import UnitRegistry  # NOQA: F401
 from unyt.unit_systems import UnitSystem  # NOQA: F401
 

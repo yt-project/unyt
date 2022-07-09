@@ -228,30 +228,6 @@ class UnitRegistry:
 
         self.lut[symbol] = (float(base_value), new_dimensions) + self.lut[symbol][2:]
 
-    def change_solar_metallicity_value(self, value_ref):
-        """
-        A number of values for the solar metallicity are present
-        in the astronomical literature, and different groups may
-        use different values. This function changes the default
-        value of the solar metallicity for conversions between the
-        "Zsun" unit and the metal mass fraction. Options for the
-        *value_ref* argument are:
-
-        "angr": 0.01937, from Anders E. & Grevesse N. (1989, Geochimica et
-            Cosmochimica Acta 53, 197)
-        "aspl": 0.01337, from Asplund M., Grevesse N., Sauval A.J. & Scott
-            P. (2009, ARAA, 47, 481)
-        "feld": 0.01909, from Feldman U. (Physica Scripta, 46, 202)
-        "lodd": 0.01321, from Lodders, K (2003, ApJ 591, 1220)
-        "cloudy": 0.01295, from Cloudy 17.03
-
-        The default value in unyt is "cloudy".
-
-        """
-        from unyt._physical_ratios import metallicity_sun_values
-
-        self.modify("Zsun", metallicity_sun_values[value_ref])
-
     def keys(self):
         """
         Print out the units contained in the lookup table.
