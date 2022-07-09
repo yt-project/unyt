@@ -1108,7 +1108,7 @@ def define_unit(
         setattr(unyt, symbol, u)
 
 
-def change_solar_metallicity_value(self, value_ref, registry=None):
+def change_solar_metallicity_value(value_ref, registry=None):
     """
     A number of values for the solar metallicity are present
     in the astronomical literature, and different groups may
