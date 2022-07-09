@@ -246,8 +246,10 @@ class UnitRegistry:
         "cloudy": 0.01295, from Cloudy 17.03
 
         The default value in unyt is "cloudy".
+
         """
         from unyt._physical_ratios import metallicity_sun_values
+
         self.modify("Zsun", metallicity_sun_values[value_ref])
 
     def keys(self):
