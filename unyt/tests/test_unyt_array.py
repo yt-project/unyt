@@ -2673,3 +2673,11 @@ def test_reshape_quantity_noop(shape):
     b = a.reshape(shape)
     assert b.shape == a.shape == ()
     assert type(b) is unyt_quantity
+
+
+def test_reshape_quantity_via_shape_tuple():
+    # this is necessary to support np.tile
+    a = unyt_quantity(1, "m")
+    b = a.reshape(-1, 1)
+    assert b.shape == (1, 1)
+    assert type(b) is unyt_array
