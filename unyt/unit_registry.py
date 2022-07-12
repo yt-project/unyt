@@ -78,7 +78,7 @@ class UnitRegistry:
                 ret = self.lut[str(key)]
             except UnitParseError:
                 raise SymbolNotFoundError(
-                    "The symbol '%s' does not exist in this registry." % key
+                    f"The symbol '{key}' does not exist in this registry."
                 )
         return ret
 
@@ -154,15 +154,13 @@ class UnitRegistry:
         # Validate
         if not isinstance(base_value, float):
             raise UnitParseError(
-                "base_value (%s) must be a float, got a %s."
-                % (base_value, type(base_value))
+                f"base_value ({base_value}) must be a float, got a {type(base_value)}."
             )
 
         if offset is not None:
             if not isinstance(offset, float):
                 raise UnitParseError(
-                    "offset value (%s) must be a float, got a %s."
-                    % (offset, type(offset))
+                    f"offset value ({offset}) must be a float, got a {type(offset)}."
                 )
         else:
             offset = 0.0
@@ -334,7 +332,7 @@ def _lookup_unit_symbol(symbol_str, unit_symbol_lut):
 
     # no dice
     raise UnitParseError(
-        "Could not find unit symbol '%s' in the provided " "symbols." % symbol_str
+        f"Could not find unit symbol '{symbol_str}' in the provided symbols."
     )
 
 

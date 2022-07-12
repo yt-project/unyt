@@ -634,7 +634,7 @@ def generate_name_alternatives():
         else:
             if okey[0] not in ["u", "μ"]:
                 raise RuntimeError(  # pragma: no cover
-                    "Duplicate unit name found: {}, {}".format(key, okey)
+                    f"Duplicate unit name found: {key}, {okey}"
                 )
 
     for key, entry in default_unit_symbol_lut.items():

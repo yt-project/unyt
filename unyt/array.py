@@ -620,7 +620,7 @@ class unyt_array(np.ndarray):
         return str(self.view(np.ndarray)) + " " + str(self.units)
 
     def __format__(self, format_spec):
-        return "{} {}".format(self.d.__format__(format_spec), self.units)
+        return f"{self.d.__format__(format_spec)} {self.units}"
 
     #
     # Start unit conversion methods
@@ -693,8 +693,7 @@ class unyt_array(np.ndarray):
                 large = LARGE_INPUT.get(dsize, 0)
                 if large and np.any(np.abs(values) > large):
                     warnings.warn(
-                        "Overflow encountered while converting to units '%s'"
-                        % new_units,
+                        f"Overflow encountered while converting to units '{new_units}'",
                         RuntimeWarning,
                         stacklevel=2,
                     )
@@ -874,8 +873,7 @@ class unyt_array(np.ndarray):
                 large = LARGE_INPUT.get(dsize, 0)
                 if large and np.any(np.abs(self.d) > large):
                     warnings.warn(
-                        "Overflow encountered while converting to units '%s'"
-                        % new_units,
+                        f"Overflow encountered while converting to units '{new_units}'",
                         RuntimeWarning,
                         stacklevel=2,
                     )
@@ -1270,7 +1268,7 @@ class unyt_array(np.ndarray):
             # hour as "h"
             if unit_str == "h":
                 unit_str = "hr"
-            ap_units.append("%s**(%s)" % (unit_str, Rational(exponent)))
+            ap_units.append(f"{unit_str}**({Rational(exponent)})")
         ap_units = "*".join(ap_units)
         if isinstance(_arr.value, np.ndarray) and _arr.shape != ():
             return unyt_array(_arr.value, ap_units, registry=unit_registry)
@@ -1319,7 +1317,7 @@ class unyt_array(np.ndarray):
         p_units = []
         for base, exponent in arr._units.items():
             bs = convert_pint_units(base)
-            p_units.append("%s**(%s)" % (bs, Rational(exponent)))
+            p_units.append(f"{bs}**({Rational(exponent)})")
         p_units = "*".join(p_units)
         if isinstance(arr.magnitude, np.ndarray):
             return unyt_array(arr.magnitude, p_units, registry=unit_registry)
@@ -1357,7 +1355,7 @@ class unyt_array(np.ndarray):
             # "yr" as "year"
             if str(unit).endswith("yr") and len(str(unit)) in [2, 3]:
                 unit = str(unit).replace("yr", "year")
-            units.append("%s**(%s)" % (unit, Rational(pow)))
+            units.append(f"{unit}**({Rational(pow)})")
         units = "*".join(units)
         return unit_registry.Quantity(self.value, units)
 
@@ -1396,7 +1394,7 @@ class unyt_array(np.ndarray):
         if re.fullmatch(_UNIT_REGEXP, v):
             return 1 * Unit(re.match(_UNIT_REGEXP, v).group())
         if not re.match(_QUAN_REGEXP, v):
-            raise ValueError("Received invalid quantity expression '{}'.".format(s))
+            raise ValueError(f"Received invalid quantity expression '{s}'.")
         res = re.search(_NUMB_REGEXP, v)
         num = res.group()
         res = re.search(_UNIT_REGEXP, v[res.span()[1] :])
@@ -2585,7 +2583,7 @@ def allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
 
     rt = unyt_array(rtol)
     if not rt.units.is_dimensionless:
-        raise RuntimeError("Units of rtol (%s) are not " "dimensionless" % rt.units)
+        raise RuntimeError(f"Units of rtol ({rt.units}) are not dimensionless")
 
     if not isinstance(atol, unyt_array):
         at = unyt_quantity(atol, des.units)
