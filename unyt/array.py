@@ -153,7 +153,7 @@ _NUMB_PATTERN = r"^[+/-]?((?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)|\d*\.?\d+|\d
 # *all* greek letters are considered valid unit string elements.
 # This may be an overshoot. We rely on unyt.Unit to do the actual validation
 _UNIT_PATTERN = r"([α-ωΑ-Ωa-zA-Z]+(\*\*([+/-]?[0-9]+)|[*/])?)+"
-_QUAN_PATTERN = r"{}\s*{}".format(_NUMB_PATTERN, _UNIT_PATTERN)
+_QUAN_PATTERN = rf"{_NUMB_PATTERN}\s*{_UNIT_PATTERN}"
 _NUMB_REGEXP = re.compile(_NUMB_PATTERN)
 _UNIT_REGEXP = re.compile(_UNIT_PATTERN)
 _QUAN_REGEXP = re.compile(_QUAN_PATTERN)
@@ -609,7 +609,7 @@ class unyt_array(np.ndarray):
         return obj
 
     def __repr__(self):
-        rep = super(unyt_array, self).__repr__()
+        rep = super().__repr__()
         units_repr = self.units.__repr__()
         if "=" in rep:
             return rep[:-1] + ", units='" + units_repr + "')"
@@ -1703,7 +1703,7 @@ class unyt_array(np.ndarray):
         return np.ones_like(self)
 
     def __getitem__(self, item):
-        ret = super(unyt_array, self).__getitem__(item)
+        ret = super().__getitem__(item)
         if getattr(ret, "shape", None) == ():
             ret = unyt_quantity(ret, bypass_validation=True, name=self.name)
         try:
@@ -1915,7 +1915,7 @@ class unyt_array(np.ndarray):
         if unit is None:
             out_arr = np.array(out_arr, copy=False)
         elif ufunc in (modf, divmod_):
-            out_arr = tuple((ret_class(o, unit) for o in out_arr))
+            out_arr = tuple(ret_class(o, unit) for o in out_arr)
         elif out_arr.shape == ():
             out_arr = unyt_quantity(np.asarray(out_arr), unit)
         elif out_arr.size == 1:
@@ -2000,7 +2000,7 @@ class unyt_array(np.ndarray):
         """Posify the data."""
         # this needs to be defined for all numpy versions, see
         # numpy issue #9081
-        return type(self)(super(unyt_array, self).__pos__(), self.units)
+        return type(self)(super().__pos__(), self.units)
 
     def dot(self, b, out=None):
         """dot product of two arrays.
@@ -2042,7 +2042,7 @@ class unyt_array(np.ndarray):
         returned tuple, itself a tuple used to restore the state of the
         ndarray. This is always defined for numpy arrays.
         """
-        np_ret = super(unyt_array, self).__reduce__()
+        np_ret = super().__reduce__()
         obj_state = np_ret[2]
         unit_state = (((str(self.units), self.units.registry.lut),) + obj_state[:],)
         new_ret = np_ret[:2] + unit_state + np_ret[3:]
@@ -2054,7 +2054,7 @@ class unyt_array(np.ndarray):
         This is called inside pickle.read() and restores the unit data from the
         metadata extracted in __reduce__ and then serialized by pickle.
         """
-        super(unyt_array, self).__setstate__(state[1:])
+        super().__setstate__(state[1:])
         unit, lut = state[0]
         lut = _correct_old_unit_registry(lut)
         registry = UnitRegistry(lut=lut, add_default_symbols=False)
@@ -2065,7 +2065,7 @@ class unyt_array(np.ndarray):
 
         This is necessary for stdlib deepcopy of arrays and quantities.
         """
-        ret = super(unyt_array, self).__deepcopy__(memodict)
+        ret = super().__deepcopy__(memodict)
         try:
             return type(self)(ret, copy.deepcopy(self.units), name=self.name)
         except TypeError:
@@ -2428,7 +2428,7 @@ def loadtxt(fname, dtype="float", delimiter="\t", usecols=None, comments="#"):
     >>> temp, velx = loadtxt(
     ...    "sphere.dat", usecols=(1,2), delimiter="\t")  # doctest: +SKIP
     """
-    f = open(fname, "r")
+    f = open(fname)
     next_one = False
     units = []
     num_cols = -1
@@ -2466,7 +2466,7 @@ def loadtxt(fname, dtype="float", delimiter="\t", usecols=None, comments="#"):
         arrays = [arrays]
     if usecols is not None:
         units = [units[col] for col in usecols]
-    ret = tuple([unyt_array(arr, unit) for arr, unit in zip(arrays, units)])
+    ret = tuple(unyt_array(arr, unit) for arr, unit in zip(arrays, units))
     if len(ret) == 1:
         return ret[0]
     return ret

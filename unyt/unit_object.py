@@ -273,7 +273,7 @@ class Unit:
                 base_offset = 0.0
 
         # Create obj with superclass construct.
-        obj = super(Unit, cls).__new__(cls)
+        obj = super().__new__(cls)
 
         # Attach attributes to obj.
         obj.expr = unit_expr

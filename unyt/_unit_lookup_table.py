@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 The default unit symbol lookup table.
 

@@ -1440,7 +1440,7 @@ def test_subclass():
         def __new__(
             cls, input_array, units=None, registry=None, bypass_validation=None
         ):
-            return super(unyt_a_subclass, cls).__new__(
+            return super().__new__(
                 cls,
                 input_array,
                 units,

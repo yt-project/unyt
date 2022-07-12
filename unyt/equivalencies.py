@@ -42,7 +42,7 @@ class _RegisteredEquivalence(type):
             equivalence_registry[cls.type_name] = cls
 
 
-class Equivalence(object, metaclass=_RegisteredEquivalence):
+class Equivalence(metaclass=_RegisteredEquivalence):
     def __init__(self, in_place=False):
         self.in_place = in_place
 
