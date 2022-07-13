@@ -15,11 +15,11 @@ Test unit lookup tables and registry
 # -----------------------------------------------------------------------------
 
 import os
-import pytest
 
+import pytest
 from numpy.testing import assert_allclose
 
-from unyt.dimensions import length, energy, mass, time, temperature
+from unyt.dimensions import energy, length, mass, temperature, time
 from unyt.exceptions import SymbolNotFoundError, UnitParseError
 from unyt.unit_object import Unit
 from unyt.unit_registry import UnitRegistry

@@ -2,12 +2,16 @@ name: CI (bleeding edge)
 # this workflow is heavily inspired from pandas, see
 # https://github.com/pandas-dev/pandas/blob/master/.github/workflows/python-dev.yml
 
-# gcheck stability against dev version of Python, numpy, and matplotlib
+# check stability against dev version of Python, numpy, and matplotlib
+# and sympy pre-releases
 
 on:
   push:
     branches:
       - master
+  pull_request:
+    paths:
+      - .github/workflows/bleeding-edge.yaml
   # Run daily at 0:01 UTC
   schedule:
     - cron:  '1 0 * * *'
@@ -16,7 +20,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Python3.10-dev
+    name: Python3.11-dev
     timeout-minutes: 60
 
     concurrency:
@@ -24,14 +28,14 @@ jobs:
       cancel-in-progress: true
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
     - name: Set up Python Dev Version
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
-        python-version: '3.10-dev'
+        python-version: '3.11-dev'
 
     - name: Install dependencies
       run: |
@@ -40,6 +44,7 @@ jobs:
         python3 -m pip install git+https://github.com/numpy/numpy.git
         python3 -m pip install git+https://github.com/matplotlib/matplotlib.git
         python3 -m pip install pytest
+        python3 -m pip install --pre sympy
 
     - name: Build unyt
       run: python3 -m pip install --no-build-isolation .

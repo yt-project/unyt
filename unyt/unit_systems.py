@@ -12,8 +12,8 @@ Unit system class.
 # -----------------------------------------------------------------------------
 
 from collections import OrderedDict
+
 from unyt import dimensions
-from unyt.exceptions import MissingMKSCurrent, IllDefinedUnitSystem, UnitsNotReducible
 from unyt._parsing import parse_unyt_expr
 from unyt._unit_lookup_table import (
     default_unit_symbol_lut as default_lut,
@@ -21,6 +21,7 @@ from unyt._unit_lookup_table import (
     physical_constants,
     unit_prefixes,
 )
+from unyt.exceptions import IllDefinedUnitSystem, MissingMKSCurrent, UnitsNotReducible
 
 
 def add_symbols(namespace, registry):
@@ -156,7 +157,7 @@ unit_system_registry = {}
 cmks = dimensions.current_mks
 
 
-class UnitSystem(object):
+class UnitSystem:
     """
     Create a UnitSystem for facilitating conversions to a default set of units.
 

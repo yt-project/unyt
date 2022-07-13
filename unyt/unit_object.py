@@ -16,47 +16,48 @@ A class that represents a unit symbol.
 import copy
 import itertools
 import math
-import numpy as np
 from functools import lru_cache
 from numbers import Number as numeric_type
 
+import numpy as np
 from sympy import (
-    Expr,
-    Mul,
     Add,
+    Basic,
+    Expr,
+    Float,
+    Mod,
+    Mul,
     Number,
     Pow,
-    Symbol,
-    Float,
-    Basic,
     Rational,
-    Mod,
+    Symbol,
     floor,
+    latex,
+    sympify,
 )
 from sympy.core.numbers import One
-from sympy import sympify, latex
 
+import unyt.dimensions as dims
+from unyt._parsing import parse_unyt_expr
+from unyt._physical_ratios import speed_of_light_cm_per_s
 from unyt.dimensions import (
     angle,
     base_dimensions,
-    dimensionless,
-    temperature,
     current_mks,
+    dimensionless,
     logarithmic,
+    temperature,
 )
-import unyt.dimensions as dims
 from unyt.equivalencies import equivalence_registry
 from unyt.exceptions import (
     InvalidUnitOperation,
     MissingMKSCurrent,
     MKSCGSConversionError,
     UnitConversionError,
-    UnitsNotReducible,
     UnitParseError,
+    UnitsNotReducible,
 )
-from unyt._parsing import parse_unyt_expr
-from unyt._physical_ratios import speed_of_light_cm_per_s
-from unyt.unit_registry import default_unit_registry, _lookup_unit_symbol, UnitRegistry
+from unyt.unit_registry import _lookup_unit_symbol, default_unit_registry
 from unyt.unit_systems import _split_prefix
 
 sympy_one = sympify(1)
@@ -110,7 +111,7 @@ def _get_latex_representation(expr, registry):
         return latex_repr
 
 
-class _ImportCache(object):
+class _ImportCache:
 
     __slots__ = ["_ua", "_uq"]
 
@@ -138,7 +139,7 @@ class _ImportCache(object):
 _import_cache_singleton = _ImportCache()
 
 
-class Unit(object):
+class Unit:
     """
     A symbolic unit, using sympy functionality. We only add "dimensions" so
     that sympy understands relations between different units.
@@ -464,7 +465,7 @@ class Unit(object):
         )
 
     def __rtruediv__(self, u):
-        return u * self ** -1
+        return u * self**-1
 
     def __pow__(self, p):
         """Take Unit to power p (float)."""
@@ -481,9 +482,9 @@ class Unit(object):
             raise InvalidUnitOperation("Tried to raise '%s' to power '%s'" % (self, p))
 
         return Unit(
-            self.expr ** p,
-            base_value=(self.base_value ** p),
-            dimensions=(self.dimensions ** p),
+            self.expr**p,
+            base_value=(self.base_value**p),
+            dimensions=(self.dimensions**p),
             registry=self.registry,
         )
 
@@ -508,17 +509,19 @@ class Unit(object):
         # fall back to expensive sympy comparison
         return self.dimensions != u.dimensions
 
-    def copy(self):
-        return copy.deepcopy(self)
-
-    def __deepcopy__(self, memodict=None):
+    def copy(self, *, deep=False):
         expr = str(self.expr)
         base_value = copy.deepcopy(self.base_value)
         base_offset = copy.deepcopy(self.base_offset)
         dimensions = copy.deepcopy(self.dimensions)
-        lut = copy.deepcopy(self.registry.lut)
-        registry = UnitRegistry(lut=lut)
+        if deep:
+            registry = copy.deepcopy(self.registry)
+        else:
+            registry = copy.copy(self.registry)
         return Unit(expr, base_value, base_offset, dimensions, registry)
+
+    def __deepcopy__(self, memodict=None):
+        return self.copy(deep=True)
 
     #
     # End unit operations
@@ -822,12 +825,12 @@ em_conversions = {
     ("Ω", dims.resistance_mks): (
         dims.resistance_cgs,
         "statohm",
-        1.0e9 / (speed_of_light_cm_per_s ** 2),
+        1.0e9 / (speed_of_light_cm_per_s**2),
     ),
     ("statohm", dims.resistance_cgs): (
         dims.resistance_mks,
         "Ω",
-        1.0e-9 * speed_of_light_cm_per_s ** 2,
+        1.0e-9 * speed_of_light_cm_per_s**2,
     ),
 }
 
@@ -1074,8 +1077,8 @@ def define_unit(
     >>> print((3*two_weeks)/one_day)
     42.0 dimensionless
     """
-    from unyt.array import unyt_quantity, _iterable
     import unyt
+    from unyt.array import _iterable, unyt_quantity
 
     if registry is None:
         registry = default_unit_registry

@@ -15,6 +15,7 @@
 
 import os
 import sys
+
 import unyt
 
 # If extensions (or modules to document with autodoc) are in another
@@ -54,9 +55,9 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = u"unyt"
-copyright = u"2018, The yt Project"
-author = u"The yt Project"
+project = "unyt"
+copyright = "2022, The yt Project"
+author = "The yt Project"
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
@@ -72,7 +73,7 @@ release = unyt.__version__
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = "en"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -136,7 +137,7 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass
 # [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, "unyt.tex", u"unyt Documentation", u"The yt Project", "manual")
+    (master_doc, "unyt.tex", "unyt Documentation", "The yt Project", "manual")
 ]
 
 
@@ -144,7 +145,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(master_doc, "unyt", u"unyt Documentation", [author], 1)]
+man_pages = [(master_doc, "unyt", "unyt Documentation", [author], 1)]
 
 
 # -- Options for Texinfo output ----------------------------------------
@@ -156,7 +157,7 @@ texinfo_documents = [
     (
         master_doc,
         "unyt",
-        u"unyt Documentation",
+        "unyt Documentation",
         author,
         "unyt",
         "One line description of project.",

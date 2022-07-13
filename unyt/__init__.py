@@ -70,12 +70,9 @@ try:
 except ImportError:  # pragma: no cover
     raise RuntimeError("The unyt package requires sympy but sympy is not installed.")
 
-from ._version import get_versions
-
-from unyt import unit_symbols
-from unyt import physical_constants
-
+from unyt import physical_constants, unit_symbols
 from unyt.array import (  # NOQA: F401
+    allclose_units,
     loadtxt,
     savetxt,
     uconcatenate,
@@ -84,18 +81,19 @@ from unyt.array import (  # NOQA: F401
     uhstack,
     uintersect1d,
     unorm,
+    unyt_array,
+    unyt_quantity,
     ustack,
     uunion1d,
     uvstack,
-    unyt_array,
-    unyt_quantity,
-    allclose_units,
 )
+from unyt.dimensions import accepts, returns  # NOQA: F401
+from unyt.testing import assert_allclose_units  # NOQA: F401
 from unyt.unit_object import Unit, define_unit  # NOQA: F401
 from unyt.unit_registry import UnitRegistry  # NOQA: F401
 from unyt.unit_systems import UnitSystem  # NOQA: F401
-from unyt.testing import assert_allclose_units  # NOQA: F401
-from unyt.dimensions import accepts, returns  # NOQA: F401
+
+from ._version import get_versions
 
 try:
     from unyt.mpl_interface import matplotlib_support  # NOQA: F401
@@ -131,7 +129,8 @@ def test():  # pragma: no cover
     Note that this function requires pytest to run. If pytest is not
     installed this function will raise ImportError.
     """
-    import pytest
     import os
+
+    import pytest
 
     pytest.main([os.path.dirname(os.path.abspath(__file__))])

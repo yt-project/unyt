@@ -96,11 +96,18 @@ standard_gravity_m_per_s2 = 9.80665
 # some constants
 newton_mks = 6.67408e-11
 planck_mks = 6.62606957e-34
+elementary_charge_C = 1.6021766208e-19
 # permeability of Free Space
 mu_0 = 4.0e-7 * np.pi
 # permittivity of Free Space
-eps_0 = 1.0 / (speed_of_light_m_per_s ** 2 * mu_0)
-avogadros_number = 6.02214085774 * 10 ** 23
+eps_0 = 1.0 / (speed_of_light_m_per_s**2 * mu_0)
+avogadros_number = 6.022141410704091e23
+rydberg_constant_mks = (
+    0.125
+    * mass_electron_kg
+    * elementary_charge_C**4
+    / (eps_0**2 * planck_mks**3 * speed_of_light_m_per_s)
+)
 
 # temperature / energy
 boltzmann_constant_J_per_K = 1.3806488e-23
@@ -115,6 +122,7 @@ eV_per_erg = 1.0 / erg_per_eV
 kelvin_per_rankine = 5.0 / 9.0
 watt_per_horsepower = 745.69987158227022
 erg_per_s_per_watt = 1e7
+rydberg_unit_mks = planck_mks * speed_of_light_m_per_s * rydberg_constant_mks
 
 # Solar System masses
 # Standish, E.M. (1995) "Report of the IAU WGAS Sub-Group on Numerical
@@ -149,7 +157,7 @@ TINY = 1.0e-40
 # Planck units
 hbar_mks = 0.5 * planck_mks / np.pi
 planck_mass_kg = np.sqrt(hbar_mks * speed_of_light_m_per_s / newton_mks)
-planck_length_m = np.sqrt(hbar_mks * newton_mks / speed_of_light_m_per_s ** 3)
+planck_length_m = np.sqrt(hbar_mks * newton_mks / speed_of_light_m_per_s**3)
 planck_time_s = planck_length_m / speed_of_light_m_per_s
 planck_energy_J = planck_mass_kg * speed_of_light_m_per_s * speed_of_light_m_per_s
 planck_temperature_K = planck_energy_J / boltzmann_constant_J_per_K

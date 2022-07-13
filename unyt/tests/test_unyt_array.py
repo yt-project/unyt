@@ -17,39 +17,45 @@ Test ndarray subclass that handles symbolic units.
 import copy
 import itertools
 import math
-import numpy as np
 import operator
 import os
 import pickle
-import pytest
+import re
 import shutil
 import tempfile
 import warnings
+from pathlib import Path
 
+import numpy as np
+import pytest
+import sympy
+from numpy import array
 from numpy.testing import (
+    assert_almost_equal,
+    assert_array_almost_equal,
     assert_array_equal,
     assert_equal,
-    assert_array_almost_equal,
-    assert_almost_equal,
 )
-from numpy import array
+from packaging.version import Version
+
+from unyt import K, R, Unit, degC, degF, delta_degC, delta_degF, dimensions
+from unyt._on_demand_imports import NotAModule, _astropy, _h5py, _pint
+from unyt._physical_ratios import metallicity_sun, speed_of_light_cm_per_s
 from unyt.array import (
-    unyt_array,
-    unyt_quantity,
-    unary_operators,
     binary_operators,
+    loadtxt,
+    savetxt,
     uconcatenate,
     ucross,
     udot,
     uintersect1d,
+    unary_operators,
     unorm,
+    unyt_array,
+    unyt_quantity,
     ustack,
     uunion1d,
     uvstack,
-    loadtxt,
-    savetxt,
-    _reduced_muldiv_units,
-    POWER_SIGN_MAPPING,
 )
 from unyt.exceptions import (
     InvalidUnitEquivalence,
@@ -60,12 +66,9 @@ from unyt.exceptions import (
     UnitParseError,
     UnitsNotReducible,
 )
-from unyt.testing import assert_allclose_units, _process_warning
-from unyt.unit_symbols import cm, m, g, degree
+from unyt.testing import _process_warning, assert_allclose_units
 from unyt.unit_registry import UnitRegistry
-from unyt._on_demand_imports import _astropy, _h5py, _pint, NotAModule
-from unyt._physical_ratios import metallicity_sun, speed_of_light_cm_per_s
-from unyt import dimensions, Unit, degC, K, delta_degC, degF, R, delta_degF
+from unyt.unit_symbols import cm, degree, g, m
 
 
 def operate_and_compare(a, b, op, answer):
@@ -387,10 +390,18 @@ def test_multiplication():
     operate_and_compare(a1, a3, np.multiply, answer)
     operate_and_compare(a3, a1, np.multiply, answer)
 
+    # With np.multiply.reduce
+    a = unyt_array([1.0, 2.0, 3.0], "cm")
+    answer = unyt_quantity(6.0, "cm**3")
+    assert_equal(np.multiply.reduce(a), answer)
+    a = unyt_array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], "cm")
+    answer = unyt_array([6.0, 120.0], "cm**3")
+    assert_equal(np.multiply.reduce(a, axis=1), answer)
+
 
 def test_division():
     """
-    Test multiplication of two unyt_arrays
+    Test division of two unyt_arrays
 
     """
 
@@ -475,6 +486,14 @@ def test_division():
     operate_and_compare(a1, a3, np.divide, answer1)
     operate_and_compare(a3, a1, np.divide, answer2)
 
+    # With np.multiply.reduce
+    a = unyt_array([3.0, 2.0, 1.0], "cm")
+    answer = unyt_quantity(1.5, "cm**-1")
+    assert_equal(np.divide.reduce(a), answer)
+    a = unyt_array([[3.0, 2.0, 1.0], [6.0, 5.0, 4.0]], "cm")
+    answer = unyt_array([1.5, 0.3], "cm**-1")
+    assert_equal(np.divide.reduce(a, axis=1), answer)
+
 
 def test_power():
     """
@@ -495,7 +514,7 @@ def test_power():
     with pytest.raises(InvalidUnitOperation):
         np.power(cm, cm)
 
-    assert_equal(cm_arr ** 3, unyt_array([1, 1], "cm**3"))
+    assert_equal(cm_arr**3, unyt_array([1, 1], "cm**3"))
     assert_equal(np.power(cm_arr, 3), unyt_array([1, 1], "cm**3"))
     assert_equal(cm_arr ** unyt_quantity(3), unyt_array([1, 1], "cm**3"))
     with pytest.raises(UnitOperationError):
@@ -569,11 +588,11 @@ def test_comparisons():
     with pytest.raises(UnitOperationError):
         np.greater(a1, a4)
     with pytest.raises(UnitOperationError):
-        a1 > a4
+        a1 > a4  # noqa: B015
     with pytest.raises(UnitOperationError):
         np.greater(el1, el4)
     with pytest.raises(UnitOperationError):
-        el1 > el4
+        el1 > el4  # noqa: B015
 
 
 def test_unit_conversions():
@@ -830,6 +849,23 @@ def test_ytarray_pickle():
         assert_equal(float(data.units.base_value), float(loaded_data.units.base_value))
 
 
+@pytest.mark.xfail(
+    condition=(
+        (Version(sympy.__version__) == Version("1.9"))
+        or (Version(sympy.__version__) == Version("1.10"))
+    ),
+    reason="Not resolved upstream as of sympy 1.10",
+    raises=AttributeError,
+    strict=True,
+)
+def test_unpickling_old_array():
+    # see https://github.com/sympy/sympy/issues/22241
+    # the expected error is "AttributeError: 'One' object has no attribute '__dict__'"
+    PFILE = Path(__file__).parent / "data" / "unyt_array_sympy1.8.pickle"
+    with open(PFILE, "rb") as fh:
+        pickle.load(fh)
+
+
 def test_copy():
     quan = unyt_quantity(1, "g")
     arr = unyt_array([1, 2, 3], "cm")
@@ -940,14 +976,14 @@ def unary_ufunc_comparison(ufunc, a):
         with np.errstate(invalid="ignore"):
             assert_array_equal(ret.to_ndarray(), ufunc(a_array))
         if ufunc is np.square:
-            assert out.units == a.units ** 2
-            assert ret.units == a.units ** 2
+            assert out.units == a.units**2
+            assert ret.units == a.units**2
         elif ufunc is np.sqrt:
-            assert out.units == a.units ** 0.5
-            assert ret.units == a.units ** 0.5
+            assert out.units == a.units**0.5
+            assert ret.units == a.units**0.5
         elif ufunc is np.reciprocal:
-            assert out.units == a.units ** -1
-            assert ret.units == a.units ** -1
+            assert out.units == a.units**-1
+            assert ret.units == a.units**-1
     elif ufunc is np.modf:
         ret1, ret2 = ufunc(a)
         npret1, npret2 = ufunc(a_array)
@@ -1354,7 +1390,7 @@ def test_astropy():
     yt_arr = unyt_array(np.arange(10), "km/hr")
     yt_arr2 = unyt_array.from_astropy(ap_arr)
 
-    ap_quan = 10.0 * _astropy.units.Msun ** 0.5 / (_astropy.units.kpc ** 3)
+    ap_quan = 10.0 * _astropy.units.Msun**0.5 / (_astropy.units.kpc**3)
     yt_quan = unyt_quantity(10.0, "sqrt(Msun)/kpc**3")
     yt_quan2 = unyt_quantity.from_astropy(ap_quan)
 
@@ -1383,7 +1419,7 @@ def test_pint():
     yt_arr = unyt_array(np.arange(10), "km/yr")
     yt_arr2 = unyt_array.from_pint(p_arr)
 
-    p_quan = 10.0 * ureg.g ** 0.5 / (ureg.mm ** 3)
+    p_quan = 10.0 * ureg.g**0.5 / (ureg.mm**3)
     yt_quan = unyt_quantity(10.0, "sqrt(g)/mm**3")
     yt_quan2 = unyt_quantity.from_pint(p_quan)
 
@@ -1748,7 +1784,7 @@ def test_equivalencies():
 
     c_s = 300 * u.m / u.s
     kT = c_s.in_units("erg", "sound_speed", mu=mu, gamma=gg)
-    assert_allclose_units(kT, c_s ** 2 * mu * u.mh / gg)
+    assert_allclose_units(kT, c_s**2 * mu * u.mh / gg)
     c_s.convert_to_units("J", "sound_speed", mu=mu, gamma=gg)
     assert_allclose_units(c_s, kT)
     assert c_s.units == u.J.units
@@ -1777,7 +1813,7 @@ def test_equivalencies():
     msun.convert_to_equivalent("km", "schwarzschild")
     R = u.mass_sun_mks.in_units("kpc", "schwarzschild")
     assert_allclose_units(msun, R)
-    assert_allclose_units(R.in_mks(), 2 * u.G * u.mass_sun_mks / (u.clight ** 2))
+    assert_allclose_units(R.in_mks(), 2 * u.G * u.mass_sun_mks / (u.clight**2))
     assert_allclose_units(u.mass_sun_mks, R.in_units("kg", "schwarzschild"))
     R.convert_to_units("Msun", "schwarzschild")
     assert_allclose_units(u.mass_sun_mks, R)
@@ -1799,42 +1835,42 @@ def test_equivalencies():
 
     # Number density
 
-    rho = u.mp / u.m ** 3
+    rho = u.mp / u.m**3
     n = rho.in_units("m**-3", "number_density")
     assert_allclose_units(n, rho / (u.mh * 0.6))
     assert_allclose_units(rho, n.in_units("kg/m**3", "number_density"))
     rho.convert_to_units("cm**-3", "number_density")
-    assert rho.units == (1 / u.cm ** 3).units
-    assert n.units == (1 / u.m ** 3).units
+    assert rho.units == (1 / u.cm**3).units
+    assert n.units == (1 / u.m**3).units
     assert_allclose_units(n, rho)
     rho.convert_to_units("kg/m**3", "number_density")
-    assert_allclose_units(u.mp / u.m ** 3, rho)
-    assert rho.units == (u.kg / u.m ** 3).units
+    assert_allclose_units(u.mp / u.m**3, rho)
+    assert rho.units == (u.kg / u.m**3).units
 
-    rho = u.mp / u.m ** 3
+    rho = u.mp / u.m**3
     n = rho.in_units("m**-3", equivalence="number_density", mu=0.75)
     assert_allclose_units(n, rho / (u.mh * 0.75))
     assert_allclose_units(
         rho, n.in_units("kg/m**3", equivalence="number_density", mu=0.75)
     )
     rho.convert_to_units("cm**-3", "number_density", mu=0.75)
-    assert rho.units == (1 / u.cm ** 3).units
-    assert n.units == (1 / u.m ** 3).units
+    assert rho.units == (1 / u.cm**3).units
+    assert n.units == (1 / u.m**3).units
     assert_allclose_units(n, rho)
     rho.convert_to_units("kg/m**3", "number_density", mu=0.75)
-    assert_allclose_units(u.mp / u.m ** 3, rho)
-    assert rho.units == (u.kg / u.m ** 3).units
+    assert_allclose_units(u.mp / u.m**3, rho)
+    assert rho.units == (u.kg / u.m**3).units
 
     # Effective temperature
 
     T = 1e4 * u.K
     F = T.in_units("W/m**2", equivalence="effective_temperature")
-    assert_allclose_units(F, u.stefan_boltzmann_constant * T ** 4)
+    assert_allclose_units(F, u.stefan_boltzmann_constant * T**4)
     assert_allclose_units(T, F.in_units("K", equivalence="effective_temperature"))
     T.convert_to_units("erg/s/cm**2", "effective_temperature")
     assert_allclose_units(T, F)
     assert T.units == u.Unit("erg/cm**2/s")
-    assert F.units == u.W / u.m ** 2
+    assert F.units == u.W / u.m**2
     assert_almost_equal(T.in_units("K", "effective_temperature").value, 1e4)
     T.convert_to_units("K", "effective_temperature")
     assert_almost_equal(T.value, 1e4)
@@ -1968,11 +2004,11 @@ def test_electromagnetic():
         data.to("C*T*V")
     with pytest.raises(UnitConversionError):
         data.convert_to_units("C*T*V")
-    assert_almost_equal(data.in_mks(), 6.67408e-18 * u.m ** 5 / u.s ** 4)
+    assert_almost_equal(data.in_mks(), 6.67408e-18 * u.m**5 / u.s**4)
 
-    mu_0 = 4.0e-7 * math.pi * u.N / u.A ** 2
-    eps_0 = 8.85418781782e-12 * u.m ** -3 / u.kg * u.s ** 4 * u.A ** 2
-    assert_almost_equal((1.0 / (u.clight ** 2 * mu_0)).in_units(eps_0.units), eps_0)
+    mu_0 = 4.0e-7 * math.pi * u.N / u.A**2
+    eps_0 = 8.85418781782e-12 * u.m**-3 / u.kg * u.s**4 * u.A**2
+    assert_almost_equal((1.0 / (u.clight**2 * mu_0)).in_units(eps_0.units), eps_0)
 
 
 def test_ytarray_coercion():
@@ -1998,8 +2034,8 @@ def test_numpy_wrappers():
     vstack_answer = [[2, 3, 4, 5, 6], [7, 8, 9, 10, 11]]
     vstack_answer_last_axis = [[2, 7], [3, 8], [4, 9], [5, 10], [6, 11]]
     cross_answer = [-2, 4, -2]
-    norm_answer = np.sqrt(1 ** 2 + 2 ** 2 + 3 ** 2)
-    arr_norm_answer = [norm_answer, np.sqrt(4 ** 2 + 5 ** 2 + 6 ** 2)]
+    norm_answer = np.sqrt(1**2 + 2**2 + 3**2)
+    arr_norm_answer = [norm_answer, np.sqrt(4**2 + 5**2 + 6**2)]
     dot_answer = 14
 
     assert_array_equal(unyt_array(catenate_answer, "cm"), uconcatenate((a1, a2)))
@@ -2163,7 +2199,7 @@ def test_ones_and_zeros_like():
 
 
 def test_coerce_iterable():
-    from unyt import cm, m, g
+    from unyt import cm, g, m
 
     a = unyt_array([1, 2, 3], "cm")
     b = [1 * cm, 2 * m, 3 * cm]
@@ -2181,7 +2217,7 @@ def test_coerce_iterable():
 
 
 def test_bypass_validation():
-    from unyt import unyt_array, cm, UnitRegistry
+    from unyt import UnitRegistry, cm, unyt_array
 
     obj = unyt_array(np.array([1.0, 2.0, 3.0]), cm, bypass_validation=True)
     assert obj.units is cm
@@ -2195,7 +2231,7 @@ def test_bypass_validation():
 
 
 def test_creation():
-    from unyt import cm, UnitRegistry
+    from unyt import UnitRegistry, cm
 
     data = [1, 2, 3] * cm
 
@@ -2238,6 +2274,29 @@ def test_round():
 
     with pytest.raises(TypeError):
         round([1, 2, 3] * km)
+
+
+@pytest.mark.parametrize("itemsize", (8, 16, 32, 64))
+def test_conversion_from_int_types(itemsize):
+    a = unyt_array([1], "cm", dtype=f"int{itemsize}")
+
+    # check copy conversion
+    a.in_units("m")
+
+    # check in place conversion
+    if itemsize == 8:
+        with pytest.raises(
+            ValueError,
+            match=re.escape(
+                "Can't convert memory buffer in place. "
+                "Input dtype (int8) has a smaller itemsize than the "
+                "smallest floating point representation possible."
+            ),
+        ):
+            a.convert_to_units("m")
+    else:
+        a.convert_to_units("m")
+        assert a.dtype == f"float{itemsize}"
 
 
 def test_integer_arrays():
@@ -2297,7 +2356,7 @@ def test_integer_arrays():
 def test_overflow_warnings():
     from unyt import km
 
-    data = [2 ** 53, 2 ** 54] * km
+    data = [2**53, 2**54] * km
 
     message = "Overflow encountered while converting to units 'mile'"
     _process_warning(data.to, message, RuntimeWarning, ("mile",))
@@ -2575,26 +2634,51 @@ def test_invalid_unit_quantity_from_string(s):
         unyt_quantity.from_string(s)
 
 
+def test_constant_type():
+    # see https://github.com/yt-project/unyt/issues/224
+    a = [1] * cm
+    assert type(a) is unyt_array
+    b = 2 * a
+    assert type(b) is unyt_array
+
+
+def test_composite_meshgrid():
+    # see https://github.com/yt-project/unyt/issues/224
+    a = np.array(1)
+    # pure numpy call to illustrate that the problem
+    # is only with units
+    np.meshgrid(np.array([1, 2]), a)
+    np.meshgrid(np.array([1, 2]), a * m)
+
+
 @pytest.mark.parametrize(
-    "op",
+    "shape, expected_output_shape",
     [
-        "multiply",
-        "divide",
+        (1, (1,)),
+        ((1,), (1,)),
+        ((1, 1), (1, 1)),
+        ((1, -1), (1, 1)),
     ],
 )
-def test_reduced_muldiv_units(op):
-    b = unyt_array(np.ones((5, 5)), "m")
-    print(op)
-    ufunc = getattr(np, op)
-    for axis in [None, 0]:
-        kwargs = {}
-        if axis:
-            kwargs["axis"] = axis
-            actual = b.units ** (POWER_SIGN_MAPPING[ufunc] * 5)
-        else:
-            actual = b.units ** (POWER_SIGN_MAPPING[ufunc] * 25)
+def test_reshape_quantity_to_array(shape, expected_output_shape):
+    a = unyt_quantity(1, "m")
+    b = a.reshape(shape)
+    assert b.shape == expected_output_shape
+    assert type(b) is unyt_array
 
-        mul, unit = _reduced_muldiv_units(ufunc, b.units, b.shape, b.size, **kwargs)
 
-        assert actual == unit
-        assert mul == 1
+@pytest.mark.parametrize("shape", ((), None))
+def test_reshape_quantity_noop(shape):
+    a = unyt_quantity(1, "m")
+    b = a.reshape(shape)
+    assert b.shape == a.shape == ()
+    assert type(b) is unyt_quantity
+
+
+def test_reshape_quantity_via_shape_tuple():
+    # this is necessary to support np.tile
+    a = unyt_quantity(1, "m")
+    b = a.reshape(-1, 1)
+    assert b.shape == (1, 1)
+    assert type(b) is unyt_array
+

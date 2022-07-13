@@ -14,97 +14,97 @@ unyt_array class.
 # -----------------------------------------------------------------------------
 
 import copy
-
+import re
 from functools import lru_cache
 from numbers import Number as numeric_type
-import re
+
 import numpy as np
 from numpy import (
-    add,
-    subtract,
-    multiply,
-    divide,
-    logaddexp,
-    logaddexp2,
-    true_divide,
-    floor_divide,
-    negative,
-    power,
-    remainder,
-    mod,
     absolute,
-    rint,
-    sign,
-    conj,
-    exp,
-    exp2,
-    log,
-    log2,
-    log10,
-    expm1,
-    log1p,
-    sqrt,
-    square,
-    reciprocal,
-    sin,
-    cos,
-    tan,
-    arcsin,
+    add,
     arccos,
+    arccosh,
+    arcsin,
+    arcsinh,
     arctan,
     arctan2,
-    hypot,
-    sinh,
-    cosh,
-    tanh,
-    arcsinh,
-    arccosh,
     arctanh,
-    deg2rad,
-    rad2deg,
     bitwise_and,
     bitwise_or,
     bitwise_xor,
-    invert,
-    left_shift,
-    right_shift,
-    greater,
-    greater_equal,
-    less,
-    less_equal,
-    not_equal,
+    ceil,
+    conj,
+    copysign,
+    cos,
+    cosh,
+    deg2rad,
+    divide,
+    divmod as divmod_,
     equal,
-    logical_and,
-    logical_or,
-    logical_xor,
-    logical_not,
-    maximum,
-    minimum,
+    exp,
+    exp2,
+    expm1,
+    fabs,
+    floor,
+    floor_divide,
     fmax,
     fmin,
-    isreal,
+    fmod,
+    frexp,
+    greater,
+    greater_equal,
+    heaviside,
+    hypot,
+    invert,
     iscomplex,
     isfinite,
     isinf,
     isnan,
-    signbit,
-    copysign,
-    nextafter,
-    modf,
-    ldexp,
-    frexp,
-    fmod,
-    floor,
-    ceil,
-    trunc,
-    fabs,
-    spacing,
-    positive,
-    divmod as divmod_,
     isnat,
-    heaviside,
-    ones_like,
+    isreal,
+    ldexp,
+    left_shift,
+    less,
+    less_equal,
+    log,
+    log1p,
+    log2,
+    log10,
+    logaddexp,
+    logaddexp2,
+    logical_and,
+    logical_not,
+    logical_or,
+    logical_xor,
     matmul,
+    maximum,
+    minimum,
+    mod,
+    modf,
+    multiply,
+    negative,
+    nextafter,
+    not_equal,
+    ones_like,
+    positive,
+    power,
+    rad2deg,
+    reciprocal,
+    remainder,
+    right_shift,
+    rint,
+    sign,
+    signbit,
+    sin,
+    sinh,
+    spacing,
+    sqrt,
+    square,
+    subtract,
+    tan,
+    tanh,
+    true_divide,
+    trunc,
 )
 from numpy.core.umath import _ones_like
 
@@ -112,34 +112,35 @@ try:
     from numpy.core.umath import clip
 except ImportError:
     clip = None
-from sympy import Rational
 import warnings
 
-from unyt.dimensions import angle, temperature
-from unyt.exceptions import (
-    IterableUnitCoercionError,
-    InvalidUnitEquivalence,
-    InvalidUnitOperation,
-    MKSCGSConversionError,
-    UnitOperationError,
-    UnitConversionError,
-    UnitsNotReducible,
-    SymbolNotFoundError,
-)
-from unyt.equivalencies import equivalence_registry
+from sympy import Rational
+
 from unyt._on_demand_imports import _astropy, _pint, _dask
 from unyt._pint_conversions import convert_pint_units
 from unyt._unit_lookup_table import default_unit_symbol_lut
-from unyt.unit_object import _check_em_conversion, _em_conversion, Unit
+from unyt.dimensions import angle, temperature
+from unyt.equivalencies import equivalence_registry
+from unyt.exceptions import (
+    InvalidUnitEquivalence,
+    InvalidUnitOperation,
+    IterableUnitCoercionError,
+    MKSCGSConversionError,
+    SymbolNotFoundError,
+    UnitConversionError,
+    UnitOperationError,
+    UnitsNotReducible,
+)
+from unyt.unit_object import Unit, _check_em_conversion, _em_conversion
 from unyt.unit_registry import (
-    _sanitize_unit_system,
     UnitRegistry,
-    default_unit_registry,
     _correct_old_unit_registry,
+    _sanitize_unit_system,
+    default_unit_registry,
 )
 
 NULL_UNIT = Unit()
-POWER_SIGN_MAPPING = {multiply: 1, divide: -1}
+POWER_MAPPING = {multiply: lambda x: x, divide: lambda x: 2 - x}
 
 __doctest_requires__ = {
     ("unyt_array.from_pint", "unyt_array.to_pint"): ["pint"],
@@ -168,7 +169,7 @@ def _iterable(obj):
 
 @lru_cache(maxsize=128, typed=False)
 def _sqrt_unit(unit):
-    return 1, unit ** 0.5
+    return 1, unit**0.5
 
 
 @lru_cache(maxsize=128, typed=False)
@@ -204,7 +205,7 @@ def _preserve_units(unit1, unit2=None):
 
 @lru_cache(maxsize=128, typed=False)
 def _power_unit(unit, power):
-    return 1, unit ** power
+    return 1, unit**power
 
 
 @lru_cache(maxsize=128, typed=False)
@@ -223,7 +224,7 @@ def _divide_units(unit1, unit2):
 
 @lru_cache(maxsize=128, typed=False)
 def _reciprocal_unit(unit):
-    return 1, unit ** -1
+    return 1, unit**-1
 
 
 def _passthrough_unit(unit, unit2=None):
@@ -670,6 +671,12 @@ class unyt_array(np.ndarray):
                 # form, it's possible this may lose precision for very
                 # large integers
                 dsize = values.dtype.itemsize
+                if dsize == 1:
+                    raise ValueError(
+                        "Can't convert memory buffer in place. "
+                        f"Input dtype ({self.dtype}) has a smaller itemsize than the "
+                        "smallest floating point representation possible."
+                    )
                 new_dtype = "f" + str(dsize)
                 large = LARGE_INPUT.get(dsize, 0)
                 if large and np.any(np.abs(values) > large):
@@ -730,7 +737,7 @@ class unyt_array(np.ndarray):
         self.convert_to_units(
             self.units.get_base_equivalent(unit_system),
             equivalence=equivalence,
-            **kwargs
+            **kwargs,
         )
 
     def convert_to_cgs(self, equivalence=None, **kwargs):
@@ -850,7 +857,7 @@ class unyt_array(np.ndarray):
                 (conversion_factor, offset) = self.units.get_conversion_factor(
                     new_units, self.dtype
                 )
-            dsize = self.dtype.itemsize
+            dsize = max(2, self.dtype.itemsize)
             if self.dtype.kind in ("u", "i"):
                 large = LARGE_INPUT.get(dsize, 0)
                 if large and np.any(np.abs(self.d) > large):
@@ -1419,8 +1426,9 @@ class unyt_array(np.ndarray):
         >>> a.write_hdf5('test_array_data.h5', dataset_name='dinosaurs',
         ...              info=myinfo)  # doctest: +SKIP
         """
-        from unyt._on_demand_imports import _h5py as h5py
         import pickle
+
+        from unyt._on_demand_imports import _h5py as h5py
 
         if info is None:
             info = {}
@@ -1479,8 +1487,9 @@ class unyt_array(np.ndarray):
             arrays are datasets at the top level by default.
 
         """
-        from unyt._on_demand_imports import _h5py as h5py
         import pickle
+
+        from unyt._on_demand_imports import _h5py as h5py
 
         if dataset_name is None:
             dataset_name = "array_data"
@@ -1688,7 +1697,7 @@ class unyt_array(np.ndarray):
         if getattr(ret, "shape", None) == ():
             ret = unyt_quantity(ret, bypass_validation=True, name=self.name)
         try:
-            setattr(ret, "units", self.units)
+            ret.units = self.units
         except AttributeError:
             pass
         return ret
@@ -1749,9 +1758,14 @@ class unyt_array(np.ndarray):
             # evaluate the ufunc
             out_arr = func(np.asarray(inp), out=out_func, **kwargs)
             if ufunc in (multiply, divide) and method == "reduce":
-                mul, unit = _reduced_muldiv_units(
-                    ufunc, u, inp.shape, inp.size, **kwargs
-                )
+                # a reduction of a multiply or divide corresponds to
+                # a repeated product which we implement as an exponent
+                mul = 1
+                power_map = POWER_MAPPING[ufunc]
+                if "axis" in kwargs and kwargs["axis"] is not None:
+                    unit = u ** (power_map(inp.shape[kwargs["axis"]]))
+                else:
+                    unit = u ** (power_map(inp.size))
             else:
                 # get unit of result
                 mul, unit = self._ufunc_registry[ufunc](u)
@@ -1900,8 +1914,10 @@ class unyt_array(np.ndarray):
             out_arr = np.array(out_arr, copy=False)
         elif ufunc in (modf, divmod_):
             out_arr = tuple((ret_class(o, unit) for o in out_arr))
-        elif out_arr.size == 1:
+        elif out_arr.shape == ():
             out_arr = unyt_quantity(np.asarray(out_arr), unit)
+        elif out_arr.size == 1:
+            out_arr = unyt_array(np.asarray(out_arr), unit)
         else:
             if ret_class is unyt_quantity:
                 # This happens if you do ndarray * unyt_quantity.
@@ -2146,6 +2162,19 @@ class unyt_quantity(unyt_array):
 
     def __round__(self):
         return type(self)(round(float(self)), self.units)
+
+    def reshape(self, *shape, order="C"):
+        # this is necessary to support some numpy operations
+        # natively, like numpy.meshgrid, which internally performs
+        # reshaping, e.g., arr.reshape(1, -1), which doesn't affect the size,
+        # but does change the object's internal representation to a >0D array
+        # see https://github.com/yt-project/unyt/issues/224
+        if len(shape) == 1:
+            shape = shape[0]
+        if shape == () or shape is None:
+            return super().reshape(shape, order=order)
+        else:
+            return unyt_array(self).reshape(shape, order=order)
 
 
 def _validate_numpy_wrapper_units(v, arrs):

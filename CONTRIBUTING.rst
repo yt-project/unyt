@@ -95,48 +95,45 @@ managing your python evironment using your operating system's package manager or
     $ export PYENV_ROOT="$HOME/.pyenv"
     $ export PATH="$HOME/.pyenv/bin:$PATH
     $ eval "$(pyenv init -)"
-    $ pyenv install -s 3.6.14
-    $ pyenv install -s 3.7.11
-    $ pyenv install -s 3.8.11
-    $ pyenv install -s 3.9.6
+    $ pyenv install -s 3.8.13
+    $ pyenv install -s 3.9.12
+    $ pyenv install -s 3.10.4
     $ pip install tox tox-pyenv
 
-3. Install your local copy into a virtualenv or conda environment. You can also
+4. Install your local copy into a virtualenv or conda environment. You can also
    use one of the python interpreters we installed using ``pyenv``::
 
     $ cd unyt/
-    $ pyenv local 3.9.6
+    $ pyenv local 3.9.12
     $ python setup.py develop
 
-4. Create a branch for local development::
+5. Create a branch for local development::
 
     $ git checkout -b name-of-your-bugfix-or-feature
 
-5. Edit files in the ``unyt`` repository, using your local python installation
+6. Edit files in the ``unyt`` repository, using your local python installation
    to test your edits.
 
-5. When you're done making changes, check that your changes pass ``flake8``,
-   format the code with ``black``, and run the tests, including testing several
-   Python versions with ``tox``::
+7. When you're done making changes, check that your changes pass linting,
+   and run the tests, including testing several Python versions with ``tox``::
 
-    $ flake8 unyt
-    $ black ./
+    $ pre-commit run --all-files
     $ pytest --doctest-modules --doctest-rst --doctest-plus
-    $ pyenv local 3.6.14 3.7.11 3.8.11 3.9.6
+    $ pyenv local 3.8.13 3.9.12 3.10.4
     $ tox
-    $ pyenv local 3.9.6
+    $ pyenv local 3.10.4
 
-   To get ``flake8``, ``black``, ``pytest``, ``pytest-doctestplus``, and
+   To get ``pre-commit``, ``pytest``, ``pytest-doctestplus``, and
    ``tox``, just ``pip`` or ``conda`` install them into your python environment,
    as appropriate. For a ``pyenv`` environment you would use ``pip``.
 
-6. Commit your changes and push your branch to GitHub::
+8. Commit your changes and push your branch to GitHub::
 
     $ git add .
     $ git commit -m "Your detailed description of your changes."
     $ git push origin name-of-your-bugfix-or-feature
 
-7. Submit a pull request through the GitHub website.
+9. Submit a pull request through the GitHub website.
 
 Testing unyt
 ------------
@@ -155,8 +152,8 @@ These enable testing the docstrings and doctest examples scattered throughout
 the unyt and its documentation.
 
 You will need to install ``pytest`` and ``pytest-doctestplus`` to run this
-command. Some tests depend on ``h5py``, ``Pint``, ``astropy``, ``matplotlib``
-``black``, and ``flake8`` being installed.
+command. Some tests depend on ``h5py``, ``Pint``, ``astropy`` and ``matplotlib``
+being installed.
 
 If you would like to run the tests on multiple python versions, first ensure
 that you have multiple python versions visible on your ``$PATH``, then simply
@@ -164,7 +161,7 @@ execute ``tox`` in the root of the ``unyt`` repository. For example, using the
 ``pyenv`` environment we set up above::
 
    $ cd unyt
-   $ pyenv local 3.6.14 3.7.11 3.8.11 3.9.6
+   $ pyenv local 3.8.13 3.9.12 3.10.4
    $ tox
 
 The ``tox`` package itself can be installed using the ``pip`` associated with
@@ -191,7 +188,7 @@ Before you submit a pull request, check that it meets these guidelines:
    please update the existing docstrings. If you modify private implementation
    details, please use your judgment on documenting it with comments or
    docstrings.
-3. The pull request should work for Python 3.6, 3.7, 3.8, and 3.9. Check in the
+3. The pull request should work for Python 3.8, 3.9 and 3.10. Check in the
    GitHub interface for your pull request and make sure that the tests pass for
    all supported Python versions.
 

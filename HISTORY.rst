@@ -52,7 +52,7 @@ History
 2.7.1 (2020-02-17)
 ------------------
 
-* Fix compatibility with `unyt_array` subclasses that do not have the new
+* Fix compatibility with ``unyt_array`` subclasses that do not have the new
   ``name`` argument in their initializer. See `PR #140
   <https://github.com/yt-project/unyt/pull/140>`_.
 * Fix an issue where custom units added to a unit registry were not restored
@@ -143,7 +143,7 @@ History
 * Fixed a corner case in the implementation of ``clip``. See `PR #108
   <https://github.com/yt-project/unyt/pull/108>`_. Thank you to Matthew Turk
   (@matthewturk on GitHub) for the contribution.
-* Added ``%`` as a valid dimensionless unit with a value of `0.01`, also
+* Added ``%`` as a valid dimensionless unit with a value of ``0.01``, also
   available under the name ``percent``. See `PR #106
   <https://github.com/yt-project/unyt/pull/106>`_. Thank you to Thomas Hisch for
   the contribution.
@@ -245,10 +245,10 @@ you run into issues please let us know by `opening an issue on GitHub
   operations that combine distinct dimensionally equivalent units will cancel in
   many situations. For example
 
-  .. code-block:: python
+  .. doctest::
 
      >>> from unyt import kg, g
-     >>> print((12*kg)/(4*g))
+     >>> print((12 * kg) / (4 * g))
      3000.0 dimensionless
 
   older versions of ``unyt`` would have returned ``4.0 kg/g``. See `PR #58
@@ -261,13 +261,13 @@ you run into issues please let us know by `opening an issue on GitHub
   ``unyt`` namespace as well as when a unit name is passed as a string to
   ``unyt``. For example:
 
-  .. code-block:: python
+  .. doctest::
 
      >>> from unyt import meter, second
-     >>> data = 1000.*meter/second
-     >>> data.to('kilometer/second')
+     >>> data = 1000.0 * meter / second
+     >>> data.to("kilometer/second")
      unyt_quantity(1., 'km/s')
-     >>> data.to('metre/s')
+     >>> data.to("metre/s")
      unyt_quantity(1000., 'm/s')
 
   The documentation now has a table of units recognized by ``unyt`` along with
@@ -290,11 +290,11 @@ you run into issues please let us know by `opening an issue on GitHub
   system so that conversions to "base" units will end up in that non-MKS
   system. For example:
 
-  .. code-block:: python
+  .. doctest::
 
      >>> from unyt import UnitRegistry, unyt_quantity
-     >>> ureg = UnitRegistry(unit_system='cgs')
-     >>> data = unyt_quantity(12, 'N', registry=ureg)
+     >>> ureg = UnitRegistry(unit_system="cgs")
+     >>> data = unyt_quantity(12, "N", registry=ureg)
      >>> data.in_base()
      unyt_quantity(1200000., 'dyn')
 
@@ -305,13 +305,14 @@ you run into issues please let us know by `opening an issue on GitHub
   populated. For example, the author of a library making use of ``unyt`` could
   create an object that users can use to access unit data like this:
 
-  .. code-block:: python
+  .. doctest::
 
       >>> from unyt.unit_systems import add_symbols
       >>> from unyt.unit_registry import UnitRegistry
-      >>> class UnitContainer(object):
-      ...    def __init__(self):
-      ...        add_symbols(vars(self), registry=UnitRegistry())
+      >>> class UnitContainer:
+      ...     def __init__(self):
+      ...         add_symbols(vars(self), registry=UnitRegistry())
+      ...
       >>> units = UnitContainer()
       >>> units.kilometer
       km
@@ -333,7 +334,7 @@ you run into issues please let us know by `opening an issue on GitHub
   `PR #61 <https://github.com/yt-project/unyt/pull/61>`_.
 * Fixed issues with installing ``unyt`` from source with newer versions of
   ``pip``. See `PR #63 <https://github.com/yt-project/unyt/pull/62>`_.
-* Fixed bug when using `define_unit` that caused crashes when using a custom
+* Fixed bug when using ``define_unit`` that caused crashes when using a custom
   unit registry. Thank you to Bili Dong (@qobilidob on GitHub) for the pull
   request. See `PR #64 <https://github.com/yt-project/unyt/pull/64>`_.
 
@@ -360,7 +361,7 @@ JOSS method paper. The peer reviewers were Stuart Mumfork (`@cadair
 <https://github.com/cadair>`_), Trevor Bekolay (`@tbekolay
 <https://github.com/tbekolay>`_), and Yan Grange (`@ygrange
 <https://github.com/ygrange>`_). The editor was Kyle Niemeyer (`@kyleniemeyer
-<https://github.com/kyleniemeyer>`_). The` `unyt`` development team thank our
+<https://github.com/kyleniemeyer>`_). The ``unyt`` development team thank our
 reviewers and editor for their help getting the ``unyt`` paper out the door as
 well as for the numerous comments and suggestions that improved the paper and
 package as a whole.

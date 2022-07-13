@@ -1,11 +1,9 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """The setup script."""
 
 import os
-from setuptools import setup, find_packages
 import sys
+
+from setuptools import find_packages, setup
 
 # ensure the current directory is on sys.path
 # so versioneer can be imported when pip uses
@@ -20,7 +18,7 @@ with open("README.rst") as readme_file:
 with open("HISTORY.rst") as history_file:
     history = history_file.read()
 
-requirements = ['numpy>="1.13.0"', "sympy>=1.2"]
+requirements = ["numpy>=1.17.5", "sympy>=1.5"]
 
 test_requirements = ["pytest"]
 
@@ -33,10 +31,10 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Natural Language :: English",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
     ],
     description="A package for handling numpy arrays with units",
     install_requires=requirements,
@@ -46,10 +44,10 @@ setup(
     package_data={"unyt": ["tests/data/old_json_registry.txt"]},
     keywords="unyt",
     name="unyt",
-    packages=find_packages(include=["unyt"]),
+    packages=find_packages(include=["unyt", "unyt.tests", "unyt.tests.data"]),
     test_suite="tests",
     tests_require=test_requirements,
-    python_requires=">=3.6.1",
+    python_requires=">=3.8",
     url="https://github.com/yt-project/unyt",
     version=versioneer.get_version(),
     zip_safe=False,

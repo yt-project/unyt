@@ -11,7 +11,7 @@ A set of convenient on-demand imports
 # -----------------------------------------------------------------------------
 
 
-class NotAModule(object):
+class NotAModule:
     """
     A class to implement an informative error message that will be outputted if
     someone tries to use an on-demand import without having the requisite
@@ -32,7 +32,7 @@ class NotAModule(object):
         raise self.error
 
 
-class astropy_imports(object):
+class astropy_imports:
     _name = "astropy"
     _log = None
     _units = None
@@ -79,7 +79,7 @@ class astropy_imports(object):
 _astropy = astropy_imports()
 
 
-class h5py_imports(object):
+class h5py_imports:
     _name = "h5py"
     _File = None
     _version = None
@@ -109,7 +109,7 @@ class h5py_imports(object):
 _h5py = h5py_imports()
 
 
-class pint_imports(object):
+class pint_imports:
     _name = "pint"
     _UnitRegistry = None
 
@@ -127,7 +127,7 @@ class pint_imports(object):
 _pint = pint_imports()
 
 
-class matplotlib_imports(object):
+class matplotlib_imports:
     _name = "matplotlib"
     _pyplot = None
     _units = None
