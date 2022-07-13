@@ -116,7 +116,7 @@ import warnings
 
 from sympy import Rational
 
-from unyt._on_demand_imports import _astropy, _pint, _dask
+from unyt._on_demand_imports import _astropy, _dask, _pint
 from unyt._pint_conversions import convert_pint_units
 from unyt._unit_lookup_table import default_unit_symbol_lut
 from unyt.dimensions import angle, temperature

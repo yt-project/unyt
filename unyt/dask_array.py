@@ -5,10 +5,12 @@ a dask array class (unyt_dask_array) and helper functions for unyt.
 
 """
 
-import unyt.array as ua
-import numpy as np
-from unyt._on_demand_imports import _dask as dask
 from functools import wraps
+
+import numpy as np
+
+import unyt.array as ua
+from unyt._on_demand_imports import _dask as dask
 
 __doctest_requires__ = {
     ("dask_array.unyt_from_dask"): ["dask"],
