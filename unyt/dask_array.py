@@ -436,19 +436,11 @@ class unyt_dask_array(_dask_Array):
         return super().__ne__(other)
 
     def prod(self, *args, **kwargs):
-        _, unit = ua._reduced_muldiv_units(
-            np.multiply, self._unyt_array.units, self.shape, self.size, **kwargs
+        _, unit = ua._apply_power_mapping(
+            np.multiply, self._unyt_array.units, self.size, self.shape, kwargs
         )
         dask_result = super().prod(*args, **kwargs)
-        return _create_with_quantity(
-            dask_result,
-            ua.unyt_array(
-                [
-                    1,
-                ],
-                unit,
-            ),
-        )
+        return _create_with_quantity(dask_result, ua.unyt_array([1.0], unit))
 
 
 def _finalize_unyt(results, unit_name):

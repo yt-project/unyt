@@ -280,6 +280,18 @@ def _sanitize_units_convert(possible_units, registry):
     return unit
 
 
+def _apply_power_mapping(ufunc, in_unit, in_size, in_shape, input_kwarg_dict):
+    # a reduction of a multiply or divide corresponds to
+    # a repeated product which we implement as an exponent
+    mul = 1
+    power_map = POWER_MAPPING[ufunc]
+    if "axis" in input_kwarg_dict and input_kwarg_dict["axis"] is not None:
+        unit = in_unit ** (power_map(in_shape[input_kwarg_dict["axis"]]))
+    else:
+        unit = in_unit ** (power_map(in_size))
+    return mul, unit
+
+
 unary_operators = (
     negative,
     absolute,
@@ -1758,14 +1770,7 @@ class unyt_array(np.ndarray):
             # evaluate the ufunc
             out_arr = func(np.asarray(inp), out=out_func, **kwargs)
             if ufunc in (multiply, divide) and method == "reduce":
-                # a reduction of a multiply or divide corresponds to
-                # a repeated product which we implement as an exponent
-                mul = 1
-                power_map = POWER_MAPPING[ufunc]
-                if "axis" in kwargs and kwargs["axis"] is not None:
-                    unit = u ** (power_map(inp.shape[kwargs["axis"]]))
-                else:
-                    unit = u ** (power_map(inp.size))
+                mul, unit = _apply_power_mapping(ufunc, u, inp.size, inp.shape, kwargs)
             else:
                 # get unit of result
                 mul, unit = self._ufunc_registry[ufunc](u)
