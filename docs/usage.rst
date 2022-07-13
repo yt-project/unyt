@@ -435,6 +435,50 @@ and :meth:`unyt_array.convert_to_mks <unyt.array.unyt_array.convert_to_mks>` met
 
 See below for details on CGS and MKS electromagnetic units.
 
+Metallicity Unit Conversions
+----------------------------
+
+In the astrophysical context, "metals" are all of the elements that have atomic
+numbers greater than 2, i.e. everything heavier than helium. The "solar metallicity"
+is the mass fraction of metals in the solar atmosphere, and is used in a variety
+of contexts. Often, the metallicity of other astrophysical objects is expressed
+in terms of the solar metallicity, given by the unit :math:`Z_\odot`. The default
+mass fraction corresponding to :math:`Z_\odot` in :mod:`unyt` is 0.01295, corresponding
+to the value used in the `Cloudy Code <https://gitlab.nublado.org/cloudy/cloudy/-/wikis/home>`_.
+Metal mass fractions (by definition dimensionless) can be converted to :math:`Z_\odot`
+(and vice versa):
+
+  >>> from unyt import dimensionless
+  >>> M_Z = 0.0259*dimensionless
+  >>> M_Z
+  unyt_quantity(0.0259, 'dimensionless')
+  >>> M_Z.convert_to_units("Z_sun")
+  >>> M_Z
+  unyt_quantity(2., 'Zsun')
+
+However, the value of this mass fraction conversion must be measured, and various
+estimates of it disagree somewhat. Different sub-disciplines of astronomy often
+use different estimates in the literature. :mod:`unyt` provides a way to change
+the value of this unit conversion to one of several typical values, using the
+:func:`change_solar_metallicity_value` function, which takes the name of a
+reference value (see below):
+
+  >>> import unyt
+  >>> value_ref = "angr"
+  >>> unyt.change_solar_metallicity_value(value_ref)
+  >>> M_Z = 1.0*unyt.Zsun
+  >>> M_Z.convert_to_units("dimensionless")
+  >>> M_Z
+
+The available values for ``value_ref`` are:
+
+* ``"cloudy"``: 0.01295, from `Cloudy 17.03 <https://gitlab.nublado.org/cloudy/cloudy/-/wikis/home>`_
+* ``"angr"``: 0.01937, from `Anders E. & Grevesse N. (1989, Geochimica et Cosmochimica Acta 53, 197) <https://ui.adsabs.harvard.edu/abs/1989GeCoA..53..197A/abstract>`_
+* ``"aspl"``: 0.01337, from `Asplund M., Grevesse N., Sauval A.J. & Scott P. (2009, ARAA, 47, 481) <https://ui.adsabs.harvard.edu/abs/2009ARA&A..47..481A/abstract>`_
+* ``"feld"``: 0.01909, from `Feldman U. (Physica Scripta, 46, 202) <https://ui.adsabs.harvard.edu/abs/1992PhyS...46..202F/abstract>`_
+* ``"lodd"``: 0.01321, from `Lodders, K (2003, ApJ 591, 1220) <https://ui.adsabs.harvard.edu/abs/2003ApJ...591.1220L/abstract>`_
+
+
 Other Unit Systems
 ------------------
 
