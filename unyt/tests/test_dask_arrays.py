@@ -1,18 +1,20 @@
 from collections import defaultdict
-from numpy.testing import assert_array_equal
-from numpy import sqrt, ones, isfinite
-from unyt.dask_array import (
-    unyt_from_dask,
-    unyt_dask_array,
-    _create_with_quantity,
-    reduce_with_units,
-    _use_simple_decorator,
-)
-from unyt._on_demand_imports import _dask as dask
-from unyt import unyt_array, unyt_quantity
-from unyt.unit_symbols import cm, m, g
-from unyt.exceptions import UnitOperationError
+
 import pytest
+from numpy import isfinite, ones, sqrt
+from numpy.testing import assert_array_equal
+
+from unyt import unyt_array, unyt_quantity
+from unyt._on_demand_imports import _dask as dask
+from unyt.dask_array import (
+    _create_with_quantity,
+    _use_simple_decorator,
+    reduce_with_units,
+    unyt_dask_array,
+    unyt_from_dask,
+)
+from unyt.exceptions import UnitOperationError
+from unyt.unit_symbols import cm, g, m
 
 
 def dask_is_too_old(dask_version_str):
@@ -231,13 +233,13 @@ def test_binary():
     result = x_da_2 / 2
     assert result.units == g
     result = 2 / x_da_2  # __rtruediv__
-    assert result.units == g ** -1
+    assert result.units == g**-1
     result = x_da_2 / unyt_quantity(2, "m")
     assert result.units == g / m
     result = unyt_quantity(2, "m") / x_da_2
     assert result.units == m / g
 
-    result = x_da ** 2
+    result = x_da**2
     assert result.units == m * m
 
 
@@ -406,4 +408,4 @@ def test_bad_dask_array_reductions():
 
 def test_prod():
     x_da = unyt_from_dask(dask.array.ones((10, 10), chunks=(2, 2)), m)
-    assert x_da.prod().units == m ** 100
+    assert x_da.prod().units == m**100

@@ -2681,4 +2681,3 @@ def test_reshape_quantity_via_shape_tuple():
     b = a.reshape(-1, 1)
     assert b.shape == (1, 1)
     assert type(b) is unyt_array
-

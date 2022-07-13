@@ -1426,4 +1426,3 @@ As a final note: the initial Dask array provided to :mod:`dask_array.unyt_from_d
 constructed in any of the usual ways of constructing Dask arrays -- from :mod:`numpy`-like
 array instantiation as in the above examples to reading from file or delayed operations.
 For more on creating arrays, check out the `Dask documentation <https://docs.dask.org/en/stable/array-creation.html>`_.
-
