@@ -298,7 +298,7 @@ you run into issues please let us know by `opening an issue on GitHub
   operations that combine distinct dimensionally equivalent units will cancel in
   many situations. For example
 
-  .. doctest::
+  .. code-block::
 
      >>> from unyt import kg, g
      >>> print((12 * kg) / (4 * g))
