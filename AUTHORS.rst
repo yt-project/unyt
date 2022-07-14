@@ -31,6 +31,8 @@ Contributors
 * Matthew Turk <matthewturk@gmail.com>
 * Miguel de Val-Borro <miguel.deval@gmail.com>
 * John ZuHone <jzuhone@gmail.com>
+* Kyle Oman
+* Osnippet
 
 This library was adapted from `dimensionful
 <https://github.com/caseywstark/dimensionful>`_ which was written by Casey Stark

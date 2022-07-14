@@ -2,6 +2,59 @@
 History
 =======
 
+2.9.0 (2022-07-14)
+------------------
+
+* Dropped support for Python 3.6 and 3.7.
+* Added support for Python 3.8, 3.9 and 3.10.
+* Fix an issue where SI prefixes of the ``degC`` units would give incorrect
+  values in conversions. See `PR #176
+  <https://github.com/yt-project/unyt/pull/176>`_. Thank you to Lee Johnston
+  (@l-johnston on GitHub) for the contribution.
+* Fix an issue when using ``matplotlib_support``, plot an empty unyt array,
+  would result in an error when changing units. See `PR #180
+  <https://github.com/yt-project/unyt/pull/180>`_. Thank you to Josh Borrow
+  (@JBorrow on GitHub) for the contribution.
+* Fix an issue where units would be printed twice in formatted strings with
+  an ``unyt_array`` embedded. See `PR #188
+  <https://github.com/yt-project/unyt/pull/180>`_. Thank you to Clément Robert
+  (@neutrinoceros on GitHub) for the contribution.
+* Add a method to parse a ``unyt_quantity`` from a string expression. See `PR #191
+  <https://github.com/yt-project/unyt/pull/191>`_. Thank you to Clément Robert
+  (@neutrinoceros on GitHub) for the contribution.
+* Fix an issue where a ``unyt_array`` with dtype int8 could not be converted
+  to a different unit. See `PR #197
+  <https://github.com/yt-project/unyt/pull/197>`_. Thank you to Clément Robert
+  (@neutrinoceros on GitHub) for the contribution.
+* The import time for ``unyt`` has been reduced. See `PR #199
+  <https://github.com/yt-project/unyt/pull/199>`_. Thank you to Clément Robert
+  (@neutrinoceros on GitHub) for the contribution.
+* Fix an issue where taking an ``unyt_array`` or ``unyt_quantity`` to a zero
+  power would retain the units of the original array or quantity instead of
+  converting to a dimensionless array. See `PR #204
+  <https://github.com/yt-project/unyt/pull/204>`_. Thank you to Josh Borrow
+  (@JBorrow on GitHub) for the contribution.
+* Add support for coercing iterables of ``unyt_array`` objects with nonuniform
+  dimensionally equivalent units to a single ``unyt_array``. See `PR #211
+  <https://github.com/yt-project/unyt/pull/211>`_. Thank you to Nathan Goldbaum
+  (@ngoldbaum on GitHub) for the contribution.
+* Add the civil engineering units ``pli``, ``plf``, ``psf``, ``kli``, ``klf``,
+  and ``ksf``. See `PR #217 <https://github.com/yt-project/unyt/pull/217>`_.
+  Thank you to @osnippet on GitHub for the contribution.
+* Fix typos in constants and unit prefixes. See `PR #218
+  <https://github.com/yt-project/unyt/pull/218>`_. Thank you to Clément Robert
+  (@neutrinoceros on GitHub) for the contribution.
+* Fix an issue where multiplying a 1-element ``unyt_array`` would return a
+  ``unyt_quantity``. See `PR #225 <https://github.com/yt-project/unyt/pull/225>`_.
+  Thank you to Clément Robert (@neutrinoceros on GitHub) for the contribution.
+* Add the Rydberg constant ``R_∞`` and unit ``Ry``, add the dimension
+  ``angular_frequency`` and the unit ``rpm``, and increase the precision of
+  Avogadro's number. See `PR #228 <https://github.com/yt-project/unyt/pull/228>`_.
+* Fix an issue where ``np.divide.reduce`` would return incorrect units for ``unyt_array``
+  instances. See `PR #230 <https://github.com/yt-project/unyt/pull/230>`_.
+  Thank you to Kyle Oman (@kyleaoman on GitHub) for the contribution.
+
+
 2.8.0 (2020-10-05)
 ------------------
 
