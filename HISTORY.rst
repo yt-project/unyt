@@ -314,7 +314,7 @@ you run into issues please let us know by `opening an issue on GitHub
   ``unyt`` namespace as well as when a unit name is passed as a string to
   ``unyt``. For example:
 
-  .. doctest::
+  .. code-block::
 
      >>> from unyt import meter, second
      >>> data = 1000.0 * meter / second
@@ -343,7 +343,7 @@ you run into issues please let us know by `opening an issue on GitHub
   system so that conversions to "base" units will end up in that non-MKS
   system. For example:
 
-  .. doctest::
+  .. code-block::
 
      >>> from unyt import UnitRegistry, unyt_quantity
      >>> ureg = UnitRegistry(unit_system="cgs")
@@ -358,7 +358,7 @@ you run into issues please let us know by `opening an issue on GitHub
   populated. For example, the author of a library making use of ``unyt`` could
   create an object that users can use to access unit data like this:
 
-  .. doctest::
+  .. code-block::
 
       >>> from unyt.unit_systems import add_symbols
       >>> from unyt.unit_registry import UnitRegistry
