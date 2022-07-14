@@ -53,10 +53,6 @@ History
 * Fix an issue where ``np.divide.reduce`` would return incorrect units for ``unyt_array``
   instances. See `PR #230 <https://github.com/yt-project/unyt/pull/230>`_.
   Thank you to Kyle Oman (@kyleaoman on GitHub) for the contribution.
-* Fix a regression where ``unyt_array.reshape`` wasn't wrapping
-  ``numpy.ndarray.reshape`` correctly. See `PR #242
-  <https://github.com/yt-project/unyt/pull/242>`_. Thank you to Clément Robert
-  (@neutrinoceros on GitHub) for the contribution.
 
 
 2.8.0 (2020-10-05)
