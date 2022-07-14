@@ -6,7 +6,7 @@ History
 ------------------
 
 * Dropped support for Python 3.6 and 3.7.
-* Added support for Python 3.9 and 3.10.
+* Added support for Python 3.8, 3.9 and 3.10.
 * Fix an issue where SI prefixes of the ``degC`` units would give incorrect
   values in conversions. See `PR #176
   <https://github.com/yt-project/unyt/pull/176>`_. Thank you to Lee Johnston
@@ -26,7 +26,7 @@ History
   to a different unit. See `PR #197
   <https://github.com/yt-project/unyt/pull/197>`_. Thank you to Clément Robert
   (@neutrinoceros on GitHub) for the contribution.
-* The import time for ``unyt`` has been optimized. See `PR #199
+* The import time for ``unyt`` has been reduced. See `PR #199
   <https://github.com/yt-project/unyt/pull/199>`_. Thank you to Clément Robert
   (@neutrinoceros on GitHub) for the contribution.
 * Fix an issue where taking an ``unyt_array`` or ``unyt_quantity`` to a zero
