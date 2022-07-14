@@ -50,7 +50,7 @@ History
 * Add the Rydberg constant ``R_∞`` and unit ``Ry``, add the dimension
   ``angular_frequency`` and the unit ``rpm``, and increase the precision of
   Avogadro's number. See `PR #228 <https://github.com/yt-project/unyt/pull/228>`_.
-* Fix an issue where ``np.divide.reduce`` returns incorrect units for ``unyt_array``
+* Fix an issue where ``np.divide.reduce`` would return incorrect units for ``unyt_array``
   instances. See `PR #230 <https://github.com/yt-project/unyt/pull/230>`_.
   Thank you to Kyle Oman (@kyleaoman on GitHub) for the contribution.
 * Fix a regression where ``unyt_array.reshape`` wasn't wrapping
