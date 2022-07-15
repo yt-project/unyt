@@ -1713,10 +1713,9 @@ class unyt_array(np.ndarray):
         if p == 0.0:
             ret = self.ua
             ret.units = Unit("dimensionless")
+            return ret
         else:
-            ret = self.__array_ufunc__(power, "__call__", self, p)
-
-        return ret
+            return super().__pow__(p)
 
     #
     # Start operation methods
