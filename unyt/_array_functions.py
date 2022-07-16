@@ -1,4 +1,5 @@
 import numpy as np
+
 from unyt.exceptions import UnitConversionError
 
 _HANDLED_FUNCTIONS = {}

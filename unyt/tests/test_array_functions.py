@@ -4,7 +4,7 @@ import re
 import numpy as np
 import pytest
 
-from unyt import cm, s, g, km
+from unyt import cm, g, km, s
 from unyt.array import unyt_array
 
 
@@ -63,7 +63,7 @@ def test_invalid_dot_matrices():
     b = np.arange(9) * s
     b.shape = (3, 3)
 
-    out = np.empty((3, 3), dtype=np.int_, order="C") * s ** 2
+    out = np.empty((3, 3), dtype=np.int_, order="C") * s**2
     with pytest.raises(
         TypeError,
         match=re.escape(
