@@ -2,13 +2,12 @@
 import numpy as np
 import pytest
 
-from unyt import K, m, s, unyt_array, unyt_quantity
+from unyt import K, m, matplotlib_support, s, unyt_array, unyt_quantity
 from unyt._on_demand_imports import NotAModule, _matplotlib
 from unyt.exceptions import UnitConversionError
 
 try:
-    from unyt import matplotlib_support
-    from unyt.mpl_interface import unyt_arrayConverter
+    from unyt._mpl_array_converter import unyt_arrayConverter
 except ImportError:
     pass
 
