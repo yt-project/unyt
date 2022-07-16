@@ -114,7 +114,7 @@ except ImportError:
     clip = None
 import warnings
 
-from sympy import Rational
+from sympy.core.numbers import Rational
 
 from unyt._on_demand_imports import _astropy, _pint
 from unyt._pint_conversions import convert_pint_units

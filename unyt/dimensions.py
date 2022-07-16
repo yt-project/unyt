@@ -16,7 +16,9 @@ Dimensions of physical quantities
 from functools import wraps
 from itertools import chain
 
-from sympy import Rational, Symbol, sympify
+from sympy.core.numbers import Rational
+from sympy.core.symbol import Symbol
+from sympy.core.sympify import sympify
 
 #: mass
 mass = Symbol("(mass)", positive=True)

@@ -18,7 +18,7 @@ import json
 from functools import lru_cache
 from hashlib import md5
 
-from sympy import sympify
+from sympy.core.sympify import sympify
 
 from unyt import dimensions as unyt_dims
 from unyt._unit_lookup_table import default_unit_symbol_lut, unit_prefixes

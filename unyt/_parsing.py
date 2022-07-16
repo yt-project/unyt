@@ -16,7 +16,10 @@ parsing utilities
 
 import token
 
-from sympy import Basic, Float, Integer, Rational, Symbol, sqrt
+from sympy.core.basic import Basic
+from sympy.core.numbers import Float, Integer, Rational
+from sympy.core.symbol import Symbol
+from sympy.functions.elementary.miscellaneous import sqrt
 from sympy.parsing.sympy_parser import auto_number, parse_expr, rationalize
 
 from unyt._unit_lookup_table import inv_name_alternatives

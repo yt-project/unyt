@@ -27,7 +27,7 @@ from numpy.testing import (
     assert_array_almost_equal_nulp,
     assert_equal,
 )
-from sympy import Symbol
+from sympy.core.symbol import Symbol
 
 import unyt.unit_symbols as unit_symbols
 from unyt._physical_ratios import (

@@ -20,22 +20,17 @@ from functools import lru_cache
 from numbers import Number as numeric_type
 
 import numpy as np
-from sympy import (
-    Add,
-    Basic,
-    Expr,
-    Float,
-    Mod,
-    Mul,
-    Number,
-    Pow,
-    Rational,
-    Symbol,
-    floor,
-    latex,
-    sympify,
-)
-from sympy.core.numbers import One
+from sympy.core.add import Add
+from sympy.core.basic import Basic
+from sympy.core.expr import Expr
+from sympy.core.mod import Mod
+from sympy.core.mul import Mul
+from sympy.core.numbers import Float, Number, One, Rational
+from sympy.core.power import Pow
+from sympy.core.symbol import Symbol
+from sympy.core.sympify import sympify
+from sympy.functions.elementary.integers import floor
+from sympy.printing.latex import latex
 
 import unyt.dimensions as dims
 from unyt._parsing import parse_unyt_expr
