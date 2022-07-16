@@ -26,8 +26,8 @@ from unyt._unit_lookup_table import name_alternatives as _name_alternatives
 from unyt.unit_object import Unit as _Unit
 from unyt.unit_registry import default_unit_registry as _registry
 
-_namespace = globals()
-
+_ns = globals()
 for _canonical_name, _alt_names in _name_alternatives.items():
+    _u = _Unit(_canonical_name, registry=_registry)
     for _alt_name in _alt_names:
-        _namespace[_alt_name] = _Unit(_canonical_name, registry=_registry)
+        _ns[_alt_name] = _u
