@@ -68,13 +68,6 @@ from unyt.unit_systems import UnitSystem  # NOQA: F401
 
 from ._version import get_versions
 
-try:
-    from unyt.mpl_interface import matplotlib_support  # NOQA: F401
-except ImportError:
-    pass
-else:
-    matplotlib_support = matplotlib_support()
-
 
 # function to only import quantities into this namespace
 # we go through the trouble of doing this instead of "import *"
@@ -107,3 +100,9 @@ def test():  # pragma: no cover
     import pytest
 
     pytest.main([os.path.dirname(os.path.abspath(__file__))])
+
+
+# isort: off
+from unyt.mpl_interface import matplotlib_support
+
+matplotlib_support = matplotlib_support()
