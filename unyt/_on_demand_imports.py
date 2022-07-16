@@ -10,6 +10,10 @@ A set of convenient on-demand imports
 # The full license is in the LICENSE file, distributed with this software.
 # -----------------------------------------------------------------------------
 
+from functools import wraps
+from importlib.util import find_spec
+from typing import Type
+
 
 class NotAModule:
     """
@@ -21,8 +25,7 @@ class NotAModule:
     def __init__(self, pkg_name):
         self.pkg_name = pkg_name
         self.error = ImportError(
-            "This functionality requires the %s "
-            "package to be installed." % self.pkg_name
+            f"This functionality requires the {self.pkg_name} package to be installed."
         )
 
     def __getattr__(self, item):
@@ -31,182 +34,142 @@ class NotAModule:
     def __call__(self, *args, **kwargs):
         raise self.error
 
+    def __repr__(self) -> str:
+        return f"NotAModule({self.pkg_name!r})"
 
-class astropy_imports:
-    _name = "astropy"
-    _log = None
-    _units = None
-    _version = None
+
+class OnDemand:
+    _default_factory: Type[NotAModule] = NotAModule
+
+    def __init_subclass__(cls):
+        if not cls.__name__.endswith("_imports"):
+            raise TypeError(f"class {cls}'s name needs to be suffixed '_imports'")
+
+    def __new__(cls):
+        if cls is OnDemand:
+            raise TypeError("The OnDemand base class cannot be instantiated.")
+        else:
+            return object.__new__(cls)
 
     @property
+    def _name(self) -> str:
+        _name, _, _suffix = self.__class__.__name__.rpartition("_")
+        return _name
+
+    @property
+    def __is_available__(self) -> bool:
+
+        return find_spec(self._name) is not None
+
+
+def safe_import(func):
+    @property
+    @wraps(func)
+    def inner(self):
+        try:
+            return func(self)
+        except ImportError:
+            return self._default_factory(self._name)
+
+    return inner
+
+
+class astropy_imports(OnDemand):
+    @safe_import
     def log(self):
-        if self._log is None:
-            try:
-                from astropy import log
+        from astropy import log
 
-                if log.exception_logging_enabled():
-                    log.disable_exception_logging()
-            except ImportError:
-                log = NotAModule(self._name)
-            self._log = log
-        return self._log
+        if log.exception_logging_enabled():
+            log.disable_exception_logging()
 
-    @property
+        return log
+
+    @safe_import
     def units(self):
-        if self._units is None:
-            try:
-                from astropy import units
+        from astropy import units
 
-                self.log
-            except ImportError:
-                units = NotAModule(self._name)
-            self._units = units
-        return self._units
+        self.log
+        return units
 
-    @property
+    @safe_import
     def __version__(self):
-        if self._version is None:
-            try:
-                import astropy
+        from astropy import __version__
 
-                version = astropy.__version__
-            except ImportError:
-                version = NotAModule(self._name)
-            self._version = version
-        return self._version
+        return __version__
 
 
 _astropy = astropy_imports()
 
 
-class h5py_imports:
-    _name = "h5py"
-    _File = None
-    _version = None
-
-    @property
+class h5py_imports(OnDemand):
+    @safe_import
     def File(self):
-        if self._File is None:
-            try:
-                from h5py import File
-            except ImportError:
-                File = NotAModule(self._name)
-            self._File = File
-        return self._File
+        from h5py import File
 
-    @property
+        return File
+
+    @safe_import
     def __version__(self):
-        if self._version is None:
-            try:
-                from h5py import __version__
+        from h5py import __version__
 
-                self._version = __version__
-            except ImportError:
-                self._version = NotAModule(self._name)
-        return self._version
+        return __version__
 
 
 _h5py = h5py_imports()
 
 
-class pint_imports:
-    _name = "pint"
-    _UnitRegistry = None
-
-    @property
+class pint_imports(OnDemand):
+    @safe_import
     def UnitRegistry(self):
-        if self._UnitRegistry is None:
-            try:
-                from pint import UnitRegistry
-            except ImportError:
-                UnitRegistry = NotAModule(self._name)
-            self._UnitRegistry = UnitRegistry
-        return self._UnitRegistry
+        from pint import UnitRegistry
+
+        return UnitRegistry
 
 
 _pint = pint_imports()
 
 
-class matplotlib_imports:
-    _name = "matplotlib"
-    _pyplot = None
-    _units = None
-    _use = None
-
-    @property
+class matplotlib_imports(OnDemand):
+    @safe_import
     def __version__(self):
-        if self._version is None:
-            try:
-                from matplotlib import __version__
+        from matplotlib import __version__
 
-                self._version = __version__
-            except ImportError:
-                self._version = NotAModule(self._name)
-        return self._version
+        return __version__
 
-    @property
+    @safe_import
     def pyplot(self):
-        if self._pyplot is None:
-            try:
-                from matplotlib import pyplot
-            except ImportError:
-                pyplot = NotAModule(self._name)
-            self._pyplot = pyplot
-        return self._pyplot
+        from matplotlib import pyplot
 
-    @property
+        return pyplot
+
+    @safe_import
     def units(self):
-        if self._units is None:
-            try:
-                from matplotlib import units
-            except ImportError:
-                units = NotAModule(self._name)
-            self._units = units
-        return self._units
+        from matplotlib import units
 
-    @property
+        return units
+
+    @safe_import
     def use(self):
-        if self._use is None:
-            try:
-                from matplotlib import use
-            except ImportError:
-                use = NotAModule(self._name)
-            self._use = use
-        return self._use
+        from matplotlib import use
+
+        return use
 
 
 _matplotlib = matplotlib_imports()
 
 
-class dask_imports(object):
-    _name = "dask"
-    _array = None
-    _version = None
-
-    def __init__(self):
-        self._available = not isinstance(self.array, NotAModule)
-
-    @property
+class dask_imports(OnDemand):
+    @safe_import
     def array(self):
-        if self._array is None:
-            try:
-                from dask import array
-            except ImportError:
-                array = NotAModule(self._name)
-            self._array = array
-        return self._array
+        from dask import array
 
-    @property
+        return array
+
+    @safe_import
     def __version__(self):
-        if self._version is None:
-            try:
-                import dask
+        from dask import __version__
 
-                version = dask.__version__
-            except ImportError:
-                version = NotAModule(self._name)
-            self._version = version
-        return self._version
+        return __version__
 
 
 _dask = dask_imports()
