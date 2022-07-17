@@ -3,11 +3,6 @@ minimum_pre_commit_version: 1.15.0
 ci:
     autofix_prs: false
 
-exclude: "^(\
-versioneer.py\
-|unyt/_version.py\
-)"
-
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.3.0

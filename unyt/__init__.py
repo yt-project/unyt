@@ -66,8 +66,6 @@ from unyt.unit_object import Unit, define_unit  # NOQA: F401
 from unyt.unit_registry import UnitRegistry  # NOQA: F401
 from unyt.unit_systems import UnitSystem  # NOQA: F401
 
-from ._version import get_versions
-
 try:
     from unyt.mpl_interface import matplotlib_support  # NOQA: F401
 except ImportError:
@@ -92,8 +90,14 @@ import_units(physical_constants, globals())
 
 del import_units
 
-__version__ = get_versions()["version"]
-del get_versions
+from importlib.metadata import PackageNotFoundError, version
+
+try:
+    __version__ = version("unyt")
+except PackageNotFoundError:
+    # package is not installed
+    pass
+del version, PackageNotFoundError
 
 
 def test():  # pragma: no cover

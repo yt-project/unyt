@@ -1,16 +1,6 @@
 """The setup script."""
 
-import os
-import sys
-
 from setuptools import find_packages, setup
-
-# ensure the current directory is on sys.path
-# so versioneer can be imported when pip uses
-# PEP 517/518 build rules
-sys.path.append(os.path.dirname(__file__))
-
-import versioneer  # NOQA
 
 with open("README.rst") as readme_file:
     readme = readme_file.read()
@@ -49,7 +39,5 @@ setup(
     tests_require=test_requirements,
     python_requires=">=3.8",
     url="https://github.com/yt-project/unyt",
-    version=versioneer.get_version(),
     zip_safe=False,
-    cmdclass=versioneer.get_cmdclass(),
 )
