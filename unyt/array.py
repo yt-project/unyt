@@ -1702,7 +1702,7 @@ class unyt_array(np.ndarray):
             pass
         return ret
 
-    def __pow__(self, p):
+    def __pow__(self, p, mod=None, /):
         """
         Power function, over-rides the ufunc as
         ``numpy`` passes the ``_ones_like`` ufunc for
@@ -1715,7 +1715,7 @@ class unyt_array(np.ndarray):
             ret.units = Unit("dimensionless")
             return ret
         else:
-            return super().__pow__(p)
+            return super().__pow__(p, mod)
 
     #
     # Start operation methods
