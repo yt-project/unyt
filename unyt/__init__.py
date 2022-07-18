@@ -43,33 +43,6 @@ top-level ``unyt`` namespace:
 # The full license is in the LICENSE file, distributed with this software.
 # -----------------------------------------------------------------------------
 
-try:
-    import numpy as np
-
-    try:
-        from pkg_resources import parse_version
-
-        npv = np.__version__
-        if parse_version(npv) < parse_version("1.13.0"):  # pragma: no cover
-            raise RuntimeError(
-                "The unyt package requires NumPy 1.13 or newer but NumPy %s "
-                "is installed" % npv
-            )
-        del parse_version, npv
-    except ImportError:  # pragma: no cover
-        # setuptools isn't installed so we don't try to check version numbers
-        pass
-    del np
-except ImportError:  # pragma: no cover
-    raise RuntimeError("The unyt package requires numpy but numpy is not installed.")
-
-try:
-    import sympy
-
-    del sympy
-except ImportError:  # pragma: no cover
-    raise RuntimeError("The unyt package requires sympy but sympy is not installed.")
-
 from unyt import physical_constants, unit_symbols
 from unyt.array import (  # NOQA: F401
     allclose_units,
