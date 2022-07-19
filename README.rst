@@ -30,7 +30,7 @@ unyt
 
 |
 
- .. image:: docs/_static/yt_logo_small.png
+ .. image:: https://raw.githubusercontent.com/yt-project/unyt/master/docs/_static/yt_logo_small.png
          :target: https://yt-project.org
          :alt: The yt Project
 
