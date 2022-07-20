@@ -6,10 +6,10 @@ History
 ------------------
 
 * Fix an issue where taking powers of units was backwards-incompatible with previous
-  versions of :mod:`unyt` when the exponent is not zero. See `PR #249
+  versions of ``unyt`` when the exponent is not zero. See `PR #249
   <https://github.com/yt-project/unyt/pull/249>`_. Thank you to Clément Robert
   (@neutrinoceros on GitHub) for the contribution.
-* The import time for :mod:`unyt` has been reduced by skipping version checking of
+* The import time for ``unyt`` has been reduced by skipping version checking of
   other packages. See `PR #251
   <https://github.com/yt-project/unyt/pull/251>`_. Thank you to Clément Robert
   (@neutrinoceros on GitHub) for the contribution.
