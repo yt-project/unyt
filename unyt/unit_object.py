@@ -1136,12 +1136,20 @@ def change_solar_metallicity_value(value_ref, registry=None):
         If None, then defaults to the global default unit registry.
 
     """
+    import unyt
     from unyt._physical_ratios import metallicity_sun_values
 
     if registry is None:
         registry = default_unit_registry
 
+    # modify the value with the updated one from the table
     registry.modify("Zsun", metallicity_sun_values[value_ref])
+
+    # Now we have to reset the top-level Unit object
+    if registry is default_unit_registry:
+        symbol = "Zsun"
+        u = Unit(symbol, registry=registry)
+        setattr(unyt, symbol, u)
 
 
 NULL_UNIT = Unit()
