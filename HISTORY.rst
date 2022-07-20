@@ -2,7 +2,7 @@
 History
 =======
 
-2.9.1 (2022-07-20)
+2.9.2 (2022-07-20)
 ------------------
 
 * Fix an issue where taking powers of units was backwards-incompatible with previous
