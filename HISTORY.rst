@@ -2,6 +2,18 @@
 History
 =======
 
+2.9.1 (2022-07-20)
+------------------
+
+* Fix an issue where taking powers of units was backwards-incompatible with previous
+  versions of :mod:`unyt` when the exponent is not zero. See `PR #249
+  <https://github.com/yt-project/unyt/pull/249>`_. Thank you to Clément Robert
+  (@neutrinoceros on GitHub) for the contribution.
+* The import time for :mod:`unyt` has been reduced by skipping version checking of
+  other packages. See `PR #251
+  <https://github.com/yt-project/unyt/pull/251>`_. Thank you to Clément Robert
+  (@neutrinoceros on GitHub) for the contribution.
+
 2.9.0 (2022-07-14)
 ------------------
 
@@ -17,7 +29,7 @@ History
   (@JBorrow on GitHub) for the contribution.
 * Fix an issue where units would be printed twice in formatted strings with
   an ``unyt_array`` embedded. See `PR #188
-  <https://github.com/yt-project/unyt/pull/180>`_. Thank you to Clément Robert
+  <https://github.com/yt-project/unyt/pull/188>`_. Thank you to Clément Robert
   (@neutrinoceros on GitHub) for the contribution.
 * Add a method to parse a ``unyt_quantity`` from a string expression. See `PR #191
   <https://github.com/yt-project/unyt/pull/191>`_. Thank you to Clément Robert
