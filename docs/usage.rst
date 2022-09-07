@@ -1381,10 +1381,10 @@ There are three ways to use the context manager:
 Working with Dask arrays
 ++++++++++++++++++++++++
 
-As of v2.9.0, :mod:`unyt` provides the ability to wrap dask arrays with :mod:`unyt`
+:mod:`unyt` provides the ability to wrap dask arrays with :mod:`unyt`
 behavior. The main access point is the :mod:`unyt.dask_array.unyt_from_dask`
 function, which allows you to build a :mod:`unyt_dask_array` from a plain dask array
-analagous to the creation of a :mod:`unyt_array` from a plain :mod:`numpy.ndarray`:
+analogous to the creation of a :mod:`unyt_array` from a plain :mod:`numpy.ndarray`:
 
     >>> from unyt import dask_array as uda
     >>> import dask.array as da

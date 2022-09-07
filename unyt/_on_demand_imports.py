@@ -184,7 +184,7 @@ class dask_imports(object):
     _version = None
 
     def __init__(self):
-        self._available = isinstance(self.array, NotAModule) is False
+        self._available = not isinstance(self.array, NotAModule)
 
     @property
     def array(self):

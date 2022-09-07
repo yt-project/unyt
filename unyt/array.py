@@ -285,7 +285,7 @@ def _apply_power_mapping(ufunc, in_unit, in_size, in_shape, input_kwarg_dict):
     # a repeated product which we implement as an exponent
     mul = 1
     power_map = POWER_MAPPING[ufunc]
-    if "axis" in input_kwarg_dict and input_kwarg_dict["axis"] is not None:
+    if input_kwarg_dict.get("axis", None) is not None:
         unit = in_unit ** (power_map(in_shape[input_kwarg_dict["axis"]]))
     else:
         unit = in_unit ** (power_map(in_size))

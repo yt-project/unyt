@@ -73,7 +73,7 @@ def test_unyt_dask_slice():
     slc = x_da[:, 0]
     assert slc.units == m
     assert slc.compute().units == m
-    assert type(slc.compute()) == unyt_array
+    assert type(slc.compute()) is unyt_array
 
 
 @requires_dask_2021421
@@ -379,7 +379,7 @@ def test_repr():
 def test_dask_array_reductions(dask_func_str, actual, axis, check_nan):
 
     extra_kwargs = {}
-    if axis:
+    if axis is not None:
         extra_kwargs["axis"] = axis
 
     func_strs = [
@@ -403,7 +403,7 @@ def test_bad_dask_array_reductions():
         pass
 
     with pytest.raises(ValueError):
-        _ = reduce_with_units(empty_func, x_da).compute()
+        reduce_with_units(empty_func, x_da).compute()
 
 
 def test_prod():

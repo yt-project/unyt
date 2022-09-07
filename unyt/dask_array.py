@@ -243,10 +243,11 @@ class unyt_dask_array(_dask_Array):
     """
 
     def __new__(
-        clss,
+        cls,
         dask_graph,
         name,
         chunks,
+        *,
         dtype=None,
         meta=None,
         shape=None,
@@ -258,8 +259,8 @@ class unyt_dask_array(_dask_Array):
     ):
 
         # get the base dask array
-        obj = super(unyt_dask_array, clss).__new__(
-            clss,
+        obj = super().__new__(
+            cls,
             dask_graph,
             name,
             chunks,
@@ -317,7 +318,7 @@ class unyt_dask_array(_dask_Array):
 
     def __repr__(self):
         disp_str = super().__repr__().replace("dask.array", "unyt_dask_array")
-        units_str = f", units={self.units.__str__()}>"
+        units_str = f", units={self.units}>"
         return disp_str.replace(">", units_str)
 
     def _repr_html_(self):
@@ -327,8 +328,7 @@ class unyt_dask_array(_dask_Array):
         new_table = []
         for row in table:
             if "</tbody>" in row:
-                u = self.units.__str__()
-                newrow = f"    <tr><th> Units </th><td> {u} </td> <td> {u} </td></tr>"
+                newrow = f"    <tr><th> Units </th><td> {u} </td> <td> {self.units} </td></tr>"
                 new_table.append(newrow)
             new_table.append(row)
         return "\n".join(new_table)
@@ -477,7 +477,7 @@ def _create_with_quantity(dask_array, new_unyt_array):
     Parameters
     ----------
     dask_array : a standard dask array
-    new_unyt_array : a standard unity array
+    new_unyt_array : a standard unyt array
     remaining arguments get passed to unyt.unyt_array, check there for a
     description.
     """
@@ -494,6 +494,7 @@ def _create_with_quantity(dask_array, new_unyt_array):
 def unyt_from_dask(
     dask_array,
     units=None,
+    *,
     registry=None,
     bypass_validation=False,
     unyt_name=None,
