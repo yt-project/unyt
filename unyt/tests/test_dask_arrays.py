@@ -52,14 +52,14 @@ def test_dask_version_check():
 def test_unyt_dask_creation():
     x = dask.array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
-    assert type(x_da) == unyt_dask_array
+    assert type(x_da) is unyt_dask_array
     assert x_da.units == m
-    assert type(x_da.compute()) == unyt_array
+    assert type(x_da.compute()) is unyt_array
 
     x_da = _create_with_quantity(x, unyt_quantity(1, m))
-    assert type(x_da) == unyt_dask_array
+    assert type(x_da) is unyt_dask_array
     assert x_da.units == m
-    assert type(x_da.compute()) == unyt_array
+    assert type(x_da.compute()) is unyt_array
 
     x_dask = x_da.to_dask()
     assert_array_equal(x.compute(), x_dask.compute())
@@ -89,13 +89,13 @@ def test_unit_conversions():
     x = dask.array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
     x_da = x_da.to(cm)
-    assert type(x_da) == unyt_dask_array
+    assert type(x_da) is unyt_dask_array
     assert x_da.units == cm
     assert x_da.compute().units == cm
 
     x_da_2 = unyt_from_dask(x, m)
     result = x_da + x_da_2
-    assert type(result) == unyt_dask_array
+    assert type(result) is unyt_dask_array
     assert result.units == m
     assert result.compute().units == m
 
@@ -109,10 +109,10 @@ def test_conversion_to_dask():
     x_da = unyt_from_dask(x, m)
     x_again = x_da.to_dask()
     assert_array_equal(x.compute(), x_again.compute())
-    assert type(x_again) == type(x)
+    assert type(x_again) is type(x)
 
     result = isfinite(x_da)  # should return plain dask array
-    assert type(result) == dask.array.core.Array
+    assert type(result) is dask.array.core.Array
 
 
 def unary_test(the_func, unyt_dask_obj, unyt_array_in, *args, **kwargs):
@@ -129,7 +129,7 @@ def unary_result_test(dask_unyt_delayed, correct_unyt):
     # computes a delayed dask_unyt_array and compares resulting units and values
     result = dask_unyt_delayed.compute()
     assert result.units == correct_unyt.units
-    assert type(result) == type(correct_unyt)
+    assert type(result) is type(correct_unyt)
     # value comparison:
     if type(result) == unyt_array:
         assert_array_equal(result, correct_unyt)
@@ -156,53 +156,23 @@ def test_unary():
     unary_result_test(abs(x_da), abs(x_unyt))  # __abs__
 
 
-def test_logical():
-    def logical_operators(x_da, other):
+@pytest.mark.parametrize(
+    "logical_op", ["__lt__", "__le__", "__gt__", "__ge__", "__eq__", "__ne__"]
+)
+@pytest.mark.parametrize("other", [None, unyt_quantity(2, m)])
+def test_logical(logical_op, other):
+    def check_operator(arg1, arg2):
         # comparisons should return plain dask arrays
-        result = x_da < other
-        assert type(result) == dask.array.Array
-
-        result = other > x_da
-        assert type(result) == dask.array.Array
-
-        result = x_da > other
-        assert type(result) == dask.array.Array
-
-        result = other < x_da
-        assert type(result) == dask.array.Array
-
-        result = x_da < other
-        assert type(result) == dask.array.Array
-
-        result = x_da <= other
-        assert type(result) == dask.array.Array
-
-        result = other >= x_da
-        assert type(result) == dask.array.Array
-
-        result = x_da >= other
-        assert type(result) == dask.array.Array
-
-        result = other <= x_da
-        assert type(result) == dask.array.Array
-
-        result = x_da <= other
-        assert type(result) == dask.array.Array
-
-        result = other == x_da
-        assert type(result) == dask.array.Array
-
-        result = x_da == other
-        assert type(result) == dask.array.Array
-
-        result = x_da != other
-        assert type(result) == dask.array.Array
+        func = getattr(arg1, logical_op)
+        result = func(arg2)
+        assert type(result) is dask.array.Array
 
     x = dask.array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
-
-    logical_operators(x_da, 2)
-    logical_operators(x_da, 2 * x_da)
+    if other is None:
+        other = 2 * x_da  # test another unyt-dask array
+    check_operator(x_da, other)
+    check_operator(other, x_da)
 
 
 def test_binary():

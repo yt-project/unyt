@@ -247,10 +247,10 @@ class unyt_dask_array(_dask_Array):
         dask_graph,
         name,
         chunks,
-        *,
         dtype=None,
         meta=None,
         shape=None,
+        *,
         units=None,
         registry=None,
         bypass_validation=False,
@@ -328,7 +328,8 @@ class unyt_dask_array(_dask_Array):
         new_table = []
         for row in table:
             if "</tbody>" in row:
-                newrow = f"    <tr><th> Units </th><td> {u} </td> <td> {self.units} </td></tr>"
+                u = self.units
+                newrow = f"    <tr><th> Units </th><td> {u} </td> <td> {u} </td></tr>"
                 new_table.append(newrow)
             new_table.append(row)
         return "\n".join(new_table)
@@ -497,6 +498,7 @@ def unyt_from_dask(
     *,
     registry=None,
     bypass_validation=False,
+    input_units=None,
     unyt_name=None,
 ):
     """
@@ -542,6 +544,7 @@ def unyt_from_dask(
         registry=registry,
         bypass_validation=bypass_validation,
         unyt_name=unyt_name,
+        input_units=input_units,
     )
 
     return da
