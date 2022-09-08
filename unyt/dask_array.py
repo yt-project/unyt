@@ -313,8 +313,8 @@ class unyt_dask_array(_dask_Array):
         dask.array<random_sample, shape=(10000, 10000), dtype=float64,
              chunksize=(1000, 1000), chunktype=numpy.ndarray>
         """
-        (cls, args) = self.__reduce__()
-        return super().__new__(_dask_Array, *args)
+        (_, args) = super().__reduce__()
+        return _dask_Array(*args)
 
     def __getattribute__(self, name):
         if name in _unyt_funcs_to_track:
