@@ -21,28 +21,30 @@ _dask_Array = dask.array.core.Array
 _dask_finalize = dask.array.core.finalize
 
 # the following attributes hang off of dask.array.core.Array and do not modify units
-_use_simple_decorator = [
-    "min",
-    "max",
-    "sum",
-    "mean",
-    "std",
-    "cumsum",
-    "squeeze",
-    "rechunk",
-    "clip",
-    "view",
-    "swapaxes",
-    "round",
-    "copy",
-    "repeat",
-    "astype",
-    "reshape",
-    "topk",
-]
+_use_unary_decorator = set(
+    [
+        "min",
+        "max",
+        "sum",
+        "mean",
+        "std",
+        "cumsum",
+        "squeeze",
+        "rechunk",
+        "clip",
+        "view",
+        "swapaxes",
+        "round",
+        "copy",
+        "repeat",
+        "astype",
+        "reshape",
+        "topk",
+    ]
+)
 
 
-def _simple_dask_decorator(dask_func, current_unyt_dask):
+def _unary_dask_decorator(dask_func, current_unyt_dask):
     """
     a decorator for the simpler dask functions that can just copy over the current
     unit info after applying the dask function. this includes functions that return
@@ -71,48 +73,7 @@ def _simple_dask_decorator(dask_func, current_unyt_dask):
 # the following list are the unyt_quantity/array attributes that will also
 # be attributes of the unyt_dask_array. These methods are wrapped with a unit
 # conversion decorator.
-_unyt_funcs_to_track = ["to", "in_units", "in_cgs", "in_base", "in_mks"]
-
-
-def _track_conversion(unyt_func_name, current_unyt_dask):
-    """
-    a decorator to use with unyt functions that convert units
-
-    Parameters
-    ----------
-
-    unyt_func_name: str
-        the name of the function to call from the sidecar _unyt_quantity. Must be
-        an attribute of unyt.unyt_quantity.
-    current_unyt_dask: unyt_dask_array
-        the current instance of a unyt_dask_array
-
-
-    Returns a new unyt_dask_array instance with appropriate units
-    """
-
-    def wrapper(*args, **kwargs):
-
-        # current value of sidecar quantity
-        init_val = current_unyt_dask._unyt_array.value
-
-        # get the unyt function handle and call it
-        the_func = getattr(current_unyt_dask._unyt_array, unyt_func_name)
-        new_unyt_quantity = the_func(*args, **kwargs)
-
-        # calculate the conversion factor and pull out the new name and units
-        # might be able to use _get_conversion_factor here too...
-        factor = new_unyt_quantity.value / init_val
-        units = new_unyt_quantity.units
-
-        # apply the factor, return new
-        new_obj = unyt_from_dask(current_unyt_dask * factor, units)
-
-        return new_obj
-
-    # functools wrap fails here because unyt_func_name is a string, copy manually:
-    wrapper.__doc__ = getattr(current_unyt_dask._unyt_array, unyt_func_name).__doc__
-    return wrapper
+_unyt_funcs_to_track = set(["to", "in_units", "in_cgs", "in_base", "in_mks"])
 
 
 # helper sanitizing functions for handling ufunc, array operations
@@ -153,7 +114,6 @@ def _is_iterable(obj):
 
 def _sanitize_unit_args(*input):
     # returns sanitized inputs and unyt_inputs for calling the ufunc
-    # what if i is a list or tuple????? np.concatenate([x,x2]) is one arg...
     unyt_inputs = _extract_unyt(input)
 
     if len(unyt_inputs) > 1:
@@ -310,7 +270,7 @@ class unyt_dask_array(_dask_Array):
         return wrapped_func(func, types, args, kwargs)
 
     def __getitem__(self, index):
-        return _simple_dask_decorator(super().__getitem__, self)(index)
+        return _unary_dask_decorator(super().__getitem__, self)(index)
 
     def __setitem__(self, key, value):
         # requires dask >= 2021.4.1
@@ -358,13 +318,52 @@ class unyt_dask_array(_dask_Array):
 
     def __getattribute__(self, name):
         if name in _unyt_funcs_to_track:
-            return _track_conversion(name, self)
+            return self._track_conversion(name)
 
         result = super().__getattribute__(name)
-        if name in _use_simple_decorator:
-            return _simple_dask_decorator(result, self)
+        if name in _use_unary_decorator:
+            return _unary_dask_decorator(result, self)
 
         return result
+
+    def _track_conversion(self, unyt_func_name):
+        """
+        a decorator to use with unyt functions that convert units
+
+        Parameters
+        ----------
+
+        unyt_func_name: str
+            the name of the function to call from the sidecar _unyt_quantity. Must be
+            an attribute of unyt.unyt_quantity.
+        current_unyt_dask: unyt_dask_array
+            the current instance of a unyt_dask_array
+
+
+        Returns a new unyt_dask_array instance with appropriate units
+        """
+
+        def wrapper(*args, **kwargs):
+            # current value of sidecar quantity
+            init_val = self._unyt_array.value
+
+            # get the unyt function handle and call it
+            the_func = getattr(self._unyt_array, unyt_func_name)
+            new_unyt_quantity = the_func(*args, **kwargs)
+
+            # calculate the conversion factor and pull out the new name and units
+            # might be able to use _get_conversion_factor here too...
+            factor = new_unyt_quantity.value / init_val
+            units = new_unyt_quantity.units
+
+            # apply the factor, return new
+            new_obj = unyt_from_dask(self * factor, units)
+
+            return new_obj
+
+        # functools wrap fails here because unyt_func_name is a string, copy manually:
+        wrapper.__doc__ = getattr(self._unyt_array, unyt_func_name).__doc__
+        return wrapper
 
     def __dask_postcompute__(self):
         # a dask hook to catch after .compute(), see
@@ -502,7 +501,8 @@ def unyt_from_dask(
     unyt_name=None,
 ):
     """
-    creates a unyt_dask_array from a standard dask array.
+    creates a unyt_dask_array from a standard dask array. This function will
+    create a new copy of the dask graph associated with an array.
 
     Parameters
     ----------
@@ -569,8 +569,11 @@ def unyt_from_dask(
 # a general dask.array.reductions method on a unyt_dask array to correctly
 # handle units.
 
-_nan_ops = ["nansum", "nanmean", "nanmedian", "nanstd", "nanmax", "nanmin", "nancumsum"]
-_passthrough_reductions = ["diagonal", "median", "nanmedian"]
+_nan_ops = set(
+    ["nansum", "nanmean", "nanmedian", "nanstd", "nanmax", "nanmin", "nancumsum"]
+)
+_passthrough_reductions = set(["diagonal", "median", "nanmedian"])
+_allowed_funcs = _nan_ops.union(_passthrough_reductions, _use_unary_decorator)
 
 
 def reduce_with_units(dask_func, unyt_dask_in, *args, **kwargs):
@@ -605,11 +608,11 @@ def reduce_with_units(dask_func, unyt_dask_in, *args, **kwargs):
 
     """
 
-    if dask_func.__name__ in _use_simple_decorator + _nan_ops + _passthrough_reductions:
+    if dask_func.__name__ in _allowed_funcs:
         # e.g., min, max, nanstd. functions that return the same units can
         # be called directly as the dask function will treat unyt_dask_in as
         # a standard dask array and then we copy over the initial units.
-        return _simple_dask_decorator(dask_func, unyt_dask_in)(
+        return _unary_dask_decorator(dask_func, unyt_dask_in)(
             unyt_dask_in, *args, **kwargs
         )
     else:

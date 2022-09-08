@@ -8,45 +8,13 @@ from unyt import unyt_array, unyt_quantity
 from unyt._on_demand_imports import _dask as dask
 from unyt.dask_array import (
     _create_with_quantity,
-    _use_simple_decorator,
+    _use_unary_decorator,
     reduce_with_units,
     unyt_dask_array,
     unyt_from_dask,
 )
 from unyt.exceptions import UnitOperationError
 from unyt.unit_symbols import cm, g, m
-
-
-def dask_is_too_old(dask_version_str):
-
-    if dask_version_str is None:
-        return True
-
-    major, minor, revis = [int(mmr) for mmr in dask_version_str.split(".")]
-    # version 2021.04.1 is min for the __setitem__ test
-    if major > 2021:
-        return False
-    if major < 2021:
-        return True
-    # major version == 2021 if we are here
-    if (minor == 4 and revis >= 1) or minor > 4:  # == 2021
-        return False
-    return True
-
-
-requires_dask_2021421 = pytest.mark.skipif(
-    dask_is_too_old(dask.__version__), reason="test requires dask>=2021.04.1"
-)
-
-
-def test_dask_version_check():
-    assert dask_is_too_old(None) is True
-    assert dask_is_too_old("2.9.0") is True
-    assert dask_is_too_old("2021.3.0") is True
-    assert dask_is_too_old("2021.4.0") is True
-    assert dask_is_too_old("2021.4.1") is False
-    assert dask_is_too_old("2021.7.0") is False
-    assert dask_is_too_old("2022.1.0") is False
 
 
 def test_unyt_dask_creation():
@@ -76,7 +44,6 @@ def test_unyt_dask_slice():
     assert type(slc.compute()) is unyt_array
 
 
-@requires_dask_2021421
 def test_unyt_set():
     # tests __setitem__
     x = dask.array.ones((10, 10), chunks=(2, 2))
@@ -302,7 +269,7 @@ _func_args["topk"] = (1,)
 
 
 @pytest.mark.parametrize(
-    ("da_func", "args"), [(f, _func_args[f]) for f in _use_simple_decorator]
+    ("da_func", "args"), [(f, _func_args[f]) for f in _use_unary_decorator]
 )
 def test_dask_passthroughs(da_func, args):
 
@@ -372,7 +339,9 @@ def test_bad_dask_array_reductions():
     def empty_func():
         pass
 
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError, match="could not deduce np equivalent of dask reduction"
+    ):
         reduce_with_units(empty_func, x_da).compute()
 
 
