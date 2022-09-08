@@ -192,13 +192,37 @@ def _special_dec(the_func):
 
 class unyt_dask_array(_dask_Array):
     """
-    a dask.array.core.Array subclass that tracks units. Easiest to use the
-    unyt_from_dask helper function to generate new instances.
+    a dask.array.core.Array subclass that tracks units. This class is only
+    recommended for advanced usage, most cases should use the unyt_from_dask
+    helper function to instantiate a new unyt_dask_array.
 
     Parameters
     ----------
 
-    All parameters are those for dask.array.core.Array
+    The following parameters are those for a standard dask.array.core.Array:
+
+    dask : dict
+        Task dependency graph
+    name : string
+        Name of array in dask
+    shape : tuple of ints
+        Shape of the entire array
+    chunks: iterable of tuples
+        block sizes along each dimension
+    dtype : str or dtype
+        Typecode or data-type for the new Dask Array
+    meta : empty ndarray
+        empty ndarray created with same NumPy backend, ndim and dtype as the
+        Dask Array being created (overrides dtype)
+
+    The following keyword-only parameters are the same as for a standard
+    unyt.unyt_array (check there for definitions):
+
+    units
+    registry
+    bypass_validation
+    unyt_name
+    input_units
 
     """
 
@@ -507,9 +531,27 @@ def unyt_from_dask(
     Parameters
     ----------
     dask_array : a standard dask array
+    units : String unit name, unit symbol object, or astropy unit
+        The units of the array. Powers must be specified using python
+        syntax (cm**3, not cm^3).
+    registry : :class:`unyt.unit_registry.UnitRegistry`
+        The registry to create units from. If input_units is already associated
+        with a unit registry and this is specified, this will be used instead
+        of the registry associated with the unit object.
+    bypass_validation : boolean
+        If True, all input validation is skipped. Using this option may produce
+        corrupted, invalid units or array data, but can lead to significant
+        speedups in the input validation logic adds significant overhead. If
+        set, input_units *must* be a valid unit object. Defaults to False.
+    unyt_name : string
+        The name of the array. Defaults to None. This attribute does not propagate
+        through mathematical operations, but is preserved under indexing
+        and unit conversions.
 
-    remaining arguments get passed to unyt.unyt_array, check there for a
-    description.
+    Notes
+    -----
+        All of the above parameters with the exception of the dask_array are
+        the same as for a standard unyt.unyt_array.
 
     Examples
     --------
@@ -572,7 +614,7 @@ def unyt_from_dask(
 _nan_ops = set(
     ["nansum", "nanmean", "nanmedian", "nanstd", "nanmax", "nanmin", "nancumsum"]
 )
-_passthrough_reductions = set(["diagonal", "median", "nanmedian"])
+_passthrough_reductions = set(["diagonal", "median"])
 _allowed_funcs = _nan_ops.union(_passthrough_reductions, _use_unary_decorator)
 
 
