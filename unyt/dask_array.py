@@ -610,6 +610,8 @@ def unyt_from_dask(
 # is a compromise: it is a simple helper function for calling
 # a general dask.array.reductions method on a unyt_dask array to correctly
 # handle units.
+#
+# check https://github.com/yt-project/unyt/issues/269 for further discussion
 
 _nan_ops = set(
     ["nansum", "nanmean", "nanmedian", "nanstd", "nanmax", "nanmin", "nancumsum"]
