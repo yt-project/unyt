@@ -1,3 +1,4 @@
+import pickle
 from collections import defaultdict
 
 import pytest
@@ -59,6 +60,7 @@ def test_unit_conversions():
     assert type(x_da) is unyt_dask_array
     assert x_da.units == cm
     assert x_da.compute().units == cm
+    assert x_da[0, 0].compute().value == 100
 
     x_da_2 = unyt_from_dask(x, m)
     result = x_da + x_da_2
@@ -348,3 +350,10 @@ def test_bad_dask_array_reductions():
 def test_prod():
     x_da = unyt_from_dask(dask.array.ones((10, 10), chunks=(2, 2)), m)
     assert x_da.prod().units == m**100
+
+
+def test_pickle():
+    x_da = unyt_from_dask(dask.array.ones((10, 10), chunks=(2, 2)), m)
+    x_da2 = pickle.loads(pickle.dumps(x_da))
+    assert_array_equal(x_da, x_da2)
+    assert x_da.units == x_da2.units

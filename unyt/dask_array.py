@@ -340,6 +340,18 @@ class unyt_dask_array(_dask_Array):
         (_, args) = super().__reduce__()
         return _dask_Array(*args)
 
+    def __reduce__(self):
+        (_, args) = super().__reduce__()
+        unyt_state = {
+            "_unyt_array": self._unyt_array,
+            "units": self.units,
+            "unyt_name": self.unyt_name,
+        }
+        # reminder: the 3rd object returned by a __reduce__ tuple is the object
+        # state. when there is no __setstate__, it must be a dict and it will be
+        # added to the __dict__ attribute.
+        return unyt_dask_array, args, unyt_state
+
     def __getattribute__(self, name):
         if name in _unyt_funcs_to_track:
             return self._track_conversion(name)
@@ -378,10 +390,10 @@ class unyt_dask_array(_dask_Array):
             # calculate the conversion factor and pull out the new name and units
             # might be able to use _get_conversion_factor here too...
             factor = new_unyt_quantity.value / init_val
-            units = new_unyt_quantity.units
 
             # apply the factor, return new
-            new_obj = unyt_from_dask(self * factor, units)
+            new_unyt_quantity[:] = 1  # reset sidecar value
+            new_obj = _create_with_quantity(self * factor, new_unyt_quantity)
 
             return new_obj
 
@@ -500,11 +512,13 @@ def _create_with_quantity(dask_array, new_unyt_array):
 
     Parameters
     ----------
-    dask_array : a standard dask array
+    dask_array : a standard dask array or a unyt_dask_array
     new_unyt_array : a standard unyt array
     remaining arguments get passed to unyt.unyt_array, check there for a
     description.
     """
+    if isinstance(dask_array, unyt_dask_array):
+        dask_array = dask_array.to_dask()
     out = unyt_from_dask(dask_array)
 
     # attach the unyt_array
