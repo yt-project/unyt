@@ -116,7 +116,7 @@ import warnings
 
 from sympy import Rational
 
-from unyt._on_demand_imports import _astropy, _pint
+from unyt._on_demand_imports import _astropy, _dask, _pint
 from unyt._pint_conversions import convert_pint_units
 from unyt._unit_lookup_table import default_unit_symbol_lut
 from unyt.dimensions import angle, temperature
@@ -278,6 +278,18 @@ def _sanitize_units_convert(possible_units, registry):
     unit = Unit(possible_units, registry=registry)
 
     return unit
+
+
+def _apply_power_mapping(ufunc, in_unit, in_size, in_shape, input_kwarg_dict):
+    # a reduction of a multiply or divide corresponds to
+    # a repeated product which we implement as an exponent
+    mul = 1
+    power_map = POWER_MAPPING[ufunc]
+    if input_kwarg_dict.get("axis", None) is not None:
+        unit = in_unit ** (power_map(in_shape[input_kwarg_dict["axis"]]))
+    else:
+        unit = in_unit ** (power_map(in_size))
+    return mul, unit
 
 
 unary_operators = (
@@ -1757,14 +1769,7 @@ class unyt_array(np.ndarray):
             # evaluate the ufunc
             out_arr = func(np.asarray(inp), out=out_func, **kwargs)
             if ufunc in (multiply, divide) and method == "reduce":
-                # a reduction of a multiply or divide corresponds to
-                # a repeated product which we implement as an exponent
-                mul = 1
-                power_map = POWER_MAPPING[ufunc]
-                if "axis" in kwargs and kwargs["axis"] is not None:
-                    unit = u ** (power_map(inp.shape[kwargs["axis"]]))
-                else:
-                    unit = u ** (power_map(inp.size))
+                mul, unit = _apply_power_mapping(ufunc, u, inp.size, inp.shape, kwargs)
             else:
                 # get unit of result
                 mul, unit = self._ufunc_registry[ufunc](u)
@@ -1775,6 +1780,14 @@ class unyt_array(np.ndarray):
             # binary ufuncs
             i0 = inputs[0]
             i1 = inputs[1]
+
+            if _dask._available and isinstance(i1, _dask.array.core.Array):
+                # need to short circuit all this to handle binary operations
+                # like unyt_quantity(2,'m') / unyt_dask_array_instance
+                # only need to check the second argument as if the first arg
+                # is a unyt_dask_array, it won't end up here.
+                return i1.__array_ufunc__(ufunc, method, *inputs, **kwargs)
+
             # coerce inputs to be ndarrays if they aren't already
             inp0 = _coerce_iterable_units(i0)
             inp1 = _coerce_iterable_units(i1)
