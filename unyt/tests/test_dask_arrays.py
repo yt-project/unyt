@@ -7,6 +7,10 @@ from numpy.testing import assert_array_equal
 
 from unyt import unyt_array, unyt_quantity
 from unyt._on_demand_imports import _dask as dask
+
+if not dask._available:
+    pytest.skip("dask isn't installed", allow_module_level=True)
+
 from unyt.dask_array import (
     _create_with_quantity,
     _use_unary_decorator,
