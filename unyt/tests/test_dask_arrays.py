@@ -8,7 +8,7 @@ from numpy.testing import assert_array_equal
 from unyt import unyt_array, unyt_quantity
 from unyt._on_demand_imports import _dask as dask
 
-if not dask._available:
+if not dask.__is_available__:
     pytest.skip("dask isn't installed", allow_module_level=True)
 
 from unyt.dask_array import (
