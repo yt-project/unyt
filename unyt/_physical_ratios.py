@@ -173,3 +173,6 @@ m_per_ft = 0.3048
 # IEC 60027-3: https://webstore.iec.ch/publication/94
 # NIST Special Publication 811: https://www.nist.gov/pml/special-publication-811
 neper_per_bel = np.log(10) / 2
+
+# Currency
+dollars_per_cent = 0.01

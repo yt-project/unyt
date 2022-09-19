@@ -12,6 +12,7 @@ Unit system class.
 # -----------------------------------------------------------------------------
 
 from collections import OrderedDict
+from inspect import currentframe
 
 from unyt import dimensions
 from unyt._parsing import parse_unyt_expr
@@ -184,6 +185,9 @@ class UnitSystem:
     luminous_intensity_unit : string or :class:`unyt.unit_object.Unit`, optional
         The base luminous intensity unit of this unit system.
         Defaults to "cd".
+    currency_unit : string or :class:`unyt.unit_object.Unit`, optional
+        The base currency unit for this unit system. 
+        Defaults to "$". 
     registry : :class:`unyt.unit_registry.UnitRegistry` object
         The unit registry associated with this unit system. Only
         useful for defining unit systems based on code units.
@@ -200,6 +204,7 @@ class UnitSystem:
         current_mks_unit="A",
         luminous_intensity_unit="cd",
         logarithmic_unit="Np",
+        currency_unit = "$",
         registry=None,
     ):
         self.registry = registry
@@ -213,6 +218,7 @@ class UnitSystem:
                 (dimensions.current_mks, current_mks_unit),
                 (dimensions.luminous_intensity, luminous_intensity_unit),
                 (dimensions.logarithmic, logarithmic_unit),
+                (dimensions.currency, currency_unit),
             ]
         )
         for k, v in self.units_map.items():
@@ -246,6 +252,7 @@ class UnitSystem:
             "current_mks",
             "luminous_intensity",
             "logarithmic",
+            "currency",
         ]
         self.registry = registry
         self.base_units = self.units_map.copy()
@@ -298,7 +305,7 @@ class UnitSystem:
 
 
 #: The CGS unit system
-cgs_unit_system = UnitSystem("cgs", "cm", "g", "s", current_mks_unit=None)
+cgs_unit_system = UnitSystem("cgs", "cm", "g", "s", currency_unit="$", current_mks_unit=None)
 cgs_unit_system["energy"] = "erg"
 cgs_unit_system["specific_energy"] = "erg/g"
 cgs_unit_system["pressure"] = "dyne/cm**2"
@@ -309,7 +316,7 @@ cgs_unit_system["current_cgs"] = "statA"
 cgs_unit_system["power"] = "erg/s"
 
 #: The MKS unit system
-mks_unit_system = UnitSystem("mks", "m", "kg", "s")
+mks_unit_system = UnitSystem("mks", "m", "kg", "s", currency_unit="$")
 mks_unit_system["energy"] = "J"
 mks_unit_system["specific_energy"] = "J/kg"
 mks_unit_system["pressure"] = "Pa"
@@ -326,7 +333,7 @@ mks_unit_system["magnetic_flux"] = "Wb"
 mks_unit_system["luminous_flux"] = "lm"
 
 #: The imperial unit system
-imperial_unit_system = UnitSystem("imperial", "ft", "lb", "s", temperature_unit="R")
+imperial_unit_system = UnitSystem("imperial", "ft", "lb", "s", temperature_unit="R", currency_unit="$")
 imperial_unit_system["force"] = "lbf"
 imperial_unit_system["energy"] = "ft*lbf"
 imperial_unit_system["pressure"] = "lbf/ft**2"

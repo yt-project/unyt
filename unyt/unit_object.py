@@ -341,6 +341,8 @@ class Unit:
             return "°F"
         if unit_str == "delta_degF":
             return "Δ°F"
+        if unit_str == "dollars":
+            return "$"
         # @todo: don't use dunder method?
         return unit_str
 
