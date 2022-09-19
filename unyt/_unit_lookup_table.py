@@ -73,6 +73,7 @@ from unyt._physical_ratios import (
     standard_gravity_m_per_s2,
     temp_sun_kelvin,
     watt_per_horsepower,
+    dollars_per_cent
 )
 
 # Lookup a unit symbol with the symbol string, and provide a tuple with the
@@ -89,6 +90,8 @@ default_unit_symbol_lut = OrderedDict(
         ("A", (1.0, dimensions.current_mks, 0.0, r"\rm{A}", True)),
         ("cd", (1.0, dimensions.luminous_intensity, 0.0, r"\rm{cd}", True)),
         ("mol", (1.0 / amu_grams, dimensions.dimensionless, 0.0, r"\rm{mol}", True)),
+        ("$", (1.0, dimensions.currency, 0.0, r"\$", False)),
+        ("¢", (dollars_per_cent, dimensions.currency, 0.0, r"\textcent", False)),  # ('CENT SIGN' UxA2)
         # some cgs
         ("dyn", (1.0e-5, dimensions.force, 0.0, r"\rm{dyn}", True)),
         ("erg", (1.0e-7, dimensions.energy, 0.0, r"\rm{erg}", True)),
@@ -413,6 +416,7 @@ default_base_units = {
     dimensions.angle: "radian",
     dimensions.current_mks: "A",
     dimensions.luminous_intensity: "cd",
+    dimensions.currency: "$",
 }
 
 physical_constants = OrderedDict(
@@ -505,6 +509,8 @@ default_unit_name_alternatives = OrderedDict(
         ("A", ("ampere", "amp", "Amp")),
         ("cd", ("candela",)),
         ("mol", ("mole",)),
+        ("$", ("dollars", "dollar")),
+        ("¢", ("cent", "cents")),
         # some cgs
         ("dyn", ("dyne",)),
         ("erg", ("ergs",)),
