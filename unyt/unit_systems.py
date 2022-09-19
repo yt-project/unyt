@@ -12,7 +12,6 @@ Unit system class.
 # -----------------------------------------------------------------------------
 
 from collections import OrderedDict
-from inspect import currentframe
 
 from unyt import dimensions
 from unyt._parsing import parse_unyt_expr
