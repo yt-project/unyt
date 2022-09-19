@@ -51,7 +51,7 @@ base_dimensions = [
     dimensionless,
     luminous_intensity,
     logarithmic,
-    currency
+    currency,
 ]
 
 #
@@ -158,7 +158,7 @@ inductance = inductance_mks = magnetic_flux_mks / current_mks
 
 # Cost basis units
 #: cost per length
-cost_per_length = cost_per_distance =  currency / length
+cost_per_length = cost_per_distance = currency / length
 #: cost per area
 cost_per_area = currency / area
 #: cost per volume
@@ -206,11 +206,11 @@ derived_dimensions = [
     angular_frequency,
     cost_per_distance,
     cost_per_length,
-    cost_per_area, 
+    cost_per_area,
     cost_per_volume,
     cost_per_energy,
     cost_per_erg,
-    cost_per_power
+    cost_per_power,
 ]
 
 

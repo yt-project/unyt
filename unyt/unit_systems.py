@@ -186,8 +186,8 @@ class UnitSystem:
         The base luminous intensity unit of this unit system.
         Defaults to "cd".
     currency_unit : string or :class:`unyt.unit_object.Unit`, optional
-        The base currency unit for this unit system. 
-        Defaults to "$". 
+        The base currency unit for this unit system.
+        Defaults to "$".
     registry : :class:`unyt.unit_registry.UnitRegistry` object
         The unit registry associated with this unit system. Only
         useful for defining unit systems based on code units.
@@ -204,7 +204,7 @@ class UnitSystem:
         current_mks_unit="A",
         luminous_intensity_unit="cd",
         logarithmic_unit="Np",
-        currency_unit = "$",
+        currency_unit="$",
         registry=None,
     ):
         self.registry = registry
@@ -305,7 +305,9 @@ class UnitSystem:
 
 
 #: The CGS unit system
-cgs_unit_system = UnitSystem("cgs", "cm", "g", "s", currency_unit="$", current_mks_unit=None)
+cgs_unit_system = UnitSystem(
+    "cgs", "cm", "g", "s", currency_unit="$", current_mks_unit=None
+)
 cgs_unit_system["energy"] = "erg"
 cgs_unit_system["specific_energy"] = "erg/g"
 cgs_unit_system["pressure"] = "dyne/cm**2"
@@ -333,7 +335,9 @@ mks_unit_system["magnetic_flux"] = "Wb"
 mks_unit_system["luminous_flux"] = "lm"
 
 #: The imperial unit system
-imperial_unit_system = UnitSystem("imperial", "ft", "lb", "s", temperature_unit="R", currency_unit="$")
+imperial_unit_system = UnitSystem(
+    "imperial", "ft", "lb", "s", temperature_unit="R", currency_unit="$"
+)
 imperial_unit_system["force"] = "lbf"
 imperial_unit_system["energy"] = "ft*lbf"
 imperial_unit_system["pressure"] = "lbf/ft**2"

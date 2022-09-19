@@ -551,6 +551,7 @@ atoms and molecules:
      current_mks: A
      luminous_intensity: cd
      logarithmic: Np
+     currency: $
     Other Units:
      energy: eV
    >>> print(atomic_unit_system)
@@ -575,6 +576,7 @@ It is also legal to define a unit system using :class:`unyt.Unit
       current_mks: A
       luminous_intensity: cd
       logarithmic: Np
+      currency: $
      Other Units:
 
 Or with a quantity:
@@ -590,6 +592,7 @@ Or with a quantity:
       current_mks: A
       luminous_intensity: cd
       logarithmic: Np
+      currency: $
      Other Units:
 
 
