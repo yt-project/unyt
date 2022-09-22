@@ -91,6 +91,9 @@ def parse_unyt_expr(unit_expr):
     unit_expr = unit_expr.replace("°", "deg")
     unit_expr = unit_expr.replace("$", "dollars")
     unit_expr = unit_expr.replace("¢", "cents")
+    unit_expr = unit_expr.replace("\u20ac", "euros")
+    unit_expr = unit_expr.replace("\u00a3", "pounds")
+    unit_expr = unit_expr.replace("\u00a5", "yen")
     try:
         unit_expr = parse_expr(
             unit_expr, global_dict=global_dict, transformations=unit_text_transform

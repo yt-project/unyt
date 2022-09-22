@@ -152,7 +152,7 @@ __doctest_requires__ = {
 _NUMB_PATTERN = r"^[+/-]?((?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)|\d*\.?\d+|\d+\.?\d*|nan\s|inf\s)"  # noqa: E501
 # *all* greek letters are considered valid unit string elements.
 # This may be an overshoot. We rely on unyt.Unit to do the actual validation
-_UNIT_PATTERN = r"([α-ωΑ-Ωa-zA-Z$¢]+(\*\*([+/-]?[0-9]+)|[*/])?)+"
+_UNIT_PATTERN = r"([α-ωΑ-Ωa-zA-Z$¢¥€£]+(\*\*([+/-]?[0-9]+)|[*/])?)+"
 _QUAN_PATTERN = r"{}\s*{}".format(_NUMB_PATTERN, _UNIT_PATTERN)
 _NUMB_REGEXP = re.compile(_NUMB_PATTERN)
 _UNIT_REGEXP = re.compile(_UNIT_PATTERN)
