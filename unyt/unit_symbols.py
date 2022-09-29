@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Predefined useful aliases to physical units
 

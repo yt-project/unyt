@@ -273,7 +273,7 @@ class Unit:
                 base_offset = 0.0
 
         # Create obj with superclass construct.
-        obj = super(Unit, cls).__new__(cls)
+        obj = super().__new__(cls)
 
         # Attach attributes to obj.
         obj.expr = unit_expr
@@ -391,7 +391,7 @@ class Unit:
             if unit is not None:
                 if self.dimensions is logarithmic:
                     raise InvalidUnitOperation(
-                        "Tried to multiply '%s' and '%s'." % (self, unit)
+                        f"Tried to multiply '{self}' and '{unit}'."
                     )
                 units = unit * self
             else:
@@ -405,9 +405,9 @@ class Unit:
                 return _import_cache_singleton.uq(data, units, bypass_validation=True)
             return _import_cache_singleton.ua(data, units, bypass_validation=True)
         elif self.dimensions is logarithmic and not u.is_dimensionless:
-            raise InvalidUnitOperation("Tried to multiply '%s' and '%s'." % (self, u))
+            raise InvalidUnitOperation(f"Tried to multiply '{self}' and '{u}'.")
         elif u.dimensions is logarithmic and not self.is_dimensionless:
-            raise InvalidUnitOperation("Tried to multiply '%s' and '%s'." % (self, u))
+            raise InvalidUnitOperation(f"Tried to multiply '{self}' and '{u}'.")
 
         base_offset = 0.0
         if self.base_offset or u.base_offset:
@@ -442,9 +442,9 @@ class Unit:
                     "behavior is undefined." % (u, type(u))
                 )
         elif self.dimensions is logarithmic and not u.is_dimensionless:
-            raise InvalidUnitOperation("Tried to divide '%s' and '%s'." % (self, u))
+            raise InvalidUnitOperation(f"Tried to divide '{self}' and '{u}'.")
         elif u.dimensions is logarithmic and not self.is_dimensionless:
-            raise InvalidUnitOperation("Tried to divide '%s' and '%s'." % (self, u))
+            raise InvalidUnitOperation(f"Tried to divide '{self}' and '{u}'.")
 
         base_offset = 0.0
         if self.base_offset or u.base_offset:
@@ -479,7 +479,7 @@ class Unit:
             )
 
         if self.dimensions is logarithmic and p != 1.0:
-            raise InvalidUnitOperation("Tried to raise '%s' to power '%s'" % (self, p))
+            raise InvalidUnitOperation(f"Tried to raise '{self}' to power '{p}'")
 
         return Unit(
             self.expr**p,
@@ -608,7 +608,7 @@ class Unit:
         try:
             this_equiv = equivalence_registry[equiv]()
         except KeyError:
-            raise KeyError('No such equivalence "%s".' % equiv)
+            raise KeyError(f'No such equivalence "{equiv}".')
         old_dims = self.dimensions
         return old_dims in this_equiv._dims
 
@@ -990,7 +990,7 @@ def _get_unit_data_from_expr(unit_expr, unit_symbol_lut):
         unit_data = _get_unit_data_from_expr(unit_expr.args[0], unit_symbol_lut)
         power = unit_expr.args[1]
         if isinstance(power, Symbol):
-            raise UnitParseError("Invalid unit expression '%s'." % unit_expr)
+            raise UnitParseError(f"Invalid unit expression '{unit_expr}'.")
         conv = float(unit_data[0] ** power)
         unit = unit_data[1] ** power
         return (conv, unit)
@@ -1019,8 +1019,7 @@ def _validate_dimensions(dimensions):
     elif isinstance(dimensions, Symbol):
         if dimensions not in base_dimensions:
             raise UnitParseError(
-                "Dimensionality expression contains an "
-                "unknown symbol '%s'." % dimensions
+                f"Dimensionality expression contains an unknown symbol '{dimensions}'."
             )
     elif isinstance(dimensions, Pow):
         if not isinstance(dimensions.args[1], Number):
@@ -1036,7 +1035,7 @@ def _validate_dimensions(dimensions):
                 "allowed.  Got dimensions '%s'" % dimensions
             )
     elif not isinstance(dimensions, Basic):
-        raise UnitParseError("Bad dimensionality expression '%s'." % dimensions)
+        raise UnitParseError(f"Bad dimensionality expression '{dimensions}'.")
 
 
 def define_unit(
@@ -1084,7 +1083,7 @@ def define_unit(
         registry = default_unit_registry
     if symbol in registry:
         raise RuntimeError(
-            "Unit symbol '%s' already exists in the provided " "registry" % symbol
+            f"Unit symbol '{symbol}' already exists in the provided registry"
         )
     if not isinstance(value, unyt_quantity):
         if _iterable(value) and len(value) == 2:

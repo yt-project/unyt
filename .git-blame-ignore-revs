@@ -1,2 +1,6 @@
 # automated linting (black + isort + blacken-docs)
 982fc992fa6cb636d87ccc445e695cb5f964eb12
+
+# flynt + pyupgrade
+381650d795922aeba997cbe46685d3ca21ccba51
+d707555f9386c5b7fe8f50b12d52257375f9840a

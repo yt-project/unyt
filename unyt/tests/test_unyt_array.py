@@ -1440,7 +1440,7 @@ def test_subclass():
         def __new__(
             cls, input_array, units=None, registry=None, bypass_validation=None
         ):
-            return super(unyt_a_subclass, cls).__new__(
+            return super().__new__(
                 cls,
                 input_array,
                 units,
@@ -2555,8 +2555,8 @@ def test_complexvalued(tmp_path):
 def test_string_formatting():
     d = unyt_array((1, 2, 3), "Msun")
     expected = "[1 2 3] Msun"
-    assert "%s" % d == expected
-    assert "{}".format(d) == expected
+    assert f"{d}" == expected
+    assert f"{d}" == expected
 
 
 @pytest.mark.parametrize(
@@ -2629,7 +2629,7 @@ def test_invalid_unit_quantity_from_string(s):
     un_str = s.split()[-1]
     with pytest.raises(
         UnitParseError,
-        match="Could not find unit symbol '{}' in the provided symbols.".format(un_str),
+        match=f"Could not find unit symbol '{un_str}' in the provided symbols.",
     ):
         unyt_quantity.from_string(s)
 

@@ -6,6 +6,7 @@ ci:
 exclude: "^(\
 versioneer.py\
 |unyt/_version.py\
+|paper/.*.py\
 )"
 
 repos:
@@ -19,6 +20,11 @@ repos:
     - id: check-executables-have-shebangs
     - id: check-yaml
     - id: check-toml
+-   repo: https://github.com/asottile/pyupgrade
+    rev: v2.37.1
+    hooks:
+    - id: pyupgrade
+      args: [--py38-plus]
 -   repo: https://github.com/psf/black
     rev: 22.8.0
     hooks:
