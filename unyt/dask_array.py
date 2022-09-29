@@ -13,12 +13,15 @@ import unyt.array as ua
 from unyt._on_demand_imports import _dask as dask
 
 __doctest_requires__ = {
-    ("dask_array.unyt_from_dask"): ["dask"],
+    ("unyt_from_dask", "reduce_with_units", "unyt_dask_array.to_dask"): ["dask"],
 }
 
 
-_dask_Array = dask.array.core.Array
-_dask_finalize = dask.array.core.finalize
+if dask.__is_available__:
+    _dask_Array = dask.array.core.Array
+    _dask_finalize = dask.array.core.finalize
+else:
+    _dask_Array, _dask_finalize = object, None
 
 # the following attributes hang off of dask.array.core.Array and do not modify units
 _use_unary_decorator = {
