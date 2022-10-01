@@ -150,7 +150,9 @@ __doctest_requires__ = {
 
 # This is partially adapted from the following SO thread
 # https://stackoverflow.com/questions/41668588/regex-to-match-scientific-notation
-_NUMB_PATTERN = r"^[+/-]?((?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)|\d*\.?\d+|\d+\.?\d*|nan\s|inf\s)"  # noqa: E501
+_NUMB_PATTERN = (
+    r"[+/-]?(?:((?:\d\.?\d*[Ee][+\-]?\d+)|(?:\d+\.\d*|\d*\.\d+))|\d+|inf\s|nan\s)"
+)
 # *all* greek letters are considered valid unit string elements.
 # This may be an overshoot. We rely on unyt.Unit to do the actual validation
 _UNIT_PATTERN = r"([α-ωΑ-Ωa-zA-Z]+(\*\*([+/-]?[0-9]+)|[*/])?)+"
@@ -1374,7 +1376,7 @@ class unyt_array(np.ndarray):
         --------
         >>> from unyt import unyt_quantity
         >>> unyt_quantity.from_string("1cm")
-        unyt_quantity(1., 'cm')
+        unyt_quantity(1, 'cm')
         >>> unyt_quantity.from_string("+1e3 Mearth")
         unyt_quantity(1000., 'Mearth')
         >>> unyt_quantity.from_string("-10. kg")
@@ -1382,22 +1384,29 @@ class unyt_array(np.ndarray):
         >>> unyt_quantity.from_string(".66\tum")
         unyt_quantity(0.66, 'μm')
         >>> unyt_quantity.from_string("42")
-        unyt_quantity(42., '(dimensionless)')
+        unyt_quantity(42, '(dimensionless)')
         >>> unyt_quantity.from_string("1.0 g/cm**3")
         unyt_quantity(1., 'g/cm**3')
         """
         v = s.strip()
         if re.fullmatch(_NUMB_REGEXP, v):
-            return float(re.match(_NUMB_REGEXP, v).group()) * Unit()
-        if re.fullmatch(_UNIT_REGEXP, v):
-            return 1 * Unit(re.match(_UNIT_REGEXP, v).group())
-        if not re.match(_QUAN_REGEXP, v):
+            num = re.match(_NUMB_REGEXP, v).group()
+            unit = Unit()
+        elif re.fullmatch(_UNIT_REGEXP, v):
+            num = 1
+            unit = Unit(re.match(_UNIT_REGEXP, v).group())
+        elif not re.match(_QUAN_REGEXP, v):
             raise ValueError(f"Received invalid quantity expression '{s}'.")
-        res = re.search(_NUMB_REGEXP, v)
-        num = res.group()
-        res = re.search(_UNIT_REGEXP, v[res.span()[1] :])
-        unit = res.group()
-        return float(num) * Unit(unit, registry=unit_registry)
+        else:
+            res = re.search(_NUMB_REGEXP, v)
+            num = res.group()
+            res = re.search(_UNIT_REGEXP, v[res.span()[1] :])
+            unit = res.group()
+        try:
+            num = int(num)
+        except ValueError:
+            num = float(num)
+        return num * Unit(unit, registry=unit_registry)
 
     def to_string(self):
         # this is implemented purely for symmetry's sake

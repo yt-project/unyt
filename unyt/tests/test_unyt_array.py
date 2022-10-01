@@ -2591,42 +2591,43 @@ def test_string_formatting():
 
 
 @pytest.mark.parametrize(
-    "s, expected",
+    "s, expected, normalized",
     [
-        ("+1cm", 1.0 * Unit("cm")),
-        ("1cm", 1.0 * Unit("cm")),
-        ("1.cm", 1.0 * Unit("cm")),
-        ("1.0 cm", 1.0 * Unit("cm")),
-        ("1.0\tcm", 1.0 * Unit("cm")),
-        ("1.0\t cm", 1.0 * Unit("cm")),
-        ("1.0  cm", 1.0 * Unit("cm")),
-        ("1.0\t\tcm", 1.0 * Unit("cm")),
-        ("10e-1cm", 1.0 * Unit("cm")),
-        ("10E-1cm", 1.0 * Unit("cm")),
-        ("+1cm", 1.0 * Unit("cm")),
-        ("1um", 1.0 * Unit("μm")),
-        ("1μm", 1.0 * Unit("μm")),
-        ("-5 Msun", -5.0 * Unit("Msun")),
-        ("1e3km", 1e3 * Unit("km")),
-        ("-1e3    km", -1e3 * Unit("km")),
-        ("1.0 g/cm**3", 1.0 * Unit("g/cm**3")),
-        ("1 g*cm**-3", 1.0 * Unit("g/cm**3")),
-        ("1.0 g*cm", 1.0 * Unit("g*cm")),
-        ("nan g", float("nan") * Unit("g")),
-        ("-nan g", float("nan") * Unit("g")),
-        ("inf g", float("inf") * Unit("g")),
-        ("+inf g", float("inf") * Unit("g")),
-        ("-inf g", -float("inf") * Unit("g")),
-        ("1", 1.0 * Unit()),
-        ("g", 1.0 * Unit("g")),
+        ("+1cm", 1.0 * Unit("cm"), "1 cm"),
+        ("1cm", 1.0 * Unit("cm"), "1 cm"),
+        ("1.cm", 1.0 * Unit("cm"), "1.0 cm"),
+        ("1.0 cm", 1.0 * Unit("cm"), "1.0 cm"),
+        ("1.0\tcm", 1.0 * Unit("cm"), "1.0 cm"),
+        ("1.0\t cm", 1.0 * Unit("cm"), "1.0 cm"),
+        ("1.0  cm", 1.0 * Unit("cm"), "1.0 cm"),
+        ("1.0\t\tcm", 1.0 * Unit("cm"), "1.0 cm"),
+        ("10e-1cm", 1.0 * Unit("cm"), "1.0 cm"),
+        ("10E-1cm", 1.0 * Unit("cm"), "1.0 cm"),
+        ("+1cm", 1.0 * Unit("cm"), "1 cm"),
+        ("1um", 1.0 * Unit("μm"), "1 μm"),
+        ("1μm", 1.0 * Unit("μm"), "1 μm"),
+        ("-5 Msun", -5.0 * Unit("Msun"), "-5 Msun"),
+        ("1e3km", 1e3 * Unit("km"), "1000.0 km"),
+        ("-1e3    km", -1e3 * Unit("km"), "-1000.0 km"),
+        ("1.0 g/cm**3", 1.0 * Unit("g/cm**3"), "1.0 g/cm**3"),
+        ("1 g*cm**-3", 1.0 * Unit("g/cm**3"), "1 g/cm**3"),
+        ("1.0 g*cm", 1.0 * Unit("g*cm"), "1.0 cm*g"),
+        ("nan g", float("nan") * Unit("g"), "nan g"),
+        ("-nan g", float("nan") * Unit("g"), "nan g"),
+        ("inf g", float("inf") * Unit("g"), "inf g"),
+        ("+inf g", float("inf") * Unit("g"), "inf g"),
+        ("-inf g", -float("inf") * Unit("g"), "-inf g"),
+        ("1", 1.0 * Unit(), "1 dimensionless"),
+        ("g", 1.0 * Unit("g"), "1 g"),
     ],
 )
-def test_valid_quantity_from_string(s, expected):
+def test_valid_quantity_from_string(s, expected, normalized):
     actual = unyt_quantity.from_string(s)
     if "nan" in s:
         assert actual != expected
     else:
         assert actual == expected
+    assert actual.to_string() == normalized
 
 
 @pytest.mark.parametrize(
