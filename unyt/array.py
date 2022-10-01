@@ -15,6 +15,7 @@ unyt_array class.
 
 import copy
 import re
+import warnings
 from functools import lru_cache
 from numbers import Number as numeric_type
 
@@ -107,8 +108,6 @@ from numpy import (
     trunc,
 )
 from numpy.core.umath import _ones_like, clip
-import warnings
-
 from sympy import Rational
 
 from unyt._on_demand_imports import _astropy, _dask, _pint
