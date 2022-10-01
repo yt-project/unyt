@@ -1706,12 +1706,11 @@ class unyt_array(np.ndarray):
 
     def __pow__(self, p, mod=None, /):
         """
-        Power function, over-rides the ufunc as
-        ``numpy`` passes the ``_ones_like`` ufunc for
-        powers of zero (in some cases), which leads to an
-        incorrect unit calculation.
+        Power function
         """
-
+        # over-rides the ufunc as ``numpy`` passes the ``_ones_like`` ufunc for
+        # powers of zero (in some cases), which leads to an incorrect unit
+        # calculation.
         if p == 0.0:
             ret = self.ua
             ret.units = Unit("dimensionless")
