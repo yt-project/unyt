@@ -106,12 +106,7 @@ from numpy import (
     true_divide,
     trunc,
 )
-from numpy.core.umath import _ones_like
-
-try:
-    from numpy.core.umath import clip
-except ImportError:
-    clip = None
+from numpy.core.umath import _ones_like, clip
 import warnings
 
 from sympy import Rational
