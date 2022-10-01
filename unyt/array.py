@@ -1934,10 +1934,7 @@ class unyt_array(np.ndarray):
                 for o, oa in zip(out, out_arr):
                     if o is None:
                         continue
-                    try:
-                        o.units = oa.units
-                    except AttributeError:
-                        o.units = Unit("", registry=self.units.registry)
+                    o.units = oa.units
         if mul == 1:
             return out_arr
         return mul * out_arr
