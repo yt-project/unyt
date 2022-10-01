@@ -55,10 +55,3 @@ jobs:
       - name: Run In-place Tests
         if: matrix.python-version == '3.8'
         run: tox -e py38-unyt-module-test-function
-      - name: Report coverage with Codecov
-        if: github.event_name == 'push' && matrix.python-version == '3.10' && matrix.os == 'ubuntu-latest'
-        uses: codecov/codecov-action@v1
-        with:
-          # token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./coverage.xml
-          flags: unittests
