@@ -834,7 +834,7 @@ Quantities can also be parsed from strings with the :func:`unyt_quantity.from_st
 
   >>> from unyt import unyt_quantity
   >>> unyt_quantity.from_string("1 cm")
-  unyt_quantity(1., 'cm')
+  unyt_quantity(1, 'cm')
   >>> unyt_quantity.from_string("1e3 Msun")
   unyt_quantity(1000., 'Msun')
   >>> unyt_quantity.from_string("1e-3 g/cm**3")
