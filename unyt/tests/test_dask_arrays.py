@@ -342,13 +342,10 @@ def test_dask_array_reductions(dask_func_str, actual, axis, check_nan):
 def test_bad_dask_array_reductions():
     x_da = unyt_from_dask(dask.array.ones((10, 10), chunks=(2, 2)), m)
 
-    def empty_func():
-        pass
-
     with pytest.raises(
         ValueError, match="could not deduce np equivalent of dask reduction"
     ):
-        reduce_with_units(empty_func, x_da).compute()
+        reduce_with_units(lambda: None, x_da).compute()
 
 
 def test_prod():
