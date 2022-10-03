@@ -11,7 +11,6 @@ Equivalencies between different kinds of units
 # The full license is in the LICENSE file, distributed with this software.
 # -----------------------------------------------------------------------------
 
-from __future__ import division
 
 from collections import OrderedDict
 
