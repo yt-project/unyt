@@ -14,8 +14,6 @@ exclude = '''
     | buck-out
     | build
     | dist
-  )/ | (
-      versioneer.py
     | _version.py
   )
 )
@@ -26,3 +24,9 @@ exclude = '''
 profile = "black"
 combine_as_imports = true
 skip =  ["venv", "benchmarks"]
+
+[build-system]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2", "wheel"]
+
+[tool.setuptools_scm]
+write_to = "unyt/_version.py"
