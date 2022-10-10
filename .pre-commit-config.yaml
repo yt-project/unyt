@@ -4,8 +4,6 @@ ci:
     autofix_prs: false
 
 exclude: "^(\
-versioneer.py\
-|unyt/_version.py\
 |paper/.*.py\
 )"
 
