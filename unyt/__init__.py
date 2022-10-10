@@ -66,7 +66,7 @@ from unyt.unit_object import Unit, define_unit  # NOQA: F401
 from unyt.unit_registry import UnitRegistry  # NOQA: F401
 from unyt.unit_systems import UnitSystem  # NOQA: F401
 
-from ._version import get_versions
+from ._version import __version__
 
 
 # function to only import quantities into this namespace
@@ -84,9 +84,6 @@ import_units(unit_symbols, globals())
 import_units(physical_constants, globals())
 
 del import_units
-
-__version__ = get_versions()["version"]
-del get_versions
 
 
 def test():  # pragma: no cover
