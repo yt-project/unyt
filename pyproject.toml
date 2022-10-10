@@ -1,3 +1,6 @@
+[build-system]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2", "wheel"]
+
 [tool.black]
 target-version = ['py36']
 line-length = 88
@@ -25,8 +28,6 @@ profile = "black"
 combine_as_imports = true
 skip =  ["venv", "benchmarks"]
 
-[build-system]
-requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2", "wheel"]
-
 [tool.setuptools_scm]
 write_to = "unyt/_version.py"
+version_scheme = "post-release"
