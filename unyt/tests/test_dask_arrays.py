@@ -1,8 +1,8 @@
 import pickle
 from collections import defaultdict
 
+import numpy as np
 import pytest
-from numpy import isfinite, ones, sqrt
 from numpy.testing import assert_array_equal
 
 from unyt import unyt_array, unyt_quantity
@@ -84,7 +84,7 @@ def test_conversion_to_dask():
     assert_array_equal(x.compute(), x_again.compute())
     assert type(x_again) is type(x)
 
-    result = isfinite(x_da)  # should return plain dask array
+    result = np.isfinite(x_da)  # should return plain dask array
     assert type(result) is dask.array.core.Array
 
 
@@ -114,9 +114,9 @@ def test_unary():
 
     x = dask.array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
-    x_unyt = unyt_array(ones((10, 10)), m)
+    x_unyt = unyt_array(np.ones((10, 10)), m)
 
-    for unary_op in [sqrt, dask.array.sqrt]:
+    for unary_op in [np.sqrt, dask.array.sqrt]:
         unary_test(unary_op, x_da, x_unyt)
 
     # some of the daskified ufunc attributes need to be called directly
@@ -252,7 +252,7 @@ def test_unyt_type_result():
 
     x = dask.array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
-    x_unyt = unyt_array(ones((10, 10)), m)
+    x_unyt = unyt_array(np.ones((10, 10)), m)
 
     result = x_da.compute()
     assert type(result) == unyt_array
@@ -310,12 +310,12 @@ def test_repr():
         ("sum", unyt_quantity(100.0, "m"), None, True),
         (
             "cumsum",
-            unyt_array(ones((10, 10)), "m").cumsum(axis=1),
+            unyt_array(np.ones((10, 10)), "m").cumsum(axis=1),
             1,
             True,
         ),
         ("average", unyt_quantity(1.0, "m"), None, False),
-        ("diagonal", unyt_array(ones((10,)), "m"), None, False),
+        ("diagonal", unyt_array(np.ones((10,)), "m"), None, False),
         ("unique", unyt_array([1.0], "m"), None, False),
     ],
 )
@@ -358,3 +358,26 @@ def test_pickle():
     x_da2 = pickle.loads(pickle.dumps(x_da))
     assert_array_equal(x_da, x_da2)
     assert x_da.units == x_da2.units
+
+
+def test_np_array_funcs():
+
+    # test some numpy array functions to catch __array_function__
+
+    x_da = unyt_from_dask(dask.array.ones((10, 10), chunks=(2, 2)), m)
+    actual = np.sum(x_da).compute()
+    assert actual == unyt_quantity(100, m)
+
+    plain_dask = dask.array.arange(100, chunks=(20,))
+    x_da = unyt_from_dask(plain_dask, m)
+    actual = np.mean(x_da).compute()
+    expected = unyt_quantity(np.mean(plain_dask).compute(), m)
+    assert actual == expected
+
+    actual = np.std(x_da[x_da > 10.0]).compute()
+    expected = unyt_quantity(np.std(plain_dask[plain_dask > 10]).compute(), m)
+    assert actual == expected
+
+    actual = np.max(np.power(x_da, 2)).compute()
+    expected = unyt_quantity(np.max(np.power(plain_dask, 2)).compute(), m * m)
+    assert actual == expected
