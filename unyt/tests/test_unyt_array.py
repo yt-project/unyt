@@ -2064,7 +2064,8 @@ def test_numpy_wrappers():
     assert_array_equal(unorm(a3, axis=1), unyt_array(arr_norm_answer, "cm"))
     assert_array_equal(np.linalg.norm(a3, axis=1), arr_norm_answer)
 
-    assert_array_equal(udot(a1, a1), unyt_quantity(dot_answer, "cm**2"))
+    with pytest.warns(DeprecationWarning):
+        assert_array_equal(udot(a1, a1), unyt_quantity(dot_answer, "cm**2"))
 
     assert_array_equal(np.array(catenate_answer), uconcatenate((a1.v, a2.v)))
     with pytest.raises(RuntimeError):
