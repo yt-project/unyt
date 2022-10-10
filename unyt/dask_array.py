@@ -288,6 +288,12 @@ class unyt_dask_array(_dask_Array):
         wrapped_func = _post_ufunc(super().__array_ufunc__, unyt_result)
         return wrapped_func(numpy_ufunc, method, *inputs, **kwargs)
 
+    def __array_function__(self, func, types, args, kwargs):
+        args, unyt_result = _prep_ufunc(func, *args, extract_dask=True, **kwargs)
+        types = [type(i) for i in args]
+        wrapped_func = _post_ufunc(super().__array_function__, unyt_result)
+        return wrapped_func(func, types, args, kwargs)
+
     def __getitem__(self, index):
         return _unary_dask_decorator(super().__getitem__, self)(index)
 
