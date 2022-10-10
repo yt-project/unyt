@@ -80,6 +80,11 @@ def assert_isinstance(a, type):
     assert isinstance(a, type)
 
 
+def assert_array_equal_units(a, b):
+    assert_array_equal(a, b)
+    assert_equal(a.units, b.units)
+
+
 def test_addition():
     """
     Test addition of two unyt_arrays
@@ -526,8 +531,10 @@ def test_power():
         assert isinstance(err.unit1, Unit)
         assert isinstance(err.unit2, Unit)
 
-    assert_equal(cm_quant, unyt_quantity(1.0, "dimensionless"))
-    assert_equal(cm_quant, unyt_quantity(1.0, "dimensionless"))
+    # when the power is 0.0 numpy short-circuits via ones_like so we
+    # need to test the special handling for that case
+    assert_array_equal_units(cm_quant**0, unyt_quantity(1.0, "dimensionless"))
+    assert_array_equal_units(cm_arr**0, unyt_quantity(1.0, "dimensionless"))
 
 
 def test_comparisons():

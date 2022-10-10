@@ -4,7 +4,6 @@ import pytest
 
 from unyt import K, m, matplotlib_support, s, unyt_array, unyt_quantity
 from unyt._on_demand_imports import NotAModule, _matplotlib
-from unyt.exceptions import UnitConversionError
 
 try:
     from unyt._mpl_array_converter import unyt_arrayConverter
@@ -82,13 +81,7 @@ def test_conversionerror(ax):
     y = [3, 4, 5] * K
     ax.plot(x, y)
     ax.xaxis.callbacks.exception_handler = None
-    # Newer matplotlib versions catch our exception and raise a custom
-    # ConversionError exception
-    try:
-        error_type = _matplotlib.units.ConversionError
-    except AttributeError:
-        error_type = UnitConversionError
-    with pytest.raises(error_type):
+    with pytest.raises(_matplotlib.units.ConversionError):
         ax.xaxis.set_units("V")
 
 

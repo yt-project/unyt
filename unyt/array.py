@@ -15,6 +15,7 @@ unyt_array class.
 
 import copy
 import re
+import warnings
 from functools import lru_cache
 from numbers import Number as numeric_type
 
@@ -106,14 +107,7 @@ from numpy import (
     true_divide,
     trunc,
 )
-from numpy.core.umath import _ones_like
-
-try:
-    from numpy.core.umath import clip
-except ImportError:
-    clip = None
-import warnings
-
+from numpy.core.umath import _ones_like, clip
 from sympy import Rational
 
 from unyt._on_demand_imports import _astropy, _dask, _pint
@@ -1715,20 +1709,16 @@ class unyt_array(np.ndarray):
         ret = super().__getitem__(item)
         if getattr(ret, "shape", None) == ():
             ret = unyt_quantity(ret, bypass_validation=True, name=self.name)
-        try:
             ret.units = self.units
-        except AttributeError:
-            pass
         return ret
 
     def __pow__(self, p, mod=None, /):
         """
-        Power function, over-rides the ufunc as
-        ``numpy`` passes the ``_ones_like`` ufunc for
-        powers of zero (in some cases), which leads to an
-        incorrect unit calculation.
+        Power function
         """
-
+        # over-rides the ufunc as ``numpy`` passes the ``_ones_like`` ufunc for
+        # powers of zero (in some cases), which leads to an incorrect unit
+        # calculation.
         if p == 0.0:
             ret = self.ua
             ret.units = Unit("dimensionless")
@@ -1952,10 +1942,7 @@ class unyt_array(np.ndarray):
                 for o, oa in zip(out, out_arr):
                     if o is None:
                         continue
-                    try:
-                        o.units = oa.units
-                    except AttributeError:
-                        o.units = Unit("", registry=self.units.registry)
+                    o.units = oa.units
         if mul == 1:
             return out_arr
         return mul * out_arr
