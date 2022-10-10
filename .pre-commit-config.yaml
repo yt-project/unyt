@@ -4,7 +4,7 @@ ci:
     autofix_prs: false
 
 exclude: "^(\
-|paper/.*.py\
+paper/.*.py\
 )"
 
 repos:
