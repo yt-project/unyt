@@ -31,3 +31,8 @@ skip =  ["venv", "benchmarks"]
 [tool.setuptools_scm]
 write_to = "unyt/_version.py"
 version_scheme = "post-release"
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "error",
+]
