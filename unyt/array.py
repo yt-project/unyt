@@ -2220,7 +2220,7 @@ def uconcatenate(arrs, axis=0):
     """
     # TODO: see https://github.com/yt-project/unyt/issues/289
     # warn_deprecated(
-    #    "unyt.uconcatenate", replacement="use numpy.concatenate", since_version="2.10"
+    #    "unyt.uconcatenate", replacement="use numpy.concatenate", since_version="3.0"
     # )
     v = np.concatenate(arrs, axis=axis)
     v = _validate_numpy_wrapper_units(v, arrs)
@@ -2236,7 +2236,7 @@ def ucross(arr1, arr2, registry=None, axisa=-1, axisb=-1, axisc=-1, axis=None):
     """
     # TODO: see https://github.com/yt-project/unyt/issues/289
     # warn_deprecated(
-    #    "unyt.ucross", replacement="use numpy.cross", since_version="2.10"
+    #    "unyt.ucross", replacement="use numpy.cross", since_version="3.0"
     # )
     v = np.cross(arr1, arr2, axisa=axisa, axisb=axisb, axisc=axisc, axis=axis)
     units = arr1.units * arr2.units
@@ -2262,7 +2262,7 @@ def uintersect1d(arr1, arr2, assume_unique=False):
     """
     # TODO: see https://github.com/yt-project/unyt/issues/289
     # warn_deprecated(
-    #    "unyt.uintersect1d", replacement="use numpy.intersect1d", since_version="2.10"
+    #    "unyt.uintersect1d", replacement="use numpy.intersect1d", since_version="3.0"
     # )
     v = np.intersect1d(arr1, arr2, assume_unique=assume_unique)
     v = _validate_numpy_wrapper_units(v, [arr1, arr2])
@@ -2287,7 +2287,7 @@ def uunion1d(arr1, arr2):
     """
     # TODO: see https://github.com/yt-project/unyt/issues/289
     # warn_deprecated(
-    #    "unyt.uunion1d", replacement="use numpy.union1d", since_version="2.10"
+    #    "unyt.uunion1d", replacement="use numpy.union1d", since_version="3.0"
     # )
     v = np.union1d(arr1, arr2)
     v = _validate_numpy_wrapper_units(v, [arr1, arr2])
@@ -2310,7 +2310,7 @@ def unorm(data, ord=None, axis=None, keepdims=False):
     """
     # TODO: see https://github.com/yt-project/unyt/issues/289
     # warn_deprecated(
-    #    "unyt.unorm", replacement="use numpy.norm", since_version="2.10"
+    #    "unyt.unorm", replacement="use numpy.norm", since_version="3.0"
     # )
     norm = np.linalg.norm(data, ord=ord, axis=axis, keepdims=keepdims)
     if norm.shape == ():
@@ -2332,7 +2332,7 @@ def udot(op1, op2):
     [[2. 2.]
      [2. 2.]] km*s
     """
-    warn_deprecated("unyt.udot", replacement="use numpy.dot", since_version="2.10")
+    warn_deprecated("unyt.udot", replacement="use numpy.dot", since_version="3.0")
     dot = np.dot(op1.d, op2.d)
     units = op1.units * op2.units
     if dot.shape == ():
@@ -2356,7 +2356,7 @@ def uvstack(arrs):
     """
     # TODO: see https://github.com/yt-project/unyt/issues/289
     # warn_deprecated(
-    #    "unyt.uvstack", replacement="use numpy.vstack", since_version="2.10"
+    #    "unyt.uvstack", replacement="use numpy.vstack", since_version="3.0"
     # )
     v = np.vstack(arrs)
     v = _validate_numpy_wrapper_units(v, arrs)
@@ -2384,7 +2384,7 @@ def uhstack(arrs):
     """
     # TODO: see https://github.com/yt-project/unyt/issues/289
     # warn_deprecated(
-    #    "unyt.uhstack", replacement="use numpy.hstack", since_version="2.10"
+    #    "unyt.uhstack", replacement="use numpy.hstack", since_version="3.0"
     # )
     v = np.hstack(arrs)
     v = _validate_numpy_wrapper_units(v, arrs)
@@ -2412,7 +2412,7 @@ def ustack(arrs, axis=0):
     """
     # TODO: see https://github.com/yt-project/unyt/issues/289
     # warn_deprecated(
-    #    "unyt.ustack", replacement="use numpy.stack", since_version="2.10"
+    #    "unyt.ustack", replacement="use numpy.stack", since_version="3.0"
     # )
     v = np.stack(arrs, axis=axis)
     v = _validate_numpy_wrapper_units(v, arrs)
@@ -2618,7 +2618,7 @@ def allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
     """
     # TODO: see https://github.com/yt-project/unyt/issues/289
     # warn_deprecated(
-    #    "unyt.allclose_units", replacement="use numpy.allclose", since_version="2.10"
+    #    "unyt.allclose_units", replacement="use numpy.allclose", since_version="3.0"
     # )
     # Create a copy to ensure this function does not alter input arrays
     act = unyt_array(actual)
