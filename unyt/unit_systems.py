@@ -305,7 +305,7 @@ class UnitSystem:
 
 #: The CGS unit system
 cgs_unit_system = UnitSystem(
-    "cgs", "cm", "g", "s", currency_unit="$", current_mks_unit=None
+    "cgs", "cm", "g", "s", current_mks_unit=None
 )
 cgs_unit_system["energy"] = "erg"
 cgs_unit_system["specific_energy"] = "erg/g"
@@ -317,7 +317,7 @@ cgs_unit_system["current_cgs"] = "statA"
 cgs_unit_system["power"] = "erg/s"
 
 #: The MKS unit system
-mks_unit_system = UnitSystem("mks", "m", "kg", "s", currency_unit="$")
+mks_unit_system = UnitSystem("mks", "m", "kg", "s")
 mks_unit_system["energy"] = "J"
 mks_unit_system["specific_energy"] = "J/kg"
 mks_unit_system["pressure"] = "Pa"
@@ -335,7 +335,7 @@ mks_unit_system["luminous_flux"] = "lm"
 
 #: The imperial unit system
 imperial_unit_system = UnitSystem(
-    "imperial", "ft", "lb", "s", temperature_unit="R", currency_unit="$"
+    "imperial", "ft", "lb", "s", temperature_unit="R"
 )
 imperial_unit_system["force"] = "lbf"
 imperial_unit_system["energy"] = "ft*lbf"
