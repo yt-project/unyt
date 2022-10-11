@@ -304,9 +304,7 @@ class UnitSystem:
 
 
 #: The CGS unit system
-cgs_unit_system = UnitSystem(
-    "cgs", "cm", "g", "s", current_mks_unit=None
-)
+cgs_unit_system = UnitSystem("cgs", "cm", "g", "s", current_mks_unit=None)
 cgs_unit_system["energy"] = "erg"
 cgs_unit_system["specific_energy"] = "erg/g"
 cgs_unit_system["pressure"] = "dyne/cm**2"
@@ -334,9 +332,7 @@ mks_unit_system["magnetic_flux"] = "Wb"
 mks_unit_system["luminous_flux"] = "lm"
 
 #: The imperial unit system
-imperial_unit_system = UnitSystem(
-    "imperial", "ft", "lb", "s", temperature_unit="R"
-)
+imperial_unit_system = UnitSystem("imperial", "ft", "lb", "s", temperature_unit="R")
 imperial_unit_system["force"] = "lbf"
 imperial_unit_system["energy"] = "ft*lbf"
 imperial_unit_system["pressure"] = "lbf/ft**2"
