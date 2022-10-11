@@ -520,7 +520,7 @@ default_unit_name_alternatives = OrderedDict(
         ("¢", ("cent", "cents")),
         ("£", ("pounds", "sterling", "GBP", "gbp")),
         ("€", ("euros", "euro", "EUR", "eur")),
-        ("¥", ("yen", "Yen", "JPY", "jpy", "yuan", "Yuan", "cny", "CNY")),
+        ("¥", ("yen", "Yen", "JPY", "jpy", "cny", "CNY")),
         # some cgs
         ("dyn", ("dyne",)),
         ("erg", ("ergs",)),
