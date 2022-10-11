@@ -199,3 +199,83 @@ def test_histogramdd():
     assert 1 * xbins.units == 1 * x.units
     assert 1 * ybins.units == 1 * y.units
     assert 1 * zbins.units == 1 * z.units
+
+
+def test_concatenate():
+    x1 = np.random.normal(size=100) * cm
+    x2 = np.random.normal(size=100) * cm
+    res = np.concatenate((x1, x2))
+    assert 1 * res.units == 1 * cm
+    assert res.shape == (200,)
+
+
+def test_concatenate_different_units():
+    x1 = np.random.normal(size=100) * cm
+    x2 = np.random.normal(size=100) * s
+    with pytest.raises(RuntimeError, match=r"Your arrays must have identical units\."):
+        np.concatenate((x1, x2))
+
+
+def test_cross():
+    x1 = np.random.random_sample((2, 2)) * cm
+    x2 = np.eye(2) * s
+    res = np.cross(x1, x2)
+    assert res.units == cm * s
+
+
+def test_intersect1d():
+    x1 = [1, 2, 3, 4, 5, 6, 7, 8] * cm
+    x2 = [0, 2, 4, 6, 8] * cm
+    res = np.intersect1d(x1, x2)
+    assert 1 * res.units == 1 * cm
+    np.testing.assert_array_equal(res, [2, 4, 6, 8])
+
+
+def test_intersect1d_return_indices():
+    x1 = [1, 2, 3, 4, 5, 6, 7, 8] * cm
+    x2 = [0, 2, 4, 6, 8] * cm
+    ures = np.intersect1d(x1, x2, return_indices=True)
+    rres = np.intersect1d(x1.d, x2.d, return_indices=True)
+    np.testing.assert_array_equal(ures, rres)
+
+
+def test_union1d():
+    x1 = [-1, 0, 1] * cm
+    x2 = [-2, -1, -3] * cm
+    res = np.union1d(x1, x2)
+    assert 1 * res.units == 1 * cm
+    np.testing.assert_array_equal(res, [-3, -2, -1, 0, 1])
+
+
+def test_linalg_norm():
+    x = [1, 1, 1] * s
+    res = np.linalg.norm(x)
+    assert 1 * res.units == 1 * s
+    assert res == pytest.approx(np.sqrt(3))
+
+
+def test_vstack():
+    x1 = [0, 1, 2] * cm
+    x2 = [3, 4, 5] * cm
+    res = np.vstack((x1, x2))
+    assert 1 * res.units == 1 * cm
+    np.testing.assert_array_equal(res, [[0, 1, 2], [3, 4, 5]])
+
+
+def test_hstack():
+    x1 = np.array([[0, 1, 2], [3, 4, 5]]) * cm
+    x2 = np.array([[6, 7, 8], [9, 10, 11]]) * cm
+    res = np.hstack((x1, x2))
+    assert 1 * res.units == 1 * cm
+    np.testing.assert_array_equal(res, [[0, 1, 2], [3, 4, 5], [6, 7, 8], [9, 10, 11]])
+
+
+@pytest.mark.parametrize(
+    "axis, expected", [(0, [[0, 1, 2], [3, 4, 5]]), (1, [[0, 3], [1, 4], [2, 5]])]
+)
+def test_stack(axis, expected):
+    x1 = [0, 1, 2] * cm
+    x2 = [3, 4, 5] * cm
+    res = np.stack((x1, x2), axis=axis)
+    assert 1 * res.units == 1 * cm
+    np.testing.assert_array_equal(res, expected)

@@ -189,10 +189,10 @@ def histogramdd(
 
 
 def _validate_units_consistency(arrs):
-    from unyt.array import unyt_array
-
-    if not all(isinstance(a, unyt_array) for a in arrs):
-        raise RuntimeError("Not all of your arrays are unyt_arrays.")
+    # NOTE: we cannot validate that all arrays are unyt_arrays
+    # by using this as a guard clause in unyt_array.__array_function__
+    # because it's already a necessary condition for numpy to use our
+    # custom implementations
     a1 = arrs[0]
     if not all(a.units == a1.units for a in arrs[1:]):
         raise RuntimeError("Your arrays must have identical units.")
@@ -211,7 +211,7 @@ def concatenate(arrs, /, axis=0, out=None, dtype=None, casting="same_kind"):
 def cross(a, b, axisa=-1, axisb=-1, axisc=-1, axis=None):
     prod_units = a.units * b.units
     return (
-        np.dot._implementation(
+        np.cross._implementation(
             a.ndview, b.ndview, axisa=axisa, axisb=axisb, axisc=axisc, axis=axis
         )
         * prod_units
