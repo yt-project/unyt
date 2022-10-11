@@ -4,8 +4,7 @@ ci:
     autofix_prs: false
 
 exclude: "^(\
-versioneer.py\
-|unyt/_version.py\
+paper/.*.py\
 )"
 
 repos:
@@ -19,8 +18,13 @@ repos:
     - id: check-executables-have-shebangs
     - id: check-yaml
     - id: check-toml
+-   repo: https://github.com/asottile/pyupgrade
+    rev: v3.0.0
+    hooks:
+    - id: pyupgrade
+      args: [--py38-plus]
 -   repo: https://github.com/psf/black
-    rev: 22.8.0
+    rev: 22.10.0
     hooks:
     - id: black
 -   repo: https://github.com/PyCQA/isort

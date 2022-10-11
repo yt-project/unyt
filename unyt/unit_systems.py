@@ -145,10 +145,10 @@ def _get_system_unit_string(dims, base_units):
         dim = list(factor.free_symbols)[0]
         unit_string = str(base_units[dim])
         if factor.is_Pow:
-            power_string = "**(%s)" % factor.as_base_exp()[1]
+            power_string = f"**({factor.as_base_exp()[1]})"
         else:
             power_string = ""
-        units.append("(%s)%s" % (unit_string, power_string))
+        units.append(f"({unit_string}){power_string}")
     return " * ".join(units)
 
 
@@ -285,16 +285,16 @@ class UnitSystem:
         return self.name
 
     def __repr__(self):
-        repr = "%s Unit System\n" % self.name
+        repr = f"{self.name} Unit System\n"
         repr += " Base Units:\n"
         for dim in self.base_units:
             if self.base_units[dim] is not None:
-                repr += "  %s: %s\n" % (str(dim).strip("()"), self.base_units[dim])
+                repr += f"  {str(dim).strip('()')}: {self.base_units[dim]}\n"
         repr += " Other Units:\n"
         for key in self._dims:
             dim = getattr(dimensions, key)
             if dim not in self.base_units:
-                repr += "  %s: %s\n" % (key, self.units_map[dim])
+                repr += f"  {key}: {self.units_map[dim]}\n"
         return repr[:-1]
 
     @property

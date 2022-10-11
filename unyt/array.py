@@ -15,6 +15,7 @@ unyt_array class.
 
 import copy
 import re
+import warnings
 from functools import lru_cache
 from numbers import Number as numeric_type
 
@@ -106,16 +107,10 @@ from numpy import (
     true_divide,
     trunc,
 )
-from numpy.core.umath import _ones_like
-
-try:
-    from numpy.core.umath import clip
-except ImportError:
-    clip = None
-import warnings
-
+from numpy.core.umath import _ones_like, clip
 from sympy import Rational
 
+from unyt._array_functions import _HANDLED_FUNCTIONS
 from unyt._on_demand_imports import _astropy, _dask, _pint
 from unyt._pint_conversions import convert_pint_units
 from unyt._unit_lookup_table import default_unit_symbol_lut
@@ -139,6 +134,8 @@ from unyt.unit_registry import (
     default_unit_registry,
 )
 
+from ._deprecation import warn_deprecated
+
 NULL_UNIT = Unit()
 POWER_MAPPING = {multiply: lambda x: x, divide: lambda x: 2 - x}
 
@@ -149,11 +146,13 @@ __doctest_requires__ = {
 
 # This is partially adapted from the following SO thread
 # https://stackoverflow.com/questions/41668588/regex-to-match-scientific-notation
-_NUMB_PATTERN = r"^[+/-]?((?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)|\d*\.?\d+|\d+\.?\d*|nan\s|inf\s)"  # noqa: E501
+_NUMB_PATTERN = (
+    r"[+/-]?(?:((?:\d\.?\d*[Ee][+\-]?\d+)|(?:\d+\.\d*|\d*\.\d+))|\d+|inf\s|nan\s)"
+)
 # *all* greek letters are considered valid unit string elements.
 # This may be an overshoot. We rely on unyt.Unit to do the actual validation
 _UNIT_PATTERN = r"([α-ωΑ-Ωa-zA-Z$¢¥€£]+(\*\*([+/-]?[0-9]+)|[*/])?)+"
-_QUAN_PATTERN = r"{}\s*{}".format(_NUMB_PATTERN, _UNIT_PATTERN)
+_QUAN_PATTERN = rf"{_NUMB_PATTERN}\s*{_UNIT_PATTERN}"
 _NUMB_REGEXP = re.compile(_NUMB_PATTERN)
 _UNIT_REGEXP = re.compile(_UNIT_PATTERN)
 _QUAN_REGEXP = re.compile(_QUAN_PATTERN)
@@ -609,7 +608,7 @@ class unyt_array(np.ndarray):
         return obj
 
     def __repr__(self):
-        rep = super(unyt_array, self).__repr__()
+        rep = super().__repr__()
         units_repr = self.units.__repr__()
         if "=" in rep:
             return rep[:-1] + ", units='" + units_repr + "')"
@@ -620,7 +619,7 @@ class unyt_array(np.ndarray):
         return str(self.view(np.ndarray)) + " " + str(self.units)
 
     def __format__(self, format_spec):
-        return "{} {}".format(self.d.__format__(format_spec), self.units)
+        return f"{self.d.__format__(format_spec)} {self.units}"
 
     #
     # Start unit conversion methods
@@ -693,8 +692,7 @@ class unyt_array(np.ndarray):
                 large = LARGE_INPUT.get(dsize, 0)
                 if large and np.any(np.abs(values) > large):
                     warnings.warn(
-                        "Overflow encountered while converting to units '%s'"
-                        % new_units,
+                        f"Overflow encountered while converting to units '{new_units}'",
                         RuntimeWarning,
                         stacklevel=2,
                     )
@@ -874,8 +872,7 @@ class unyt_array(np.ndarray):
                 large = LARGE_INPUT.get(dsize, 0)
                 if large and np.any(np.abs(self.d) > large):
                     warnings.warn(
-                        "Overflow encountered while converting to units '%s'"
-                        % new_units,
+                        f"Overflow encountered while converting to units '{new_units}'",
                         RuntimeWarning,
                         stacklevel=2,
                     )
@@ -1270,7 +1267,7 @@ class unyt_array(np.ndarray):
             # hour as "h"
             if unit_str == "h":
                 unit_str = "hr"
-            ap_units.append("%s**(%s)" % (unit_str, Rational(exponent)))
+            ap_units.append(f"{unit_str}**({Rational(exponent)})")
         ap_units = "*".join(ap_units)
         if isinstance(_arr.value, np.ndarray) and _arr.shape != ():
             return unyt_array(_arr.value, ap_units, registry=unit_registry)
@@ -1319,7 +1316,7 @@ class unyt_array(np.ndarray):
         p_units = []
         for base, exponent in arr._units.items():
             bs = convert_pint_units(base)
-            p_units.append("%s**(%s)" % (bs, Rational(exponent)))
+            p_units.append(f"{bs}**({Rational(exponent)})")
         p_units = "*".join(p_units)
         if isinstance(arr.magnitude, np.ndarray):
             return unyt_array(arr.magnitude, p_units, registry=unit_registry)
@@ -1357,7 +1354,7 @@ class unyt_array(np.ndarray):
             # "yr" as "year"
             if str(unit).endswith("yr") and len(str(unit)) in [2, 3]:
                 unit = str(unit).replace("yr", "year")
-            units.append("%s**(%s)" % (unit, Rational(pow)))
+            units.append(f"{unit}**({Rational(pow)})")
         units = "*".join(units)
         return unit_registry.Quantity(self.value, units)
 
@@ -1378,7 +1375,7 @@ class unyt_array(np.ndarray):
         --------
         >>> from unyt import unyt_quantity
         >>> unyt_quantity.from_string("1cm")
-        unyt_quantity(1., 'cm')
+        unyt_quantity(1, 'cm')
         >>> unyt_quantity.from_string("+1e3 Mearth")
         unyt_quantity(1000., 'Mearth')
         >>> unyt_quantity.from_string("-10. kg")
@@ -1386,22 +1383,29 @@ class unyt_array(np.ndarray):
         >>> unyt_quantity.from_string(".66\tum")
         unyt_quantity(0.66, 'μm')
         >>> unyt_quantity.from_string("42")
-        unyt_quantity(42., '(dimensionless)')
+        unyt_quantity(42, '(dimensionless)')
         >>> unyt_quantity.from_string("1.0 g/cm**3")
         unyt_quantity(1., 'g/cm**3')
         """
         v = s.strip()
         if re.fullmatch(_NUMB_REGEXP, v):
-            return float(re.match(_NUMB_REGEXP, v).group()) * Unit()
-        if re.fullmatch(_UNIT_REGEXP, v):
-            return 1 * Unit(re.match(_UNIT_REGEXP, v).group())
-        if not re.match(_QUAN_REGEXP, v):
-            raise ValueError("Received invalid quantity expression '{}'.".format(s))
-        res = re.search(_NUMB_REGEXP, v)
-        num = res.group()
-        res = re.search(_UNIT_REGEXP, v[res.span()[1] :])
-        unit = res.group()
-        return float(num) * Unit(unit, registry=unit_registry)
+            num = re.match(_NUMB_REGEXP, v).group()
+            unit = Unit()
+        elif re.fullmatch(_UNIT_REGEXP, v):
+            num = 1
+            unit = Unit(re.match(_UNIT_REGEXP, v).group())
+        elif not re.match(_QUAN_REGEXP, v):
+            raise ValueError(f"Received invalid quantity expression '{s}'.")
+        else:
+            res = re.search(_NUMB_REGEXP, v)
+            num = res.group()
+            res = re.search(_UNIT_REGEXP, v[res.span()[1] :])
+            unit = res.group()
+        try:
+            num = int(num)
+        except ValueError:
+            num = float(num)
+        return num * Unit(unit, registry=unit_registry)
 
     def to_string(self):
         # this is implemented purely for symmetry's sake
@@ -1705,23 +1709,19 @@ class unyt_array(np.ndarray):
         return np.ones_like(self)
 
     def __getitem__(self, item):
-        ret = super(unyt_array, self).__getitem__(item)
+        ret = super().__getitem__(item)
         if getattr(ret, "shape", None) == ():
             ret = unyt_quantity(ret, bypass_validation=True, name=self.name)
-        try:
             ret.units = self.units
-        except AttributeError:
-            pass
         return ret
 
     def __pow__(self, p, mod=None, /):
         """
-        Power function, over-rides the ufunc as
-        ``numpy`` passes the ``_ones_like`` ufunc for
-        powers of zero (in some cases), which leads to an
-        incorrect unit calculation.
+        Power function
         """
-
+        # over-rides the ufunc as ``numpy`` passes the ``_ones_like`` ufunc for
+        # powers of zero (in some cases), which leads to an incorrect unit
+        # calculation.
         if p == 0.0:
             ret = self.ua
             ret.units = Unit("dimensionless")
@@ -1917,7 +1917,7 @@ class unyt_array(np.ndarray):
         if unit is None:
             out_arr = np.array(out_arr, copy=False)
         elif ufunc in (modf, divmod_):
-            out_arr = tuple((ret_class(o, unit) for o in out_arr))
+            out_arr = tuple(ret_class(o, unit) for o in out_arr)
         elif out_arr.shape == ():
             out_arr = unyt_quantity(np.asarray(out_arr), unit)
         elif out_arr.size == 1:
@@ -1945,13 +1945,22 @@ class unyt_array(np.ndarray):
                 for o, oa in zip(out, out_arr):
                     if o is None:
                         continue
-                    try:
-                        o.units = oa.units
-                    except AttributeError:
-                        o.units = Unit("", registry=self.units.registry)
+                    o.units = oa.units
         if mul == 1:
             return out_arr
         return mul * out_arr
+
+    def __array_function__(self, func, types, args, kwargs):
+        # Follow NEP 18 guidelines
+        # https://numpy.org/neps/nep-0018-array-function-protocol.html
+        if func not in _HANDLED_FUNCTIONS:
+            # default to numpy's private implementation
+            return func._implementation(*args, **kwargs)
+        # Note: this allows subclasses that don't override
+        # __array_function__ to handle unyt_array objects
+        if not all(issubclass(t, unyt_array) for t in types):
+            return NotImplemented
+        return _HANDLED_FUNCTIONS[func](*args, **kwargs)
 
     def copy(self, order="C"):
         """
@@ -2002,7 +2011,7 @@ class unyt_array(np.ndarray):
         """Posify the data."""
         # this needs to be defined for all numpy versions, see
         # numpy issue #9081
-        return type(self)(super(unyt_array, self).__pos__(), self.units)
+        return type(self)(super().__pos__(), self.units)
 
     def dot(self, b, out=None):
         """dot product of two arrays.
@@ -2044,7 +2053,7 @@ class unyt_array(np.ndarray):
         returned tuple, itself a tuple used to restore the state of the
         ndarray. This is always defined for numpy arrays.
         """
-        np_ret = super(unyt_array, self).__reduce__()
+        np_ret = super().__reduce__()
         obj_state = np_ret[2]
         unit_state = (((str(self.units), self.units.registry.lut),) + obj_state[:],)
         new_ret = np_ret[:2] + unit_state + np_ret[3:]
@@ -2056,7 +2065,7 @@ class unyt_array(np.ndarray):
         This is called inside pickle.read() and restores the unit data from the
         metadata extracted in __reduce__ and then serialized by pickle.
         """
-        super(unyt_array, self).__setstate__(state[1:])
+        super().__setstate__(state[1:])
         unit, lut = state[0]
         lut = _correct_old_unit_registry(lut)
         registry = UnitRegistry(lut=lut, add_default_symbols=False)
@@ -2067,7 +2076,7 @@ class unyt_array(np.ndarray):
 
         This is necessary for stdlib deepcopy of arrays and quantities.
         """
-        ret = super(unyt_array, self).__deepcopy__(memodict)
+        ret = super().__deepcopy__(memodict)
         try:
             return type(self)(ret, copy.deepcopy(self.units), name=self.name)
         except TypeError:
@@ -2209,6 +2218,10 @@ def uconcatenate(arrs, axis=0):
     unyt_array([1, 2, 3, 2, 3, 4], 'cm')
 
     """
+    # TODO: see https://github.com/yt-project/unyt/issues/289
+    # warn_deprecated(
+    #    "unyt.uconcatenate", replacement="use numpy.concatenate", since_version="2.10"
+    # )
     v = np.concatenate(arrs, axis=axis)
     v = _validate_numpy_wrapper_units(v, arrs)
     return v
@@ -2221,6 +2234,10 @@ def ucross(arr1, arr2, registry=None, axisa=-1, axisb=-1, axisc=-1, axis=None):
     See the documentation of numpy.cross for full
     details.
     """
+    # TODO: see https://github.com/yt-project/unyt/issues/289
+    # warn_deprecated(
+    #    "unyt.ucross", replacement="use numpy.cross", since_version="2.10"
+    # )
     v = np.cross(arr1, arr2, axisa=axisa, axisb=axisb, axisc=axisc, axis=axis)
     units = arr1.units * arr2.units
     arr = unyt_array(v, units, registry=registry)
@@ -2243,6 +2260,10 @@ def uintersect1d(arr1, arr2, assume_unique=False):
     unyt_array([2, 3], 'cm')
 
     """
+    # TODO: see https://github.com/yt-project/unyt/issues/289
+    # warn_deprecated(
+    #    "unyt.uintersect1d", replacement="use numpy.intersect1d", since_version="2.10"
+    # )
     v = np.intersect1d(arr1, arr2, assume_unique=assume_unique)
     v = _validate_numpy_wrapper_units(v, [arr1, arr2])
     return v
@@ -2264,6 +2285,10 @@ def uunion1d(arr1, arr2):
     unyt_array([1, 2, 3, 4], 'cm')
 
     """
+    # TODO: see https://github.com/yt-project/unyt/issues/289
+    # warn_deprecated(
+    #    "unyt.uunion1d", replacement="use numpy.union1d", since_version="2.10"
+    # )
     v = np.union1d(arr1, arr2)
     v = _validate_numpy_wrapper_units(v, [arr1, arr2])
     return v
@@ -2283,6 +2308,10 @@ def unorm(data, ord=None, axis=None, keepdims=False):
     >>> print(unorm(data))
     3.7416573867739413 km
     """
+    # TODO: see https://github.com/yt-project/unyt/issues/289
+    # warn_deprecated(
+    #    "unyt.unorm", replacement="use numpy.norm", since_version="2.10"
+    # )
     norm = np.linalg.norm(data, ord=ord, axis=axis, keepdims=keepdims)
     if norm.shape == ():
         return unyt_quantity(norm, data.units)
@@ -2303,6 +2332,7 @@ def udot(op1, op2):
     [[2. 2.]
      [2. 2.]] km*s
     """
+    warn_deprecated("unyt.udot", replacement="use numpy.dot", since_version="2.10")
     dot = np.dot(op1.d, op2.d)
     units = op1.units * op2.units
     if dot.shape == ():
@@ -2324,6 +2354,10 @@ def uvstack(arrs):
     [[1 2 3]
      [2 3 4]] km
     """
+    # TODO: see https://github.com/yt-project/unyt/issues/289
+    # warn_deprecated(
+    #    "unyt.uvstack", replacement="use numpy.vstack", since_version="2.10"
+    # )
     v = np.vstack(arrs)
     v = _validate_numpy_wrapper_units(v, arrs)
     return v
@@ -2348,6 +2382,10 @@ def uhstack(arrs):
      [2 3]
      [3 4]] km
     """
+    # TODO: see https://github.com/yt-project/unyt/issues/289
+    # warn_deprecated(
+    #    "unyt.uhstack", replacement="use numpy.hstack", since_version="2.10"
+    # )
     v = np.hstack(arrs)
     v = _validate_numpy_wrapper_units(v, arrs)
     return v
@@ -2372,6 +2410,10 @@ def ustack(arrs, axis=0):
     [[1 2 3]
      [2 3 4]] km
     """
+    # TODO: see https://github.com/yt-project/unyt/issues/289
+    # warn_deprecated(
+    #    "unyt.ustack", replacement="use numpy.stack", since_version="2.10"
+    # )
     v = np.stack(arrs, axis=axis)
     v = _validate_numpy_wrapper_units(v, arrs)
     return v
@@ -2430,7 +2472,7 @@ def loadtxt(fname, dtype="float", delimiter="\t", usecols=None, comments="#"):
     >>> temp, velx = loadtxt(
     ...    "sphere.dat", usecols=(1,2), delimiter="\t")  # doctest: +SKIP
     """
-    f = open(fname, "r")
+    f = open(fname)
     next_one = False
     units = []
     num_cols = -1
@@ -2468,7 +2510,7 @@ def loadtxt(fname, dtype="float", delimiter="\t", usecols=None, comments="#"):
         arrays = [arrays]
     if usecols is not None:
         units = [units[col] for col in usecols]
-    ret = tuple([unyt_array(arr, unit) for arr, unit in zip(arrays, units)])
+    ret = tuple(unyt_array(arr, unit) for arr, unit in zip(arrays, units))
     if len(ret) == 1:
         return ret[0]
     return ret
@@ -2574,6 +2616,10 @@ def allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
     >>> allclose_units(actual, desired)
     True
     """
+    # TODO: see https://github.com/yt-project/unyt/issues/289
+    # warn_deprecated(
+    #    "unyt.allclose_units", replacement="use numpy.allclose", since_version="2.10"
+    # )
     # Create a copy to ensure this function does not alter input arrays
     act = unyt_array(actual)
     des = unyt_array(desired)
@@ -2585,7 +2631,7 @@ def allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
 
     rt = unyt_array(rtol)
     if not rt.units.is_dimensionless:
-        raise RuntimeError("Units of rtol (%s) are not " "dimensionless" % rt.units)
+        raise RuntimeError(f"Units of rtol ({rt.units}) are not dimensionless")
 
     if not isinstance(atol, unyt_array):
         at = unyt_quantity(atol, des.units)

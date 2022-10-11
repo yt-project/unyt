@@ -37,15 +37,13 @@ def make_plot(extension):
     ratios = OrderedDict()
     stddevs = OrderedDict()
     benchmarks = OrderedDict()
-    np_bench = pyperf.Benchmark.load(open("{}_{}".format("numpy", extension), "r"))
+    np_bench = pyperf.Benchmark.load(open("{}_{}".format("numpy", extension)))
     np_mean = np_bench.mean()
     np_stddev = np_bench.stdev()
     for package in setup:
         if package == "numpy":
             continue
-        benchmarks[package] = pyperf.Benchmark.load(
-            open("{}_{}".format(package, extension), "r")
-        )
+        benchmarks[package] = pyperf.Benchmark.load(open(f"{package}_{extension}"))
         mean = benchmarks[package].mean()
         stddev = benchmarks[package].stdev()
         ratios[package] = mean / np_mean
@@ -131,7 +129,7 @@ for bs in base_setups:
             args.append("np.array(data)")
         else:
             args.append("data*u.g")
-        json_name = "{}_{}_create.json".format(package, bs)
+        json_name = f"{package}_{bs}_create.json"
         run_perf(args, json_name)
 
         if "list" in bs or "tuple" in bs:
@@ -146,37 +144,37 @@ for bs in base_setups:
             args[-1] += "; data = data*u.g "
 
         args.append("data**2")
-        json_name = "{}_{}_square.json".format(package, bs)
+        json_name = f"{package}_{bs}_square.json"
         run_perf(args, json_name)
 
         args[-1] = "np.power(data, 2)"
-        json_name = "{}_{}_npsquare.json".format(package, bs)
+        json_name = f"{package}_{bs}_npsquare.json"
         run_perf(args, json_name)
 
         args[-1] = "np.power(data, 2, out=out)"
-        json_name = "{}_{}_npsquareout.json".format(package, bs)
+        json_name = f"{package}_{bs}_npsquareout.json"
         run_perf(args, json_name)
 
         args[-1] = "data**0.5"
-        json_name = "{}_{}_sqrt.json".format(package, bs)
+        json_name = f"{package}_{bs}_sqrt.json"
         run_perf(args, json_name)
 
         args[-1] = "np.sqrt(data)"
-        json_name = "{}_{}_npsqrt.json".format(package, bs)
+        json_name = f"{package}_{bs}_npsqrt.json"
         run_perf(args, json_name)
 
         args[-1] = "np.sqrt(data, out=out)"
-        json_name = "{}_{}_npsqrtout.json".format(package, bs)
+        json_name = f"{package}_{bs}_npsqrtout.json"
         run_perf(args, json_name)
 
-    make_plot("{}_create.json".format(bs))
+    make_plot(f"{bs}_create.json")
     if "list" not in bs and "tuple" not in bs:
-        make_plot("{}_square.json".format(bs))
-        make_plot("{}_npsquare.json".format(bs))
-        make_plot("{}_npsquareout.json".format(bs))
-        make_plot("{}_sqrt.json".format(bs))
-        make_plot("{}_npsqrt.json".format(bs))
-        make_plot("{}_npsqrtout.json".format(bs))
+        make_plot(f"{bs}_square.json")
+        make_plot(f"{bs}_npsquare.json")
+        make_plot(f"{bs}_npsquareout.json")
+        make_plot(f"{bs}_sqrt.json")
+        make_plot(f"{bs}_npsqrt.json")
+        make_plot(f"{bs}_npsqrtout.json")
 
 
 for bs in base_setups:
@@ -200,7 +198,7 @@ for bs in base_setups:
                     )
                     if "out" in bench:
                         if package not in ("pint", "numpy") and "equal" not in bench:
-                            setup_s += "out=data*u.{}; ".format(unit_choice[0])
+                            setup_s += f"out=data*u.{unit_choice[0]}; "
                         else:
                             setup_s += "out=np.array(data); "
                     if package == "numpy":
@@ -212,8 +210,8 @@ for bs in base_setups:
                     else:
                         setup_s += "; ".join(
                             [
-                                "data1 = data*u.{}".format(unit_choice[0]),
-                                "data2 = data*u.{}".format(unit_choice[1]),
+                                f"data1 = data*u.{unit_choice[0]}",
+                                f"data2 = data*u.{unit_choice[1]}",
                             ]
                         )
                         _bench = bench
@@ -222,6 +220,4 @@ for bs in base_setups:
                         package, bs, unit_choice[0], unit_choice[1]
                     )
                     run_perf(args + [_bench], json_name + "_" + bench_name)
-                make_plot(
-                    "{}_{}{}_{}".format(bs, unit_choice[0], unit_choice[1], bench_name)
-                )
+                make_plot(f"{bs}_{unit_choice[0]}{unit_choice[1]}_{bench_name}")

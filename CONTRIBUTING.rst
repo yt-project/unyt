@@ -178,9 +178,7 @@ Before you submit a pull request, check that it meets these guidelines:
 
 1. The pull request should include tests for functionality that is not already
    tested. We strive for 100% test coverage and pull requests should not add any
-   new untested code. Use the `codecov.io reports
-   <https://codecov.io/gh/yt-project/unyt>`_ on the pull request to gauge
-   coverage. You can also generate coverage reports locally by running the
+   new untested code. You can generate coverage reports locally by running the
    ``tox`` tests.
 2. If the pull request adds functionality the docs should be updated. If your
    new functionality adds new functions or classes to the public API, please add

@@ -80,6 +80,11 @@ def assert_isinstance(a, type):
     assert isinstance(a, type)
 
 
+def assert_array_equal_units(a, b):
+    assert_array_equal(a, b)
+    assert_equal(a.units, b.units)
+
+
 def test_addition():
     """
     Test addition of two unyt_arrays
@@ -526,8 +531,10 @@ def test_power():
         assert isinstance(err.unit1, Unit)
         assert isinstance(err.unit2, Unit)
 
-    assert_equal(cm_quant, unyt_quantity(1.0, "dimensionless"))
-    assert_equal(cm_quant, unyt_quantity(1.0, "dimensionless"))
+    # when the power is 0.0 numpy short-circuits via ones_like so we
+    # need to test the special handling for that case
+    assert_array_equal_units(cm_quant**0, unyt_quantity(1.0, "dimensionless"))
+    assert_array_equal_units(cm_arr**0, unyt_quantity(1.0, "dimensionless"))
 
 
 def test_comparisons():
@@ -1440,7 +1447,7 @@ def test_subclass():
         def __new__(
             cls, input_array, units=None, registry=None, bypass_validation=None
         ):
-            return super(unyt_a_subclass, cls).__new__(
+            return super().__new__(
                 cls,
                 input_array,
                 units,
@@ -2057,7 +2064,8 @@ def test_numpy_wrappers():
     assert_array_equal(unorm(a3, axis=1), unyt_array(arr_norm_answer, "cm"))
     assert_array_equal(np.linalg.norm(a3, axis=1), arr_norm_answer)
 
-    assert_array_equal(udot(a1, a1), unyt_quantity(dot_answer, "cm**2"))
+    with pytest.warns(DeprecationWarning):
+        assert_array_equal(udot(a1, a1), unyt_quantity(dot_answer, "cm**2"))
 
     assert_array_equal(np.array(catenate_answer), uconcatenate((a1.v, a2.v)))
     with pytest.raises(RuntimeError):
@@ -2555,47 +2563,48 @@ def test_complexvalued(tmp_path):
 def test_string_formatting():
     d = unyt_array((1, 2, 3), "Msun")
     expected = "[1 2 3] Msun"
-    assert "%s" % d == expected
-    assert "{}".format(d) == expected
+    assert f"{d}" == expected
+    assert f"{d}" == expected
 
 
 @pytest.mark.parametrize(
-    "s, expected",
+    "s, expected, normalized",
     [
-        ("+1cm", 1.0 * Unit("cm")),
-        ("1cm", 1.0 * Unit("cm")),
-        ("1.cm", 1.0 * Unit("cm")),
-        ("1.0 cm", 1.0 * Unit("cm")),
-        ("1.0\tcm", 1.0 * Unit("cm")),
-        ("1.0\t cm", 1.0 * Unit("cm")),
-        ("1.0  cm", 1.0 * Unit("cm")),
-        ("1.0\t\tcm", 1.0 * Unit("cm")),
-        ("10e-1cm", 1.0 * Unit("cm")),
-        ("10E-1cm", 1.0 * Unit("cm")),
-        ("+1cm", 1.0 * Unit("cm")),
-        ("1um", 1.0 * Unit("μm")),
-        ("1μm", 1.0 * Unit("μm")),
-        ("-5 Msun", -5.0 * Unit("Msun")),
-        ("1e3km", 1e3 * Unit("km")),
-        ("-1e3    km", -1e3 * Unit("km")),
-        ("1.0 g/cm**3", 1.0 * Unit("g/cm**3")),
-        ("1 g*cm**-3", 1.0 * Unit("g/cm**3")),
-        ("1.0 g*cm", 1.0 * Unit("g*cm")),
-        ("nan g", float("nan") * Unit("g")),
-        ("-nan g", float("nan") * Unit("g")),
-        ("inf g", float("inf") * Unit("g")),
-        ("+inf g", float("inf") * Unit("g")),
-        ("-inf g", -float("inf") * Unit("g")),
-        ("1", 1.0 * Unit()),
-        ("g", 1.0 * Unit("g")),
+        ("+1cm", 1.0 * Unit("cm"), "1 cm"),
+        ("1cm", 1.0 * Unit("cm"), "1 cm"),
+        ("1.cm", 1.0 * Unit("cm"), "1.0 cm"),
+        ("1.0 cm", 1.0 * Unit("cm"), "1.0 cm"),
+        ("1.0\tcm", 1.0 * Unit("cm"), "1.0 cm"),
+        ("1.0\t cm", 1.0 * Unit("cm"), "1.0 cm"),
+        ("1.0  cm", 1.0 * Unit("cm"), "1.0 cm"),
+        ("1.0\t\tcm", 1.0 * Unit("cm"), "1.0 cm"),
+        ("10e-1cm", 1.0 * Unit("cm"), "1.0 cm"),
+        ("10E-1cm", 1.0 * Unit("cm"), "1.0 cm"),
+        ("+1cm", 1.0 * Unit("cm"), "1 cm"),
+        ("1um", 1.0 * Unit("μm"), "1 μm"),
+        ("1μm", 1.0 * Unit("μm"), "1 μm"),
+        ("-5 Msun", -5.0 * Unit("Msun"), "-5 Msun"),
+        ("1e3km", 1e3 * Unit("km"), "1000.0 km"),
+        ("-1e3    km", -1e3 * Unit("km"), "-1000.0 km"),
+        ("1.0 g/cm**3", 1.0 * Unit("g/cm**3"), "1.0 g/cm**3"),
+        ("1 g*cm**-3", 1.0 * Unit("g/cm**3"), "1 g/cm**3"),
+        ("1.0 g*cm", 1.0 * Unit("g*cm"), "1.0 cm*g"),
+        ("nan g", float("nan") * Unit("g"), "nan g"),
+        ("-nan g", float("nan") * Unit("g"), "nan g"),
+        ("inf g", float("inf") * Unit("g"), "inf g"),
+        ("+inf g", float("inf") * Unit("g"), "inf g"),
+        ("-inf g", -float("inf") * Unit("g"), "-inf g"),
+        ("1", 1.0 * Unit(), "1 dimensionless"),
+        ("g", 1.0 * Unit("g"), "1 g"),
     ],
 )
-def test_valid_quantity_from_string(s, expected):
+def test_valid_quantity_from_string(s, expected, normalized):
     actual = unyt_quantity.from_string(s)
     if "nan" in s:
         assert actual != expected
     else:
         assert actual == expected
+    assert actual.to_string() == normalized
 
 
 @pytest.mark.parametrize(
@@ -2629,7 +2638,7 @@ def test_invalid_unit_quantity_from_string(s):
     un_str = s.split()[-1]
     with pytest.raises(
         UnitParseError,
-        match="Could not find unit symbol '{}' in the provided symbols.".format(un_str),
+        match=f"Could not find unit symbol '{un_str}' in the provided symbols.",
     ):
         unyt_quantity.from_string(s)
 

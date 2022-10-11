@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Test symbolic unit handling.
 
@@ -75,10 +74,10 @@ def test_no_conflicting_symbols():
         else:
             keys = [symbol]
         for prefix in keys:
-            new_symbol = "%s%s" % (prefix, symbol)
+            new_symbol = f"{prefix}{symbol}"
 
             # test if we have seen this symbol
-            assert new_symbol not in full_set, "Duplicate symbol: %s" % new_symbol
+            assert new_symbol not in full_set, f"Duplicate symbol: {new_symbol}"
 
             full_set.add(new_symbol)
 

@@ -13,35 +13,36 @@ import unyt.array as ua
 from unyt._on_demand_imports import _dask as dask
 
 __doctest_requires__ = {
-    ("dask_array.unyt_from_dask"): ["dask"],
+    ("unyt_from_dask", "reduce_with_units", "unyt_dask_array.to_dask"): ["dask"],
 }
 
 
-_dask_Array = dask.array.core.Array
-_dask_finalize = dask.array.core.finalize
+if dask.__is_available__:
+    _dask_Array = dask.array.core.Array
+    _dask_finalize = dask.array.core.finalize
+else:
+    _dask_Array, _dask_finalize = object, None
 
 # the following attributes hang off of dask.array.core.Array and do not modify units
-_use_unary_decorator = set(
-    [
-        "min",
-        "max",
-        "sum",
-        "mean",
-        "std",
-        "cumsum",
-        "squeeze",
-        "rechunk",
-        "clip",
-        "view",
-        "swapaxes",
-        "round",
-        "copy",
-        "repeat",
-        "astype",
-        "reshape",
-        "topk",
-    ]
-)
+_use_unary_decorator = {
+    "min",
+    "max",
+    "sum",
+    "mean",
+    "std",
+    "cumsum",
+    "squeeze",
+    "rechunk",
+    "clip",
+    "view",
+    "swapaxes",
+    "round",
+    "copy",
+    "repeat",
+    "astype",
+    "reshape",
+    "topk",
+}
 
 
 def _unary_dask_decorator(dask_func, current_unyt_dask):
@@ -73,7 +74,7 @@ def _unary_dask_decorator(dask_func, current_unyt_dask):
 # the following list are the unyt_quantity/array attributes that will also
 # be attributes of the unyt_dask_array. These methods are wrapped with a unit
 # conversion decorator.
-_unyt_funcs_to_track = set(["to", "in_units", "in_cgs", "in_base", "in_mks"])
+_unyt_funcs_to_track = {"to", "in_units", "in_cgs", "in_base", "in_mks"}
 
 
 # helper sanitizing functions for handling ufunc, array operations
@@ -627,10 +628,8 @@ def unyt_from_dask(
 #
 # check https://github.com/yt-project/unyt/issues/269 for further discussion
 
-_nan_ops = set(
-    ["nansum", "nanmean", "nanmedian", "nanstd", "nanmax", "nanmin", "nancumsum"]
-)
-_passthrough_reductions = set(["diagonal", "median"])
+_nan_ops = {"nansum", "nanmean", "nanmedian", "nanstd", "nanmax", "nanmin", "nancumsum"}
+_passthrough_reductions = {"diagonal", "median"}
 _allowed_funcs = _nan_ops.union(_passthrough_reductions, _use_unary_decorator)
 
 

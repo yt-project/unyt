@@ -99,7 +99,7 @@ def parse_unyt_expr(unit_expr):
             unit_expr, global_dict=global_dict, transformations=unit_text_transform
         )
     except Exception as e:
-        msg = "Unit expression '%s' raised an error during parsing:\n%s" % (
+        msg = "Unit expression '{}' raised an error during parsing:\n{}".format(
             unit_expr,
             repr(e),
         )

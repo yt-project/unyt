@@ -70,10 +70,10 @@ class ShowAllUnits(Directive):
             def generate_table_value(value):
                 if value == "N/A":
                     return value
-                approx_string = "{:.4e}".format(value)
+                approx_string = f"{value:.4e}"
                 real_string = str(value)
                 fv = value.value
-                close_value = float("{:.4e}".format(fv))
+                close_value = float(f"{fv:.4e}")
 
                 if (close_value - fv) / fv < 1e-6 and len(str(fv)) > 8:
                     return approx_string
@@ -126,7 +126,7 @@ class ShowAllConstants(Directive):
         for name, (_value, _unit, alternate_names) in physical_constants.items():
             val = getattr(unyt.physical_constants, name)
             if val > 1e4 or val < 1e-4:
-                default_value = "{:.4e}".format(val)
+                default_value = f"{val:.4e}"
             else:
                 default_value = str(val)
             lines.append((name, default_value, ", ".join(alternate_names)))
@@ -166,9 +166,7 @@ def as_rest_table(data, full=False):
     meta_template = vertical_separator.join(
         ["{{{{{0}:{{{0}}}}}}}".format(i) for i in range(num_elts)]
     )
-    template = "{0}{1}{2}".format(
-        start_of_line, meta_template.format(*sizes), end_of_line
-    )
+    template = f"{start_of_line}{meta_template.format(*sizes)}{end_of_line}"
     # determine top/bottom borders
     if full:
         to_separator = maketrans("| ", "+-")
@@ -177,7 +175,7 @@ def as_rest_table(data, full=False):
     start_of_line = start_of_line.translate(to_separator)
     vertical_separator = vertical_separator.translate(to_separator)
     end_of_line = end_of_line.translate(to_separator)
-    separator = "{0}{1}{2}".format(
+    separator = "{}{}{}".format(
         start_of_line,
         vertical_separator.join([x * line_marker for x in sizes]),
         end_of_line,
@@ -188,7 +186,7 @@ def as_rest_table(data, full=False):
     line_marker = line_marker.translate(th_separator_tr)
     vertical_separator = vertical_separator.translate(th_separator_tr)
     end_of_line = end_of_line.translate(th_separator_tr)
-    th_separator = "{0}{1}{2}".format(
+    th_separator = "{}{}{}".format(
         start_of_line,
         vertical_separator.join([x * line_marker for x in sizes]),
         end_of_line,

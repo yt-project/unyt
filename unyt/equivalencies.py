@@ -11,7 +11,6 @@ Equivalencies between different kinds of units
 # The full license is in the LICENSE file, distributed with this software.
 # -----------------------------------------------------------------------------
 
-from __future__ import division
 
 from collections import OrderedDict
 
@@ -42,7 +41,7 @@ class _RegisteredEquivalence(type):
             equivalence_registry[cls.type_name] = cls
 
 
-class Equivalence(object, metaclass=_RegisteredEquivalence):
+class Equivalence(metaclass=_RegisteredEquivalence):
     def __init__(self, in_place=False):
         self.in_place = in_place
 

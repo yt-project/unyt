@@ -1,5 +1,8 @@
+[build-system]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2", "wheel"]
+
 [tool.black]
-target-version = ['py36']
+target-version = ['py38']
 line-length = 88
 exclude = '''
 (
@@ -14,8 +17,6 @@ exclude = '''
     | buck-out
     | build
     | dist
-  )/ | (
-      versioneer.py
     | _version.py
   )
 )
@@ -26,3 +27,13 @@ exclude = '''
 profile = "black"
 combine_as_imports = true
 skip =  ["venv", "benchmarks"]
+
+[tool.setuptools_scm]
+write_to = "unyt/_version.py"
+version_scheme = "post-release"
+
+[tool.pytest.ini_options]
+addopts = "--ignore=benchmarks --ignore=paper --ignore=unyt/_mpl_array_converter"
+filterwarnings = [
+    "error",
+]

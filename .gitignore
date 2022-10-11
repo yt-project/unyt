@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+# setuptools_scm generated file
+unyt/_version.py
+
 # Distribution / packaging
 .Python
 env/

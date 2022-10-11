@@ -20,10 +20,6 @@ unyt
         :target: https://unyt.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
-.. image:: https://codecov.io/gh/yt-project/unyt/branch/master/graph/badge.svg
-        :target: https://codecov.io/gh/yt-project/unyt
-        :alt: Test Coverage
-
 .. image:: http://joss.theoj.org/papers/dbc27acb614dd33eb02b029ef20e7fe7/status.svg
         :target: http://joss.theoj.org/papers/dbc27acb614dd33eb02b029ef20e7fe7
         :alt: Code Paper

@@ -313,8 +313,7 @@ def accepts(**arg_units):
                     dimension = arg_units[arg_name]
                     if not _has_dimensions(arg_value, dimension):
                         raise TypeError(
-                            "arg '%s=%s' does not match %s"
-                            % (arg_name, arg_value, dimension)
+                            f"arg '{arg_name}={arg_value}' does not match {dimension}"
                         )
             return f(*args, **kwargs)
 
@@ -381,7 +380,7 @@ def returns(r_unit):
             """
             result = f(*args, **kwargs)
             if not _has_dimensions(result, r_unit):
-                raise TypeError("result '%s' does not match %s" % (result, r_unit))
+                raise TypeError(f"result '{result}' does not match {r_unit}")
             return result
 
         return new_f
