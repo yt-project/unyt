@@ -693,6 +693,7 @@ def test_unit_conversions():
 
     dollars = unyt_quantity(1.0, "$")
     assert dollars.units.dimensions == dimensions.currency
+    assert dollars.to('cents') == unyt_quantity(100.0, "\u00A2")
 
     with pytest.raises(InvalidUnitEquivalence):
         dollars.to("yen")

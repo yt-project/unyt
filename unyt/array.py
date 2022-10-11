@@ -663,8 +663,11 @@ class unyt_array(np.ndarray):
         """
         units = _sanitize_units_convert(units, self.units.registry)
         if equivalence is None:
+            allowed_currency = [("$", "\u00A2"),("\u00A2", "$")]
             if ((self.units.dimensions == currency) 
-                and (self.units.expr != units.expr)):
+                and (self.units.expr != units.expr)
+                and ((str(self.units.expr), str(units.expr)) 
+                    not in allowed_currency)):
                 equiv = "CurrencyConversion"
                 raise InvalidUnitEquivalence(equiv, self.units, units)
             conv_data = _check_em_conversion(
@@ -866,8 +869,11 @@ class unyt_array(np.ndarray):
         """
         units = _sanitize_units_convert(units, self.units.registry)
         if equivalence is None:
+            allowed_currency = [("$", "\u00A2"),("\u00A2", "$")]
             if ((self.units.dimensions == currency) 
-                and (self.units.expr != units.expr)):
+            and (self.units.expr != units.expr)
+            and ((str(self.units.expr), str(units.expr)) 
+                not in allowed_currency)):
                 equiv = "CurrencyConversion"
                 raise InvalidUnitEquivalence(equiv, self.units, units)
             conv_data = _check_em_conversion(
