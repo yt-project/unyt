@@ -691,16 +691,17 @@ def test_unit_conversions():
     with pytest.raises(UnitParseError):
         kg.convert_to_units([1, 2] * g)
 
-    yen = unyt_quantity(1.0, "yen")
+    dollars = unyt_quantity(1.0, "$")
+    assert dollars.units.dimensions == dimensions.currency
 
     with pytest.raises(InvalidUnitEquivalence):
-        yen.to("$")
+        dollars.to("yen")
 
     with pytest.raises(InvalidUnitEquivalence):
-        yen.in_units("$")
+        dollars.in_units("yen")
 
     with pytest.raises(InvalidUnitEquivalence):
-        yen.convert_to_units("$")
+        dollars.convert_to_units("yen")
 
 
 def test_temperature_conversions():
