@@ -114,7 +114,7 @@ from unyt._array_functions import _HANDLED_FUNCTIONS
 from unyt._on_demand_imports import _astropy, _dask, _pint
 from unyt._pint_conversions import convert_pint_units
 from unyt._unit_lookup_table import default_unit_symbol_lut
-from unyt.dimensions import angle, temperature, currency
+from unyt.dimensions import angle, currency, temperature
 from unyt.equivalencies import equivalence_registry
 from unyt.exceptions import (
     InvalidUnitEquivalence,
@@ -663,11 +663,12 @@ class unyt_array(np.ndarray):
         """
         units = _sanitize_units_convert(units, self.units.registry)
         if equivalence is None:
-            allowed_currency = [("$", "\u00A2"),("\u00A2", "$")]
-            if ((self.units.dimensions == currency) 
+            allowed_currency = [("$", "\u00A2"), ("\u00A2", "$")]
+            if (
+                (self.units.dimensions == currency)
                 and (self.units.expr != units.expr)
-                and ((str(self.units.expr), str(units.expr)) 
-                    not in allowed_currency)):
+                and ((str(self.units.expr), str(units.expr)) not in allowed_currency)
+            ):
                 equiv = "CurrencyConversion"
                 raise InvalidUnitEquivalence(equiv, self.units, units)
             conv_data = _check_em_conversion(
@@ -869,11 +870,12 @@ class unyt_array(np.ndarray):
         """
         units = _sanitize_units_convert(units, self.units.registry)
         if equivalence is None:
-            allowed_currency = [("$", "\u00A2"),("\u00A2", "$")]
-            if ((self.units.dimensions == currency) 
-            and (self.units.expr != units.expr)
-            and ((str(self.units.expr), str(units.expr)) 
-                not in allowed_currency)):
+            allowed_currency = [("$", "\u00A2"), ("\u00A2", "$")]
+            if (
+                (self.units.dimensions == currency)
+                and (self.units.expr != units.expr)
+                and ((str(self.units.expr), str(units.expr)) not in allowed_currency)
+            ):
                 equiv = "CurrencyConversion"
                 raise InvalidUnitEquivalence(equiv, self.units, units)
             conv_data = _check_em_conversion(

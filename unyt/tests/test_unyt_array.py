@@ -693,7 +693,7 @@ def test_unit_conversions():
 
     dollars = unyt_quantity(1.0, "$")
     assert dollars.units.dimensions == dimensions.currency
-    assert dollars.to('cents') == unyt_quantity(100.0, "\u00A2")
+    assert dollars.to("cents") == unyt_quantity(100.0, "\u00A2")
 
     with pytest.raises(InvalidUnitEquivalence):
         dollars.to("yen")
@@ -1424,6 +1424,7 @@ def test_astropy():
 
     assert_array_equal(yt_arr, unyt_array.from_astropy(yt_arr.to_astropy()))
     assert_equal(yt_quan, unyt_quantity.from_astropy(yt_quan.to_astropy()))
+
 
 @pytest.mark.skip("Failing due to distutils deprecation.")
 def test_pint():
