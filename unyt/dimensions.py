@@ -204,13 +204,6 @@ derived_dimensions = [
     luminance,
     spatial_frequency,
     angular_frequency,
-    cost_per_distance,
-    cost_per_length,
-    cost_per_area,
-    cost_per_volume,
-    cost_per_energy,
-    cost_per_erg,
-    cost_per_power,
 ]
 
 
