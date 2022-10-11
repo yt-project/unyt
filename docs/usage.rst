@@ -377,7 +377,7 @@ Currency Units
 :mod:`unyt` natively supports several currency units that have dimensions of ``currency``.
 The base unit for currency is ``$``, but uses ``dollars`` as the Python identifier. Printing
 a currency unit will show the correct symbol. However, the monetary symbol will be displayed
-after the value. 
+after the value.
 
   >>> from unyt import dollars
   >>> p1 = 10.77*dollars
@@ -398,10 +398,10 @@ currency as described in :ref:`user-defined` or :ref:`ureg`.
   The pound sterling is simply ``sterling`` in :mod:`unyt` to avoid confusion with
   the imperial unit of force, pounds.
 
-  :mod:`unyt` does not handle currency conversion due to the dynamic relationship among 
-  currencies and because there is some ambiguity in currencies with similar names. For 
+  :mod:`unyt` does not handle currency conversion due to the dynamic relationship among
+  currencies and because there is some ambiguity in currencies with similar names. For
   example, the ``dollar`` is used in Canada, Australia, and the United States (to name a few).
-  The ``yen`` and ``yuan`` have the same symbol "¥". Therefore, converting between currencies 
+  The ``yen`` and ``yuan`` have the same symbol "¥". Therefore, converting between currencies
   from different countries will result in an error.
 
     >>> from unyt import dollars, euros
@@ -409,7 +409,7 @@ currency as described in :ref:`user-defined` or :ref:`ureg`.
     >>> p1.to(euros)
     Traceback (most recent call last):
     ...
-    unyt.exceptions.InvalidUnitEquivalence: The unit equivalence 
+    unyt.exceptions.InvalidUnitEquivalence: The unit equivalence
     'CurrencyConversion' does not exist for the units '$' and '€'.
 
   However, converting between smaller increments within the same currency is allowed.
