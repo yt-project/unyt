@@ -648,6 +648,10 @@ class unyt_array(np.ndarray):
         If the provided unit does not have the same dimensions as the array
         this will raise a UnitConversionError
 
+        If the current and provided units have dimensions of ``currency`` and
+        are not the same unit this will raise an InvalidUnitEquivalence
+        exception.
+
         Examples
         --------
 
@@ -659,6 +663,10 @@ class unyt_array(np.ndarray):
         """
         units = _sanitize_units_convert(units, self.units.registry)
         if equivalence is None:
+            if ((self.units.dimensions == currency) 
+                and (self.units.expr != units.expr)):
+                equiv = "CurrencyConversion"
+                raise InvalidUnitEquivalence(equiv, self.units, units)
             conv_data = _check_em_conversion(
                 self.units, units, registry=self.units.registry
             )
@@ -933,6 +941,10 @@ class unyt_array(np.ndarray):
         ------
         If the provided unit does not have the same dimensions as the array
         this will raise a UnitConversionError
+
+        If the current and provided units have dimensions of ``currency`` and
+        are not the same unit this will raise an InvalidUnitEquivalence
+        exception.
 
         Examples
         --------
