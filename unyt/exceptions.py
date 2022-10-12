@@ -47,6 +47,32 @@ class UnitOperationError(ValueError):
         return err
 
 
+class UnitInconsistencyError(UnitOperationError):
+    """An error raised for non-allower numpy calls on arrays with different units.
+
+    Example
+    -------
+
+    >>> import unyt as u
+    >>> import numpy as np
+    >>> np.concatenate([[1, 2, 3] * u.cm, [4, 5, 6] * u.s])\
+ # doctest: +IGNORE_EXCEPTION_DETAIL +NORMALIZE_WHITESPACE
+    Traceback (most recent call last):
+    ...
+    unyt.exceptions.UnitInconsistencyError: Expected all unyt_array arguments to
+    have identical units. Received mixed units (cm, s)
+    """
+
+    def __init__(self, *units):
+        self.units = units
+
+    def __str__(self):
+        return (
+            "Expected all unyt_array arguments to have identical units. "
+            f"Received mixed units ({', '.join(str(u) for u in self.units)})"
+        )
+
+
 class UnitConversionError(Exception):
     """An error raised when converting to a unit with different dimensions.
 

@@ -18,12 +18,20 @@ import numpy as np
 
 from unyt import dimensions
 from unyt._physical_ratios import (
+    J_per_BTU,
     J_per_eV,
+    J_per_watt_hour,
     amu_grams,
     amu_kg,
     avogadros_number,
     boltzmann_constant_J_per_K,
+<<<<<<< HEAD
     dollars_per_cent,
+=======
+    btu_per_mmbtu,
+    btu_per_quad,
+    btu_per_therm,
+>>>>>>> 7b02f64cdf7883ed63e41856bcfed1386572f7af
     elementary_charge_C,
     eps_0,
     jansky_mks,
@@ -205,7 +213,11 @@ default_unit_symbol_lut = OrderedDict(
             ),
         ),
         ("cal", (4.184, dimensions.energy, 0.0, r"\rm{cal}", True)),
-        ("BTU", (1055.0559, dimensions.energy, 0.0, r"\rm{BTU}", False)),
+        ("BTU", (J_per_BTU, dimensions.energy, 0.0, r"\rm{BTU}", False)),
+        ("MMBTU", (btu_per_mmbtu, dimensions.energy, 0.0, r"\rm{MMBTU}", False)),
+        ("therm", (btu_per_therm, dimensions.energy, 0.0, r"\rm{therm}", False)),
+        ("quad", (btu_per_quad, dimensions.energy, 0.0, r"\rm{quad}", False)),
+        ("Wh", (J_per_watt_hour, dimensions.energy, 0.0, r"\rm{Wh}", True)),
         (
             "pli",
             (
@@ -561,7 +573,23 @@ default_unit_name_alternatives = OrderedDict(
         ("hp", ("horsepower",)),
         ("oz", ("ounce",)),
         ("cal", ("calorie",)),
-        ("BTU", ("british_thermal_unit",)),
+        (
+            "BTU",
+            (
+                "british_thermal_unit",
+                "btu",
+            ),
+        ),
+        ("MMBTU", ("mmbtu",)),
+        ("therm", ("therms",)),
+        ("quad", ("quads",)),
+        (
+            "Wh",
+            (
+                "watt_hour",
+                "watt_hours",
+            ),
+        ),
         ("pli", ("pounds_per_inch",)),
         ("plf", ("pounds_per_ft",)),
         ("psi", ("pounds_per_square_inch",)),

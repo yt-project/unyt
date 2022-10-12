@@ -2059,41 +2059,56 @@ def test_numpy_wrappers():
     arr_norm_answer = [norm_answer, np.sqrt(4**2 + 5**2 + 6**2)]
     dot_answer = 14
 
-    assert_array_equal(unyt_array(catenate_answer, "cm"), uconcatenate((a1, a2)))
+    with pytest.warns(DeprecationWarning):
+        assert_array_equal(unyt_array(catenate_answer, "cm"), uconcatenate((a1, a2)))
     assert_array_equal(catenate_answer, np.concatenate((a1, a2)))
 
-    assert_array_equal(unyt_array(intersect_answer, "cm"), uintersect1d(a1, a2))
+    with pytest.warns(DeprecationWarning):
+        assert_array_equal(unyt_array(intersect_answer, "cm"), uintersect1d(a1, a2))
     assert_array_equal(intersect_answer, np.intersect1d(a1, a2))
 
-    assert_array_equal(unyt_array(union_answer, "cm"), uunion1d(a1, a2))
+    with pytest.warns(DeprecationWarning):
+        assert_array_equal(unyt_array(union_answer, "cm"), uunion1d(a1, a2))
     assert_array_equal(union_answer, np.union1d(a1, a2))
 
-    assert_array_equal(
-        unyt_array(cross_answer, "cm**2"), ucross(a1, a1 + (2 * a1.units))
-    )
+    with pytest.warns(DeprecationWarning):
+        assert_array_equal(
+            unyt_array(cross_answer, "cm**2"), ucross(a1, a1 + (2 * a1.units))
+        )
     assert_array_equal(cross_answer, np.cross(a1.v, a1.v + 2))
 
-    assert_array_equal(unorm(a1), unyt_quantity(norm_answer, "cm"))
+    with pytest.warns(DeprecationWarning):
+        assert_array_equal(unorm(a1), unyt_quantity(norm_answer, "cm"))
     assert_array_equal(np.linalg.norm(a1), norm_answer)
-    assert_array_equal(unorm(a3, axis=1), unyt_array(arr_norm_answer, "cm"))
+
+    with pytest.warns(DeprecationWarning):
+        assert_array_equal(unorm(a3, axis=1), unyt_array(arr_norm_answer, "cm"))
     assert_array_equal(np.linalg.norm(a3, axis=1), arr_norm_answer)
 
     with pytest.warns(DeprecationWarning):
         assert_array_equal(udot(a1, a1), unyt_quantity(dot_answer, "cm**2"))
 
-    assert_array_equal(np.array(catenate_answer), uconcatenate((a1.v, a2.v)))
+    with pytest.warns(DeprecationWarning):
+        assert_array_equal(np.array(catenate_answer), uconcatenate((a1.v, a2.v)))
     with pytest.raises(RuntimeError):
-        uconcatenate((a1, a2.v))
+        with pytest.warns(DeprecationWarning):
+            uconcatenate((a1, a2.v))
     with pytest.raises(RuntimeError):
-        uconcatenate((a1.to("m"), a2))
-    assert_array_equal(unyt_array(vstack_answer, "cm"), uvstack([a2, a4]))
+        with pytest.warns(DeprecationWarning):
+            uconcatenate((a1.to("m"), a2))
+
+    with pytest.warns(DeprecationWarning):
+        assert_array_equal(unyt_array(vstack_answer, "cm"), uvstack([a2, a4]))
     assert_array_equal(vstack_answer, np.vstack([a2, a4]))
-    assert_array_equal(unyt_array(vstack_answer, "cm"), ustack([a2, a4]))
+    with pytest.warns(DeprecationWarning):
+        assert_array_equal(unyt_array(vstack_answer, "cm"), ustack([a2, a4]))
     assert_array_equal(vstack_answer, np.stack([a2, a4]))
 
-    assert_array_equal(
-        unyt_array(vstack_answer_last_axis, "cm"), ustack([a2, a4], axis=-1)
-    )
+    with pytest.warns(DeprecationWarning):
+
+        assert_array_equal(
+            unyt_array(vstack_answer_last_axis, "cm"), ustack([a2, a4], axis=-1)
+        )
     assert_array_equal(vstack_answer_last_axis, np.stack([a2, a4], axis=-1))
 
 
