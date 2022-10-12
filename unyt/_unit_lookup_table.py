@@ -558,15 +558,9 @@ default_unit_name_alternatives = OrderedDict(
             (
                 "british_thermal_unit",
                 "btu",
-            ),
+            )
         ),
-        (
-            "MMBTU",
-            (
-                "million_british_thermal_unit",
-                "mmbtu",
-            ),
-        ),
+        ("MMBTU", ("mmbtu",)),
         ("therm", ("therms",)),
         ("quad", ("quads",)),
         (
@@ -574,7 +568,7 @@ default_unit_name_alternatives = OrderedDict(
             (
                 "watt_hour",
                 "watt_hours",
-            ),
+            )
         ),
         ("pli", ("pounds_per_inch",)),
         ("plf", ("pounds_per_ft",)),
