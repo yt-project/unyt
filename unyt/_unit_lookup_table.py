@@ -76,7 +76,7 @@ from unyt._physical_ratios import (
     standard_gravity_m_per_s2,
     temp_sun_kelvin,
     watt_per_horsepower,
-    watt_per_hour,
+    J_per_watt_hour,
 )
 
 # Lookup a unit symbol with the symbol string, and provide a tuple with the
@@ -204,7 +204,7 @@ default_unit_symbol_lut = OrderedDict(
         ("MMBTU", (btu_per_mmbtu, dimensions.energy, 0.0, r"\rm{MMBTU}", False)),
         ("therm", (btu_per_therm, dimensions.energy, 0.0, r"\rm{therm}", False)),
         ("quad", (btu_per_quad, dimensions.energy, 0.0, r"\rm{quad}", False)),
-        ("Wh", (watt_per_hour, dimensions.energy, 0.0, r"\rm{Wh}", True)),
+        ("Wh", (J_per_watt_hour, dimensions.energy, 0.0, r"\rm{Wh}", True)),
         (
             "pli",
             (
