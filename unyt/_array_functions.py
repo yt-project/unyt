@@ -1,7 +1,9 @@
 import numpy as np
+from packaging.version import Version
 
 from unyt.exceptions import UnitConversionError
 
+NUMPY_VERSION = Version(np.__version__)
 _HANDLED_FUNCTIONS = {}
 
 
@@ -201,9 +203,16 @@ def _validate_units_consistency(arrs):
 @implements(np.concatenate)
 def concatenate(arrs, /, axis=0, out=None, dtype=None, casting="same_kind"):
     _validate_units_consistency(arrs)
-    v = np.concatenate._implementation(
-        [_.ndview for _ in arrs], axis=axis, out=out, dtype=dtype, casting=casting
-    )
+    if NUMPY_VERSION >= Version("1.20"):
+        v = np.concatenate._implementation(
+            [_.ndview for _ in arrs], axis=axis, out=out, dtype=dtype, casting=casting
+        )
+    else:
+        v = np.concatenate._implementation(
+            [_.ndview for _ in arrs],
+            axis=axis,
+            out=out,
+        )
     return v * arrs[0].units
 
 
