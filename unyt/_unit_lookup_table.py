@@ -568,7 +568,7 @@ default_unit_name_alternatives = OrderedDict(
             ),
         ),
         ("therm", ("therms",)),
-        ("quad", ("quads", "Quad", "Quads")),
+        ("quad", ("quads",)),
         (
             "Wh",
             (
