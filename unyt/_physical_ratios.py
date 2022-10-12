@@ -124,9 +124,9 @@ watt_per_horsepower = 745.69987158227022
 erg_per_s_per_watt = 1e7
 J_per_BTU = 1055.0559
 watt_per_hour = 3600
-btu_per_mmbtu = 1e6*J_per_BTU
-btu_per_therm = 1e5*J_per_BTU
-btu_per_quad = 1e15*J_per_BTU
+btu_per_mmbtu = 1e6 * J_per_BTU
+btu_per_therm = 1e5 * J_per_BTU
+btu_per_quad = 1e15 * J_per_BTU
 rydberg_unit_mks = planck_mks * speed_of_light_m_per_s * rydberg_constant_mks
 
 # Solar System masses

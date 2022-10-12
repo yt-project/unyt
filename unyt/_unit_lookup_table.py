@@ -18,11 +18,15 @@ import numpy as np
 
 from unyt import dimensions
 from unyt._physical_ratios import (
+    J_per_BTU,
     J_per_eV,
     amu_grams,
     amu_kg,
     avogadros_number,
     boltzmann_constant_J_per_K,
+    btu_per_mmbtu,
+    btu_per_quad,
+    btu_per_therm,
     elementary_charge_C,
     eps_0,
     jansky_mks,
@@ -71,12 +75,8 @@ from unyt._physical_ratios import (
     speed_of_light_m_per_s,
     standard_gravity_m_per_s2,
     temp_sun_kelvin,
-    J_per_BTU,
     watt_per_horsepower,
     watt_per_hour,
-    btu_per_mmbtu,
-    btu_per_therm,
-    btu_per_quad,
 )
 
 # Lookup a unit symbol with the symbol string, and provide a tuple with the
@@ -553,11 +553,29 @@ default_unit_name_alternatives = OrderedDict(
         ("hp", ("horsepower",)),
         ("oz", ("ounce",)),
         ("cal", ("calorie",)),
-        ("BTU", ("british_thermal_unit", "btu",)),
-        ("MMBTU", ("million_british_thermal_unit", "mmbtu",)),
+        (
+            "BTU",
+            (
+                "british_thermal_unit",
+                "btu",
+            ),
+        ),
+        (
+            "MMBTU",
+            (
+                "million_british_thermal_unit",
+                "mmbtu",
+            ),
+        ),
         ("therm", ("therms",)),
-        ("quad", ("quads","Quad", "Quads")),
-        ("Wh", ("watt_hour", "watt_hours",)),
+        ("quad", ("quads", "Quad", "Quads")),
+        (
+            "Wh",
+            (
+                "watt_hour",
+                "watt_hours",
+            ),
+        ),
         ("pli", ("pounds_per_inch",)),
         ("plf", ("pounds_per_ft",)),
         ("psi", ("pounds_per_square_inch",)),
