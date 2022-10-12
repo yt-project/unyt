@@ -169,7 +169,7 @@ def _iterable(obj):
 
 @lru_cache(maxsize=128, typed=False)
 def _sqrt_unit(unit):
-    return 1, unit**0.5
+    return 1, unit ** 0.5
 
 
 @lru_cache(maxsize=128, typed=False)
@@ -205,7 +205,7 @@ def _preserve_units(unit1, unit2=None):
 
 @lru_cache(maxsize=128, typed=False)
 def _power_unit(unit, power):
-    return 1, unit**power
+    return 1, unit ** power
 
 
 @lru_cache(maxsize=128, typed=False)
@@ -224,7 +224,7 @@ def _divide_units(unit1, unit2):
 
 @lru_cache(maxsize=128, typed=False)
 def _reciprocal_unit(unit):
-    return 1, unit**-1
+    return 1, unit ** -1
 
 
 def _passthrough_unit(unit, unit2=None):
@@ -667,8 +667,10 @@ class unyt_array(np.ndarray):
             if (
                 (self.units.dimensions == currency)
                 and (self.units.expr != units.expr)
-                and ((str(self.units.expr), str(units.expr)) 
-                not in _ALLOWED_CURRENCY_CONVERSION)
+                and (
+                    (str(self.units.expr), str(units.expr))
+                    not in _ALLOWED_CURRENCY_CONVERSION
+                )
             ):
                 equiv = "CurrencyConversion"
                 raise InvalidUnitEquivalence(equiv, self.units, units)
@@ -874,8 +876,10 @@ class unyt_array(np.ndarray):
             if (
                 (self.units.dimensions == currency)
                 and (self.units.expr != units.expr)
-                and ((str(self.units.expr), str(units.expr)) 
-                not in _ALLOWED_CURRENCY_CONVERSION)
+                and (
+                    (str(self.units.expr), str(units.expr))
+                    not in _ALLOWED_CURRENCY_CONVERSION
+                )
             ):
                 equiv = "CurrencyConversion"
                 raise InvalidUnitEquivalence(equiv, self.units, units)
