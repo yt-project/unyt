@@ -71,7 +71,12 @@ from unyt._physical_ratios import (
     speed_of_light_m_per_s,
     standard_gravity_m_per_s2,
     temp_sun_kelvin,
+    J_per_BTU,
     watt_per_horsepower,
+    watt_per_hour,
+    btu_per_mmbtu,
+    btu_per_therm,
+    btu_per_quad,
 )
 
 # Lookup a unit symbol with the symbol string, and provide a tuple with the
@@ -195,7 +200,11 @@ default_unit_symbol_lut = OrderedDict(
             ),
         ),
         ("cal", (4.184, dimensions.energy, 0.0, r"\rm{cal}", True)),
-        ("BTU", (1055.0559, dimensions.energy, 0.0, r"\rm{BTU}", False)),
+        ("BTU", (J_per_BTU, dimensions.energy, 0.0, r"\rm{BTU}", False)),
+        ("MMBTU", (btu_per_mmbtu, dimensions.energy, 0.0, r"\rm{MMBTU}", False)),
+        ("therm", (btu_per_therm, dimensions.energy, 0.0, r"\rm{therm}", False)),
+        ("quad", (btu_per_quad, dimensions.energy, 0.0, r"\rm{quad}", False)),
+        ("Wh", (watt_per_hour, dimensions.energy, 0.0, r"\rm{Wh}", True)),
         (
             "pli",
             (
@@ -544,7 +553,11 @@ default_unit_name_alternatives = OrderedDict(
         ("hp", ("horsepower",)),
         ("oz", ("ounce",)),
         ("cal", ("calorie",)),
-        ("BTU", ("british_thermal_unit",)),
+        ("BTU", ("british_thermal_unit", "btu",)),
+        ("MMBTU", ("million_british_thermal_unit", "mmbtu",)),
+        ("therm", ("therms",)),
+        ("quad", ("quads","Quad", "Quads")),
+        ("Wh", ("watt_hour", "watt_hours",)),
         ("pli", ("pounds_per_inch",)),
         ("plf", ("pounds_per_ft",)),
         ("psi", ("pounds_per_square_inch",)),
