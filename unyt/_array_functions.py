@@ -1,7 +1,7 @@
 import numpy as np
 from packaging.version import Version
 
-from unyt.exceptions import UnitConversionError, UnitOperationError
+from unyt.exceptions import UnitConversionError, UnitInconsistencyError
 
 NUMPY_VERSION = Version(np.__version__)
 _HANDLED_FUNCTIONS = {}
@@ -197,7 +197,7 @@ def _validate_units_consistency(arrs):
     # custom implementations
     a1 = arrs[0]
     if not all(a.units == a1.units for a in arrs[1:]):
-        raise UnitOperationError("Your arrays must have identical units.")
+        raise UnitInconsistencyError(*(a.units for a in arrs))
 
 
 @implements(np.concatenate)

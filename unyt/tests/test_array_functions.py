@@ -6,6 +6,7 @@ import pytest
 
 from unyt import cm, g, km, s
 from unyt.array import unyt_array
+from unyt.exceptions import UnitInconsistencyError
 
 
 def test_array_repr():
@@ -212,7 +213,13 @@ def test_concatenate():
 def test_concatenate_different_units():
     x1 = np.random.normal(size=100) * cm
     x2 = np.random.normal(size=100) * s
-    with pytest.raises(RuntimeError, match=r"Your arrays must have identical units\."):
+    with pytest.raises(
+        UnitInconsistencyError,
+        match=(
+            r"Expected all unyt_array arguments to have identical units\. "
+            r"Received mixed units \(cm, s\)"
+        ),
+    ):
         np.concatenate((x1, x2))
 
 
