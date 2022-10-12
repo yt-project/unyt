@@ -25,13 +25,10 @@ from unyt._physical_ratios import (
     amu_kg,
     avogadros_number,
     boltzmann_constant_J_per_K,
-<<<<<<< HEAD
     dollars_per_cent,
-=======
     btu_per_mmbtu,
     btu_per_quad,
     btu_per_therm,
->>>>>>> 7b02f64cdf7883ed63e41856bcfed1386572f7af
     elementary_charge_C,
     eps_0,
     jansky_mks,
