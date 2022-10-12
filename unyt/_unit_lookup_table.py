@@ -20,6 +20,7 @@ from unyt import dimensions
 from unyt._physical_ratios import (
     J_per_BTU,
     J_per_eV,
+    J_per_watt_hour,
     amu_grams,
     amu_kg,
     avogadros_number,
@@ -76,7 +77,6 @@ from unyt._physical_ratios import (
     standard_gravity_m_per_s2,
     temp_sun_kelvin,
     watt_per_horsepower,
-    J_per_watt_hour,
 )
 
 # Lookup a unit symbol with the symbol string, and provide a tuple with the
@@ -558,7 +558,7 @@ default_unit_name_alternatives = OrderedDict(
             (
                 "british_thermal_unit",
                 "btu",
-            )
+            ),
         ),
         ("MMBTU", ("mmbtu",)),
         ("therm", ("therms",)),
@@ -568,7 +568,7 @@ default_unit_name_alternatives = OrderedDict(
             (
                 "watt_hour",
                 "watt_hours",
-            )
+            ),
         ),
         ("pli", ("pounds_per_inch",)),
         ("plf", ("pounds_per_ft",)),
