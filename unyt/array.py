@@ -2214,15 +2214,16 @@ def uconcatenate(arrs, axis=0):
     >>> from unyt import cm
     >>> A = [1, 2, 3]*cm
     >>> B = [2, 3, 4]*cm
-    >>> uconcatenate((A, B))
+    >>> uconcatenate((A, B)) # doctest: +IGNORE_EXCEPTION_DETAIL
+    Traceback (most recent call last):
+    DeprecationWarning: ...
     unyt_array([1, 2, 3, 2, 3, 4], 'cm')
 
     """
-    # TODO: see https://github.com/yt-project/unyt/issues/289
-    # warn_deprecated(
-    #    "unyt.uconcatenate", replacement="use numpy.concatenate", since_version="3.0"
-    # )
-    v = np.concatenate(arrs, axis=axis)
+    warn_deprecated(
+        "unyt.uconcatenate", replacement="use numpy.concatenate", since_version="3.0"
+    )
+    v = np.concatenate._implementation(arrs, axis=axis)
     v = _validate_numpy_wrapper_units(v, arrs)
     return v
 
@@ -2234,11 +2235,16 @@ def ucross(arr1, arr2, registry=None, axisa=-1, axisb=-1, axisc=-1, axis=None):
     See the documentation of numpy.cross for full
     details.
     """
-    # TODO: see https://github.com/yt-project/unyt/issues/289
-    # warn_deprecated(
-    #    "unyt.ucross", replacement="use numpy.cross", since_version="3.0"
-    # )
-    v = np.cross(arr1, arr2, axisa=axisa, axisb=axisb, axisc=axisc, axis=axis)
+    warn_deprecated(
+        "unyt.ucross",
+        replacement=(
+            "use numpy.cross (note that the *registry* argument will not be ported)"
+        ),
+        since_version="3.0",
+    )
+    v = np.cross._implementation(
+        arr1, arr2, axisa=axisa, axisb=axisb, axisc=axisc, axis=axis
+    )
     units = arr1.units * arr2.units
     arr = unyt_array(v, units, registry=registry)
     return arr
@@ -2256,17 +2262,16 @@ def uintersect1d(arr1, arr2, assume_unique=False):
     >>> from unyt import cm
     >>> A = [1, 2, 3]*cm
     >>> B = [2, 3, 4]*cm
-    >>> uintersect1d(A, B)
+    >>> uintersect1d(A, B) # doctest: +IGNORE_EXCEPTION_DETAIL
+    Traceback (most recent call last):
+    DeprecationWarning: ...
     unyt_array([2, 3], 'cm')
 
     """
-    # TODO: see https://github.com/yt-project/unyt/issues/289
-    # warn_deprecated(
-    #    "unyt.uintersect1d", replacement="use numpy.intersect1d", since_version="3.0"
-    # )
-    v = np.intersect1d(arr1, arr2, assume_unique=assume_unique)
-    v = _validate_numpy_wrapper_units(v, [arr1, arr2])
-    return v
+    warn_deprecated(
+        "unyt.uintersect1d", replacement="use numpy.intersect1d", since_version="3.0"
+    )
+    return np.intersect1d(arr1, arr2, assume_unique=assume_unique)
 
 
 def uunion1d(arr1, arr2):
@@ -2281,17 +2286,16 @@ def uunion1d(arr1, arr2):
     >>> from unyt import cm
     >>> A = [1, 2, 3]*cm
     >>> B = [2, 3, 4]*cm
-    >>> uunion1d(A, B)
+    >>> uunion1d(A, B) # doctest: +IGNORE_EXCEPTION_DETAIL
+    Traceback (most recent call last):
+    DeprecationWarning: ...
     unyt_array([1, 2, 3, 4], 'cm')
 
     """
-    # TODO: see https://github.com/yt-project/unyt/issues/289
-    # warn_deprecated(
-    #    "unyt.uunion1d", replacement="use numpy.union1d", since_version="3.0"
-    # )
-    v = np.union1d(arr1, arr2)
-    v = _validate_numpy_wrapper_units(v, [arr1, arr2])
-    return v
+    warn_deprecated(
+        "unyt.uunion1d", replacement="use numpy.union1d", since_version="3.0"
+    )
+    return np.union1d(arr1, arr2)
 
 
 def unorm(data, ord=None, axis=None, keepdims=False):
@@ -2305,14 +2309,15 @@ def unorm(data, ord=None, axis=None, keepdims=False):
     --------
     >>> from unyt import km
     >>> data = [1, 2, 3]*km
-    >>> print(unorm(data))
+    >>> print(unorm(data)) # doctest: +IGNORE_EXCEPTION_DETAIL
+    Traceback (most recent call last):
+    DeprecationWarning: ...
     3.7416573867739413 km
     """
-    # TODO: see https://github.com/yt-project/unyt/issues/289
-    # warn_deprecated(
-    #    "unyt.unorm", replacement="use numpy.norm", since_version="3.0"
-    # )
-    norm = np.linalg.norm(data, ord=ord, axis=axis, keepdims=keepdims)
+    warn_deprecated(
+        "unyt.unorm", replacement="use numpy.linalg.norm", since_version="3.0"
+    )
+    norm = np.linalg.norm._implementation(data, ord=ord, axis=axis, keepdims=keepdims)
     if norm.shape == ():
         return unyt_quantity(norm, data.units)
     return unyt_array(norm, data.units)
@@ -2328,12 +2333,14 @@ def udot(op1, op2):
     >>> from unyt import km, s
     >>> a = np.eye(2)*km
     >>> b = (np.ones((2, 2)) * 2)*s
-    >>> print(udot(a, b))
+    >>> print(udot(a, b)) # doctest: +IGNORE_EXCEPTION_DETAIL
+    Traceback (most recent call last):
+    DeprecationWarning: ...
     [[2. 2.]
      [2. 2.]] km*s
     """
     warn_deprecated("unyt.udot", replacement="use numpy.dot", since_version="3.0")
-    dot = np.dot(op1.d, op2.d)
+    dot = np.dot._implementation(op1.d, op2.d)
     units = op1.units * op2.units
     if dot.shape == ():
         return unyt_quantity(dot, units)
@@ -2350,15 +2357,14 @@ def uvstack(arrs):
     >>> from unyt import km
     >>> a = [1, 2, 3]*km
     >>> b = [2, 3, 4]*km
-    >>> print(uvstack([a, b]))
+    >>> print(uvstack([a, b])) # doctest: +IGNORE_EXCEPTION_DETAIL
+    Traceback (most recent call last):
+    DeprecationWarning: ...
     [[1 2 3]
      [2 3 4]] km
     """
-    # TODO: see https://github.com/yt-project/unyt/issues/289
-    # warn_deprecated(
-    #    "unyt.uvstack", replacement="use numpy.vstack", since_version="3.0"
-    # )
-    v = np.vstack(arrs)
+    warn_deprecated("unyt.uvstack", replacement="use numpy.vstack", since_version="3.0")
+    v = np.vstack._implementation(arrs)
     v = _validate_numpy_wrapper_units(v, arrs)
     return v
 
@@ -2373,20 +2379,21 @@ def uhstack(arrs):
     >>> from unyt import km
     >>> a = [1, 2, 3]*km
     >>> b = [2, 3, 4]*km
-    >>> print(uhstack([a, b]))
+    >>> print(uhstack([a, b])) # doctest: +IGNORE_EXCEPTION_DETAIL
+    Traceback (most recent call last):
+    DeprecationWarning: ...
     [1 2 3 2 3 4] km
     >>> a = [[1],[2],[3]]*km
     >>> b = [[2],[3],[4]]*km
-    >>> print(uhstack([a, b]))
+    >>> print(uhstack([a, b])) # doctest: +IGNORE_EXCEPTION_DETAIL
+    Traceback (most recent call last):
+    DeprecationWarning: ...
     [[1 2]
      [2 3]
      [3 4]] km
     """
-    # TODO: see https://github.com/yt-project/unyt/issues/289
-    # warn_deprecated(
-    #    "unyt.uhstack", replacement="use numpy.hstack", since_version="3.0"
-    # )
-    v = np.hstack(arrs)
+    warn_deprecated("unyt.uhstack", replacement="use numpy.hstack", since_version="3.0")
+    v = np.hstack._implementation(arrs)
     v = _validate_numpy_wrapper_units(v, arrs)
     return v
 
@@ -2406,15 +2413,14 @@ def ustack(arrs, axis=0):
     >>> from unyt import km
     >>> a = [1, 2, 3]*km
     >>> b = [2, 3, 4]*km
-    >>> print(ustack([a, b]))
+    >>> print(ustack([a, b])) # doctest: +IGNORE_EXCEPTION_DETAIL
+    Traceback (most recent call last):
+    DeprecationWarning: ...
     [[1 2 3]
      [2 3 4]] km
     """
-    # TODO: see https://github.com/yt-project/unyt/issues/289
-    # warn_deprecated(
-    #    "unyt.ustack", replacement="use numpy.stack", since_version="3.0"
-    # )
-    v = np.stack(arrs, axis=axis)
+    warn_deprecated("unyt.ustack", replacement="use numpy.stack", since_version="3.0")
+    v = np.stack._implementation(arrs, axis=axis)
     v = _validate_numpy_wrapper_units(v, arrs)
     return v
 

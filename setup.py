@@ -8,7 +8,7 @@ with open("README.rst") as readme_file:
 with open("HISTORY.rst") as history_file:
     history = history_file.read()
 
-requirements = ["numpy>=1.17.5", "sympy>=1.5"]
+requirements = ["numpy>=1.17.5", "sympy>=1.5", "packaging>=20.9"]
 
 test_requirements = ["pytest"]
 

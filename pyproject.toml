@@ -36,4 +36,5 @@ version_scheme = "post-release"
 addopts = "--ignore=benchmarks --ignore=paper --ignore=unyt/_mpl_array_converter"
 filterwarnings = [
     "error",
+    "ignore:Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.:UserWarning"
 ]

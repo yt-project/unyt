@@ -1,7 +1,9 @@
 import numpy as np
+from packaging.version import Version
 
-from unyt.exceptions import UnitConversionError
+from unyt.exceptions import UnitConversionError, UnitInconsistencyError
 
+NUMPY_VERSION = Version(np.__version__)
 _HANDLED_FUNCTIONS = {}
 
 
@@ -186,3 +188,90 @@ def histogramdd(
         density=density,
     )
     return counts, tuple(_bin * u for _bin, u in zip(bins, units))
+
+
+def _validate_units_consistency(arrs):
+    # NOTE: we cannot validate that all arrays are unyt_arrays
+    # by using this as a guard clause in unyt_array.__array_function__
+    # because it's already a necessary condition for numpy to use our
+    # custom implementations
+    a1 = arrs[0]
+    if not all(a.units == a1.units for a in arrs[1:]):
+        raise UnitInconsistencyError(*(a.units for a in arrs))
+
+
+@implements(np.concatenate)
+def concatenate(arrs, /, axis=0, out=None, dtype=None, casting="same_kind"):
+    _validate_units_consistency(arrs)
+    if NUMPY_VERSION >= Version("1.20"):
+        v = np.concatenate._implementation(
+            [_.ndview for _ in arrs], axis=axis, out=out, dtype=dtype, casting=casting
+        )
+    else:
+        v = np.concatenate._implementation(
+            [_.ndview for _ in arrs],
+            axis=axis,
+            out=out,
+        )
+    return v * arrs[0].units
+
+
+@implements(np.cross)
+def cross(a, b, axisa=-1, axisb=-1, axisc=-1, axis=None):
+    prod_units = a.units * b.units
+    return (
+        np.cross._implementation(
+            a.ndview, b.ndview, axisa=axisa, axisb=axisb, axisc=axisc, axis=axis
+        )
+        * prod_units
+    )
+
+
+@implements(np.intersect1d)
+def intersect1d(arr1, arr2, /, assume_unique=False, return_indices=False):
+    _validate_units_consistency((arr1, arr2))
+    retv = np.intersect1d._implementation(
+        arr1.ndview,
+        arr2.ndview,
+        assume_unique=assume_unique,
+        return_indices=return_indices,
+    )
+    if return_indices:
+        return retv
+    else:
+        return retv * arr1.units
+
+
+@implements(np.union1d)
+def union1d(arr1, arr2, /):
+    _validate_units_consistency((arr1, arr2))
+    return np.union1d._implementation(arr1.ndview, arr2.ndview) * arr1.units
+
+
+@implements(np.linalg.norm)
+def norm(x, /, ord=None, axis=None, keepdims=False):
+    return (
+        np.linalg.norm._implementation(x.ndview, ord=ord, axis=axis, keepdims=keepdims)
+        * x.units
+    )
+
+
+@implements(np.vstack)
+def vstack(tup, /):
+    _validate_units_consistency(tup)
+    return np.vstack._implementation([_.ndview for _ in tup]) * tup[0].units
+
+
+@implements(np.hstack)
+def hstack(tup, /):
+    _validate_units_consistency(tup)
+    return np.vstack._implementation([_.ndview for _ in tup]) * tup[0].units
+
+
+@implements(np.stack)
+def stack(arrays, /, axis=0, out=None):
+    _validate_units_consistency(arrays)
+    return (
+        np.stack._implementation([_.ndview for _ in arrays], axis=axis, out=out)
+        * arrays[0].units
+    )
