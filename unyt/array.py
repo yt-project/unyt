@@ -136,6 +136,7 @@ from unyt.unit_registry import (
 
 from ._deprecation import warn_deprecated
 
+_ALLOWED_CURRENCY_CONVERSION = [("$", "\u00A2"), ("\u00A2", "$")]
 NULL_UNIT = Unit()
 POWER_MAPPING = {multiply: lambda x: x, divide: lambda x: 2 - x}
 
@@ -663,11 +664,11 @@ class unyt_array(np.ndarray):
         """
         units = _sanitize_units_convert(units, self.units.registry)
         if equivalence is None:
-            allowed_currency = [("$", "\u00A2"), ("\u00A2", "$")]
             if (
                 (self.units.dimensions == currency)
                 and (self.units.expr != units.expr)
-                and ((str(self.units.expr), str(units.expr)) not in allowed_currency)
+                and ((str(self.units.expr), str(units.expr)) 
+                not in _ALLOWED_CURRENCY_CONVERSION)
             ):
                 equiv = "CurrencyConversion"
                 raise InvalidUnitEquivalence(equiv, self.units, units)
@@ -870,11 +871,11 @@ class unyt_array(np.ndarray):
         """
         units = _sanitize_units_convert(units, self.units.registry)
         if equivalence is None:
-            allowed_currency = [("$", "\u00A2"), ("\u00A2", "$")]
             if (
                 (self.units.dimensions == currency)
                 and (self.units.expr != units.expr)
-                and ((str(self.units.expr), str(units.expr)) not in allowed_currency)
+                and ((str(self.units.expr), str(units.expr)) 
+                not in _ALLOWED_CURRENCY_CONVERSION)
             ):
                 equiv = "CurrencyConversion"
                 raise InvalidUnitEquivalence(equiv, self.units, units)
