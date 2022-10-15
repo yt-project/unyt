@@ -242,24 +242,25 @@ NOT_HANDLED_FUNCTIONS = {
 }
 
 removed_functions = {
-    "alen",         # deprecated in numpy 1.18, removed in 1.22
-    "asscalar",     # deprecated in numpy 1.18, removed in 1.22
-    "fv",           # deprecated in numpy 1.18, removed in 1.20
-    "ipmt",         # deprecated in numpy 1.18, removed in 1.20
-    "irr",          # deprecated in numpy 1.18, removed in 1.20
-    "mirr",         # deprecated in numpy 1.18, removed in 1.20
-    "nper",         # deprecated in numpy 1.18, removed in 1.20
-    "npv",          # deprecated in numpy 1.18, removed in 1.20
-    "pmt",          # deprecated in numpy 1.18, removed in 1.20
-    "ppmt",         # deprecated in numpy 1.18, removed in 1.20
-    "pv",           # deprecated in numpy 1.18, removed in 1.20
-    "rank",         # deprecated in numpy 1.10, ramoved in 1.18
-    "rate",         # deprecated in numpy 1.18, removed in 1.20
+    "alen",  # deprecated in numpy 1.18, removed in 1.22
+    "asscalar",  # deprecated in numpy 1.18, removed in 1.22
+    "fv",  # deprecated in numpy 1.18, removed in 1.20
+    "ipmt",  # deprecated in numpy 1.18, removed in 1.20
+    "irr",  # deprecated in numpy 1.18, removed in 1.20
+    "mirr",  # deprecated in numpy 1.18, removed in 1.20
+    "nper",  # deprecated in numpy 1.18, removed in 1.20
+    "npv",  # deprecated in numpy 1.18, removed in 1.20
+    "pmt",  # deprecated in numpy 1.18, removed in 1.20
+    "ppmt",  # deprecated in numpy 1.18, removed in 1.20
+    "pv",  # deprecated in numpy 1.18, removed in 1.20
+    "rank",  # deprecated in numpy 1.10, ramoved in 1.18
+    "rate",  # deprecated in numpy 1.18, removed in 1.20
 }
 
 for func in removed_functions:
     if hasattr(np, func):
         NOT_HANDLED_FUNCTIONS.add(getattr(np, func))
+
 
 def get_wrapped_functions(*modules):
     """get functions that support __array_function__ in modules
