@@ -402,8 +402,9 @@ def test_matmul():
 
     with pytest.xfail(
         reason=(
-            "At of numpy 1.21.2, np.matmul seem to "
-            "escape the __unyt_array__ protocol"
+            "At of numpy 1.21.2, np.matmul cannot be wrapped with"
+            "__array_function__, so the out keyword doesn't behave"
+            "like the other wrapped functions"
         )
     ):
         assert res is out
