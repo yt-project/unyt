@@ -282,11 +282,14 @@ def test_wrapping_completeness():
     # ensure no functions appear in both NOT_HANDLED_FUNCTIONS and HANDLED_FUNCTIONS
     assert NOT_HANDLED_FUNCTIONS.isdisjoint(handled_numpy_functions)
     # get list of functions that support wrapping by introspection on numpy module
-    functions = get_wrapped_functions(np, np.fft, np.linalg)
+    wrappable_functions = get_wrapped_functions(np, np.fft, np.linalg)
+    for function in HANDLED_FUNCTIONS:
+        # ensure we only have wrappers for functions that support wrapping
+        assert function in wrappable_functions.values()
     all_funcs = NOT_HANDLED_FUNCTIONS.union(handled_numpy_functions)
     # ensure all functions in numpy that support wrapping either have wrappers
     # or are explicitly whitelisted
-    for function in functions.values():
+    for function in wrappable_functions.values():
         assert function in all_funcs
 
 
