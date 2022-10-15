@@ -5,8 +5,8 @@ import numpy as np
 import pytest
 
 from unyt import cm, g, km, s
-from unyt.array import unyt_array
 from unyt._array_functions import _HANDLED_FUNCTIONS as HANDLED_FUNCTIONS
+from unyt.array import unyt_array
 from unyt.exceptions import UnitInconsistencyError
 
 NOT_HANDLED_FUNCTIONS = {
