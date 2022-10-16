@@ -452,7 +452,7 @@ def test_linalg_pinv():
 @pytest.mark.xfail(
     reason=(
         "as of numpy 1.21.2, the __array_function__ protocol doesn't let "
-        "us overload np.linalg.pinv when the first argument isn't a unyt_array"
+        "us overload np.linalg.pinv for stacks of matrices"
     )
 )
 def test_matrix_stack_linalg_pinv():
@@ -464,7 +464,7 @@ def test_matrix_stack_linalg_pinv():
 @pytest.mark.xfail(
     reason=(
         "as of numpy 1.21.2, the __array_function__ protocol doesn't let "
-        "us overload np.linalg.pinv when the first argument isn't a unyt_array"
+        "us overload np.linalg.pinv for stacks of matrices"
     )
 )
 def test_invalid_matrix_stack_linalg_pinv():
