@@ -1,7 +1,7 @@
 import numpy as np
 from packaging.version import Version
 
-from unyt.array import unyt_array
+from unyt.array import unyt_array, NULL_UNIT
 from unyt.exceptions import UnitConversionError, UnitInconsistencyError
 
 NUMPY_VERSION = Version(np.__version__)
@@ -42,7 +42,7 @@ def _get_conversion_factor(out, units) -> float:
 
 @implements(np.dot)
 def dot(a, b, out=None):
-    prod_units = a.units * b.units
+    prod_units = getattr(a, "units", NULL_UNIT) * getattr(b, "units", NULL_UNIT)
     if out is None:
         return (
             np.dot._implementation(a.view(np.ndarray), b.view(np.ndarray)) * prod_units
@@ -75,7 +75,7 @@ def inner(a, b):
 
 @implements(np.outer)
 def outer(a, b, out=None):
-    prod_units = a.units * b.units
+    prod_units = getattr(a, "units", NULL_UNIT) * getattr(b, "units", NULL_UNIT)
     if out is None:
         return (
             np.outer._implementation(a.view(np.ndarray), b.view(np.ndarray))
