@@ -345,6 +345,37 @@ def test_dot_matrices(out):
         assert out.units == res.units
 
 
+def test_dot_mixed_ndarray_unyt_array():
+    a = np.ones((3, 3))
+    b = np.ones((3, 3)) * cm
+
+    res = np.dot(a, b)
+
+    assert isinstance(res, unyt_array)
+    assert res.units == cm
+
+    out = np.zeros((3, 3))
+    res = np.dot(a, b, out=out)
+
+    assert isinstance(res, unyt_array)
+    assert type(out) is np.ndarray
+    np.testing.assert_array_equal(out, res)
+
+    out = np.zeros((3, 3)) * km
+    res = np.dot(a, b, out=out)
+
+    assert isinstance(res, unyt_array)
+    assert isinstance(out, unyt_array)
+    assert res.units == out.units == km
+
+    out = np.zeros((3, 3)) * km
+    res = np.dot(b, a, out=out)
+
+    assert isinstance(res, unyt_array)
+    assert isinstance(out, unyt_array)
+    assert res.units == out.units == km
+
+
 def test_invalid_dot_matrices():
     a = np.arange(9) * cm
     a.shape = (3, 3)
