@@ -428,25 +428,6 @@ def test_kron():
     assert res.units == cm * s
 
 
-def test_matmul():
-    a = np.array([[1, 0], [0, 1]]) * cm
-    b = np.array([[4, 1], [2, 2]]) * s
-    expected = np.array([[4, 1], [2, 2]]) * cm * s
-    out = np.empty_like(expected)
-    res = np.matmul(a, b, out=out)
-    np.testing.assert_array_equal(res, expected)
-    assert res.units == expected.units
-
-    with pytest.xfail(
-        reason=(
-            "At of numpy 1.21.2, np.matmul cannot be wrapped with"
-            "__array_function__, so the out keyword doesn't behave"
-            "like the other wrapped functions"
-        )
-    ):
-        assert res is out
-
-
 def test_linalg_inv():
     arr = np.random.random_sample((3, 3)) * cm
     iarr = np.linalg.inv(arr)
@@ -471,7 +452,7 @@ def test_linalg_pinv():
 @pytest.mark.xfail(
     reason=(
         "as of numpy 1.21.2, the __array_function__ protocol doesn't let "
-        "us overload np.linalg.pinv when the first argument isn't a unyt_array"
+        "us overload np.linalg.pinv for stacks of matrices"
     )
 )
 def test_matrix_stack_linalg_pinv():
@@ -483,7 +464,7 @@ def test_matrix_stack_linalg_pinv():
 @pytest.mark.xfail(
     reason=(
         "as of numpy 1.21.2, the __array_function__ protocol doesn't let "
-        "us overload np.linalg.pinv when the first argument isn't a unyt_array"
+        "us overload np.linalg.pinv for stacks of matrices"
     )
 )
 def test_invalid_matrix_stack_linalg_pinv():
