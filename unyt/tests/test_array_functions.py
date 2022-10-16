@@ -335,7 +335,9 @@ def test_dot_matrices(out):
 
     if out is not None:
         np.testing.assert_array_equal(res, out)
-        assert res is out
+        assert np.shares_memory(res, out)
+        assert isinstance(res, unyt_array)
+        assert isinstance(out, np.ndarray)
 
     if isinstance(out, unyt_array):
         # check that the result can be converted to predictible units
