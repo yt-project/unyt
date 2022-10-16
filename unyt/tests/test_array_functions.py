@@ -359,6 +359,7 @@ def test_dot_mixed_ndarray_unyt_array():
 
     assert isinstance(res, unyt_array)
     assert type(out) is np.ndarray
+    assert np.shares_memory(out, res)
     np.testing.assert_array_equal(out, res)
 
     out = np.zeros((3, 3)) * km
@@ -367,13 +368,16 @@ def test_dot_mixed_ndarray_unyt_array():
     assert isinstance(res, unyt_array)
     assert isinstance(out, unyt_array)
     assert res.units == out.units == km
+    assert res is out
 
+    # check this works with an ndarray as the first operand
     out = np.zeros((3, 3)) * km
     res = np.dot(b, a, out=out)
 
     assert isinstance(res, unyt_array)
     assert isinstance(out, unyt_array)
     assert res.units == out.units == km
+    assert res is out
 
 
 def test_invalid_dot_matrices():
