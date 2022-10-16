@@ -79,19 +79,6 @@ def kron(a, b):
     return np.kron._implementation(a.ndview, b.ndview) * (a.units * b.units)
 
 
-@implements(np.matmul)
-def matmul(a, b, out=None, **kwargs):
-    prod_units = a.units * b.units
-    if out is None:
-        return np.matmul._implementation(a.ndview, b.ndview) * prod_units
-
-    conv_factor = _get_conversion_factor(out, prod_units)
-    np.matmul._implementation(a.ndview, b.ndview, out=out.ndview)
-    if out.units != prod_units:
-        out[:] *= conv_factor
-    return out
-
-
 @implements(np.linalg.inv)
 def linalg_inv(a, *args, **kwargs):
     return np.linalg.inv._implementation(a.ndview, *args, **kwargs) / a.units
