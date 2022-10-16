@@ -62,14 +62,14 @@ def dot(a, b, out=None):
 @implements(np.vdot)
 def vdot(a, b):
     return np.vdot._implementation(a.view(np.ndarray), b.view(np.ndarray)) * (
-        a.units * b.units
+        getattr(a, "units", NULL_UNIT) * getattr(b, "units", NULL_UNIT)
     )
 
 
 @implements(np.inner)
 def inner(a, b):
     return np.inner._implementation(a.view(np.ndarray), b.view(np.ndarray)) * (
-        a.units * b.units
+        getattr(a, "units", NULL_UNIT) * getattr(b, "units", NULL_UNIT)
     )
 
 
@@ -96,7 +96,7 @@ def outer(a, b, out=None):
 @implements(np.kron)
 def kron(a, b):
     return np.kron._implementation(a.view(np.ndarray), b.view(np.ndarray)) * (
-        a.units * b.units
+        getattr(a, "units", NULL_UNIT) * getattr(b, "units", NULL_UNIT)
     )
 
 
@@ -249,7 +249,7 @@ def concatenate(arrs, /, axis=0, out=None, dtype=None, casting="same_kind"):
 
 @implements(np.cross)
 def cross(a, b, axisa=-1, axisb=-1, axisc=-1, axis=None):
-    prod_units = a.units * b.units
+    prod_units = getattr(a, "units", NULL_UNIT) * getattr(b, "units", NULL_UNIT)
     return (
         np.cross._implementation(
             a.view(np.ndarray),
