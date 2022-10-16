@@ -335,12 +335,49 @@ def test_dot_matrices(out):
 
     if out is not None:
         np.testing.assert_array_equal(res, out)
-        assert res is out
+        assert np.shares_memory(res, out)
+        assert isinstance(res, unyt_array)
+        assert isinstance(out, np.ndarray)
 
     if isinstance(out, unyt_array):
         # check that the result can be converted to predictible units
         res.in_units("cm * s")
         assert out.units == res.units
+
+
+def test_dot_mixed_ndarray_unyt_array():
+    a = np.ones((3, 3))
+    b = np.ones((3, 3)) * cm
+
+    res = np.dot(a, b)
+
+    assert isinstance(res, unyt_array)
+    assert res.units == cm
+
+    out = np.zeros((3, 3))
+    res = np.dot(a, b, out=out)
+
+    assert isinstance(res, unyt_array)
+    assert type(out) is np.ndarray
+    assert np.shares_memory(out, res)
+    np.testing.assert_array_equal(out, res)
+
+    out = np.zeros((3, 3)) * km
+    res = np.dot(a, b, out=out)
+
+    assert isinstance(res, unyt_array)
+    assert isinstance(out, unyt_array)
+    assert res.units == out.units == km
+    assert res is out
+
+    # check this works with an ndarray as the first operand
+    out = np.zeros((3, 3)) * km
+    res = np.dot(b, a, out=out)
+
+    assert isinstance(res, unyt_array)
+    assert isinstance(out, unyt_array)
+    assert res.units == out.units == km
+    assert res is out
 
 
 def test_invalid_dot_matrices():

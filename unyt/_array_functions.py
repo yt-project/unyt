@@ -1,6 +1,7 @@
 import numpy as np
 from packaging.version import Version
 
+from unyt.array import NULL_UNIT, unyt_array
 from unyt.exceptions import UnitConversionError, UnitInconsistencyError
 
 NUMPY_VERSION = Version(np.__version__)
@@ -27,9 +28,12 @@ def array2string(a, *args, **kwargs):
 
 def _get_conversion_factor(out, units) -> float:
     # helper function to "product"-like functions with an 'out' argument
+    out_units = getattr(out, "units", None)
+    if out_units is None:
+        return 1.0
     try:
-        return (1 * out.units).to(units).d
-    except (AttributeError, UnitConversionError) as exc:
+        return out_units.get_conversion_factor(units)[0]
+    except UnitConversionError as exc:
         raise TypeError(
             "output array is not acceptable "
             f"(units '{out.units}' cannot be converted to '{units}')"
@@ -38,50 +42,67 @@ def _get_conversion_factor(out, units) -> float:
 
 @implements(np.dot)
 def dot(a, b, out=None):
-    prod_units = a.units * b.units
+    prod_units = getattr(a, "units", NULL_UNIT) * getattr(b, "units", NULL_UNIT)
     if out is None:
-        return np.dot._implementation(a.ndview, b.ndview) * prod_units
+        return (
+            np.dot._implementation(a.view(np.ndarray), b.view(np.ndarray)) * prod_units
+        )
 
-    conv_factor = _get_conversion_factor(out, prod_units)
+    cf = _get_conversion_factor(out, prod_units)
 
-    np.dot._implementation(a.ndview, b.ndview, out=out.ndview)
-    if out.units != prod_units:
-        out[:] *= conv_factor
-    return out
+    res = np.dot._implementation(
+        a.view(np.ndarray), b.view(np.ndarray), out=out.view(np.ndarray)
+    )
+    if cf != 1.0 and out.units != prod_units:
+        out[:] *= cf
+        return out
+    return unyt_array(res, prod_units, bypass_validation=True)
 
 
 @implements(np.vdot)
 def vdot(a, b):
-    return np.vdot._implementation(a.ndview, b.ndview) * (a.units * b.units)
+    return np.vdot._implementation(a.view(np.ndarray), b.view(np.ndarray)) * (
+        getattr(a, "units", NULL_UNIT) * getattr(b, "units", NULL_UNIT)
+    )
 
 
 @implements(np.inner)
 def inner(a, b):
-    return np.inner._implementation(a.ndview, b.ndview) * (a.units * b.units)
+    return np.inner._implementation(a.view(np.ndarray), b.view(np.ndarray)) * (
+        getattr(a, "units", NULL_UNIT) * getattr(b, "units", NULL_UNIT)
+    )
 
 
 @implements(np.outer)
 def outer(a, b, out=None):
-    prod_units = a.units * b.units
+    prod_units = getattr(a, "units", NULL_UNIT) * getattr(b, "units", NULL_UNIT)
     if out is None:
-        return np.outer._implementation(a.ndview, b.ndview) * prod_units
+        return (
+            np.outer._implementation(a.view(np.ndarray), b.view(np.ndarray))
+            * prod_units
+        )
 
-    conv_factor = _get_conversion_factor(out, prod_units)
+    cf = _get_conversion_factor(out, prod_units)
 
-    np.outer._implementation(a.ndview, b.ndview, out=out.ndview)
-    if out.units != prod_units:
-        out[:] *= conv_factor
-    return out
+    res = np.outer._implementation(
+        a.view(np.ndarray), b.view(np.ndarray), out=out.view(np.ndarray)
+    )
+    if cf != 1.0 and out.units != prod_units:
+        out[:] *= cf
+        return out
+    return unyt_array(res, prod_units, bypass_validation=True)
 
 
 @implements(np.kron)
 def kron(a, b):
-    return np.kron._implementation(a.ndview, b.ndview) * (a.units * b.units)
+    return np.kron._implementation(a.view(np.ndarray), b.view(np.ndarray)) * (
+        getattr(a, "units", NULL_UNIT) * getattr(b, "units", NULL_UNIT)
+    )
 
 
 @implements(np.linalg.inv)
 def linalg_inv(a, *args, **kwargs):
-    return np.linalg.inv._implementation(a.ndview, *args, **kwargs) / a.units
+    return np.linalg.inv._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
 
 
 @implements(np.linalg.tensorinv)
@@ -91,7 +112,7 @@ def linalg_tensorinv(a, *args, **kwargs):
 
 @implements(np.linalg.pinv)
 def linalg_pinv(a, *args, **kwargs):
-    return np.linalg.pinv._implementation(a, *args, **kwargs).ndview / a.units
+    return np.linalg.pinv._implementation(a, *args, **kwargs).view(np.ndarray) / a.units
 
 
 def _sanitize_range(_range, units):
@@ -122,7 +143,7 @@ def histogram(
 ):
     range = _sanitize_range(range, units=[a.units])
     counts, bins = np.histogram._implementation(
-        a.ndview,
+        a.view(np.ndarray),
         bins=bins,
         range=range,
         normed=normed,
@@ -144,8 +165,8 @@ def histogram2d(
 ):
     range = _sanitize_range(range, units=[x.units, y.units])
     counts, xbins, ybins = np.histogram2d._implementation(
-        x.ndview,
-        y.ndview,
+        x.view(np.ndarray),
+        y.view(np.ndarray),
         bins=bins,
         range=range,
         normed=normed,
@@ -167,7 +188,7 @@ def histogramdd(
     units = [_.units for _ in sample]
     range = _sanitize_range(range, units=units)
     counts, bins = np.histogramdd._implementation(
-        [_.ndview for _ in sample],
+        [_.view(np.ndarray) for _ in sample],
         bins=bins,
         range=range,
         normed=normed,
@@ -193,42 +214,50 @@ def concatenate(arrs, /, axis=0, out=None, dtype=None, casting="same_kind"):
     ret_units = arrs[0].units
     if out is None:
         if NUMPY_VERSION >= Version("1.20"):
-            v = np.concatenate._implementation(
-                [_.ndview for _ in arrs], axis=axis, dtype=dtype, casting=casting
-            )
-        else:
-            v = np.concatenate._implementation(
-                [_.ndview for _ in arrs],
+            res = np.concatenate._implementation(
+                [_.view(np.ndarray) for _ in arrs],
                 axis=axis,
-            )
-        out = v * ret_units
-    else:
-        cf = _get_conversion_factor(out, ret_units)
-        if NUMPY_VERSION >= Version("1.20"):
-            np.concatenate._implementation(
-                [_.ndview for _ in arrs],
-                axis=axis,
-                out=out.ndview,
                 dtype=dtype,
                 casting=casting,
             )
         else:
-            np.concatenate._implementation(
-                [_.ndview for _ in arrs],
+            res = np.concatenate._implementation(
+                [_.view(np.ndarray) for _ in arrs],
                 axis=axis,
-                out=out.ndview,
             )
-        if out.units != ret_units:
+    else:
+        cf = _get_conversion_factor(out, ret_units)
+        if NUMPY_VERSION >= Version("1.20"):
+            res = np.concatenate._implementation(
+                [_.view(np.ndarray) for _ in arrs],
+                axis=axis,
+                out=out.view(np.ndarray),
+                dtype=dtype,
+                casting=casting,
+            )
+        else:
+            res = np.concatenate._implementation(
+                [_.view(np.ndarray) for _ in arrs],
+                axis=axis,
+                out=out.view(np.ndarray),
+            )
+        if cf != 1.0 and out.units != ret_units:
             out[:] *= cf
-    return out
+            return out
+    return unyt_array(res, ret_units, bypass_validation=True)
 
 
 @implements(np.cross)
 def cross(a, b, axisa=-1, axisb=-1, axisc=-1, axis=None):
-    prod_units = a.units * b.units
+    prod_units = getattr(a, "units", NULL_UNIT) * getattr(b, "units", NULL_UNIT)
     return (
         np.cross._implementation(
-            a.ndview, b.ndview, axisa=axisa, axisb=axisb, axisc=axisc, axis=axis
+            a.view(np.ndarray),
+            b.view(np.ndarray),
+            axisa=axisa,
+            axisb=axisb,
+            axisc=axisc,
+            axis=axis,
         )
         * prod_units
     )
@@ -238,8 +267,8 @@ def cross(a, b, axisa=-1, axisb=-1, axisc=-1, axis=None):
 def intersect1d(arr1, arr2, /, assume_unique=False, return_indices=False):
     _validate_units_consistency((arr1, arr2))
     retv = np.intersect1d._implementation(
-        arr1.ndview,
-        arr2.ndview,
+        arr1.view(np.ndarray),
+        arr2.view(np.ndarray),
         assume_unique=assume_unique,
         return_indices=return_indices,
     )
@@ -252,13 +281,18 @@ def intersect1d(arr1, arr2, /, assume_unique=False, return_indices=False):
 @implements(np.union1d)
 def union1d(arr1, arr2, /):
     _validate_units_consistency((arr1, arr2))
-    return np.union1d._implementation(arr1.ndview, arr2.ndview) * arr1.units
+    return (
+        np.union1d._implementation(arr1.view(np.ndarray), arr2.view(np.ndarray))
+        * arr1.units
+    )
 
 
 @implements(np.linalg.norm)
 def norm(x, /, ord=None, axis=None, keepdims=False):
     return (
-        np.linalg.norm._implementation(x.ndview, ord=ord, axis=axis, keepdims=keepdims)
+        np.linalg.norm._implementation(
+            x.view(np.ndarray), ord=ord, axis=axis, keepdims=keepdims
+        )
         * x.units
     )
 
@@ -266,13 +300,13 @@ def norm(x, /, ord=None, axis=None, keepdims=False):
 @implements(np.vstack)
 def vstack(tup, /):
     _validate_units_consistency(tup)
-    return np.vstack._implementation([_.ndview for _ in tup]) * tup[0].units
+    return np.vstack._implementation([_.view(np.ndarray) for _ in tup]) * tup[0].units
 
 
 @implements(np.hstack)
 def hstack(tup, /):
     _validate_units_consistency(tup)
-    return np.vstack._implementation([_.ndview for _ in tup]) * tup[0].units
+    return np.vstack._implementation([_.view(np.ndarray) for _ in tup]) * tup[0].units
 
 
 @implements(np.stack)
@@ -281,10 +315,14 @@ def stack(arrays, /, axis=0, out=None):
     ret_units = arrays[0].units
     if out is None:
         return (
-            np.stack._implementation([_.ndview for _ in arrays], axis=axis) * ret_units
+            np.stack._implementation([_.view(np.ndarray) for _ in arrays], axis=axis)
+            * ret_units
         )
     cf = _get_conversion_factor(out, ret_units)
-    np.stack._implementation([_.ndview for _ in arrays], axis=axis, out=out.ndview)
-    if out.units != ret_units:
+    res = np.stack._implementation(
+        [_.view(np.ndarray) for _ in arrays], axis=axis, out=out.view(np.ndarray)
+    )
+    if cf != 1.0 and out.units != ret_units:
         out[:] *= cf
-    return out
+        return out
+    return unyt_array(res, ret_units, bypass_validation=True)
