@@ -1,7 +1,7 @@
 import numpy as np
 from packaging.version import Version
 
-from unyt.array import unyt_array, NULL_UNIT
+from unyt.array import NULL_UNIT, unyt_array
 from unyt.exceptions import UnitConversionError, UnitInconsistencyError
 
 NUMPY_VERSION = Version(np.__version__)
