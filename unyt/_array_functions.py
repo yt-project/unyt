@@ -2,7 +2,7 @@ import numpy as np
 from packaging.version import Version
 
 from unyt.array import NULL_UNIT, unyt_array
-from unyt.exceptions import UnitConversionError, UnitInconsistencyError
+from unyt.exceptions import UnitInconsistencyError
 
 NUMPY_VERSION = Version(np.__version__)
 _HANDLED_FUNCTIONS = {}
@@ -26,37 +26,21 @@ def array2string(a, *args, **kwargs):
     )
 
 
-def _get_conversion_factor(out, units) -> float:
-    # helper function to "product"-like functions with an 'out' argument
-    out_units = getattr(out, "units", None)
-    if out_units is None:
-        return 1.0
-    try:
-        return out_units.get_conversion_factor(units)[0]
-    except UnitConversionError as exc:
-        raise TypeError(
-            "output array is not acceptable "
-            f"(units '{out.units}' cannot be converted to '{units}')"
-        ) from exc
+def product_helper(a, b, out, func):
+    prod_units = getattr(a, "units", NULL_UNIT) * getattr(b, "units", NULL_UNIT)
+    if out is None:
+        return func._implementation(a.view(np.ndarray), b.view(np.ndarray)) * prod_units
+    res = func._implementation(
+        a.view(np.ndarray), b.view(np.ndarray), out=out.view(np.ndarray)
+    )
+    if getattr(out, "units", None) is not None:
+        out.units = prod_units
+    return unyt_array(res, prod_units, bypass_validation=True)
 
 
 @implements(np.dot)
 def dot(a, b, out=None):
-    prod_units = getattr(a, "units", NULL_UNIT) * getattr(b, "units", NULL_UNIT)
-    if out is None:
-        return (
-            np.dot._implementation(a.view(np.ndarray), b.view(np.ndarray)) * prod_units
-        )
-
-    cf = _get_conversion_factor(out, prod_units)
-
-    res = np.dot._implementation(
-        a.view(np.ndarray), b.view(np.ndarray), out=out.view(np.ndarray)
-    )
-    if cf != 1.0 and out.units != prod_units:
-        out[:] *= cf
-        return out
-    return unyt_array(res, prod_units, bypass_validation=True)
+    return product_helper(a, b, out, np.dot)
 
 
 @implements(np.vdot)
@@ -75,22 +59,7 @@ def inner(a, b):
 
 @implements(np.outer)
 def outer(a, b, out=None):
-    prod_units = getattr(a, "units", NULL_UNIT) * getattr(b, "units", NULL_UNIT)
-    if out is None:
-        return (
-            np.outer._implementation(a.view(np.ndarray), b.view(np.ndarray))
-            * prod_units
-        )
-
-    cf = _get_conversion_factor(out, prod_units)
-
-    res = np.outer._implementation(
-        a.view(np.ndarray), b.view(np.ndarray), out=out.view(np.ndarray)
-    )
-    if cf != 1.0 and out.units != prod_units:
-        out[:] *= cf
-        return out
-    return unyt_array(res, prod_units, bypass_validation=True)
+    return product_helper(a, b, out, np.outer)
 
 
 @implements(np.kron)
@@ -226,7 +195,6 @@ def concatenate(arrs, /, axis=0, out=None, dtype=None, casting="same_kind"):
                 axis=axis,
             )
     else:
-        cf = _get_conversion_factor(out, ret_units)
         if NUMPY_VERSION >= Version("1.20"):
             res = np.concatenate._implementation(
                 [_.view(np.ndarray) for _ in arrs],
@@ -241,9 +209,8 @@ def concatenate(arrs, /, axis=0, out=None, dtype=None, casting="same_kind"):
                 axis=axis,
                 out=out.view(np.ndarray),
             )
-        if cf != 1.0 and out.units != ret_units:
-            out[:] *= cf
-            return out
+        if getattr(out, "units", None) is not None:
+            out.units = ret_units
     return unyt_array(res, ret_units, bypass_validation=True)
 
 
@@ -318,11 +285,9 @@ def stack(arrays, /, axis=0, out=None):
             np.stack._implementation([_.view(np.ndarray) for _ in arrays], axis=axis)
             * ret_units
         )
-    cf = _get_conversion_factor(out, ret_units)
     res = np.stack._implementation(
         [_.view(np.ndarray) for _ in arrays], axis=axis, out=out.view(np.ndarray)
     )
-    if cf != 1.0 and out.units != ret_units:
-        out[:] *= cf
-        return out
+    if getattr(out, "units", None) is not None:
+        out.units = ret_units
     return unyt_array(res, ret_units, bypass_validation=True)
