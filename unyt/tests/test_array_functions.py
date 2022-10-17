@@ -460,6 +460,7 @@ def test_linalg_pinv():
     np.testing.assert_allclose(B, np.dot(B, np.dot(a, B)))
 
 
+# see https://github.com/numpy/numpy/issues/22444
 @pytest.mark.xfail(
     reason=(
         "as of numpy 1.21.2, the __array_function__ protocol doesn't let "
@@ -472,6 +473,7 @@ def test_matrix_stack_linalg_pinv():
     assert 1 * B.units == 1 / g
 
 
+# see https://github.com/numpy/numpy/issues/22444
 @pytest.mark.xfail(
     reason=(
         "as of numpy 1.21.2, the __array_function__ protocol doesn't let "
