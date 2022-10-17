@@ -133,6 +133,7 @@ default_unit_symbol_lut = OrderedDict(
         ),
         ("degC", (1.0, dimensions.temperature, -273.15, r"^\circ\rm{C}", True)),
         ("delta_degC", (1.0, dimensions.temperature, 0, r"\Delta^\circ\rm{C}", True)),
+        ("L", (1e-3, dimensions.volume, 0, r"\rm{L}", True)),
         # Imperial and other non-metric units
         ("mil", (1e-3 * m_per_inch, dimensions.length, 0.0, r"\rm{mil}", False)),
         ("inch", (m_per_inch, dimensions.length, 0.0, r"\rm{in}", False)),
@@ -538,6 +539,7 @@ default_unit_name_alternatives = OrderedDict(
         ("lm", ("lumen",)),
         ("lx", ("lux",)),
         ("degC", ("degree_celsius", "degree_Celsius", "celcius", "celsius", "°C")),
+        ("L", ("liter", "litre", "l")),
         # Imperial and other non-metric units
         ("mil", ("thou", "thousandth")),
         ("inch", ("in",)),
