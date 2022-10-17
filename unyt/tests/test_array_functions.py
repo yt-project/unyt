@@ -378,8 +378,8 @@ def test_dot_mixed_ndarray_unyt_array():
 
     assert isinstance(res, unyt_array)
     assert isinstance(out, unyt_array)
-    assert res.units == out.units == km
-    assert res is out
+    assert res.units == out.units == cm
+    assert np.shares_memory(res, out)
 
     # check this works with an ndarray as the first operand
     out = np.zeros((3, 3)) * km
@@ -387,8 +387,8 @@ def test_dot_mixed_ndarray_unyt_array():
 
     assert isinstance(res, unyt_array)
     assert isinstance(out, unyt_array)
-    assert res.units == out.units == km
-    assert res is out
+    assert res.units == out.units == cm
+    assert np.shares_memory(res, out)
 
 
 def test_invalid_dot_matrices():
@@ -398,14 +398,10 @@ def test_invalid_dot_matrices():
     b.shape = (3, 3)
 
     out = np.empty((3, 3), dtype=np.int_, order="C") * s**2
-    with pytest.raises(
-        TypeError,
-        match=re.escape(
-            "output array is not acceptable "
-            "(units 's**2' cannot be converted to 'cm*s')"
-        ),
-    ):
-        np.dot(a, b, out=out)
+    res = np.dot(a, b, out=out)
+
+    np.testing.assert_array_equal(res, out)
+    assert out.units == res.units == cm * s
 
 
 def test_vdot():
