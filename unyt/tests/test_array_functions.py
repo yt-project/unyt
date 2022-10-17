@@ -6,36 +6,49 @@ import pytest
 
 from unyt import cm, g, km, s
 from unyt._array_functions import _HANDLED_FUNCTIONS as HANDLED_FUNCTIONS
-from unyt.array import unyt_array
+from unyt.array import unyt_array, unyt_quantity
 from unyt.exceptions import UnitInconsistencyError
 
-NOT_HANDLED_FUNCTIONS = {
-    np.all,
+# this is a subset of NOT_HANDLED_FUNCTIONS for which there's nothing to do
+# because they don't apply to (real) numeric types
+# or they work as expected out of the box
+# This is not necessarilly complete !
+NOOP_FUNCTIONS = {
+    np.all,  # expects booleans
+    np.alltrue,  # expects booleans
+    np.amax,  # works out of the box (tested)
+    np.amin,  # works out of the box (tested)
+    np.angle,  # expects complex numbers
+    np.argmax,  # returns pure numbers
+    np.argmin,  # returns pure numbers
+    np.argpartition,  # return pure numbers
+    np.argsort,  # returns pure numbers
+    np.argwhere,  # returns pure numbers
+    np.around,  # works out of the box (tested)
+    np.array_repr,  # hooks into __repr__
+    np.array_str,  # hooks into __str__
+    np.atleast_1d,  # works out of the box (tested)
+    np.atleast_2d,  # works out of the box (tested)
+    np.atleast_3d,  # works out of the box (tested)
+    np.average,  # works out of the box (tested)
+    np.nan_to_num,  # works out of the box (tested)
+    np.nanargmax,  # return pure numbers
+    np.nanargmin,  # return pure numbers
+    np.trim_zeros,  # works out of the box (tested)
+}
+
+# this set represents all functions that need inspection, tests, or both
+# it is always possible that some of its elements belong in NOOP_FUNCTIONS
+TODO_FUNCTIONS = {
     np.allclose,
-    np.alltrue,
-    np.amax,
-    np.amin,
-    np.angle,
     np.any,
     np.append,
     np.apply_along_axis,
     np.apply_over_axes,
-    np.argmax,
-    np.argmin,
-    np.argpartition,
-    np.argsort,
-    np.argwhere,
-    np.around,
     np.array_equal,
     np.array_equiv,
-    np.array_repr,
     np.array_split,
-    np.array_str,
     np.asfarray,
-    np.atleast_1d,
-    np.atleast_2d,
-    np.atleast_3d,
-    np.average,
     np.bincount,
     np.block,
     np.broadcast_arrays,
@@ -144,9 +157,6 @@ NOT_HANDLED_FUNCTIONS = {
     np.min_scalar_type,
     np.moveaxis,
     np.msort,
-    np.nan_to_num,
-    np.nanargmax,
-    np.nanargmin,
     np.nancumprod,
     np.nancumsum,
     np.nanmax,
@@ -227,7 +237,6 @@ NOT_HANDLED_FUNCTIONS = {
     np.trapz,
     np.tril,
     np.tril_indices_from,
-    np.trim_zeros,
     np.triu,
     np.triu_indices_from,
     np.unique,
@@ -253,9 +262,11 @@ removed_functions = {
     "pmt",  # deprecated in numpy 1.18, removed in 1.20
     "ppmt",  # deprecated in numpy 1.18, removed in 1.20
     "pv",  # deprecated in numpy 1.18, removed in 1.20
-    "rank",  # deprecated in numpy 1.10, ramoved in 1.18
+    "rank",  # deprecated in numpy 1.10, removed in 1.18
     "rate",  # deprecated in numpy 1.18, removed in 1.20
 }
+
+NOT_HANDLED_FUNCTIONS = NOOP_FUNCTIONS | TODO_FUNCTIONS
 
 for func in removed_functions:
     if hasattr(np, func):
@@ -590,3 +601,58 @@ def test_stack(axis, expected):
     res = np.stack((x1, x2), axis=axis)
     assert 1 * res.units == 1 * cm
     np.testing.assert_array_equal(res, expected)
+
+
+def test_amax():
+    x1 = [[0.0, 1.0, 2.0], [3.0, 4.0, 5.0]] * cm
+    res = np.amax(x1)
+    assert type(res) is unyt_quantity
+    res = np.amax(x1, axis=1)
+    assert type(res) is unyt_array
+
+
+def test_amin():
+    x1 = [[0.0, 1.0, 2.0], [3.0, 4.0, 5.0]] * cm
+    res = np.amin(x1)
+    assert type(res) is unyt_quantity
+    res = np.amin(x1, axis=1)
+    assert type(res) is unyt_array
+
+
+def test_around():
+    x1 = [[1, 2, 3], [1, 2, 3], [1, 2, 3.0]] * g
+    res = np.around(x1, 2)
+    assert type(res) is unyt_array
+    assert 1 * res.units == 1 * g
+
+
+def test_atleast_nd():
+    x0 = 1.0 * cm
+
+    x1 = np.atleast_1d(x0)
+    assert type(x1) is unyt_array
+    assert x1.ndim == 1
+    assert 1 * x1.units == 1 * cm
+
+    x2 = np.atleast_2d(x0)
+    assert type(x2) is unyt_array
+    assert x2.ndim == 2
+    assert 1 * x2.units == 1 * cm
+
+    x3 = np.atleast_3d(x0)
+    assert type(x3) is unyt_array
+    assert x3.ndim == 3
+    assert 1 * x3.units == 1 * cm
+
+
+def test_average():
+    x1 = [0.0, 1.0, 2.0] * cm
+    res = np.average(x1)
+    assert type(res) is unyt_quantity
+    assert res == 1 * cm
+
+
+def test_trim_zeros():
+    x1 = [0, 1, 2, 3, 0] * cm
+    res = np.trim_zeros(x1)
+    assert type(res) is unyt_array
