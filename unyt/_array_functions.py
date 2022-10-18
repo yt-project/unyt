@@ -172,9 +172,12 @@ def _validate_units_consistency(arrs):
     # by using this as a guard clause in unyt_array.__array_function__
     # because it's already a necessary condition for numpy to use our
     # custom implementations
-    ref_units = getattr(arrs[0], "units", NULL_UNIT)
-    if any(getattr(a, "units", NULL_UNIT) != ref_units for a in arrs[1:]):
-        raise UnitInconsistencyError(*(a.units for a in arrs))
+    units = [getattr(arr, "units", NULL_UNIT) for arr in arrs]
+    sunits = set(units)
+    if len(sunits) == 1:
+        return
+    else:
+        raise UnitInconsistencyError(*units)
 
 
 @implements(np.concatenate)
