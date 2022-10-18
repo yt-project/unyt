@@ -26,7 +26,6 @@ NOOP_FUNCTIONS = {
     np.argpartition,  # return pure numbers
     np.argsort,  # returns pure numbers
     np.argwhere,  # returns pure numbers
-    np.around,  # works out of the box (tested)
     np.array_repr,  # hooks into __repr__
     np.array_str,  # hooks into __str__
     np.atleast_1d,  # works out of the box (tested)
@@ -500,8 +499,8 @@ def test_histogram2d():
     y = np.random.normal(loc=10, size=100) * s
     counts, xbins, ybins = np.histogram2d(x, y)
     assert counts.ndim == 2
-    assert 1 * xbins.units == 1 * x.units
-    assert 1 * ybins.units == 1 * y.units
+    assert xbins.units == x.units
+    assert ybins.units == y.units
 
 
 def test_histogramdd():
@@ -510,16 +509,16 @@ def test_histogramdd():
     z = np.random.normal(size=100) * g
     counts, (xbins, ybins, zbins) = np.histogramdd((x, y, z))
     assert counts.ndim == 3
-    assert 1 * xbins.units == 1 * x.units
-    assert 1 * ybins.units == 1 * y.units
-    assert 1 * zbins.units == 1 * z.units
+    assert xbins.units == x.units
+    assert ybins.units == y.units
+    assert zbins.units == z.units
 
 
 def test_concatenate():
     x1 = np.random.normal(size=100) * cm
     x2 = np.random.normal(size=100) * cm
     res = np.concatenate((x1, x2))
-    assert 1 * res.units == 1 * cm
+    assert res.units == cm
     assert res.shape == (200,)
 
 
@@ -547,7 +546,7 @@ def test_intersect1d():
     x1 = [1, 2, 3, 4, 5, 6, 7, 8] * cm
     x2 = [0, 2, 4, 6, 8] * cm
     res = np.intersect1d(x1, x2)
-    assert 1 * res.units == 1 * cm
+    assert res.units == cm
     np.testing.assert_array_equal(res, [2, 4, 6, 8])
 
 
@@ -563,14 +562,14 @@ def test_union1d():
     x1 = [-1, 0, 1] * cm
     x2 = [-2, -1, -3] * cm
     res = np.union1d(x1, x2)
-    assert 1 * res.units == 1 * cm
+    assert res.units == cm
     np.testing.assert_array_equal(res, [-3, -2, -1, 0, 1])
 
 
 def test_linalg_norm():
     x = [1, 1, 1] * s
     res = np.linalg.norm(x)
-    assert 1 * res.units == 1 * s
+    assert res.units == s
     assert res == pytest.approx(np.sqrt(3))
 
 
@@ -578,7 +577,7 @@ def test_vstack():
     x1 = [0, 1, 2] * cm
     x2 = [3, 4, 5] * cm
     res = np.vstack((x1, x2))
-    assert 1 * res.units == 1 * cm
+    assert res.units == cm
     np.testing.assert_array_equal(res, [[0, 1, 2], [3, 4, 5]])
 
 
@@ -586,7 +585,7 @@ def test_hstack():
     x1 = np.array([[0, 1, 2], [3, 4, 5]]) * cm
     x2 = np.array([[6, 7, 8], [9, 10, 11]]) * cm
     res = np.hstack((x1, x2))
-    assert 1 * res.units == 1 * cm
+    assert res.units == cm
     np.testing.assert_array_equal(res, [[0, 1, 2], [3, 4, 5], [6, 7, 8], [9, 10, 11]])
 
 
@@ -597,7 +596,7 @@ def test_stack(axis, expected):
     x1 = [0, 1, 2] * cm
     x2 = [3, 4, 5] * cm
     res = np.stack((x1, x2), axis=axis)
-    assert 1 * res.units == 1 * cm
+    assert res.units == cm
     np.testing.assert_array_equal(res, expected)
 
 
@@ -621,7 +620,7 @@ def test_around():
     x1 = [[1, 2, 3], [1, 2, 3], [1, 2, 3.0]] * g
     res = np.around(x1, 2)
     assert type(res) is unyt_array
-    assert 1 * res.units == 1 * g
+    assert res.units == g
 
 
 def test_atleast_nd():
@@ -630,17 +629,17 @@ def test_atleast_nd():
     x1 = np.atleast_1d(x0)
     assert type(x1) is unyt_array
     assert x1.ndim == 1
-    assert 1 * x1.units == 1 * cm
+    assert x1.units == cm
 
     x2 = np.atleast_2d(x0)
     assert type(x2) is unyt_array
     assert x2.ndim == 2
-    assert 1 * x2.units == 1 * cm
+    assert x2.units == cm
 
     x3 = np.atleast_3d(x0)
     assert type(x3) is unyt_array
     assert x3.ndim == 3
-    assert 1 * x3.units == 1 * cm
+    assert x3.units == cm
 
 
 def test_average():
