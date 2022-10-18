@@ -665,7 +665,7 @@ def test_append():
     a = [0, 1, 2, 3] * cm
     b = np.append(a, [4, 5, 6] * cm)
     assert type(b) is unyt_array
-    assert 1 * b.units == 1 * cm
+    assert b.units == cm
 
 
 def test_append_inconsistent_units():
