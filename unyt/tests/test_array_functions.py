@@ -19,6 +19,8 @@ NOOP_FUNCTIONS = {
     np.amax,  # works out of the box (tested)
     np.amin,  # works out of the box (tested)
     np.angle,  # expects complex numbers
+    np.any,  # works out of the box (tested)
+    np.append,  # we get it for free with np.concatenate (tested)
     np.argmax,  # returns pure numbers
     np.argmin,  # returns pure numbers
     np.argpartition,  # return pure numbers
@@ -41,8 +43,6 @@ NOOP_FUNCTIONS = {
 # it is always possible that some of its elements belong in NOOP_FUNCTIONS
 TODO_FUNCTIONS = {
     np.allclose,
-    np.any,
-    np.append,
     np.apply_along_axis,
     np.apply_over_axes,
     np.array_equal,
@@ -654,3 +654,15 @@ def test_trim_zeros():
     x1 = [0, 1, 2, 3, 0] * cm
     res = np.trim_zeros(x1)
     assert type(res) is unyt_array
+
+
+def test_any():
+    assert not np.any([0, 0, 0] * cm)
+    assert np.any([1, 0, 0] * cm)
+
+
+def test_append():
+    a = [0, 1, 2, 3] * cm
+    b = np.append(a, [4, 5, 6])
+    assert type(b) is unyt_array
+    assert 1 * b.units == 1 * cm
