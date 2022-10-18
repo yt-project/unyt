@@ -291,3 +291,18 @@ def stack(arrays, /, axis=0, out=None):
     if getattr(out, "units", None) is not None:
         out.units = ret_units
     return unyt_array(res, ret_units, bypass_validation=True)
+
+
+@implements(np.around)
+def around(a, decimals=0, out=None):
+    ret_units = a.units
+    if out is None:
+        return (
+            np.around._implementation(a.view(np.ndarray), decimals=decimals) * ret_units
+        )
+    res = np.around._implementation(
+        a.view(np.ndarray), decimals=decimals, out=out.view(np.ndarray)
+    )
+    if getattr(out, "units", None) is not None:
+        out.units = ret_units
+    return unyt_array(res, ret_units, bypass_validation=True)

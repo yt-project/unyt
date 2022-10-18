@@ -24,7 +24,6 @@ NOOP_FUNCTIONS = {
     np.argpartition,  # return pure numbers
     np.argsort,  # returns pure numbers
     np.argwhere,  # returns pure numbers
-    np.around,  # works out of the box (tested)
     np.array_repr,  # hooks into __repr__
     np.array_str,  # hooks into __str__
     np.atleast_1d,  # works out of the box (tested)
