@@ -663,6 +663,18 @@ def test_any():
 
 def test_append():
     a = [0, 1, 2, 3] * cm
-    b = np.append(a, [4, 5, 6])
+    b = np.append(a, [4, 5, 6] * cm)
     assert type(b) is unyt_array
     assert 1 * b.units == 1 * cm
+
+
+def test_append_inconsistent_units():
+    a = [0, 1, 2, 3] * cm
+    with pytest.raises(
+        UnitInconsistencyError,
+        match=re.escape(
+            r"Expected all unyt_array arguments to have identical units. "
+            r"Received mixed units (cm, dimensionless)"
+        ),
+    ):
+        np.append(a, [4, 5, 6])
