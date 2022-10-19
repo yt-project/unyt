@@ -32,6 +32,11 @@ NOOP_FUNCTIONS = {
     np.atleast_2d,  # works out of the box (tested)
     np.atleast_3d,  # works out of the box (tested)
     np.average,  # works out of the box (tested)
+    np.can_cast,  # works out of the box (tested)
+    np.iscomplex,  # works out of the box (tested)
+    np.iscomplexobj,  # works out of the box (tested)
+    np.isreal,  # works out of the box (tested)
+    np.isrealobj,  # works out of the box (tested)
     np.nan_to_num,  # works out of the box (tested)
     np.nanargmax,  # return pure numbers
     np.nanargmin,  # return pure numbers
@@ -52,7 +57,6 @@ TODO_FUNCTIONS = {
     np.broadcast_to,
     np.busday_count,
     np.busday_offset,
-    np.can_cast,
     np.choose,
     np.clip,
     np.column_stack,
@@ -118,13 +122,9 @@ TODO_FUNCTIONS = {
     np.interp,
     np.is_busday,
     np.isclose,
-    np.iscomplex,
-    np.iscomplexobj,
     np.isin,
     np.isneginf,
     np.isposinf,
-    np.isreal,
-    np.isrealobj,
     np.ix_,
     np.lexsort,
     np.linalg.cholesky,
@@ -692,3 +692,24 @@ def test_block():
     res = np.block([[x1, x2]])
     assert type(res) is unyt_array
     assert res.units == cm
+
+
+def test_can_cast():
+    a = [0, 1, 2] * cm
+    assert np.can_cast(a, "float64")
+    assert np.can_cast(a, "int64")
+    assert not np.can_cast(a, "float16")
+
+
+def test_isreal_like():
+    a = [1, 2, 3] * cm
+    assert np.all(np.isreal(a))
+    assert np.isrealobj(a)
+    assert not np.any(np.iscomplex(a))
+    assert not np.iscomplexobj(a)
+
+    b = [1j, 2j, 3j] * cm
+    assert not np.any(np.isreal(b))
+    assert not np.isrealobj(b)
+    assert np.all(np.iscomplex(b))
+    assert np.iscomplexobj(b)
