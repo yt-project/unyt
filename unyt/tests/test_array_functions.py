@@ -47,9 +47,7 @@ TODO_FUNCTIONS = {
     np.array_equal,
     np.array_equiv,
     np.array_split,
-    np.asfarray,
     np.bincount,
-    np.block,
     np.broadcast_arrays,
     np.broadcast_to,
     np.busday_count,
@@ -677,3 +675,20 @@ def test_append_inconsistent_units():
         ),
     ):
         np.append(a, [4, 5, 6])
+
+
+def test_asfarray():
+    x1 = np.eye(3, dtype="int64") * cm
+
+    x2 = np.asfarray(x1)
+    assert type(x2) is unyt_array
+    assert x2.units == cm
+    assert x2.dtype == "float64"
+
+
+def test_block():
+    x1 = 1 * np.ones((3, 3)) * cm
+    x2 = 2 * np.ones((3, 1)) * cm
+    res = np.block([[x1, x2]])
+    assert type(res) is unyt_array
+    assert res.units == cm
