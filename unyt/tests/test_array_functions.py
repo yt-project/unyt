@@ -694,6 +694,15 @@ def test_block():
     assert res.units == cm
 
 
+def test_block_units_inconsistency():
+    # check that unit inconsistency is correctly detected
+    # for nested lists
+    x1 = 1 * np.ones((3, 3)) * cm
+    x2 = [3 * cm, 3 * cm, 3 * km]
+    with pytest.raises(UnitInconsistencyError):
+        np.block([[x1, x2]])
+
+
 def test_can_cast():
     a = [0, 1, 2] * cm
     assert np.can_cast(a, "float64")
