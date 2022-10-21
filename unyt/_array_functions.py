@@ -167,23 +167,35 @@ def histogramdd(
     return counts, tuple(_bin * u for _bin, u in zip(bins, units))
 
 
-def _validate_units_consistency(arrs):
+def get_units(arrays):
+    units = []
+    for sub in arrays:
+        if isinstance(sub, np.ndarray):
+            units.append(getattr(sub, "units", NULL_UNIT))
+        else:
+            units.extend(get_units(sub))
+    return units
+
+
+def _validate_units_consistency(arrays):
+    """
+    Return unique units or raise UnitInconsistencyError if units are mixed.
+    """
     # NOTE: we cannot validate that all arrays are unyt_arrays
     # by using this as a guard clause in unyt_array.__array_function__
     # because it's already a necessary condition for numpy to use our
     # custom implementations
-    units = [getattr(arr, "units", NULL_UNIT) for arr in arrs]
+    units = get_units(arrays)
     sunits = set(units)
     if len(sunits) == 1:
-        return
+        return units[0]
     else:
         raise UnitInconsistencyError(*units)
 
 
 @implements(np.concatenate)
 def concatenate(arrs, /, axis=0, out=None, dtype=None, casting="same_kind"):
-    _validate_units_consistency(arrs)
-    ret_units = arrs[0].units
+    ret_units = _validate_units_consistency(arrs)
     if out is None:
         if NUMPY_VERSION >= Version("1.20"):
             res = np.concatenate._implementation(
@@ -269,20 +281,19 @@ def norm(x, /, ord=None, axis=None, keepdims=False):
 
 @implements(np.vstack)
 def vstack(tup, /):
-    _validate_units_consistency(tup)
-    return np.vstack._implementation([_.view(np.ndarray) for _ in tup]) * tup[0].units
+    ret_units = _validate_units_consistency(tup)
+    return np.vstack._implementation([_.view(np.ndarray) for _ in tup]) * ret_units
 
 
 @implements(np.hstack)
 def hstack(tup, /):
-    _validate_units_consistency(tup)
-    return np.vstack._implementation([_.view(np.ndarray) for _ in tup]) * tup[0].units
+    ret_units = _validate_units_consistency(tup)
+    return np.vstack._implementation([_.view(np.ndarray) for _ in tup]) * ret_units
 
 
 @implements(np.stack)
 def stack(arrays, /, axis=0, out=None):
-    _validate_units_consistency(arrays)
-    ret_units = arrays[0].units
+    ret_units = _validate_units_consistency(arrays)
     if out is None:
         return (
             np.stack._implementation([_.view(np.ndarray) for _ in arrays], axis=axis)
@@ -309,3 +320,15 @@ def around(a, decimals=0, out=None):
     if getattr(out, "units", None) is not None:
         out.units = ret_units
     return unyt_array(res, ret_units, bypass_validation=True)
+
+
+@implements(np.asfarray)
+def asfarray(a, dtype=np.double):
+    ret_units = a.units
+    return np.asfarray._implementation(a.view(np.ndarray), dtype=dtype) * ret_units
+
+
+@implements(np.block)
+def block(arrays):
+    ret_units = _validate_units_consistency(arrays)
+    return np.block._implementation(arrays) * ret_units
