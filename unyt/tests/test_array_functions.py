@@ -88,22 +88,6 @@ TODO_FUNCTIONS = {
     np.empty_like,
     np.expand_dims,
     np.extract,
-    np.fft.fft,
-    np.fft.fft2,
-    np.fft.fftn,
-    np.fft.fftshift,
-    np.fft.hfft,
-    np.fft.ifft,
-    np.fft.ifft2,
-    np.fft.ifftn,
-    np.fft.ifftshift,
-    np.fft.ihfft,
-    np.fft.irfft,
-    np.fft.irfft2,
-    np.fft.irfftn,
-    np.fft.rfft,
-    np.fft.rfft2,
-    np.fft.rfftn,
     np.fill_diagonal,
     np.fix,
     np.flatnonzero,
@@ -722,3 +706,49 @@ def test_isreal_like():
     assert not np.isrealobj(b)
     assert np.all(np.iscomplex(b))
     assert np.iscomplexobj(b)
+
+
+@pytest.mark.parametrize(
+    "func",
+    [
+        np.fft.fft,
+        np.fft.hfft,
+        np.fft.rfft,
+        np.fft.ifft,
+        np.fft.ihfft,
+        np.fft.irfft,
+    ],
+)
+def test_fft_1D(func):
+    x1 = [0, 1, 2] * cm
+    res = func(x1)
+    assert type(res) is unyt_array
+    assert res.units == (1 / cm).units
+
+
+@pytest.mark.parametrize(
+    "func",
+    [
+        np.fft.fft2,
+        np.fft.fftn,
+        np.fft.rfft2,
+        np.fft.rfftn,
+        np.fft.ifft2,
+        np.fft.ifftn,
+        np.fft.irfft2,
+        np.fft.irfftn,
+    ],
+)
+def test_fft_ND(func):
+    x1 = [[0, 1, 2], [0, 1, 2], [0, 1, 2]] * cm
+    res = func(x1)
+    assert type(res) is unyt_array
+    assert res.units == (1 / cm).units
+
+
+@pytest.mark.parametrize("func", [np.fft.fftshift, np.fft.ifftshift])
+def test_fft_shift(func):
+    x1 = [[0, 1, 2], [0, 1, 2], [0, 1, 2]] * cm
+    res = func(x1)
+    assert type(res) is unyt_array
+    assert res.units == cm

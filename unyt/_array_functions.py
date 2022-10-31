@@ -332,3 +332,87 @@ def asfarray(a, dtype=np.double):
 def block(arrays):
     ret_units = _validate_units_consistency(arrays)
     return np.block._implementation(arrays) * ret_units
+
+
+@implements(np.fft.fft)
+def ftt_fft(a, *args, **kwargs):
+    return np.fft.fft._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+
+
+@implements(np.fft.fft2)
+def ftt_fft2(a, *args, **kwargs):
+    return np.fft.fft2._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+
+
+@implements(np.fft.fftn)
+def ftt_fftn(a, *args, **kwargs):
+    return np.fft.fftn._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+
+
+@implements(np.fft.hfft)
+def ftt_hfft(a, *args, **kwargs):
+    return np.fft.hfft._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+
+
+@implements(np.fft.rfft)
+def ftt_rfft(a, *args, **kwargs):
+    return np.fft.rfft._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+
+
+@implements(np.fft.rfft2)
+def ftt_rfft2(a, *args, **kwargs):
+    return np.fft.rfft2._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+
+
+@implements(np.fft.rfftn)
+def ftt_rfftn(a, *args, **kwargs):
+    return np.fft.rfftn._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+
+
+@implements(np.fft.ifft)
+def ftt_ifft(a, *args, **kwargs):
+    return np.fft.ifft._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+
+
+@implements(np.fft.ifft2)
+def ftt_ifft2(a, *args, **kwargs):
+    return np.fft.ifft2._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+
+
+@implements(np.fft.ifftn)
+def ftt_ifftn(a, *args, **kwargs):
+    return np.fft.ifftn._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+
+
+@implements(np.fft.ihfft)
+def ftt_ihfft(a, *args, **kwargs):
+    return np.fft.ihfft._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+
+
+@implements(np.fft.irfft)
+def ftt_irfft(a, *args, **kwargs):
+    return np.fft.irfft._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+
+
+@implements(np.fft.irfft2)
+def ftt_irfft2(a, *args, **kwargs):
+    return np.fft.irfft2._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+
+
+@implements(np.fft.irfftn)
+def ftt_irfftn(a, *args, **kwargs):
+    return np.fft.irfftn._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+
+
+@implements(np.fft.fftshift)
+def fft_fftshift(x, *args, **kwargs):
+    return (
+        np.fft.fftshift._implementation(x.view(np.ndarray), *args, **kwargs) * x.units
+    )
+
+
+@implements(np.fft.ifftshift)
+def fft_ifftshift(x, *args, **kwargs):
+    return (
+        np.fft.ifftshift._implementation(x.view(np.ndarray), *args, **kwargs) * x.units
+    )
