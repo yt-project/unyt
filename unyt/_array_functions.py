@@ -106,63 +106,31 @@ def histogram(
     a,
     bins=10,
     range=None,
-    normed=None,
-    weights=None,
-    density=None,
+    *args,
+    **kwargs,
 ):
     range = _sanitize_range(range, units=[a.units])
     counts, bins = np.histogram._implementation(
-        a.view(np.ndarray),
-        bins=bins,
-        range=range,
-        normed=normed,
-        weights=weights,
-        density=density,
+        a.view(np.ndarray), bins, range, *args, **kwargs
     )
     return counts, bins * a.units
 
 
 @implements(np.histogram2d)
-def histogram2d(
-    x,
-    y,
-    bins=10,
-    range=None,
-    normed=None,
-    weights=None,
-    density=None,
-):
+def histogram2d(x, y, bins=10, range=None, *args, **kwargs):
     range = _sanitize_range(range, units=[x.units, y.units])
     counts, xbins, ybins = np.histogram2d._implementation(
-        x.view(np.ndarray),
-        y.view(np.ndarray),
-        bins=bins,
-        range=range,
-        normed=normed,
-        weights=weights,
-        density=density,
+        x.view(np.ndarray), y.view(np.ndarray), bins, range, *args, **kwargs
     )
     return counts, xbins * x.units, ybins * y.units
 
 
 @implements(np.histogramdd)
-def histogramdd(
-    sample,
-    bins=10,
-    range=None,
-    normed=None,
-    weights=None,
-    density=None,
-):
+def histogramdd(sample, bins=10, range=None, *args, **kwargs):
     units = [_.units for _ in sample]
     range = _sanitize_range(range, units=units)
     counts, bins = np.histogramdd._implementation(
-        [_.view(np.ndarray) for _ in sample],
-        bins=bins,
-        range=range,
-        normed=normed,
-        weights=weights,
-        density=density,
+        [_.view(np.ndarray) for _ in sample], bins, range, *args, **kwargs
     )
     return counts, tuple(_bin * u for _bin, u in zip(bins, units))
 

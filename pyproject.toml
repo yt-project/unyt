@@ -33,7 +33,7 @@ write_to = "unyt/_version.py"
 version_scheme = "post-release"
 
 [tool.pytest.ini_options]
-addopts = "--ignore=benchmarks --ignore=paper --ignore=unyt/_mpl_array_converter"
+addopts = "--ignore=benchmarks --ignore=paper --ignore=unyt/_mpl_array_converter --color=yes"
 filterwarnings = [
     "error",
     "ignore:Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.:UserWarning",

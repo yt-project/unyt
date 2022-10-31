@@ -278,9 +278,9 @@ def get_wrapped_functions(*modules):
     wrapped_functions = {}
     for mod in modules:
         for name, f in mod.__dict__.items():
-            if f is np.printoptions:
-                continue
             if callable(f) and hasattr(f, "__wrapped__"):
+                if f is np.printoptions or f.__name__.startswith("_"):
+                    continue
                 wrapped_functions[mod.__name__ + "." + name] = f
     return dict(sorted(wrapped_functions.items()))
 
