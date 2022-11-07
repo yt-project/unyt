@@ -464,7 +464,7 @@ mass fraction conversion factors) are:
 
 * ``"Zsun_angr"``: 0.01937, from `Anders E. & Grevesse N. (1989, Geochimica et Cosmochimica Acta 53, 197) <https://ui.adsabs.harvard.edu/abs/1989GeCoA..53..197A/abstract>`_
 * ``"Zsun_aspl"``: 0.01337, from `Asplund M., Grevesse N., Sauval A.J. & Scott P. (2009, ARAA, 47, 481) <https://ui.adsabs.harvard.edu/abs/2009ARA&A..47..481A/abstract>`_
-* ``"Zsun_feld"``: 0.01909, from `Feldman U. (Physica Scripta, 46, 202) <https://ui.adsabs.harvard.edu/abs/1992PhyS...46..202F/abstract>`_
+* ``"Zsun_feld"``: 0.01909, from `Feldman U. (1992, Physica Scripta, 46, 202) <https://ui.adsabs.harvard.edu/abs/1992PhyS...46..202F/abstract>`_
 * ``"Zsun_lodd"``: 0.01321, from `Lodders, K (2003, ApJ 591, 1220) <https://ui.adsabs.harvard.edu/abs/2003ApJ...591.1220L/abstract>`_
 
 These can be used in the same way as above:

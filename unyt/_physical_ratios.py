@@ -25,10 +25,10 @@ luminosity_sun_watts = 3.8270e26
 
 # Solar abundances from various references
 metallicity_sun = 0.01295  # Cloudy 17.03
-metallicity_sun_angr = 0.01937  # Anders & Grevasse (1989)
-metallicity_sun_aspl = 0.01337
-metallicity_sun_feld = 0.01909
-metallicity_sun_lodd = 0.01321
+metallicity_sun_angr = 0.01937  # Anders & Grevesse (1989)
+metallicity_sun_aspl = 0.01337  # Asplund et al. (2009)
+metallicity_sun_feld = 0.01909  # Feldman (1992)
+metallicity_sun_lodd = 0.01321  # Lodders (2003)
 
 # Conversion Factors:  X au * mpc_per_au = Y mpc
 # length
