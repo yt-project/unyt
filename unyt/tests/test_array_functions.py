@@ -40,7 +40,22 @@ NOOP_FUNCTIONS = {
     np.nan_to_num,  # works out of the box (tested)
     np.nanargmax,  # return pure numbers
     np.nanargmin,  # return pure numbers
+    np.nanmax,  # works out of the box (tested)
+    np.nanmean,  # works out of the box (tested)
+    np.nanmedian,  # works out of the box (tested)
+    np.nanmin,  # works out of the box (tested)
     np.trim_zeros,  # works out of the box (tested)
+    np.max,  # works out of the box (tested)
+    np.mean,  # works out of the box (tested)
+    np.median,  # works out of the box (tested)
+    np.min,  # works out of the box (tested)
+    np.ndim,  # return pure numbers
+    np.shape,  # returns pure numbers
+    np.size,  # returns pure numbers
+    np.sort,  # works out of the box (tested)
+    np.sum,  # works out of the box (tested)
+    np.repeat,  # works out of the box (tested)
+    np.tile,  # works out of the box (tested)
 }
 
 # this set represents all functions that need inspection, tests, or both
@@ -129,28 +144,19 @@ TODO_FUNCTIONS = {
     np.linalg.tensorsolve,
     np.linspace,
     np.logspace,
-    np.max,
     np.may_share_memory,
-    np.mean,
-    np.median,
     np.meshgrid,
-    np.min,
     np.min_scalar_type,
     np.moveaxis,
     np.msort,
     np.nancumprod,
     np.nancumsum,
-    np.nanmax,
-    np.nanmean,
-    np.nanmedian,
-    np.nanmin,
     np.nanpercentile,
     np.nanprod,
     np.nanquantile,
     np.nanstd,
     np.nansum,
     np.nanvar,
-    np.ndim,
     np.nonzero,
     np.ones_like,
     np.packbits,
@@ -170,7 +176,7 @@ TODO_FUNCTIONS = {
     np.polyval,
     np.prod,
     np.product,
-    np.ptp,
+    np.ptp,  # note: should return delta_K for temperatures !
     np.put,
     np.put_along_axis,
     np.putmask,
@@ -179,7 +185,6 @@ TODO_FUNCTIONS = {
     np.ravel_multi_index,
     np.real,
     np.real_if_close,
-    np.repeat,
     np.reshape,
     np.resize,
     np.result_type,
@@ -197,25 +202,18 @@ TODO_FUNCTIONS = {
     np.select,
     np.setdiff1d,
     np.setxor1d,
-    np.shape,
     np.shares_memory,
     np.sinc,
-    np.size,
     np.sometrue,
-    np.sort,
-    np.sort_complex,
     np.split,
     np.squeeze,
     np.std,
-    np.sum,
     np.swapaxes,
     np.take,
     np.take_along_axis,
     np.tensordot,
-    np.tile,
     np.trace,
     np.transpose,
-    np.trapz,
     np.tril,
     np.tril_indices_from,
     np.triu,
@@ -750,5 +748,77 @@ def test_fft_ND(func):
 def test_fft_shift(func):
     x1 = [[0, 1, 2], [0, 1, 2], [0, 1, 2]] * cm
     res = func(x1)
+    assert type(res) is unyt_array
+    assert res.units == cm
+
+
+def test_trapz_no_x():
+    y = [0, 1, 2, 3] * cm
+    res = np.trapz(y)
+    assert type(res) is unyt_quantity
+    assert res.units == cm
+
+
+def test_trapz_with_raw_x():
+    y = [0, 1, 2, 3] * cm
+    x = [0, 1, 2, 3]
+    res = np.trapz(y, x)
+    assert type(res) is unyt_quantity
+    assert res.units == cm
+
+
+def test_trapz_with_unit_x():
+    y = [0, 1, 2, 3] * cm
+    x = [0, 1, 2, 3] * s
+    res = np.trapz(y, x)
+    assert type(res) is unyt_quantity
+    assert res.units == cm * s
+
+
+def test_trapz_with_raw_dx():
+    y = [0, 1, 2, 3] * cm
+    dx = 2.0
+    res = np.trapz(y, dx=dx)
+    assert type(res) is unyt_quantity
+    assert res.units == cm
+
+
+def test_trapz_with_unit_dx():
+    y = [0, 1, 2, 3] * cm
+    dx = 2.0 * s
+    res = np.trapz(y, dx=dx)
+    assert type(res) is unyt_quantity
+    assert res.units == cm * s
+
+
+@pytest.mark.parametrize(
+    "op",
+    ["min", "max", "mean", "median", "sum", "nanmin", "nanmax", "nanmean", "nanmedian"],
+)
+def test_scalar_reduction(op):
+    x = [0, 1, 2] * cm
+    res = getattr(np, op)(x)
+    assert type(res) is unyt_quantity
+    assert res.units == cm
+
+
+@pytest.mark.parametrize("op", ["sort", "sort_complex"])
+def test_sort(op):
+    x = [2, 0, 1] * cm
+    res = getattr(np, op)(x)
+    assert type(res) is unyt_array
+    assert res.units == cm
+
+
+def test_repeat():
+    x = [2, 0, 1] * cm
+    res = np.repeat(x, 2)
+    assert type(res) is unyt_array
+    assert res.units == cm
+
+
+def test_tile():
+    x = [2, 0, 1] * cm
+    res = np.tile(x, (2, 3))
     assert type(res) is unyt_array
     assert res.units == cm
