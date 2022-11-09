@@ -93,11 +93,11 @@ TODO_FUNCTIONS = {
     np.diag_indices_from,
     np.diagflat,
     np.diagonal,
-    np.diff,
+    np.diff,  # note: should return delta_K for temperatures !
     np.digitize,
     np.dsplit,
     np.dstack,
-    np.ediff1d,
+    np.ediff1d,  # note: should return delta_K for temperatures !
     np.einsum,
     np.einsum_path,
     np.empty_like,
@@ -111,7 +111,7 @@ TODO_FUNCTIONS = {
     np.flipud,
     np.full_like,
     np.geomspace,
-    np.gradient,
+    np.gradient,  # note: should return delta_K for temperatures !
     np.histogram_bin_edges,
     np.hsplit,
     np.i0,
