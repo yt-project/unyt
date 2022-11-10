@@ -384,3 +384,24 @@ def fft_ifftshift(x, *args, **kwargs):
     return (
         np.fft.ifftshift._implementation(x.view(np.ndarray), *args, **kwargs) * x.units
     )
+
+
+@implements(np.trapz)
+def trapz(y, x=None, dx=1.0, *args, **kwargs):
+    ret_units = y.units
+    if x is None:
+        ret_units = ret_units * getattr(dx, "units", NULL_UNIT)
+    else:
+        ret_units = ret_units * getattr(x, "units", NULL_UNIT)
+    if isinstance(x, np.ndarray):
+        x = x.view(np.ndarray)
+    if isinstance(dx, np.ndarray):
+        dx = dx.view(np.ndarray)
+    return (
+        np.trapz._implementation(y.view(np.ndarray), x, dx, *args, **kwargs) * ret_units
+    )
+
+
+@implements(np.sort_complex)
+def sort_complex(a):
+    return np.sort_complex._implementation(a.view(np.ndarray)) * a.units
