@@ -1,5 +1,70 @@
 [build-system]
-requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2", "wheel"]
+requires = [
+  "setuptools>=61.2",
+  "setuptools_scm[toml]>=6.2",
+  "wheel"
+]
+
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "unyt"
+description = "A package for handling numpy arrays with units"
+authors = [
+    { name = "The yt project", email = "yt-dev@python.org" },
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: Implementation :: CPython",
+]
+keywords = [
+    "unyt",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "numpy>=1.17.5",
+    "packaging>20.9",
+    "sympy>=1.5",
+]
+dynamic = [
+    "version",
+]
+
+[project.license]
+text = "BSD-3-Clause"
+
+[project.urls]
+Homepage = "https://github.com/yt-project/unyt"
+
+[tool.setuptools]
+include-package-data = true
+zip-safe = false
+license-files = [
+    "LICENSE",
+]
+
+[tool.setuptools.packages.find]
+include = [
+    "unyt",
+    "unyt.tests",
+    "unyt.tests.data",
+    "unyt._mpl_array_converter",
+]
+namespaces = false
+
+[tool.setuptools.package-data]
+unyt = [
+    "tests/data/old_json_registry.txt",
+]
+
+[tool.distutils.bdist_wheel]
+universal = 1
+
 
 [tool.black]
 target-version = ['py38']
@@ -38,4 +103,12 @@ filterwarnings = [
     "error",
     "ignore:Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.:UserWarning",
     "ignore:In accordance with NEP 32:DeprecationWarning"
+]
+
+[tool.coverage.run]
+omit = [
+    "docs/*",
+    "unyt/_version.py",
+    "unyt/_on_demand_imports.py",
+    "unyt/tests/test_linters.py",
 ]
