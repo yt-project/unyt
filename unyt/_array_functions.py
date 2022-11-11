@@ -2,7 +2,7 @@ import numpy as np
 from packaging.version import Version
 
 from unyt.array import NULL_UNIT, unyt_array
-from unyt.exceptions import UnitInconsistencyError
+from unyt.exceptions import UnitConversionError, UnitInconsistencyError
 
 NUMPY_VERSION = Version(np.__version__)
 _HANDLED_FUNCTIONS = {}
@@ -405,3 +405,78 @@ def trapz(y, x=None, dx=1.0, *args, **kwargs):
 @implements(np.sort_complex)
 def sort_complex(a):
     return np.sort_complex._implementation(a.view(np.ndarray)) * a.units
+
+
+def _array_comp_helper(a, b):
+    au = getattr(a, "units", NULL_UNIT)
+    bu = getattr(b, "units", NULL_UNIT)
+    if bu != au and au != NULL_UNIT and bu != NULL_UNIT:
+        if (bu / au).is_dimensionless:
+            b = np.array(b) * (1 * bu).to(au)
+        else:
+            raise UnitConversionError(au, au.dimensions, bu, bu.dimensions)
+    elif bu == NULL_UNIT:
+        b = np.array(b) * au
+    elif au == NULL_UNIT:
+        a = np.array(a) * bu
+
+    return a, b
+
+
+@implements(np.isclose)
+def isclose(a, b, *args, **kwargs):
+    a, b = _array_comp_helper(a, b)
+    return np.isclose._implementation(
+        a.view(np.ndarray), b.view(np.ndarray), *args, **kwargs
+    )
+
+
+@implements(np.allclose)
+def allclose(a, b, *args, **kwargs):
+    a, b = _array_comp_helper(a, b)
+    return np.allclose._implementation(
+        a.view(np.ndarray), b.view(np.ndarray), *args, **kwargs
+    )
+
+
+@implements(np.linspace)
+def linspace(start, stop, *args, **kwargs):
+    _validate_units_consistency((start, stop))
+    return (
+        np.linspace._implementation(
+            start.view(np.ndarray), stop.view(np.ndarray), *args, **kwargs
+        )
+        * start.units
+    )
+
+
+@implements(np.logspace)
+def logspace(start, stop, *args, **kwargs):
+    _validate_units_consistency((start, stop))
+    return (
+        np.logspace._implementation(
+            start.view(np.ndarray), stop.view(np.ndarray), *args, **kwargs
+        )
+        * start.units
+    )
+
+
+@implements(np.geomspace)
+def geomspace(start, stop, *args, **kwargs):
+    _validate_units_consistency((start, stop))
+    return (
+        np.geomspace._implementation(
+            start.view(np.ndarray), stop.view(np.ndarray), *args, **kwargs
+        )
+        * start.units
+    )
+
+
+@implements(np.copyto)
+def copyto(dst, src, *args, **kwargs):
+    # note that np.copyto is heavily used internally
+    # in numpy, and it may be used with fundamental datatypes,
+    # so we don't attempt to pass ndarray views to keep generality
+    np.copyto._implementation(dst, src, *args, **kwargs)
+    if getattr(dst, "units", None) is not None:
+        dst.units = getattr(src, "units", dst.units)
