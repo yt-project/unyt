@@ -63,6 +63,12 @@ NOOP_FUNCTIONS = {
     np.flatnonzero,  # works out of the box (tested)
     np.isneginf,  # works out of the box (tested)
     np.isposinf,  # works out of the box (tested)
+    np.empty_like,  # works out of the box (tested)
+    np.full_like,  # works out of the box (tested)
+    np.ones_like,  # works out of the box (tested)
+    np.zeros_like,  # works out of the box (tested)
+    np.copy,  # works out of the box (tested)
+    np.meshgrid,  # works out of the box (tested)
 }
 
 # this set represents all functions that need inspection, tests, or both
@@ -84,8 +90,6 @@ TODO_FUNCTIONS = {
     np.common_type,
     np.compress,
     np.convolve,
-    np.copy,
-    np.copyto,
     np.corrcoef,
     np.correlate,
     np.cov,
@@ -105,7 +109,6 @@ TODO_FUNCTIONS = {
     np.ediff1d,  # note: should return delta_K for temperatures !
     np.einsum,
     np.einsum_path,
-    np.empty_like,
     np.expand_dims,
     np.extract,
     np.fill_diagonal,
@@ -113,8 +116,6 @@ TODO_FUNCTIONS = {
     np.flip,
     np.fliplr,
     np.flipud,
-    np.full_like,
-    np.geomspace,
     np.gradient,  # note: should return delta_K for temperatures !
     np.histogram_bin_edges,
     np.hsplit,
@@ -143,10 +144,7 @@ TODO_FUNCTIONS = {
     np.linalg.solve,
     np.linalg.svd,
     np.linalg.tensorsolve,
-    np.linspace,
-    np.logspace,
     np.may_share_memory,
-    np.meshgrid,
     np.min_scalar_type,
     np.moveaxis,
     np.msort,
@@ -158,7 +156,6 @@ TODO_FUNCTIONS = {
     np.nanstd,
     np.nansum,
     np.nanvar,
-    np.ones_like,
     np.packbits,
     np.pad,
     np.partition,
@@ -224,7 +221,6 @@ TODO_FUNCTIONS = {
     np.var,
     np.vsplit,
     np.where,
-    np.zeros_like,
 }
 
 removed_functions = {
@@ -269,7 +265,9 @@ def test_wrapping_completeness():
     """Ensure we wrap all numpy functions that support __array_function__"""
     handled_numpy_functions = set(HANDLED_FUNCTIONS.keys())
     # ensure no functions appear in both NOT_HANDLED_FUNCTIONS and HANDLED_FUNCTIONS
-    assert NOT_HANDLED_FUNCTIONS.isdisjoint(handled_numpy_functions)
+    assert NOT_HANDLED_FUNCTIONS.isdisjoint(
+        handled_numpy_functions
+    ), NOT_HANDLED_FUNCTIONS.intersection(handled_numpy_functions)
     # get list of functions that support wrapping by introspection on numpy module
     wrappable_functions = get_wrapped_functions(np, np.fft, np.linalg)
     for function in HANDLED_FUNCTIONS:
@@ -874,3 +872,87 @@ def test_iclose_error():
     y = [1, 2, 3] * g
     with pytest.raises(UnitConversionError):
         np.isclose(x, y)
+
+
+@pytest.mark.parametrize(
+    "func",
+    [
+        np.linspace,
+        np.logspace,
+        np.geomspace,
+    ],
+)
+def test_xspace(func):
+    res = func(1 * cm, 11 * cm, 10)
+    assert type(res) is unyt_array
+    assert res.units == cm
+
+
+def test_full_like():
+    x = [1, 2, 3] * cm
+    res = np.full_like(x, 6 * cm)
+    assert type(res) is unyt_array
+    assert res.units == cm
+
+
+@pytest.mark.parametrize(
+    "func",
+    [
+        np.empty_like,
+        np.zeros_like,
+        np.ones_like,
+    ],
+)
+def test_x_like(func):
+    x = unyt_array([1, 2, 3], cm, dtype="float32")
+    res = func(x)
+    assert type(res) is unyt_array
+    assert res.units == x.units
+    assert res.shape == x.shape
+    assert res.dtype == x.dtype
+
+
+def test_copy():
+    x = [1, 2, 3] * cm
+    y = np.copy(x)
+    # by default, subok=False, so we shouldn't
+    # expect a unyt_array without switching this arg
+    assert type(y) is np.ndarray
+
+    y = np.copy(x, subok=True)
+    assert type(y) is unyt_array
+    assert y.units == cm
+
+
+def test_copyto():
+    x = [1, 2, 3] * cm
+    y = np.empty_like(x)
+    np.copyto(y, x)
+    assert type(y) is unyt_array
+    assert y.units == cm
+    np.testing.assert_array_equal(x, y)
+
+
+def test_copyto_edge_cases():
+    x = [1, 2, 3] * cm
+    y = [1, 2, 3] * g
+    # copying to an array with a different unit is supported
+    # to be in line with how we treat the 'out' param in most
+    # numpy operations
+    np.copyto(y, x)
+    assert type(y) is unyt_array
+    assert y.units == cm
+
+    y = np.empty_like(x.view(np.ndarray))
+    np.copyto(y, x)
+    assert type(y) is np.ndarray
+
+
+def test_meshgrid():
+    x = [1, 2, 3] * cm
+    y = [1, 2, 3] * s
+    x2d, y2d = np.meshgrid(x, y)
+    assert type(x2d) is unyt_array
+    assert type(y2d) is unyt_array
+    assert x2d.units == cm
+    assert y2d.units == s

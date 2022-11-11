@@ -437,3 +437,46 @@ def allclose(a, b, *args, **kwargs):
     return np.allclose._implementation(
         a.view(np.ndarray), b.view(np.ndarray), *args, **kwargs
     )
+
+
+@implements(np.linspace)
+def linspace(start, stop, *args, **kwargs):
+    _validate_units_consistency((start, stop))
+    return (
+        np.linspace._implementation(
+            start.view(np.ndarray), stop.view(np.ndarray), *args, **kwargs
+        )
+        * start.units
+    )
+
+
+@implements(np.logspace)
+def logspace(start, stop, *args, **kwargs):
+    _validate_units_consistency((start, stop))
+    return (
+        np.logspace._implementation(
+            start.view(np.ndarray), stop.view(np.ndarray), *args, **kwargs
+        )
+        * start.units
+    )
+
+
+@implements(np.geomspace)
+def geomspace(start, stop, *args, **kwargs):
+    _validate_units_consistency((start, stop))
+    return (
+        np.geomspace._implementation(
+            start.view(np.ndarray), stop.view(np.ndarray), *args, **kwargs
+        )
+        * start.units
+    )
+
+
+@implements(np.copyto)
+def copyto(dst, src, *args, **kwargs):
+    # note that np.copyto is heavily used internally
+    # in numpy, and it may be used with fundamental datatypes,
+    # so we don't attempt to pass ndarray views to keep generality
+    np.copyto._implementation(dst, src, *args, **kwargs)
+    if getattr(dst, "units", None) is not None:
+        dst.units = getattr(src, "units", dst.units)
