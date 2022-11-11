@@ -1,14 +1,17 @@
 # tests for NumPy __array_function__ support
 import re
+from importlib.metadata import version
 
 import numpy as np
 import pytest
+from packaging.version import Version
 
 from unyt import cm, g, km, s
 from unyt._array_functions import _HANDLED_FUNCTIONS as HANDLED_FUNCTIONS
 from unyt.array import unyt_array, unyt_quantity
 from unyt.exceptions import UnitConversionError, UnitInconsistencyError
 
+NUMPY_VERSION = Version(version("numpy"))
 # this is a subset of NOT_HANDLED_FUNCTIONS for which there's nothing to do
 # because they don't apply to (real) numeric types
 # or they work as expected out of the box
@@ -919,6 +922,12 @@ def test_copy():
     # expect a unyt_array without switching this arg
     assert type(y) is np.ndarray
 
+
+@pytest.mark.skipif(
+    NUMPY_VERSION < Version("1.19"), reason="np.copy's subok arg requires numpy 1.19+"
+)
+def test_copy_subok():
+    x = [1, 2, 3] * cm
     y = np.copy(x, subok=True)
     assert type(y) is unyt_array
     assert y.units == cm
