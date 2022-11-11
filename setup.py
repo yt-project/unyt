@@ -10,5 +10,4 @@ with open("HISTORY.rst") as history_file:
 
 setup(
     long_description=readme + "\n\n" + history,
-    test_suite="tests",
 )
