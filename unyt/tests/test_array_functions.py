@@ -7,7 +7,7 @@ import pytest
 from unyt import cm, g, km, s
 from unyt._array_functions import _HANDLED_FUNCTIONS as HANDLED_FUNCTIONS
 from unyt.array import unyt_array, unyt_quantity
-from unyt.exceptions import UnitInconsistencyError
+from unyt.exceptions import UnitConversionError, UnitInconsistencyError
 
 # this is a subset of NOT_HANDLED_FUNCTIONS for which there's nothing to do
 # because they don't apply to (real) numeric types
@@ -56,12 +56,18 @@ NOOP_FUNCTIONS = {
     np.sum,  # works out of the box (tested)
     np.repeat,  # works out of the box (tested)
     np.tile,  # works out of the box (tested)
+    np.shares_memory,  # works out of the box (tested)
+    np.sometrue,  # works out of the box (tested)
+    np.nonzero,  # works out of the box (tested)
+    np.count_nonzero,  # returns pure numbers
+    np.flatnonzero,  # works out of the box (tested)
+    np.isneginf,  # works out of the box (tested)
+    np.isposinf,  # works out of the box (tested)
 }
 
 # this set represents all functions that need inspection, tests, or both
 # it is always possible that some of its elements belong in NOOP_FUNCTIONS
 TODO_FUNCTIONS = {
-    np.allclose,
     np.apply_along_axis,
     np.apply_over_axes,
     np.array_equal,
@@ -82,7 +88,6 @@ TODO_FUNCTIONS = {
     np.copyto,
     np.corrcoef,
     np.correlate,
-    np.count_nonzero,
     np.cov,
     np.cumprod,
     np.cumproduct,
@@ -105,7 +110,6 @@ TODO_FUNCTIONS = {
     np.extract,
     np.fill_diagonal,
     np.fix,
-    np.flatnonzero,
     np.flip,
     np.fliplr,
     np.flipud,
@@ -120,10 +124,7 @@ TODO_FUNCTIONS = {
     np.insert,
     np.interp,
     np.is_busday,
-    np.isclose,
     np.isin,
-    np.isneginf,
-    np.isposinf,
     np.ix_,
     np.lexsort,
     np.linalg.cholesky,
@@ -157,7 +158,6 @@ TODO_FUNCTIONS = {
     np.nanstd,
     np.nansum,
     np.nanvar,
-    np.nonzero,
     np.ones_like,
     np.packbits,
     np.pad,
@@ -202,9 +202,7 @@ TODO_FUNCTIONS = {
     np.select,
     np.setdiff1d,
     np.setxor1d,
-    np.shares_memory,
     np.sinc,
-    np.sometrue,
     np.split,
     np.squeeze,
     np.std,
@@ -635,9 +633,15 @@ def test_trim_zeros():
     assert type(res) is unyt_array
 
 
-def test_any():
-    assert not np.any([0, 0, 0] * cm)
-    assert np.any([1, 0, 0] * cm)
+@pytest.mark.parametrize("func", [np.any, np.sometrue])
+def test_any(func):
+    assert not func([0, 0, 0] * cm)
+    assert func([1, 0, 0] * cm)
+
+    x = [1, 2, 3] * cm
+    assert func(x >= 3)
+    assert func(x >= 3 * cm)
+    assert not func(x >= 3 * km)
 
 
 def test_append():
@@ -822,3 +826,51 @@ def test_tile():
     res = np.tile(x, (2, 3))
     assert type(res) is unyt_array
     assert res.units == cm
+
+
+def test_shares_memory():
+    x = [1, 2, 3] * cm
+    assert np.shares_memory(x, x.view(np.ndarray))
+
+
+def test_nonzero():
+    x = [1, 2, 0] * cm
+    res = np.nonzero(x)
+    assert len(res) == 1
+    np.testing.assert_array_equal(res[0], [0, 1])
+
+    res2 = np.flatnonzero(x)
+    np.testing.assert_array_equal(res[0], res2)
+
+
+def test_isinf():
+    x = [1, float("inf"), float("-inf")] * cm
+    res = np.isneginf(x)
+    np.testing.assert_array_equal(res, [False, False, True])
+    res = np.isposinf(x)
+    np.testing.assert_array_equal(res, [False, True, False])
+
+
+def test_allclose():
+    x = [1, 2, 3] * cm
+    y = [1, 2, 3] * km
+    assert not np.allclose(x, y)
+
+
+@pytest.mark.parametrize(
+    "a, b, expected",
+    [
+        ([1, 2, 3] * cm, [1, 2, 3] * km, [False] * 3),
+        ([1, 2, 3] * cm, [1, 2, 3], [True] * 3),
+    ],
+)
+def test_isclose(a, b, expected):
+    res = np.isclose(a, b)
+    np.testing.assert_array_equal(res, expected)
+
+
+def test_iclose_error():
+    x = [1, 2, 3] * cm
+    y = [1, 2, 3] * g
+    with pytest.raises(UnitConversionError):
+        np.isclose(x, y)
