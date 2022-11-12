@@ -26,7 +26,7 @@ NOOP_FUNCTIONS = {
     np.append,  # we get it for free with np.concatenate (tested)
     np.argmax,  # returns pure numbers
     np.argmin,  # returns pure numbers
-    np.argpartition,  # return pure numbers
+    np.argpartition,  # returns pure numbers
     np.argsort,  # returns pure numbers
     np.argwhere,  # returns pure numbers
     np.array_repr,  # hooks into __repr__
@@ -110,6 +110,7 @@ NOOP_FUNCTIONS = {
     np.fix,  # works out of the box (tested)
     np.round,  # is implemented via np.around
     np.round_,  # is implemented via np.around
+    np.may_share_memory,  # returns pure numbers (booleans)
 }
 
 # this set represents all functions that need inspection, tests, or both
@@ -170,7 +171,6 @@ TODO_FUNCTIONS = {
     np.linalg.solve,
     np.linalg.svd,
     np.linalg.tensorsolve,
-    np.may_share_memory,
     np.min_scalar_type,
     np.msort,
     np.nancumprod,
