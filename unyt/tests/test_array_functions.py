@@ -72,6 +72,32 @@ NOOP_FUNCTIONS = {
     np.zeros_like,  # works out of the box (tested)
     np.copy,  # works out of the box (tested)
     np.meshgrid,  # works out of the box (tested)
+    np.transpose,  # works out of the box (tested)
+    np.reshape,  # works out of the box (tested)
+    np.resize,  # works out of the box (tested)
+    np.roll,  # works out of the box (tested)
+    np.rollaxis,  # works out of the box (tested)
+    np.rot90,  # works out of the box (tested)
+    np.expand_dims,  # works out of the box (tested)
+    np.squeeze,  # works out of the box (tested)
+    np.flip,  # works out of the box (tested)
+    np.fliplr,  # works out of the box (tested)
+    np.flipud,  # works out of the box (tested)
+    np.delete,  # works out of the box (tested)
+    np.partition,  # works out of the box (tested)
+    np.broadcast_to,  # works out of the box (tested)
+    np.broadcast_arrays,  # works out of the box (tested)
+    np.split,  # works out of the box (tested)
+    np.array_split,  # works out of the box (tested)
+    np.dsplit,  # works out of the box (tested)
+    np.hsplit,  # works out of the box (tested)
+    np.vsplit,  # works out of the box (tested)
+    np.swapaxes,  # works out of the box (tested)
+    np.moveaxis,  # works out of the box (tested)
+    np.nansum,  # works out of the box (tested)
+    np.product,  # is implemented via np.prod
+    np.std,  # works out of the box (tested)
+    np.nanstd,  # works out of the box (tested)
 }
 
 # this set represents all functions that need inspection, tests, or both
@@ -81,10 +107,7 @@ TODO_FUNCTIONS = {
     np.apply_over_axes,
     np.array_equal,
     np.array_equiv,
-    np.array_split,
     np.bincount,
-    np.broadcast_arrays,
-    np.broadcast_to,
     np.busday_count,
     np.busday_offset,
     np.choose,
@@ -100,28 +123,21 @@ TODO_FUNCTIONS = {
     np.cumproduct,
     np.cumsum,
     np.datetime_as_string,
-    np.delete,
     np.diag,
     np.diag_indices_from,
     np.diagflat,
     np.diagonal,
     np.diff,  # note: should return delta_K for temperatures !
     np.digitize,
-    np.dsplit,
     np.dstack,
     np.ediff1d,  # note: should return delta_K for temperatures !
     np.einsum,
     np.einsum_path,
-    np.expand_dims,
     np.extract,
     np.fill_diagonal,
     np.fix,
-    np.flip,
-    np.fliplr,
-    np.flipud,
     np.gradient,  # note: should return delta_K for temperatures !
     np.histogram_bin_edges,
-    np.hsplit,
     np.i0,
     np.imag,
     np.in1d,
@@ -149,20 +165,13 @@ TODO_FUNCTIONS = {
     np.linalg.tensorsolve,
     np.may_share_memory,
     np.min_scalar_type,
-    np.moveaxis,
     np.msort,
     np.nancumprod,
     np.nancumsum,
-    np.nanpercentile,
     np.nanprod,
-    np.nanquantile,
-    np.nanstd,
-    np.nansum,
     np.nanvar,
     np.packbits,
     np.pad,
-    np.partition,
-    np.percentile,
     np.piecewise,
     np.place,
     np.poly,
@@ -174,24 +183,16 @@ TODO_FUNCTIONS = {
     np.polymul,
     np.polysub,
     np.polyval,
-    np.prod,
-    np.product,
     np.ptp,  # note: should return delta_K for temperatures !
     np.put,
     np.put_along_axis,
     np.putmask,
-    np.quantile,
     np.ravel,
     np.ravel_multi_index,
     np.real,
     np.real_if_close,
-    np.reshape,
-    np.resize,
     np.result_type,
-    np.roll,
-    np.rollaxis,
     np.roots,
-    np.rot90,
     np.round,
     np.round_,
     np.save,
@@ -203,15 +204,9 @@ TODO_FUNCTIONS = {
     np.setdiff1d,
     np.setxor1d,
     np.sinc,
-    np.split,
-    np.squeeze,
-    np.std,
-    np.swapaxes,
     np.take,
     np.take_along_axis,
     np.tensordot,
-    np.trace,
-    np.transpose,
     np.tril,
     np.tril_indices_from,
     np.triu,
@@ -221,8 +216,6 @@ TODO_FUNCTIONS = {
     np.unravel_index,
     np.unwrap,
     np.vander,
-    np.var,
-    np.vsplit,
     np.where,
 }
 
@@ -965,3 +958,128 @@ def test_meshgrid():
     assert type(y2d) is unyt_array
     assert x2d.units == cm
     assert y2d.units == s
+
+
+@pytest.mark.parametrize(
+    "func, args, kwargs",
+    [
+        (np.transpose, (), {}),
+        (np.reshape, ((9, 2),), {}),
+        (np.resize, ((3, 6),), {}),
+        (np.expand_dims, (0,), {}),
+        (np.squeeze, (), {}),
+        (np.swapaxes, (0, 1), {}),
+        (np.moveaxis, (0, 2), {}),
+        (np.rot90, (), {}),
+        (np.roll, (3,), {}),
+        (np.rollaxis, (2,), {}),
+        (np.flip, (), {}),
+        (np.fliplr, (), {}),
+        (np.flipud, (), {}),
+        (np.broadcast_to, ((1, 1, 2, 3, 3),), {"subok": True}),
+        (np.delete, (0, 1), {}),
+        (np.partition, (2,), {}),
+    ],
+)
+def test_reshaper(func, args, kwargs):
+    x = [
+        [
+            [
+                [1, 2, 3],
+                [4, 5, 6],
+                [7, 8, 9],
+            ],
+            [
+                [10, 11, 12],
+                [13, 14, 15],
+                [16, 17, 18],
+            ],
+        ]
+    ] * cm
+    y = func(x, *args, **kwargs)
+    assert type(y) is unyt_array
+    assert y.units == cm
+
+
+def test_broadcast_arrays():
+    x = [1, 2, 3] * cm
+    y = [
+        4,
+    ] * g
+    res = np.broadcast_arrays(x, y, subok=True)
+    assert all(type(_) is unyt_array for _ in res)
+
+
+@pytest.mark.parametrize(
+    "func, args",
+    [
+        (np.split, (3, 2)),
+        (np.dsplit, (3,)),
+        (np.hsplit, (2,)),
+        (np.vsplit, (1,)),
+        (np.array_split, (3,)),
+    ],
+)
+def test_xsplit(func, args):
+    x = [
+        [
+            [
+                [1, 2, 3],
+                [4, 5, 6],
+                [7, 8, 9],
+            ],
+            [
+                [10, 11, 12],
+                [13, 14, 15],
+                [16, 17, 18],
+            ],
+        ]
+    ] * cm
+    y = func(x, *args)
+    assert all(type(_) is unyt_array for _ in y)
+    assert all(_.units == cm for _ in y)
+
+
+@pytest.mark.parametrize(
+    "func, expected_units",
+    [
+        (np.prod, cm**9),
+        (np.product, cm**9),
+        (np.var, cm**2),
+        (np.std, cm),
+        (np.nanprod, cm**9),
+        (np.nansum, cm),
+        (np.nanvar, cm**2),
+        (np.nanstd, cm),
+        (np.trace, cm),
+    ],
+)
+def test_scalar_reducer(func, expected_units):
+    x = [
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9],
+    ] * cm
+    y = func(x)
+    assert type(y) is unyt_quantity
+    assert y.units == expected_units
+
+
+@pytest.mark.parametrize(
+    "func",
+    [
+        np.percentile,
+        np.quantile,
+        np.nanpercentile,
+        np.nanquantile,
+    ],
+)
+def test_percentile(func):
+    x = [
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9],
+    ] * cm
+    y = func(x, 1)
+    assert type(y) is unyt_quantity
+    assert y.units == cm
