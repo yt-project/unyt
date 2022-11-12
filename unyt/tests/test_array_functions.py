@@ -102,6 +102,9 @@ NOOP_FUNCTIONS = {
     np.diag_indices_from,  # returns pure numbers
     np.diagflat,  # works out of the box (tested)
     np.diagonal,  # works out of the box (tested)
+    np.ravel,  # returns pure numbers
+    np.ravel_multi_index,  # returns pure numbers
+    np.unravel_index,  # returns pure numbers
 }
 
 # this set represents all functions that need inspection, tests, or both
@@ -187,8 +190,6 @@ TODO_FUNCTIONS = {
     np.put,
     np.put_along_axis,
     np.putmask,
-    np.ravel,
-    np.ravel_multi_index,
     np.real,
     np.real_if_close,
     np.result_type,
@@ -213,7 +214,6 @@ TODO_FUNCTIONS = {
     np.triu_indices_from,
     np.unique,
     np.unpackbits,
-    np.unravel_index,
     np.unwrap,
     np.vander,
     np.where,
