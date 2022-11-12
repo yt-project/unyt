@@ -35,11 +35,17 @@ dynamic = [
     "version",
 ]
 
+[project.readme]
+file = "README.rst"
+content-type = "text/x-rst"
+
 [project.license]
 text = "BSD-3-Clause"
 
 [project.urls]
 Homepage = "https://github.com/yt-project/unyt"
+Documentation = "https://unyt.readthedocs.io/en/stable/index.html"
+Changelog = "https://unyt.readthedocs.io/en/stable/history.html"
 
 [tool.setuptools]
 include-package-data = true
