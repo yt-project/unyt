@@ -98,6 +98,8 @@ NOOP_FUNCTIONS = {
     np.product,  # is implemented via np.prod
     np.std,  # works out of the box (tested)
     np.nanstd,  # works out of the box (tested)
+    np.nanvar,  # works out of the box (tested)
+    np.nanprod,  # works out of the box (tested)
     np.diag,  # works out of the box (tested)
     np.diag_indices_from,  # returns pure numbers
     np.diagflat,  # works out of the box (tested)
@@ -173,8 +175,6 @@ TODO_FUNCTIONS = {
     np.msort,
     np.nancumprod,
     np.nancumsum,
-    np.nanprod,
-    np.nanvar,
     np.packbits,
     np.pad,
     np.piecewise,
