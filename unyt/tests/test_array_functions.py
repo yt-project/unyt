@@ -106,6 +106,8 @@ NOOP_FUNCTIONS = {
     np.ravel_multi_index,  # returns pure numbers
     np.unravel_index,  # returns pure numbers
     np.fix,  # works out of the box (tested)
+    np.round,  # is implemented via np.around
+    np.round_,  # is implemented via np.around
 }
 
 # this set represents all functions that need inspection, tests, or both
@@ -194,8 +196,6 @@ TODO_FUNCTIONS = {
     np.real_if_close,
     np.result_type,
     np.roots,
-    np.round,
-    np.round_,
     np.save,
     np.savetxt,
     np.savez,
