@@ -98,6 +98,10 @@ NOOP_FUNCTIONS = {
     np.product,  # is implemented via np.prod
     np.std,  # works out of the box (tested)
     np.nanstd,  # works out of the box (tested)
+    np.diag,  # works out of the box (tested)
+    np.diag_indices_from,  # returns pure numbers
+    np.diagflat,  # works out of the box (tested)
+    np.diagonal,  # works out of the box (tested)
 }
 
 # this set represents all functions that need inspection, tests, or both
@@ -123,10 +127,6 @@ TODO_FUNCTIONS = {
     np.cumproduct,
     np.cumsum,
     np.datetime_as_string,
-    np.diag,
-    np.diag_indices_from,
-    np.diagflat,
-    np.diagonal,
     np.diff,  # note: should return delta_K for temperatures !
     np.digitize,
     np.dstack,
@@ -1082,4 +1082,23 @@ def test_percentile(func):
     ] * cm
     y = func(x, 1)
     assert type(y) is unyt_quantity
+    assert y.units == cm
+
+
+@pytest.mark.parametrize(
+    "func",
+    [
+        np.diag,
+        np.diagflat,
+        np.diagonal,
+    ],
+)
+def test_diagx(func):
+    x = [
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9],
+    ] * cm
+    y = func(x)
+    assert type(y) is unyt_array
     assert y.units == cm
