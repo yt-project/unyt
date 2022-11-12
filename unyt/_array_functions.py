@@ -480,3 +480,42 @@ def copyto(dst, src, *args, **kwargs):
     np.copyto._implementation(dst, src, *args, **kwargs)
     if getattr(dst, "units", None) is not None:
         dst.units = getattr(src, "units", dst.units)
+
+
+@implements(np.prod)
+def prod(a, *args, **kwargs):
+    return (
+        np.prod._implementation(a.view(np.ndarray), *args, **kwargs) * a.units**a.size
+    )
+
+
+@implements(np.var)
+def var(a, *args, **kwargs):
+    return np.var._implementation(a.view(np.ndarray), *args, **kwargs) * a.units**2
+
+
+@implements(np.trace)
+def trace(a, *args, **kwargs):
+    return np.trace._implementation(a.view(np.ndarray), *args, **kwargs) * a.units
+
+
+@implements(np.percentile)
+def percentile(a, *args, **kwargs):
+    return np.percentile._implementation(a.view(np.ndarray), *args, **kwargs) * a.units
+
+
+@implements(np.quantile)
+def quantile(a, *args, **kwargs):
+    return np.quantile._implementation(a.view(np.ndarray), *args, **kwargs) * a.units
+
+
+@implements(np.nanpercentile)
+def nanpercentile(a, *args, **kwargs):
+    return (
+        np.nanpercentile._implementation(a.view(np.ndarray), *args, **kwargs) * a.units
+    )
+
+
+@implements(np.nanquantile)
+def nanquantile(a, *args, **kwargs):
+    return np.nanquantile._implementation(a.view(np.ndarray), *args, **kwargs) * a.units

@@ -94,6 +94,10 @@ NOOP_FUNCTIONS = {
     np.vsplit,  # works out of the box (tested)
     np.swapaxes,  # works out of the box (tested)
     np.moveaxis,  # works out of the box (tested)
+    np.nansum,  # works out of the box (tested)
+    np.product,  # is implemented via np.prod
+    np.std,  # works out of the box (tested)
+    np.nanstd,  # works out of the box (tested)
 }
 
 # this set represents all functions that need inspection, tests, or both
@@ -164,15 +168,10 @@ TODO_FUNCTIONS = {
     np.msort,
     np.nancumprod,
     np.nancumsum,
-    np.nanpercentile,
     np.nanprod,
-    np.nanquantile,
-    np.nanstd,
-    np.nansum,
     np.nanvar,
     np.packbits,
     np.pad,
-    np.percentile,
     np.piecewise,
     np.place,
     np.poly,
@@ -184,13 +183,10 @@ TODO_FUNCTIONS = {
     np.polymul,
     np.polysub,
     np.polyval,
-    np.prod,
-    np.product,
     np.ptp,  # note: should return delta_K for temperatures !
     np.put,
     np.put_along_axis,
     np.putmask,
-    np.quantile,
     np.ravel,
     np.ravel_multi_index,
     np.real,
@@ -208,11 +204,9 @@ TODO_FUNCTIONS = {
     np.setdiff1d,
     np.setxor1d,
     np.sinc,
-    np.std,
     np.take,
     np.take_along_axis,
     np.tensordot,
-    np.trace,
     np.tril,
     np.tril_indices_from,
     np.triu,
@@ -222,7 +216,6 @@ TODO_FUNCTIONS = {
     np.unravel_index,
     np.unwrap,
     np.vander,
-    np.var,
     np.where,
 }
 
@@ -1045,3 +1038,48 @@ def test_xsplit(func, args):
     y = func(x, *args)
     assert all(type(_) is unyt_array for _ in y)
     assert all(_.units == cm for _ in y)
+
+
+@pytest.mark.parametrize(
+    "func, expected_units",
+    [
+        (np.prod, cm**9),
+        (np.product, cm**9),
+        (np.var, cm**2),
+        (np.std, cm),
+        (np.nanprod, cm**9),
+        (np.nansum, cm),
+        (np.nanvar, cm**2),
+        (np.nanstd, cm),
+        (np.trace, cm),
+    ],
+)
+def test_scalar_reducer(func, expected_units):
+    x = [
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9],
+    ] * cm
+    y = func(x)
+    assert type(y) is unyt_quantity
+    assert y.units == expected_units
+
+
+@pytest.mark.parametrize(
+    "func",
+    [
+        np.percentile,
+        np.quantile,
+        np.nanpercentile,
+        np.nanquantile,
+    ],
+)
+def test_percentile(func):
+    x = [
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9],
+    ] * cm
+    y = func(x, 1)
+    assert type(y) is unyt_quantity
+    assert y.units == cm
