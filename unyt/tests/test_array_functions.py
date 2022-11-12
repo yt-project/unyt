@@ -105,6 +105,7 @@ NOOP_FUNCTIONS = {
     np.ravel,  # returns pure numbers
     np.ravel_multi_index,  # returns pure numbers
     np.unravel_index,  # returns pure numbers
+    np.fix,  # works out of the box (tested)
 }
 
 # this set represents all functions that need inspection, tests, or both
@@ -138,7 +139,6 @@ TODO_FUNCTIONS = {
     np.einsum_path,
     np.extract,
     np.fill_diagonal,
-    np.fix,
     np.gradient,  # note: should return delta_K for temperatures !
     np.histogram_bin_edges,
     np.i0,
@@ -1102,3 +1102,8 @@ def test_diagx(func):
     y = func(x)
     assert type(y) is unyt_array
     assert y.units == cm
+
+
+def test_fix():
+    y = np.fix(1.2 * cm)
+    assert y == 1.0 * cm
