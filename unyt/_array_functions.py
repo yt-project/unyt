@@ -533,3 +533,75 @@ def nanpercentile(a, *args, **kwargs):
 @implements(np.nanquantile)
 def nanquantile(a, *args, **kwargs):
     return np.nanquantile._implementation(a.view(np.ndarray), *args, **kwargs) * a.units
+
+
+@implements(np.linalg.det)
+def linalg_det(a, *args, **kwargs):
+    return np.linalg.det._implementation(
+        a.view(np.ndarray), *args, **kwargs
+    ) * a.units ** (a.shape[0])
+
+
+@implements(np.linalg.lstsq)
+def linalg_lstsq(a, b, *args, **kwargs):
+    x, residuals, rank, s = np.linalg.lstsq._implementation(
+        a.view(np.ndarray), b.view(np.ndarray), *args, **kwargs
+    )
+    au = getattr(a, "units", NULL_UNIT)
+    bu = getattr(b, "units", NULL_UNIT)
+    return (x * bu / au, residuals * bu / au, rank, s * au)
+
+
+@implements(np.linalg.solve)
+def linalg_solve(a, b, *args, **kwargs):
+    au = getattr(a, "units", NULL_UNIT)
+    bu = getattr(b, "units", NULL_UNIT)
+    return (
+        np.linalg.solve._implementation(
+            a.view(np.ndarray), b.view(np.ndarray), *args, **kwargs
+        )
+        * bu
+        / au
+    )
+
+
+@implements(np.linalg.tensorsolve)
+def linalg_tensorsolve(a, b, *args, **kwargs):
+    au = getattr(a, "units", NULL_UNIT)
+    bu = getattr(b, "units", NULL_UNIT)
+    return (
+        np.linalg.tensorsolve._implementation(
+            a.view(np.ndarray), b.view(np.ndarray), *args, **kwargs
+        )
+        * bu
+        / au
+    )
+
+
+@implements(np.linalg.eig)
+def linalg_eig(a, *args, **kwargs):
+    ret_units = a.units
+    w, v = np.linalg.eig._implementation(a.view(np.ndarray), *args, **kwargs)
+    return w * ret_units, v
+
+
+@implements(np.linalg.eigh)
+def linalg_eigh(a, *args, **kwargs):
+    ret_units = a.units
+    w, v = np.linalg.eigh._implementation(a.view(np.ndarray), *args, **kwargs)
+    return w * ret_units, v
+
+
+@implements(np.linalg.eigvals)
+def linalg_eigvals(a, *args, **kwargs):
+    return (
+        np.linalg.eigvals._implementation(a.view(np.ndarray), *args, **kwargs) * a.units
+    )
+
+
+@implements(np.linalg.eigvalsh)
+def linalg_eigvalsh(a, *args, **kwargs):
+    return (
+        np.linalg.eigvalsh._implementation(a.view(np.ndarray), *args, **kwargs)
+        * a.units
+    )
