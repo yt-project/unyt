@@ -39,7 +39,7 @@ from numpy.testing import (
 from packaging.version import Version
 
 from unyt import K, R, Unit, degC, degF, delta_degC, delta_degF, dimensions
-from unyt._on_demand_imports import NotAModule, _astropy, _h5py, _pint
+from unyt._on_demand_imports import _astropy, _h5py, _pint
 from unyt._physical_ratios import metallicity_sun, speed_of_light_cm_per_s
 from unyt.array import (
     binary_operators,
@@ -1391,8 +1391,8 @@ def test_to_value():
 
 
 def test_astropy():
-    if isinstance(_astropy.__version__, NotAModule):
-        return
+    pytest.importorskip("astropy")
+
     ap_arr = np.arange(10) * _astropy.units.km / _astropy.units.hr
     yt_arr = unyt_array(np.arange(10), "km/hr")
     yt_arr2 = unyt_array.from_astropy(ap_arr)
@@ -1414,12 +1414,12 @@ def test_astropy():
 
 
 def test_pint():
+    pytest.importorskip("pint")
+
     def assert_pint_array_equal(arr1, arr2):
         assert_array_equal(arr1.magnitude, arr2.magnitude)
         assert str(arr1.units) == str(arr2.units)
 
-    if isinstance(_pint.UnitRegistry, NotAModule):
-        return
     ureg = _pint.UnitRegistry()
 
     p_arr = np.arange(10) * ureg.km / ureg.year
@@ -1495,8 +1495,7 @@ def test_subclass():
 
 
 def test_h5_io():
-    if isinstance(_h5py.__version__, NotAModule):
-        return
+    pytest.importorskip("h5py")
 
     tmpdir = tempfile.mkdtemp()
     curdir = os.getcwd()
