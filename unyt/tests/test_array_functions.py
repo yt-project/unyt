@@ -112,7 +112,6 @@ TODO_FUNCTIONS = {
     np.busday_offset,
     np.choose,
     np.clip,
-    np.column_stack,
     np.common_type,
     np.compress,
     np.convolve,
@@ -129,7 +128,6 @@ TODO_FUNCTIONS = {
     np.diagonal,
     np.diff,  # note: should return delta_K for temperatures !
     np.digitize,
-    np.dstack,
     np.ediff1d,  # note: should return delta_K for temperatures !
     np.einsum,
     np.einsum_path,
@@ -545,20 +543,13 @@ def test_linalg_norm():
     assert res == pytest.approx(np.sqrt(3))
 
 
-def test_vstack():
+@pytest.mark.parametrize("func", [np.vstack, np.hstack, np.dstack, np.column_stack])
+def test_xstack(func):
     x1 = [0, 1, 2] * cm
     x2 = [3, 4, 5] * cm
-    res = np.vstack((x1, x2))
+    res = func((x1, x2))
+    assert type(res) is unyt_array
     assert res.units == cm
-    np.testing.assert_array_equal(res, [[0, 1, 2], [3, 4, 5]])
-
-
-def test_hstack():
-    x1 = np.array([[0, 1, 2], [3, 4, 5]]) * cm
-    x2 = np.array([[6, 7, 8], [9, 10, 11]]) * cm
-    res = np.hstack((x1, x2))
-    assert res.units == cm
-    np.testing.assert_array_equal(res, [[0, 1, 2], [3, 4, 5], [6, 7, 8], [9, 10, 11]])
 
 
 @pytest.mark.parametrize(

@@ -259,6 +259,20 @@ def hstack(tup, /):
     return np.vstack._implementation([_.view(np.ndarray) for _ in tup]) * ret_units
 
 
+@implements(np.dstack)
+def dstack(tup, /):
+    ret_units = _validate_units_consistency(tup)
+    return np.dstack._implementation([_.view(np.ndarray) for _ in tup]) * ret_units
+
+
+@implements(np.column_stack)
+def column_stack(tup, /):
+    ret_units = _validate_units_consistency(tup)
+    return (
+        np.column_stack._implementation([_.view(np.ndarray) for _ in tup]) * ret_units
+    )
+
+
 @implements(np.stack)
 def stack(arrays, /, axis=0, out=None):
     ret_units = _validate_units_consistency(arrays)
