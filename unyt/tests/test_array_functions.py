@@ -26,7 +26,7 @@ NOOP_FUNCTIONS = {
     np.append,  # we get it for free with np.concatenate (tested)
     np.argmax,  # returns pure numbers
     np.argmin,  # returns pure numbers
-    np.argpartition,  # return pure numbers
+    np.argpartition,  # returns pure numbers
     np.argsort,  # returns pure numbers
     np.argwhere,  # returns pure numbers
     np.array_repr,  # hooks into __repr__
@@ -98,6 +98,19 @@ NOOP_FUNCTIONS = {
     np.product,  # is implemented via np.prod
     np.std,  # works out of the box (tested)
     np.nanstd,  # works out of the box (tested)
+    np.nanvar,  # works out of the box (tested)
+    np.nanprod,  # works out of the box (tested)
+    np.diag,  # works out of the box (tested)
+    np.diag_indices_from,  # returns pure numbers
+    np.diagflat,  # works out of the box (tested)
+    np.diagonal,  # works out of the box (tested)
+    np.ravel,  # returns pure numbers
+    np.ravel_multi_index,  # returns pure numbers
+    np.unravel_index,  # returns pure numbers
+    np.fix,  # works out of the box (tested)
+    np.round,  # is implemented via np.around
+    np.round_,  # is implemented via np.around
+    np.may_share_memory,  # returns pure numbers (booleans)
 }
 
 # this set represents all functions that need inspection, tests, or both
@@ -122,10 +135,6 @@ TODO_FUNCTIONS = {
     np.cumproduct,
     np.cumsum,
     np.datetime_as_string,
-    np.diag,
-    np.diag_indices_from,
-    np.diagflat,
-    np.diagonal,
     np.diff,  # note: should return delta_K for temperatures !
     np.digitize,
     np.ediff1d,  # note: should return delta_K for temperatures !
@@ -133,7 +142,6 @@ TODO_FUNCTIONS = {
     np.einsum_path,
     np.extract,
     np.fill_diagonal,
-    np.fix,
     np.gradient,  # note: should return delta_K for temperatures !
     np.histogram_bin_edges,
     np.i0,
@@ -161,13 +169,10 @@ TODO_FUNCTIONS = {
     np.linalg.solve,
     np.linalg.svd,
     np.linalg.tensorsolve,
-    np.may_share_memory,
     np.min_scalar_type,
     np.msort,
     np.nancumprod,
     np.nancumsum,
-    np.nanprod,
-    np.nanvar,
     np.packbits,
     np.pad,
     np.piecewise,
@@ -185,14 +190,10 @@ TODO_FUNCTIONS = {
     np.put,
     np.put_along_axis,
     np.putmask,
-    np.ravel,
-    np.ravel_multi_index,
     np.real,
     np.real_if_close,
     np.result_type,
     np.roots,
-    np.round,
-    np.round_,
     np.save,
     np.savetxt,
     np.savez,
@@ -211,7 +212,6 @@ TODO_FUNCTIONS = {
     np.triu_indices_from,
     np.unique,
     np.unpackbits,
-    np.unravel_index,
     np.unwrap,
     np.vander,
     np.where,
@@ -1074,3 +1074,27 @@ def test_percentile(func):
     y = func(x, 1)
     assert type(y) is unyt_quantity
     assert y.units == cm
+
+
+@pytest.mark.parametrize(
+    "func",
+    [
+        np.diag,
+        np.diagflat,
+        np.diagonal,
+    ],
+)
+def test_diagx(func):
+    x = [
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9],
+    ] * cm
+    y = func(x)
+    assert type(y) is unyt_array
+    assert y.units == cm
+
+
+def test_fix():
+    y = np.fix(1.2 * cm)
+    assert y == 1.0 * cm
