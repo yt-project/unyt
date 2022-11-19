@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 from packaging.version import Version
 
@@ -605,3 +607,17 @@ def linalg_eigvalsh(a, *args, **kwargs):
         np.linalg.eigvalsh._implementation(a.view(np.ndarray), *args, **kwargs)
         * a.units
     )
+
+
+@implements(np.savetxt)
+def savetxt(fname, X, *args, **kwargs):
+    warnings.warn(
+        "numpy.savetxt does not preserve units, "
+        "and will only save the raw numerical data from the unyt_array object.\n"
+        "If this is the intended behaviour, call `numpy.savetxt(file, arr.d)` "
+        "to silence this warning.\n"
+        "If you want to preserve units, use `unyt.savetxt` "
+        "(and `unyt.loadtxt`) instead.",
+        stacklevel=4,
+    )
+    return np.savetxt._implementation(fname, X.view(np.ndarray), *args, **kwargs)
