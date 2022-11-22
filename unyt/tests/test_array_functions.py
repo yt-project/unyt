@@ -111,6 +111,13 @@ NOOP_FUNCTIONS = {
     np.round,  # is implemented via np.around
     np.round_,  # is implemented via np.around
     np.may_share_memory,  # returns pure numbers (booleans)
+    np.linalg.matrix_power,  # works out of the box (tested)
+    np.linalg.cholesky,  # works out of the box (tested)
+    np.linalg.multi_dot,  # works out of the box (tested)
+    np.linalg.matrix_rank,  # returns pure numbers
+    np.linalg.qr,  # works out of the box (tested)
+    np.linalg.slogdet,  # undefined units
+    np.linalg.cond,  # works out of the box (tested)
 }
 
 # this set represents all functions that need inspection, tests, or both
@@ -153,22 +160,7 @@ TODO_FUNCTIONS = {
     np.isin,
     np.ix_,
     np.lexsort,
-    np.linalg.cholesky,
-    np.linalg.cond,
-    np.linalg.det,
-    np.linalg.eig,
-    np.linalg.eigh,
-    np.linalg.eigvals,
-    np.linalg.eigvalsh,
-    np.linalg.lstsq,
-    np.linalg.matrix_power,
-    np.linalg.matrix_rank,
-    np.linalg.multi_dot,
-    np.linalg.qr,
-    np.linalg.slogdet,
-    np.linalg.solve,
     np.linalg.svd,
-    np.linalg.tensorsolve,
     np.min_scalar_type,
     np.msort,
     np.nancumprod,
@@ -1098,3 +1090,106 @@ def test_diagx(func):
 def test_fix():
     y = np.fix(1.2 * cm)
     assert y == 1.0 * cm
+
+
+def test_linalg_matrix_power():
+    x = [
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9],
+    ] * cm
+    y = np.linalg.matrix_power(x, 2)
+    assert type(y) is unyt_array
+    assert y.units == cm**2
+
+
+def test_linalg_det():
+    x = [
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9],
+    ] * cm
+    y = np.linalg.det(x)
+    assert type(y) is unyt_quantity
+    assert y.units == cm ** (len(x))
+
+
+def test_linalg_cholesky():
+    x = np.eye(3) * cm
+    y = np.linalg.cholesky(x)
+    assert type(y) is unyt_array
+    assert y.units == cm
+
+
+def test_linalg_lstsq():
+    a = np.eye(3) * cm
+    b = np.ones(3).T * g
+    # setting rcond explicitly to avoid a FutureWarning
+    # see https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html
+    x, residuals, rank, s = np.linalg.lstsq(a, b, rcond=-1)
+
+    assert type(x) is unyt_array
+    assert x.units == g / cm
+    assert type(residuals) is unyt_array
+    assert residuals.units == g / cm
+    assert type(s) is unyt_array
+    assert s.units == cm
+
+
+def test_linalg_multi_dot():
+    a = np.eye(3) * cm
+    b = np.eye(3) * g
+    c = np.eye(3) * s
+    res = np.linalg.multi_dot([a, b, c])
+    assert type(res) is unyt_array
+    assert res.units == cm * g * s
+
+
+def test_linalg_qr():
+    x = [
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9],
+    ] * cm
+    q, r = np.linalg.qr(x)
+    assert type(q) is unyt_array
+    assert q.units == cm
+    assert type(r) is unyt_array
+    assert r.units == cm
+
+
+@pytest.mark.parametrize("func", [np.linalg.solve, np.linalg.tensorsolve])
+def test_linalg_solve(func):
+    a = np.eye(3) * cm
+    b = np.ones(3).T * g
+
+    x = func(a, b)
+    assert type(x) is unyt_array
+    assert x.units == g / cm
+
+
+def is_any_dimless(x) -> bool:
+    return (not hasattr(x, "units")) or x.units.is_dimensionles
+
+
+def test_linalg_cond():
+    a = np.eye(3) * cm
+    res = np.linalg.cond(a)
+    assert is_any_dimless(res)
+
+
+@pytest.mark.parametrize("func", [np.linalg.eig, np.linalg.eigh])
+def test_eig(func):
+    a = np.eye(3) * cm
+    w, v = func(a)
+    assert type(w) is unyt_array
+    assert w.units == cm
+    assert is_any_dimless(v)
+
+
+@pytest.mark.parametrize("func", [np.linalg.eigvals, np.linalg.eigvalsh])
+def test_eigvals(func):
+    a = np.eye(3) * cm
+    w = func(a)
+    assert type(w) is unyt_array
+    assert w.units == cm
