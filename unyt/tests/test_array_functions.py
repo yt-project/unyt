@@ -187,7 +187,6 @@ TODO_FUNCTIONS = {
     np.result_type,
     np.roots,
     np.save,
-    np.savetxt,
     np.savez,
     np.savez_compressed,
     np.searchsorted,
@@ -1193,3 +1192,22 @@ def test_eigvals(func):
     w = func(a)
     assert type(w) is unyt_array
     assert w.units == cm
+
+
+def test_savetxt(tmp_path):
+    a = [1, 2, 3] * cm
+    with pytest.raises(
+        UserWarning,
+        match=re.escape(
+            "numpy.savetxt does not preserve units, "
+            "and will only save the raw numerical data from the unyt_array object.\n"
+            "If this is the intended behaviour, call `numpy.savetxt(file, arr.d)` "
+            "to silence this warning.\n"
+            "If you want to preserve units, use `unyt.savetxt` "
+            "(and `unyt.loadtxt`) instead."
+        ),
+    ):
+        np.savetxt(tmp_path / "savefile.npy", a)
+
+    # check that doing what the warning says doesn't trigger any other warning
+    np.savetxt(tmp_path / "savefile.npy", a.d)
