@@ -6,10 +6,14 @@ import numpy as np
 import pytest
 from packaging.version import Version
 
-from unyt import cm, g, km, s
+from unyt import K, cm, degC, degF, delta_degC, g, km, s
 from unyt._array_functions import _HANDLED_FUNCTIONS as HANDLED_FUNCTIONS
 from unyt.array import unyt_array, unyt_quantity
-from unyt.exceptions import UnitConversionError, UnitInconsistencyError
+from unyt.exceptions import (
+    InvalidUnitOperation,
+    UnitConversionError,
+    UnitInconsistencyError,
+)
 
 NUMPY_VERSION = Version(version("numpy"))
 # this is a subset of NOT_HANDLED_FUNCTIONS for which there's nothing to do
@@ -121,6 +125,7 @@ NOOP_FUNCTIONS = {
     np.linalg.qr,  # works out of the box (tested)
     np.linalg.slogdet,  # undefined units
     np.linalg.cond,  # works out of the box (tested)
+    np.gradient,  # works out of the box (tested)
 }
 
 # this set represents all functions that need inspection, tests, or both
@@ -140,14 +145,11 @@ TODO_FUNCTIONS = {
     np.cumproduct,
     np.cumsum,
     np.datetime_as_string,
-    np.diff,  # note: should return delta_K for temperatures !
     np.digitize,
-    np.ediff1d,  # note: should return delta_K for temperatures !
     np.einsum,
     np.einsum_path,
     np.extract,
     np.fill_diagonal,
-    np.gradient,  # note: should return delta_K for temperatures !
     np.histogram_bin_edges,
     np.i0,
     np.imag,
@@ -176,7 +178,6 @@ TODO_FUNCTIONS = {
     np.polymul,
     np.polysub,
     np.polyval,
-    np.ptp,  # note: should return delta_K for temperatures !
     np.put,
     np.put_along_axis,
     np.putmask,
@@ -1252,3 +1253,42 @@ def test_common_type():
 def test_result_type():
     dtype = np.result_type(3 * cm, np.arange(7, dtype="i1"))
     assert dtype == np.dtype("int8")
+
+
+@pytest.mark.parametrize(
+    "func",
+    [
+        np.diff,
+        np.ediff1d,
+        np.gradient,
+        np.ptp,
+    ],
+)
+@pytest.mark.parametrize("input_units, output_units", [(cm, cm), (K, delta_degC)])
+def test_deltas(func, input_units, output_units):
+    x = np.arange(0, 4) * input_units
+    res = func(x)
+    assert isinstance(res, unyt_array)
+    assert res.units == output_units
+
+
+@pytest.mark.parametrize(
+    "func",
+    [
+        np.diff,
+        np.ediff1d,
+        np.gradient,
+        np.ptp,
+    ],
+)
+@pytest.mark.parametrize("input_units", [degC, degF])
+def test_invalid_deltas(func, input_units):
+    x = np.arange(0, 4) * input_units
+    with pytest.raises(
+        InvalidUnitOperation,
+        match=re.escape(
+            "Quantities with units of Fahrenheit or Celsius "
+            "cannot by multiplied, divided, subtracted or added."
+        ),
+    ):
+        func(x)

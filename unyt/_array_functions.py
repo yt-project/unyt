@@ -3,8 +3,14 @@ import warnings
 import numpy as np
 from packaging.version import Version
 
+from unyt import delta_degC
 from unyt.array import NULL_UNIT, unyt_array
-from unyt.exceptions import UnitConversionError, UnitInconsistencyError
+from unyt.dimensions import temperature
+from unyt.exceptions import (
+    InvalidUnitOperation,
+    UnitConversionError,
+    UnitInconsistencyError,
+)
 
 NUMPY_VERSION = Version(np.__version__)
 _HANDLED_FUNCTIONS = {}
@@ -656,3 +662,32 @@ def apply_over_axes(func, a, axes):
         return np.apply_over_axes(func, res, axes[1:])
     else:
         return res
+
+
+def diff_helper(func, arr, *args, **kwargs):
+    u = getattr(arr, "units", NULL_UNIT)
+    if u.dimensions is temperature:
+        if u.base_offset:
+            raise InvalidUnitOperation(
+                "Quantities with units of Fahrenheit or Celsius "
+                "cannot by multiplied, divided, subtracted or added."
+            )
+        ret_units = delta_degC
+    else:
+        ret_units = u
+    return func._implementation(arr.view(np.ndarray), *args, **kwargs) * ret_units
+
+
+@implements(np.diff)
+def diff(a, *args, **kwargs):
+    return diff_helper(np.diff, a, *args, **kwargs)
+
+
+@implements(np.ediff1d)
+def ediff1d(a, *args, **kwargs):
+    return diff_helper(np.ediff1d, a, *args, **kwargs)
+
+
+@implements(np.ptp)
+def ptp(a, *args, **kwargs):
+    return diff_helper(np.ptp, a, *args, **kwargs)
