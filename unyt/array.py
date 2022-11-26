@@ -1890,7 +1890,7 @@ class unyt_array(np.ndarray):
                 ):
                     raise InvalidUnitOperation(
                         "Quantities with units of Fahrenheit or Celsius "
-                        "cannot by multiplied, divide, subtracted or added."
+                        "cannot by multiplied, divided, subtracted or added."
                     )
         else:
             if ufunc is clip:
