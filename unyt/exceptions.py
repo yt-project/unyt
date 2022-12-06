@@ -193,18 +193,19 @@ class IterableUnitCoercionError(Exception):
   # doctest: +IGNORE_EXCEPTION_DETAIL +NORMALIZE_WHITESPACE
     Traceback (most recent call last):
     ...
-    unyt.exceptions.IterableUnitCoercionError: Received a list or
-    tuple of quantities with nonuniform units:
+    unyt.exceptions.IterableUnitCoercionError: Received an input
+    or operand that cannot be converted to a unyt_array with uniform
+    units:
     [unyt_quantity(2., 'cm'), unyt_quantity(3., 'g')]
     """
 
-    def __init__(self, quantity_list):
-        self.quantity_list = quantity_list
+    def __init__(self, op):
+        self.op = op
 
     def __str__(self):
         err = (
-            "Received a list or tuple of quantities with nonuniform units: "
-            "%s" % self.quantity_list
+            "Received an input or operand that cannot be converted "
+            f"to a unyt_array with uniform units: {self.op}"
         )
         return err
 
