@@ -162,7 +162,6 @@ TODO_FUNCTIONS = {
     np.lexsort,
     np.linalg.svd,
     np.min_scalar_type,
-    np.msort,
     np.nancumprod,
     np.nancumsum,
     np.packbits,
@@ -208,7 +207,7 @@ TODO_FUNCTIONS = {
     np.where,
 }
 
-removed_functions = {
+DEPRECATED_FUNCTIONS = {
     "alen",  # deprecated in numpy 1.18, removed in 1.22
     "asscalar",  # deprecated in numpy 1.18, removed in 1.22
     "fv",  # deprecated in numpy 1.18, removed in 1.20
@@ -222,11 +221,12 @@ removed_functions = {
     "pv",  # deprecated in numpy 1.18, removed in 1.20
     "rank",  # deprecated in numpy 1.10, removed in 1.18
     "rate",  # deprecated in numpy 1.18, removed in 1.20
+    "msort",  # deprecated in numpy 1.24
 }
 
 NOT_HANDLED_FUNCTIONS = NOOP_FUNCTIONS | TODO_FUNCTIONS
 
-for func in removed_functions:
+for func in DEPRECATED_FUNCTIONS:
     if hasattr(np, func):
         NOT_HANDLED_FUNCTIONS.add(getattr(np, func))
 
