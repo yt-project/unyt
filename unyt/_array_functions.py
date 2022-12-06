@@ -3,8 +3,14 @@ import warnings
 import numpy as np
 from packaging.version import Version
 
+from unyt import delta_degC
 from unyt.array import NULL_UNIT, unyt_array
-from unyt.exceptions import UnitConversionError, UnitInconsistencyError
+from unyt.dimensions import temperature
+from unyt.exceptions import (
+    InvalidUnitOperation,
+    UnitConversionError,
+    UnitInconsistencyError,
+)
 
 NUMPY_VERSION = Version(np.__version__)
 _HANDLED_FUNCTIONS = {}
@@ -455,6 +461,30 @@ def allclose(a, b, *args, **kwargs):
     )
 
 
+@implements(np.array_equal)
+def array_equal(a1, a2, *args, **kwargs) -> bool:
+    u1 = getattr(a1, "units", NULL_UNIT)
+    u2 = getattr(a2, "units", NULL_UNIT)
+    if u2 != u1:
+        return False
+
+    return np.array_equal._implementation(
+        a1.view(np.ndarray), a2.view(np.ndarray), *args, **kwargs
+    )
+
+
+@implements(np.array_equiv)
+def array_equiv(a1, a2, *args, **kwargs) -> bool:
+    u1 = getattr(a1, "units", NULL_UNIT)
+    u2 = getattr(a2, "units", NULL_UNIT)
+    if u2 != u1:
+        return False
+
+    return np.array_equiv._implementation(
+        a1.view(np.ndarray), a2.view(np.ndarray), *args, **kwargs
+    )
+
+
 @implements(np.linspace)
 def linspace(start, stop, *args, **kwargs):
     _validate_units_consistency((start, stop))
@@ -621,3 +651,43 @@ def savetxt(fname, X, *args, **kwargs):
         stacklevel=4,
     )
     return np.savetxt._implementation(fname, X.view(np.ndarray), *args, **kwargs)
+
+
+@implements(np.apply_over_axes)
+def apply_over_axes(func, a, axes):
+    res = func(a.view(np.ndarray), axes[0]) * a.units
+    if len(axes) > 1:
+        # this function is recursive by nature,
+        # here we intentionally do not call the base _implementation
+        return np.apply_over_axes(func, res, axes[1:])
+    else:
+        return res
+
+
+def diff_helper(func, arr, *args, **kwargs):
+    u = getattr(arr, "units", NULL_UNIT)
+    if u.dimensions is temperature:
+        if u.base_offset:
+            raise InvalidUnitOperation(
+                "Quantities with units of Fahrenheit or Celsius "
+                "cannot by multiplied, divided, subtracted or added."
+            )
+        ret_units = delta_degC
+    else:
+        ret_units = u
+    return func._implementation(arr.view(np.ndarray), *args, **kwargs) * ret_units
+
+
+@implements(np.diff)
+def diff(a, *args, **kwargs):
+    return diff_helper(np.diff, a, *args, **kwargs)
+
+
+@implements(np.ediff1d)
+def ediff1d(a, *args, **kwargs):
+    return diff_helper(np.ediff1d, a, *args, **kwargs)
+
+
+@implements(np.ptp)
+def ptp(a, *args, **kwargs):
+    return diff_helper(np.ptp, a, *args, **kwargs)
