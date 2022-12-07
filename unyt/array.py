@@ -141,6 +141,7 @@ from unyt.unit_registry import (
 
 NULL_UNIT = Unit()
 POWER_MAPPING = {multiply: lambda x: x, divide: lambda x: 2 - x}
+DISALLOWED_DTYPES = ("S", "U", "a", "O", "M", "m", "b")
 
 __doctest_requires__ = {
     ("unyt_array.from_pint", "unyt_array.to_pint"): ["pint"],
@@ -253,21 +254,28 @@ def _bitop_units(unit1, unit2):
 
 def _coerce_iterable_units(input_object, registry=None):
     if isinstance(input_object, np.ndarray):
-        return input_object
-    if _iterable(input_object):
-        if any([isinstance(o, unyt_array) for o in input_object]):
+        ret = input_object
+    elif _iterable(input_object):
+        if any(isinstance(o, unyt_array) for o in input_object):
             ff = getattr(input_object[0], "units", NULL_UNIT)
-            if any([ff != getattr(_, "units", NULL_UNIT) for _ in input_object]):
+            if any(ff != getattr(_, "units", NULL_UNIT) for _ in input_object):
                 ret = []
                 for datum in input_object:
                     try:
                         ret.append(datum.in_units(ff.units))
                     except UnitConversionError:
                         raise IterableUnitCoercionError(str(input_object))
-                return unyt_array(np.array(ret), ff, registry=registry)
+                ret = unyt_array(np.array(ret), ff, registry=registry)
             # This will create a copy of the data in the iterable.
-            return unyt_array(np.array(input_object), ff, registry=registry)
-    return np.asarray(input_object)
+            else:
+                ret = unyt_array(np.array(input_object), ff, registry=registry)
+        else:
+            ret = np.asarray(input_object)
+    else:
+        ret = np.asarray(input_object)
+    if ret.dtype.char in DISALLOWED_DTYPES:
+        raise IterableUnitCoercionError(str(input_object))
+    return ret
 
 
 def _sanitize_units_convert(possible_units, registry):
@@ -1716,6 +1724,18 @@ class unyt_array(np.ndarray):
             return ret
         else:
             return super().__pow__(p, mod)
+
+    def __eq__(self, other):
+        try:
+            return super().__eq__(other)
+        except (IterableUnitCoercionError, UnitOperationError):
+            return np.zeros(self.shape, dtype="bool")
+
+    def __ne__(self, other):
+        try:
+            return super().__ne__(other)
+        except (IterableUnitCoercionError, UnitOperationError):
+            return np.ones(self.shape, dtype="bool")
 
     #
     # Start operation methods
