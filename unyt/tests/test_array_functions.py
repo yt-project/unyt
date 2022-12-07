@@ -126,6 +126,10 @@ NOOP_FUNCTIONS = {
     np.linalg.slogdet,  # undefined units
     np.linalg.cond,  # works out of the box (tested)
     np.gradient,  # works out of the box (tested)
+    np.cumsum,  # works out of the box (tested)
+    np.nancumsum,  # works out of the box (tested)
+    np.cumproduct,  # we get it for free with np.cumprod (tested)
+    np.nancumprod,  # we get it for free with np.cumprod (tested)
 }
 
 # this set represents all functions that need inspection, tests, or both
@@ -141,9 +145,6 @@ TODO_FUNCTIONS = {
     np.corrcoef,
     np.correlate,
     np.cov,
-    np.cumprod,
-    np.cumproduct,
-    np.cumsum,
     np.datetime_as_string,
     np.digitize,
     np.einsum,
@@ -162,8 +163,6 @@ TODO_FUNCTIONS = {
     np.lexsort,
     np.linalg.svd,
     np.min_scalar_type,
-    np.nancumprod,
-    np.nancumsum,
     np.packbits,
     np.pad,
     np.piecewise,
@@ -1292,3 +1291,42 @@ def test_invalid_deltas(func, input_units):
         ),
     ):
         func(x)
+
+
+@pytest.mark.parametrize(
+    "func",
+    [
+        np.cumsum,
+        np.nancumsum,
+    ],
+)
+def test_cumsum(func):
+    a = [1, 2, 3] * cm
+    res = func(a)
+    assert type(res) is unyt_array
+    assert res.units == cm
+
+
+@pytest.mark.parametrize(
+    "func",
+    [
+        np.cumprod,
+        np.cumproduct,
+        np.nancumprod,
+    ],
+)
+def test_cumprod(func):
+    a = [1, 2, 3] * cm
+    with pytest.warns(
+        UserWarning,
+        match=re.escape(
+            "The result of numpy.cumprod (or similar functions) "
+            "with a unyt_array as the first argument will be another "
+            "unyt_array with the same units. To avoid this warning, "
+            "pass the underlying numeric data as the first argument instead as\n"
+            "np.cumprod(a.ndview) * a.units"
+        ),
+    ):
+        res = func(a)
+    assert type(res) is unyt_array
+    assert res.units == cm

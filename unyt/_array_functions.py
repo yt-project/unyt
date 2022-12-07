@@ -691,3 +691,16 @@ def ediff1d(a, *args, **kwargs):
 @implements(np.ptp)
 def ptp(a, *args, **kwargs):
     return diff_helper(np.ptp, a, *args, **kwargs)
+
+
+@implements(np.cumprod)
+def cumprod(a, *args, **kwargs):
+    warnings.warn(
+        "The result of numpy.cumprod (or similar functions) "
+        "with a unyt_array as the first argument will be another "
+        "unyt_array with the same units. To avoid this warning, "
+        "pass the underlying numeric data as the first argument instead as\n"
+        "np.cumprod(a.ndview) * a.units",
+        stacklevel=4,
+    )
+    return np.cumprod._implementation(a.view(np.ndarray), *args, **kwargs) * a.units
