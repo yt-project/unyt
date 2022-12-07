@@ -2,6 +2,15 @@
 History
 =======
 
+2.9.3 (2022-12-07)
+------------------
+
+* Fix a future incompatibility with numpy 1.25 (unreleased) where comparing
+  ``unyt_array`` objects to non-numeric objects (e.g. strings) would cause a
+  crash. See `PR #333 <https://github.com/yt-project/unyt/pull/333>`_. Thank you
+  to Clément Robert (@neutrinoceros on GitHub) and Nathan Goldbaum (@ngoldbaum
+  on GitHub) the contribution.
+
 2.9.2 (2022-07-20)
 ------------------
 
