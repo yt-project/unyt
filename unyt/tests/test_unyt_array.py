@@ -1483,8 +1483,31 @@ def test_subclass():
     assert_isinstance(a.copy(), unyt_a_subclass)
     assert_isinstance(copy.deepcopy(a), unyt_a_subclass)
 
-    with pytest.raises(RuntimeError):
+
+def test_string_operations_raise_errors():
+    a = unyt_array([1, 2, 3], "g")
+    with pytest.raises(IterableUnitCoercionError):
         a + "hello"
+    with pytest.raises(IterableUnitCoercionError):
+        a * "hello"
+    with pytest.raises(IterableUnitCoercionError):
+        a ** "hello"
+    if Version(np.__version__) < Version("1.24"):
+        with pytest.warns(FutureWarning):
+            assert a != "hello"
+    else:
+        assert (a != "hello").all()
+
+
+def test_string_operations_raise_errors_quantity():
+    q = 2 * g
+    with pytest.raises(IterableUnitCoercionError):
+        q + "hello"
+    with pytest.raises(IterableUnitCoercionError):
+        q * "hello"
+    with pytest.raises(IterableUnitCoercionError):
+        q ** "hello"
+    assert q != "hello"
 
 
 def test_h5_io():
@@ -2681,3 +2704,11 @@ def test_reshape_quantity_via_shape_tuple():
     b = a.reshape(-1, 1)
     assert b.shape == (1, 1)
     assert type(b) is unyt_array
+
+
+def test_string_comparison():
+    # exercise comparison between a unyt_quantity object and a string
+    # see regression https://github.com/numpy/numpy/issues/22744
+    a = 1 * cm
+    assert not (a == "hello")
+    assert a != "hello"
