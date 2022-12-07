@@ -67,9 +67,6 @@ unyt = [
     "tests/data/old_json_registry.txt",
 ]
 
-[tool.distutils.bdist_wheel]
-universal = 1
-
 
 [tool.black]
 target-version = ['py38']

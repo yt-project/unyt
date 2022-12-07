@@ -195,13 +195,36 @@ Deploying
 
 A reminder for the maintainers on how to deploy.  Make sure all your changes are
 committed (including an entry in HISTORY.rst and adding any new contributors to
-AUTHORS.rst).  Then run::
+AUTHORS.rst).
 
-  $ git tag v1.x.x
-  $ git push upstream master --tags
+If doing a bugfix release, you may need to create a - or checkout an existing -
+backport branch named ``vX.Y.x`` where ``X`` and ``Y`` represent the relevant
+major and minor version numbers, and the lowercase ``x`` is literal.
+
+Otherwise you may just release from the development branch.
+
+  $ git tag vX.Y.Z            # where X, Y and Z should be meaningful major, minor and micro version numbers
+  $ git push upstream --tag   # assuming the mother repo yt-project/unyt is set as a remote under the name "upstream"
 
 If the tests pass you can then subsequently manually upload to PyPI::
 
+  $ python -m pip install --upgrade pip
+  $ python -m pip install --upgrade build twine
   $ rm -r build dist
-  $ python setup.py sdist bdist_wheel --universal
+  $ python -m build
+
+Do a test publication
+
+  $ twine check dist/*
+  $ twine upload dist/* --repository-url https://test.pypi.org/legacy/
+
+Test the result (best using a fresh environment here)
+
+  $ python -m pip install --index-url https://test.pypi.org/simple/ unyt --extra-index-url https://pypi.org/simple --force
+  $ python -c "import unyt; unyt.test()"
+  $ python -m pip install --index-url https://test.pypi.org/simple/ unyt --extra-index-url https://pypi.org/simple --no-binary unyt --force
+  $ python -c "import unyt; unyt.test()"
+
+Finally, if everything works well, push the release to the normal PyPI index as
+
   $ twine upload dist/*
