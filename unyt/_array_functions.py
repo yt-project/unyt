@@ -10,6 +10,7 @@ from unyt.exceptions import (
     InvalidUnitOperation,
     UnitConversionError,
     UnitInconsistencyError,
+    UnytError,
 )
 
 NUMPY_VERSION = Version(np.__version__)
@@ -695,12 +696,8 @@ def ptp(a, *args, **kwargs):
 
 @implements(np.cumprod)
 def cumprod(a, *args, **kwargs):
-    warnings.warn(
-        "The result of numpy.cumprod (or similar functions) "
-        "with a unyt_array as the first argument will be another "
-        "unyt_array with the same units. To avoid this warning, "
-        "pass the underlying numeric data as the first argument instead as\n"
-        "np.cumprod(a.ndview) * a.units",
-        stacklevel=4,
+    raise UnytError(
+        "numpy.cumprod (and other cumulative product function) cannot be used "
+        "with a unyt_array as all return elements should (but cannot) "
+        "have different units."
     )
-    return np.cumprod._implementation(a.view(np.ndarray), *args, **kwargs) * a.units

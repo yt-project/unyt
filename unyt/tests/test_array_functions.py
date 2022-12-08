@@ -13,6 +13,7 @@ from unyt.exceptions import (
     InvalidUnitOperation,
     UnitConversionError,
     UnitInconsistencyError,
+    UnytError,
 )
 
 NUMPY_VERSION = Version(version("numpy"))
@@ -1317,16 +1318,12 @@ def test_cumsum(func):
 )
 def test_cumprod(func):
     a = [1, 2, 3] * cm
-    with pytest.warns(
-        UserWarning,
+    with pytest.raises(
+        UnytError,
         match=re.escape(
-            "The result of numpy.cumprod (or similar functions) "
-            "with a unyt_array as the first argument will be another "
-            "unyt_array with the same units. To avoid this warning, "
-            "pass the underlying numeric data as the first argument instead as\n"
-            "np.cumprod(a.ndview) * a.units"
+            r"numpy.cumprod (and other cumulative product function) cannot be used "
+            r"with a unyt_array as all return elements should (but cannot) "
+            r"have different units."
         ),
     ):
-        res = func(a)
-    assert type(res) is unyt_array
-    assert res.units == cm
+        func(a)
