@@ -1499,11 +1499,8 @@ def test_string_operations_raise_errors():
         a * "hello"
     with pytest.raises(IterableUnitCoercionError):
         a ** "hello"
-    if Version(np.__version__) < Version("1.24"):
-        with pytest.warns(FutureWarning):
-            assert a != "hello"
-    else:
-        assert (a != "hello").all()
+    with pytest.warns(FutureWarning):
+        assert a != "hello"
 
 
 def test_string_operations_raise_errors_quantity():
