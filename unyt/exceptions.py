@@ -14,6 +14,13 @@ Exception classes defined by unyt
 # -----------------------------------------------------------------------------
 
 
+class UnytError(Exception):
+    # a generic exception type that just signals "this is coming from unyt"
+    # TBD: should this be named `UnitError` instead ?
+    # TBD: should all other custom excpetion inherit from it ?
+    pass
+
+
 class UnitOperationError(ValueError):
     """An exception that is raised when unit operations are not allowed
 

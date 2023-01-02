@@ -10,6 +10,7 @@ from unyt.exceptions import (
     InvalidUnitOperation,
     UnitConversionError,
     UnitInconsistencyError,
+    UnytError,
 )
 
 NUMPY_VERSION = Version(np.__version__)
@@ -691,3 +692,12 @@ def ediff1d(a, *args, **kwargs):
 @implements(np.ptp)
 def ptp(a, *args, **kwargs):
     return diff_helper(np.ptp, a, *args, **kwargs)
+
+
+@implements(np.cumprod)
+def cumprod(a, *args, **kwargs):
+    raise UnytError(
+        "numpy.cumprod (and other cumulative product function) cannot be used "
+        "with a unyt_array as all return elements should (but cannot) "
+        "have different units."
+    )
