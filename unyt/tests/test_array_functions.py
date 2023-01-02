@@ -133,6 +133,26 @@ NOOP_FUNCTIONS = {
     np.nancumprod,  # we get it for free with np.cumprod (tested)
 }
 
+# Functions that are wrappable but don't really make sense with units
+IGNORED_FUNCTIONS = {
+    # Polynomials
+    np.poly,
+    np.polyadd,
+    np.polyder,
+    np.polydiv,
+    np.polyfit,
+    np.polyint,
+    np.polymul,
+    np.polysub,
+    np.polyval,
+    np.roots,
+    np.vander,
+    # IO functions (no way to add units)
+    np.save,
+    np.savez,
+    np.savez_compressed,
+}
+
 # this set represents all functions that need inspection, tests, or both
 # it is always possible that some of its elements belong in NOOP_FUNCTIONS
 TODO_FUNCTIONS = {
@@ -168,24 +188,11 @@ TODO_FUNCTIONS = {
     np.pad,
     np.piecewise,
     np.place,
-    np.poly,
-    np.polyadd,
-    np.polyder,
-    np.polydiv,
-    np.polyfit,
-    np.polyint,
-    np.polymul,
-    np.polysub,
-    np.polyval,
     np.put,
     np.put_along_axis,
     np.putmask,
     np.real,
     np.real_if_close,
-    np.roots,
-    np.save,
-    np.savez,
-    np.savez_compressed,
     np.searchsorted,
     np.select,
     np.setdiff1d,
@@ -201,7 +208,6 @@ TODO_FUNCTIONS = {
     np.unique,
     np.unpackbits,
     np.unwrap,
-    np.vander,
     np.where,
 }
 
@@ -222,7 +228,7 @@ DEPRECATED_FUNCTIONS = {
     "msort",  # deprecated in numpy 1.24
 }
 
-NOT_HANDLED_FUNCTIONS = NOOP_FUNCTIONS | TODO_FUNCTIONS
+NOT_HANDLED_FUNCTIONS = NOOP_FUNCTIONS | TODO_FUNCTIONS | IGNORED_FUNCTIONS
 
 for func in DEPRECATED_FUNCTIONS:
     if hasattr(np, func):
