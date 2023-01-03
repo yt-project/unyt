@@ -15,6 +15,7 @@ unyt_array class.
 
 import copy
 import re
+import sys
 import warnings
 from functools import lru_cache
 from numbers import Number as numeric_type
@@ -1800,7 +1801,7 @@ class unyt_array(np.ndarray):
             i0 = inputs[0]
             i1 = inputs[1]
 
-            if _dask.__is_available__ and isinstance(i1, _dask.array.core.Array):
+            if "dask" in sys.modules and isinstance(i1, _dask.array.core.Array):
                 # need to short circuit all this to handle binary operations
                 # like unyt_quantity(2,'m') / unyt_dask_array_instance
                 # only need to check the second argument as if the first arg
