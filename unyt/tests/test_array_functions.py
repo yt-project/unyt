@@ -15,6 +15,7 @@ from unyt.exceptions import (
     UnitInconsistencyError,
     UnytError,
 )
+from unyt.testing import assert_array_equal_units
 
 NUMPY_VERSION = Version(version("numpy"))
 # this is a subset of NOT_HANDLED_FUNCTIONS for which there's nothing to do
@@ -135,7 +136,8 @@ NOOP_FUNCTIONS = {
     np.unique,  # works out of the box (tested)
     np.take,  # works out of the box (tested)
     np.min_scalar_type,  # returns dtypes
-    np.sinc,  # works out of the box (tested); we *want* this one to ignore units
+    np.extract,  # works out of the box (tested)
+    np.setxor1d,  # we get it for free with previously implemented functions (tested)
 }
 
 # Functions that are wrappable but don't really make sense with units
@@ -158,6 +160,9 @@ IGNORED_FUNCTIONS = {
     np.savez_compressed,
     # datetime64 is not a sensible dtype for unyt_array
     np.datetime_as_string,
+    # not clear how to approach
+    # astropy.units doens't have a simple implementation either
+    np.piecewise,
 }
 
 # this set represents all functions that need inspection, tests, or both
@@ -165,8 +170,6 @@ IGNORED_FUNCTIONS = {
 TODO_FUNCTIONS = {
     np.busday_count,
     np.busday_offset,
-    np.choose,
-    np.clip,
     np.compress,
     np.convolve,
     np.corrcoef,
@@ -175,30 +178,17 @@ TODO_FUNCTIONS = {
     np.digitize,
     np.einsum,
     np.einsum_path,
-    np.extract,
-    np.fill_diagonal,
     np.i0,
     np.imag,
     np.in1d,
-    np.insert,
     np.interp,
     np.is_busday,
-    np.isin,
     np.ix_,
     np.lexsort,
     np.linalg.svd,
     np.packbits,
-    np.piecewise,
-    np.place,
-    np.put,
-    np.put_along_axis,
-    np.putmask,
     np.real,
     np.real_if_close,
-    np.searchsorted,
-    np.select,
-    np.setdiff1d,
-    np.setxor1d,
     np.take_along_axis,
     np.tensordot,
     np.tril,
@@ -1371,4 +1361,190 @@ def test_pad():
 def test_sinc():
     a = [1, 2, 3] * cm
     res = np.sinc(a)
+    # we *want* this one to ignore units
     assert type(res) is np.ndarray
+
+
+def test_choose_mixed_units():
+    choices = [[1, 2, 3] * cm, [4, 5, 6] * km]
+    with pytest.raises(UnitInconsistencyError):
+        np.choose([1, 0, 1], choices=choices)
+
+
+def test_choose():
+    choices = [[1, 2, 3] * cm, [4, 5, 6] * cm]
+    res = np.choose([1, 0, 1], choices=choices)
+    assert type(res) is unyt_array
+    assert res.units == cm
+
+
+def test_extract():
+    a = [1, 2, 3] * cm
+    res = np.extract(a > 1 * cm, a)
+    assert type(res) is unyt_array
+    assert res.units == cm
+
+
+def test_fill_diagonal_mixed_units():
+    a = np.zeros(9).reshape((3, 3)) * cm
+    with pytest.raises(UnitInconsistencyError):
+        np.fill_diagonal(a, 1 * km)
+
+
+@pytest.mark.parametrize("val", [1 * cm, 1])
+def test_fill_diagonal(val):
+    a = np.zeros(9).reshape((3, 3)) * cm
+    np.fill_diagonal(a, val)
+    assert type(a) is unyt_array
+    assert a.units == cm
+
+
+def test_insert_mixed_units():
+    a = [1, 2, 3] * cm
+    with pytest.raises(UnitInconsistencyError):
+        np.insert(a, 1, 42 * km)
+
+
+@pytest.mark.parametrize("val", [42, 42 * cm])
+def test_insert(val):
+    a = [1, 2, 3] * cm
+    res = np.insert(a, 1, val)
+    assert type(res) is unyt_array
+    assert res.units == cm
+
+
+def test_isin_mixed_units():
+    a = [1, 2, 3] * cm
+    with pytest.raises(UnitInconsistencyError):
+        np.isin(1, a)
+
+
+def test_isin():
+    a = [1, 2, 3] * cm
+    assert np.isin(1 * cm, a)
+
+
+def test_place_mixed_units():
+    arr = np.arange(6).reshape(2, 3) * cm
+    with pytest.raises(UnitInconsistencyError):
+        np.place(arr, arr > 2, [44, 55])
+
+
+def test_place():
+    arr = np.arange(6).reshape(2, 3) * cm
+    np.place(arr, arr > 2, [44, 55] * cm)
+    assert type(arr) is unyt_array
+    assert arr.units == cm
+
+
+def test_put_mixed_units():
+    arr = np.arange(6).reshape(2, 3) * cm
+    with pytest.raises(UnitInconsistencyError):
+        np.put(arr, [1, 2], [44, 55])
+
+
+def test_put():
+    arr = np.arange(6).reshape(2, 3) * cm
+    np.put(arr, [1, 2], [44, 55] * cm)
+    assert type(arr) is unyt_array
+    assert arr.units == cm
+
+
+def test_put_along_axis_mixed_units():
+    arr = np.arange(6).reshape(2, 3) * cm
+    with pytest.raises(UnitInconsistencyError):
+        np.put_along_axis(arr, np.array([[1, 2], [0, 1]]), [44, 55], 1)
+
+
+def test_put_along_axis():
+    arr = np.arange(6).reshape(2, 3) * cm
+    np.put_along_axis(arr, np.array([[1, 2], [0, 1]]), [44, 55] * cm, 1)
+    assert type(arr) is unyt_array
+    assert arr.units == cm
+
+
+def test_putmask_mixed_units():
+    arr = np.arange(6, dtype=np.int_).reshape(2, 3) * cm
+    with pytest.raises(UnitInconsistencyError):
+        np.putmask(arr, arr > 2 * cm, np.zeros_like(arr.d))
+
+
+def test_putmask():
+    arr = np.arange(6, dtype=np.int_).reshape(2, 3) * cm
+    np.putmask(arr, arr > 2 * cm, np.zeros_like(arr))
+
+    assert type(arr) is unyt_array
+    assert arr.units == cm
+
+
+def test_searchsorted_mixed_units():
+    with pytest.raises(UnitInconsistencyError):
+        np.searchsorted([1, 2, 3, 4, 5] * cm, 3 * km)
+
+
+@pytest.mark.parametrize("val", [3 * cm, 3])
+def test_searchsorted(val):
+    res = np.searchsorted([1, 2, 3, 4, 5] * cm, val)
+    assert res == 2
+
+
+@pytest.mark.parametrize(
+    "choicelist_gen, default",
+    [
+        ([lambda x: x**3, lambda x: x**2], 34 * cm),  # invalid choicelist
+        ([lambda x: x, lambda x: x + 3 * x.units], 34),  # invalid default
+    ],
+)
+def test_select_mixed_units(choicelist_gen, default):
+    a = [1, 2, 3, 4, 5, 6] * cm
+    with pytest.raises(UnitInconsistencyError):
+        np.select(
+            [a > 3 * cm, a < 3 * cm], [f(a) for f in choicelist_gen], default=default
+        )
+
+
+def test_select():
+    a = [1, 2, 3, 4, 5, 6] * cm
+    res = np.select([a > 3 * cm, a < 3 * cm], [a, a + 3 * cm], default=34 * cm)
+    assert_array_equal_units(res, [4, 5, 34, 4, 5, 6] * cm)
+
+
+def test_setdiff1d_mixed_units():
+    a = [1, 2, 3] * cm
+    b = [0, 1, 2]
+    with pytest.raises(UnitInconsistencyError):
+        np.setdiff1d(a, b)
+
+
+def test_setdiff1d():
+    a = [1, 2, 3] * cm
+    b = [0, 1, 2] * cm
+    res = np.setdiff1d(a, b)
+    assert_array_equal_units(res, [3] * cm)
+
+
+def test_setxor1d_mixed_units():
+    a = [1, 2, 3] * cm
+    b = [0, 1, 2]
+    with pytest.raises(UnitInconsistencyError):
+        np.setxor1d(a, b)
+
+
+def test_setxor1d():
+    a = [1, 2, 3] * cm
+    b = [0, 1, 2] * cm
+    res = np.setxor1d(a, b)
+    assert_array_equal_units(res, [0, 3] * cm)
+
+
+def test_clip_mixed_units():
+    a = [1, 2, 3, 4, 5, 6] * cm
+    with pytest.raises(UnitInconsistencyError):
+        np.clip(a, 3 * cm, 4)
+
+
+@pytest.mark.parametrize("vmin,vmax", [(3 * cm, 4 * cm), (3, 4)])
+def test_clip(vmin, vmax):
+    a = [1, 2, 3, 4, 5, 6] * cm
+    res = np.clip(a, vmin, vmax)
+    assert_array_equal_units(res, [3, 3, 3, 4, 4, 4] * cm)
