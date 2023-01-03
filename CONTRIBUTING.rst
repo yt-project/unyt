@@ -98,7 +98,7 @@ managing your python evironment using your operating system's package manager or
     $ pyenv install -s 3.8.13
     $ pyenv install -s 3.9.12
     $ pyenv install -s 3.10.4
-    $ pip install tox tox-pyenv
+    $ pip install tox
 
 4. Install your local copy into a virtualenv or conda environment. You can also
    use one of the python interpreters we installed using ``pyenv``::
