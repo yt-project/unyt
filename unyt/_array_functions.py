@@ -144,6 +144,14 @@ def histogramdd(sample, bins=10, range=None, *args, **kwargs):
     return counts, tuple(_bin * u for _bin, u in zip(bins, units))
 
 
+@implements(np.histogram_bin_edges)
+def histogram_bin_edges(a, *args, **kwargs):
+    return (
+        np.histogram_bin_edges._implementation(a.view(np.ndarray), *args, **kwargs)
+        * a.units
+    )
+
+
 def get_units(arrays):
     units = []
     for sub in arrays:
