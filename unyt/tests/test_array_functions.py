@@ -187,7 +187,6 @@ TODO_FUNCTIONS = {
     np.linalg.svd,
     np.min_scalar_type,
     np.packbits,
-    np.pad,
     np.piecewise,
     np.place,
     np.put,
@@ -1358,5 +1357,12 @@ def test_unique():
 def test_take():
     a = [1, 2, 3] * cm
     res = np.take(a, [0, 1])
+    assert type(res) is unyt_array
+    assert res.units == cm
+
+
+def test_pad():
+    a = [1, 2, 3] * cm
+    res = np.pad(a, [0, 1])
     assert type(res) is unyt_array
     assert res.units == cm
