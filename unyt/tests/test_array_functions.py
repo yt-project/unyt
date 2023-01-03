@@ -198,7 +198,6 @@ TODO_FUNCTIONS = {
     np.select,
     np.setdiff1d,
     np.setxor1d,
-    np.sinc,
     np.take_along_axis,
     np.tensordot,
     np.tril,
@@ -1364,5 +1363,12 @@ def test_take():
 def test_pad():
     a = [1, 2, 3] * cm
     res = np.pad(a, [0, 1])
+    assert type(res) is unyt_array
+    assert res.units == cm
+
+
+def test_sinc():
+    a = [1, 2, 3] * cm
+    res = np.sinc(a)
     assert type(res) is unyt_array
     assert res.units == cm
