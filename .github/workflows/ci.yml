@@ -39,19 +39,6 @@ jobs:
       - name: Install Tox and any other packages
         run: |
           python -m pip install --upgrade pip setuptools wheel setuptools_scm
-          python -m pip install "tox<4.0" tox-pyenv coverage # see https://github.com/tox-dev/tox-pyenv/issues/21
-      - name: Build Docs
-        if: matrix.python-version == '3.8'
-        run: tox -e py38-docs -vvv
-      - name: Run Minimal Dependency Build
-        if: matrix.python-version == '3.8'
-        run: tox -e py38-dependencies
-      - name: Run Minimal Dependency Version Build
-        if: matrix.python-version == '3.8'
-        run: tox -e py38-versions
-      - name: Run Main Build
-        # Run tox using the version of Python in `PATH`
-        run: tox -e py -vvv
-      - name: Run In-place Tests
-        if: matrix.python-version == '3.8'
-        run: tox -e py38-unyt-module-test-function
+          python -m pip install tox tox-gh-actions
+      - name: Test
+        run: tox -vvv
