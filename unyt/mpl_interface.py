@@ -8,14 +8,6 @@ This feature is optional and has to be enabled using the matplotlib_support cont
 manager.
 """
 
-# -----------------------------------------------------------------------------
-# Copyright (c) 2020, yt Development Team.
-#
-# Distributed under the terms of the Modified BSD License.
-#
-# The full license is in the LICENSE file, distributed with this software.
-# -----------------------------------------------------------------------------
-
 
 from unyt.array import unyt_array, unyt_quantity
 

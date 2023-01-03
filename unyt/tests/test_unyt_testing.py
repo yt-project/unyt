@@ -2,15 +2,6 @@
 Test unyt.testing module that contains utilities for writing tests.
 
 """
-
-# ----------------------------------------------------------------------------
-# Copyright (c) 2013, yt Development Team.
-#
-# Distributed under the terms of the Modified BSD License.
-#
-# The full license is in the file COPYING.txt, distributed with this software.
-# ----------------------------------------------------------------------------
-
 import pytest
 
 from unyt.array import unyt_array, unyt_quantity

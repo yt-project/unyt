@@ -35,13 +35,6 @@ top-level ``unyt`` namespace:
 * :func:`unyt.dimensions.returns`
 """
 
-# -----------------------------------------------------------------------------
-# Copyright (c) 2018, yt Development Team.
-#
-# Distributed under the terms of the Modified BSD License.
-#
-# The full license is in the LICENSE file, distributed with this software.
-# -----------------------------------------------------------------------------
 
 from unyt import physical_constants, unit_symbols
 from unyt.array import (  # NOQA: F401
