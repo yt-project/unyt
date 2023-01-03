@@ -144,6 +144,14 @@ def histogramdd(sample, bins=10, range=None, *args, **kwargs):
     return counts, tuple(_bin * u for _bin, u in zip(bins, units))
 
 
+@implements(np.histogram_bin_edges)
+def histogram_bin_edges(a, *args, **kwargs):
+    return (
+        np.histogram_bin_edges._implementation(a.view(np.ndarray), *args, **kwargs)
+        * a.units
+    )
+
+
 def get_units(arrays):
     units = []
     for sub in arrays:
@@ -701,3 +709,8 @@ def cumprod(a, *args, **kwargs):
         "with a unyt_array as all return elements should (but cannot) "
         "have different units."
     )
+
+
+@implements(np.pad)
+def pad(array, *args, **kwargs):
+    return np.pad._implementation(array.view(np.ndarray), *args, **kwargs) * array.units

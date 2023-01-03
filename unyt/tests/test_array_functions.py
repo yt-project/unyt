@@ -131,6 +131,11 @@ NOOP_FUNCTIONS = {
     np.nancumsum,  # works out of the box (tested)
     np.cumproduct,  # we get it for free with np.cumprod (tested)
     np.nancumprod,  # we get it for free with np.cumprod (tested)
+    np.bincount,  # works out of the box (tested)
+    np.unique,  # works out of the box (tested)
+    np.take,  # works out of the box (tested)
+    np.min_scalar_type,  # returns dtypes
+    np.sinc,  # works out of the box (tested); we *want* this one to ignore units
 }
 
 # Functions that are wrappable but don't really make sense with units
@@ -151,12 +156,13 @@ IGNORED_FUNCTIONS = {
     np.save,
     np.savez,
     np.savez_compressed,
+    # datetime64 is not a sensible dtype for unyt_array
+    np.datetime_as_string,
 }
 
 # this set represents all functions that need inspection, tests, or both
 # it is always possible that some of its elements belong in NOOP_FUNCTIONS
 TODO_FUNCTIONS = {
-    np.bincount,
     np.busday_count,
     np.busday_offset,
     np.choose,
@@ -166,13 +172,11 @@ TODO_FUNCTIONS = {
     np.corrcoef,
     np.correlate,
     np.cov,
-    np.datetime_as_string,
     np.digitize,
     np.einsum,
     np.einsum_path,
     np.extract,
     np.fill_diagonal,
-    np.histogram_bin_edges,
     np.i0,
     np.imag,
     np.in1d,
@@ -183,9 +187,7 @@ TODO_FUNCTIONS = {
     np.ix_,
     np.lexsort,
     np.linalg.svd,
-    np.min_scalar_type,
     np.packbits,
-    np.pad,
     np.piecewise,
     np.place,
     np.put,
@@ -197,15 +199,12 @@ TODO_FUNCTIONS = {
     np.select,
     np.setdiff1d,
     np.setxor1d,
-    np.sinc,
-    np.take,
     np.take_along_axis,
     np.tensordot,
     np.tril,
     np.tril_indices_from,
     np.triu,
     np.triu_indices_from,
-    np.unique,
     np.unpackbits,
     np.unwrap,
     np.where,
@@ -477,6 +476,13 @@ def test_histogramdd():
     assert xbins.units == x.units
     assert ybins.units == y.units
     assert zbins.units == z.units
+
+
+def test_histogram_bin_edges():
+    arr = np.random.normal(size=1000) * cm
+    bins = np.histogram_bin_edges(arr)
+    assert type(bins) is unyt_array
+    assert bins.units == arr.units
 
 
 def test_concatenate():
@@ -1333,3 +1339,36 @@ def test_cumprod(func):
         ),
     ):
         func(a)
+
+
+def test_bincount():
+    a = [1, 2, 3] * cm
+    res = np.bincount(a)
+    assert type(res) is np.ndarray
+
+
+def test_unique():
+    a = [1, 2, 3] * cm
+    res = np.unique(a)
+    assert type(res) is unyt_array
+    assert res.units == cm
+
+
+def test_take():
+    a = [1, 2, 3] * cm
+    res = np.take(a, [0, 1])
+    assert type(res) is unyt_array
+    assert res.units == cm
+
+
+def test_pad():
+    a = [1, 2, 3] * cm
+    res = np.pad(a, [0, 1])
+    assert type(res) is unyt_array
+    assert res.units == cm
+
+
+def test_sinc():
+    a = [1, 2, 3] * cm
+    res = np.sinc(a)
+    assert type(res) is np.ndarray
