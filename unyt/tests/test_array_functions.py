@@ -134,6 +134,7 @@ NOOP_FUNCTIONS = {
     np.bincount,  # works out of the box (tested)
     np.unique,  # works out of the box (tested)
     np.take,  # works out of the box (tested)
+    np.min_scalar_type,  # returns dtypes
 }
 
 # Functions that are wrappable but don't really make sense with units
@@ -185,7 +186,6 @@ TODO_FUNCTIONS = {
     np.ix_,
     np.lexsort,
     np.linalg.svd,
-    np.min_scalar_type,
     np.packbits,
     np.piecewise,
     np.place,
