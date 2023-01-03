@@ -135,6 +135,7 @@ NOOP_FUNCTIONS = {
     np.unique,  # works out of the box (tested)
     np.take,  # works out of the box (tested)
     np.min_scalar_type,  # returns dtypes
+    np.sinc,  # works out of the box (tested); we *want* this one to ignore units
 }
 
 # Functions that are wrappable but don't really make sense with units
@@ -1370,5 +1371,4 @@ def test_pad():
 def test_sinc():
     a = [1, 2, 3] * cm
     res = np.sinc(a)
-    assert type(res) is unyt_array
-    assert res.units == cm
+    assert type(res) is np.ndarray

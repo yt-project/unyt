@@ -714,8 +714,3 @@ def cumprod(a, *args, **kwargs):
 @implements(np.pad)
 def pad(array, *args, **kwargs):
     return np.pad._implementation(array.view(np.ndarray), *args, **kwargs) * array.units
-
-
-@implements(np.sinc)
-def sinc(x, *args, **kwargs):
-    return np.sinc._implementation(x.view(np.ndarray), *args, **kwargs) * x.units
