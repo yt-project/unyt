@@ -154,6 +154,8 @@ IGNORED_FUNCTIONS = {
     np.save,
     np.savez,
     np.savez_compressed,
+    # datetime64 is not a sensible dtype for unyt_array
+    np.datetime_as_string,
 }
 
 # this set represents all functions that need inspection, tests, or both
@@ -168,7 +170,6 @@ TODO_FUNCTIONS = {
     np.corrcoef,
     np.correlate,
     np.cov,
-    np.datetime_as_string,
     np.digitize,
     np.einsum,
     np.einsum_path,
