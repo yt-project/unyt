@@ -1,11 +1,3 @@
-# -----------------------------------------------------------------------------
-# Copyright (c) 2020, yt Development Team.
-#
-# Distributed under the terms of the Modified BSD License.
-#
-# The full license is in the LICENSE file, distributed with this software.
-# -----------------------------------------------------------------------------
-
 from weakref import WeakKeyDictionary
 
 from matplotlib.units import AxisInfo, ConversionInterface

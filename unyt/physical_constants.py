@@ -16,13 +16,6 @@ For example::
 
 """
 
-# -----------------------------------------------------------------------------
-# Copyright (c) 2018, yt Development Team.
-#
-# Distributed under the terms of the Modified BSD License.
-#
-# The full license is in the LICENSE file, distributed with this software.
-# -----------------------------------------------------------------------------
 
 from unyt.unit_registry import default_unit_registry as _default_unit_registry
 from unyt.unit_systems import add_constants as _add_constants
