@@ -57,7 +57,11 @@ from unyt.exceptions import (
     UnitParseError,
     UnitsNotReducible,
 )
-from unyt.testing import _process_warning, assert_allclose_units
+from unyt.testing import (
+    _process_warning,
+    assert_allclose_units,
+    assert_array_equal_units,
+)
 from unyt.unit_registry import UnitRegistry
 from unyt.unit_symbols import cm, degree, g, m
 
@@ -69,11 +73,6 @@ def operate_and_compare(a, b, op, answer):
 
 def assert_isinstance(a, type):
     assert isinstance(a, type)
-
-
-def assert_array_equal_units(a, b):
-    assert_array_equal(a, b)
-    assert_equal(a.units, b.units)
 
 
 def test_addition():

@@ -6,7 +6,9 @@ Utilities for writing tests
 
 import warnings
 
-from unyt.array import allclose_units
+import numpy.testing as npt
+
+from unyt.array import NULL_UNIT, allclose_units
 
 
 def assert_allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
@@ -47,6 +49,33 @@ def assert_allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
     """
     if not allclose_units(actual, desired, rtol, atol, **kwargs):
         raise AssertionError
+
+
+def assert_array_equal_units(x, y, **kwargs):
+    """A thin wrapper around :func:`numpy.testing.assert_array_equal` that also
+    verifies unit consistency
+    Arrays without units are considered dimensionless.
+
+    Parameters
+    ----------
+    x : array_like
+        The actual object to check.
+    y : array_like
+        The desired, expected object.
+
+    See Also
+    --------
+    :func:`numpy.testing.assert_array_equal`
+
+    Notes
+    -----
+    Also accepts additional keyword arguments accepted by
+    :func:`numpy.testing.assert_array_equel`, see the documentation of that
+    function for details.
+    """
+    # see https://github.com/yt-project/unyt/issues/281
+    npt.assert_array_equal(x, y, **kwargs)
+    assert getattr(x, "units", NULL_UNIT) == getattr(y, "units", NULL_UNIT)
 
 
 def _process_warning(op, message, warning_class, args=(), kwargs=None):
