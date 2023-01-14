@@ -13,10 +13,10 @@ from unyt.array import unyt_array, unyt_quantity
 
 from ._on_demand_imports import _matplotlib
 
-__all__ = ["matplotlib_support"]
+__all__ = ["MatplotlibSupport"]
 
 
-class matplotlib_support:
+class MatplotlibSupport:
     """Context manager for enabling the feature
 
     When used in a with statement, the feature is enabled during the context and

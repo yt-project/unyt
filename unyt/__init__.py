@@ -93,6 +93,6 @@ def test():  # pragma: no cover
 
 
 # isort: off
-from unyt.mpl_interface import matplotlib_support
+from unyt.mpl_interface import MatplotlibSupport
 
-matplotlib_support = matplotlib_support()
+matplotlib_support = MatplotlibSupport()
