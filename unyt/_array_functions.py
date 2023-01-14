@@ -4,7 +4,7 @@ from numbers import Number
 import numpy as np
 from packaging.version import Version
 
-from unyt import delta_degC
+from unyt import delta_degC  # type: ignore [attr-defined]
 from unyt.array import NULL_UNIT, unyt_array
 from unyt.dimensions import temperature
 from unyt.exceptions import (

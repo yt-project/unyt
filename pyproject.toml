@@ -115,3 +115,12 @@ omit = [
     "unyt/_on_demand_imports.py",
     "unyt/tests/test_linters.py",
 ]
+
+[tool.mypy]
+python_version = 3.8
+show_error_codes = true
+ignore_missing_imports = true
+warn_unused_configs = true
+warn_unused_ignores = true
+warn_unreachable = true
+show_error_context = true

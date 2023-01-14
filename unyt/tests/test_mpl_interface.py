@@ -2,7 +2,14 @@
 import numpy as np
 import pytest
 
-from unyt import K, m, matplotlib_support, s, unyt_array, unyt_quantity
+from unyt import (  # type: ignore [attr-defined]
+    K,
+    m,
+    matplotlib_support,
+    s,
+    unyt_array,
+    unyt_quantity,
+)
 from unyt._on_demand_imports import NotAModule, _matplotlib
 
 try:

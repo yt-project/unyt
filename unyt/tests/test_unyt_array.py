@@ -29,7 +29,16 @@ from numpy.testing import (
 )
 from packaging.version import Version
 
-from unyt import K, R, Unit, degC, degF, delta_degC, delta_degF, dimensions
+from unyt import (  # type: ignore [attr-defined]
+    K,
+    R,
+    Unit,
+    degC,
+    degF,
+    delta_degC,
+    delta_degF,
+    dimensions,
+)
 from unyt._on_demand_imports import _astropy, _h5py, _pint
 from unyt._physical_ratios import metallicity_sun, speed_of_light_cm_per_s
 from unyt.array import (
@@ -63,7 +72,7 @@ from unyt.testing import (
     assert_array_equal_units,
 )
 from unyt.unit_registry import UnitRegistry
-from unyt.unit_symbols import cm, degree, g, m
+from unyt.unit_symbols import cm, degree, g, m  # type: ignore [attr-defined]
 
 
 def operate_and_compare(a, b, op, answer):

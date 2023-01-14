@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from packaging.version import Version
 
-from unyt import K, cm, degC, degF, delta_degC, g, km, s
+from unyt import K, cm, degC, degF, delta_degC, g, km, s  # type: ignore [attr-defined]
 from unyt._array_functions import _HANDLED_FUNCTIONS as HANDLED_FUNCTIONS
 from unyt.array import unyt_array, unyt_quantity
 from unyt.exceptions import (

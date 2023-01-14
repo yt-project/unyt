@@ -19,7 +19,7 @@ from unyt.dask_array import (
     unyt_from_dask,
 )
 from unyt.exceptions import UnitOperationError
-from unyt.unit_symbols import cm, g, m
+from unyt.unit_symbols import cm, g, m  # type: ignore [attr-defined]
 
 
 def test_unyt_dask_creation():
