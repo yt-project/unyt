@@ -197,7 +197,6 @@ TODO_FUNCTIONS = {
     np.triu_indices_from,
     np.unpackbits,
     np.unwrap,
-    np.where,
 }
 
 DEPRECATED_FUNCTIONS = {
@@ -1548,3 +1547,27 @@ def test_clip(vmin, vmax):
     a = [1, 2, 3, 4, 5, 6] * cm
     res = np.clip(a, vmin, vmax)
     assert_array_equal_units(res, [3, 3, 3, 4, 4, 4] * cm)
+
+
+def test_where_mixed_units():
+    x = [-1, 2, -3] * cm
+    y = [0, 0, 0]
+    with pytest.raises(UnitInconsistencyError):
+        np.where(x > y, x, y)
+
+
+def test_where_single_arg():
+    x = [0, 2, -1, 0, 1] * cm
+    res = np.where(x)
+    assert isinstance(res, tuple)
+    assert len(res) == 1
+    assert type(res[0]) is np.ndarray
+    np.testing.assert_array_equal(res[0], [1, 2, 4])
+
+
+def test_where_xy():
+    x = [-1, 2, -3] * cm
+    y = [0, 0, 0] * cm
+    res = np.where(x > y, x, y)
+    assert type(res) is unyt_array
+    assert res.units == cm
