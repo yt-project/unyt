@@ -1,5 +1,6 @@
 import pickle
 from collections import defaultdict
+from typing import Any, DefaultDict, Tuple
 
 import numpy as np
 import pytest
@@ -263,7 +264,7 @@ def test_unyt_type_result():
     assert result == unyt_quantity(1, m)
 
 
-_func_args = defaultdict(lambda: ())
+_func_args: DefaultDict[str, Tuple[Any, ...]] = defaultdict(lambda: ())
 _func_args["reshape"] = ((100, 1),)
 _func_args["rechunk"] = ((5, 5),)
 _func_args["cumsum"] = (0,)
