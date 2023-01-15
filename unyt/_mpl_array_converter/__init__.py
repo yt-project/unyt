@@ -1,3 +1,4 @@
+from typing import TYPE_CHECKING
 from weakref import WeakKeyDictionary
 
 from matplotlib.units import AxisInfo, ConversionInterface
@@ -5,13 +6,23 @@ from matplotlib.units import AxisInfo, ConversionInterface
 from unyt.array import unyt_array, unyt_quantity
 from unyt.unit_object import Unit
 
+if TYPE_CHECKING:
+    import sys
+
+    from matplotlib.axes import Axis
+
+    if sys.version_info >= (3, 9):
+        from collections.abc import MutableMapping
+    else:
+        from typing import MutableMapping
+
 
 class unyt_arrayConverter(ConversionInterface):
     """Matplotlib interface for unyt_array"""
 
     _instance = None
     _labelstyle = "()"
-    _axisnames = WeakKeyDictionary()
+    _axisnames: "MutableMapping[Axis, str]" = WeakKeyDictionary()
 
     # ensure that unyt_arrayConverter is a singleton
     def __new__(cls):
