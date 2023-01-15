@@ -24,6 +24,7 @@ import re
 import shutil
 import tempfile
 import warnings
+from importlib.metadata import version
 from pathlib import Path
 
 import numpy as np
@@ -69,6 +70,8 @@ from unyt.exceptions import (
 from unyt.testing import _process_warning, assert_allclose_units
 from unyt.unit_registry import UnitRegistry
 from unyt.unit_symbols import cm, degree, g, m
+
+NUMPY_VERSION = Version(version("numpy"))
 
 
 def operate_and_compare(a, b, op, answer):
@@ -1492,11 +1495,16 @@ def test_string_operations_raise_errors():
         a * "hello"
     with pytest.raises(IterableUnitCoercionError):
         a ** "hello"
-    if Version(np.__version__) < Version("1.24"):
-        with pytest.warns(FutureWarning):
-            assert a != "hello"
+
+
+def test_string_ne():
+    a = unyt_array([1, 2, 3], "g")
+    if NUMPY_VERSION >= Version("1.25.0.dev0"):
+        ctx = pytest.raises(ValueError)
     else:
-        assert (a != "hello").all()
+        ctx = pytest.warns(FutureWarning)
+    with ctx:
+        assert a != "hello"
 
 
 def test_string_operations_raise_errors_quantity():
