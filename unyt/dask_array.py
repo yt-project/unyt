@@ -5,15 +5,24 @@ a dask array class (unyt_dask_array) and helper functions for unyt.
 
 """
 
+import sys
 from functools import wraps
 
 import numpy as np
-import pytest
 
 import unyt.array as ua
 
-pytest.importorskip("dask")
-del pytest
+if "pytest" in sys.modules:
+    # should only happen if pytest is installed *and* already imported,
+    # so we can skip collecting doctests from this module when dask isn't installed
+    # while avoiding making pytest itself a hard dependency to this module.
+    # This check is constructed to work with direct invocation (pytest unyt)
+    # as well as through python -m pytest
+    import pytest
+
+    pytest.importorskip("dask")
+    del pytest
+
 from dask.array.core import Array as DaskArray, finalize as dask_finalize  # noqa: E402
 
 # the following attributes hang off of dask.array.core.Array and do not modify units
