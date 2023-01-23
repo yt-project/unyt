@@ -15,6 +15,7 @@ import re
 import shutil
 import tempfile
 import warnings
+from importlib.metadata import version
 from pathlib import Path
 
 import numpy as np
@@ -64,6 +65,8 @@ from unyt.testing import (
 )
 from unyt.unit_registry import UnitRegistry
 from unyt.unit_symbols import cm, degree, g, m
+
+NUMPY_VERSION = Version(version("numpy"))
 
 
 def operate_and_compare(a, b, op, answer):
@@ -1489,7 +1492,15 @@ def test_string_operations_raise_errors():
         a * "hello"
     with pytest.raises(IterableUnitCoercionError):
         a ** "hello"
-    with pytest.warns(FutureWarning):
+
+
+def test_string_ne():
+    a = unyt_array([1, 2, 3], "g")
+    if NUMPY_VERSION >= Version("1.25.0.dev0"):
+        ctx = pytest.raises(ValueError)
+    else:
+        ctx = pytest.warns(FutureWarning)
+    with ctx:
         assert a != "hello"
 
 
