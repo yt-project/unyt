@@ -49,6 +49,10 @@ from unyt._physical_ratios import (
     mass_uranus_kg,
     mass_venus_kg,
     metallicity_sun,
+    metallicity_sun_angr,
+    metallicity_sun_aspl,
+    metallicity_sun_feld,
+    metallicity_sun_lodd,
     mu_0,
     neper_per_bel,
     newton_mks,
@@ -301,6 +305,46 @@ default_unit_symbol_lut = OrderedDict(
         (
             "Zsun",
             (metallicity_sun, dimensions.dimensionless, 0.0, r"\rm{Z}_\odot", False),
+        ),
+        (
+            "Zsun_angr",
+            (
+                metallicity_sun_angr,
+                dimensions.dimensionless,
+                0.0,
+                r"\rm{Z}_\odot",
+                False,
+            ),
+        ),
+        (
+            "Zsun_aspl",
+            (
+                metallicity_sun_aspl,
+                dimensions.dimensionless,
+                0.0,
+                r"\rm{Z}_\odot",
+                False,
+            ),
+        ),
+        (
+            "Zsun_feld",
+            (
+                metallicity_sun_feld,
+                dimensions.dimensionless,
+                0.0,
+                r"\rm{Z}_\odot",
+                False,
+            ),
+        ),
+        (
+            "Zsun_lodd",
+            (
+                metallicity_sun_lodd,
+                dimensions.dimensionless,
+                0.0,
+                r"\rm{Z}_\odot",
+                False,
+            ),
         ),
         ("Mjup", (mass_jupiter_kg, dimensions.mass, 0.0, r"\rm{M}_{\rm{Jup}}", False)),
         ("Mearth", (mass_earth_kg, dimensions.mass, 0.0, r"\rm{M}_\oplus", False)),

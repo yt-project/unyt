@@ -435,6 +435,48 @@ and :meth:`unyt_array.convert_to_mks <unyt.array.unyt_array.convert_to_mks>` met
 
 See below for details on CGS and MKS electromagnetic units.
 
+Metallicity Unit Conversions
+----------------------------
+
+In the astrophysical context, "metals" are all of the elements that have atomic
+numbers greater than 2, i.e. everything heavier than helium. The "solar metallicity"
+is the mass fraction of metals in the solar atmosphere, and is used in a variety
+of contexts. Often, the metallicity of other astrophysical objects is expressed
+in terms of the solar metallicity, given by the unit :math:`Z_\odot`. The default
+mass fraction corresponding to :math:`Z_\odot` in :mod:`unyt` is 0.01295, corresponding
+to the value used in the `Cloudy Code <https://gitlab.nublado.org/cloudy/cloudy/-/wikis/home>`_.
+Metal mass fractions (by definition dimensionless) can be converted to :math:`Z_\odot`
+(and vice versa):
+
+  >>> from unyt import dimensionless
+  >>> M_Z = 0.0259*dimensionless
+  >>> M_Z
+  unyt_quantity(0.0259, 'dimensionless')
+  >>> M_Z.convert_to_units("Z_sun")
+  >>> M_Z
+  unyt_quantity(2., 'Zsun')
+
+However, the value of this mass fraction conversion must be measured, and various
+estimates of it disagree somewhat. Different sub-disciplines of astronomy often
+use different estimates in the literature. :mod:`unyt` provides other metallicity
+unit conversions to several typical values in use. The available units (and their
+mass fraction conversion factors) are:
+
+* ``"Zsun_angr"``: 0.01937, from `Anders E. & Grevesse N. (1989, Geochimica et Cosmochimica Acta 53, 197) <https://ui.adsabs.harvard.edu/abs/1989GeCoA..53..197A/abstract>`_
+* ``"Zsun_aspl"``: 0.01337, from `Asplund M., Grevesse N., Sauval A.J. & Scott P. (2009, ARAA, 47, 481) <https://ui.adsabs.harvard.edu/abs/2009ARA&A..47..481A/abstract>`_
+* ``"Zsun_feld"``: 0.01909, from `Feldman U. (1992, Physica Scripta, 46, 202) <https://ui.adsabs.harvard.edu/abs/1992PhyS...46..202F/abstract>`_
+* ``"Zsun_lodd"``: 0.01321, from `Lodders, K (2003, ApJ 591, 1220) <https://ui.adsabs.harvard.edu/abs/2003ApJ...591.1220L/abstract>`_
+
+These can be used in the same way as above:
+
+  >>> from unyt import dimensionless
+  >>> M_Z = 0.0259*dimensionless
+  >>> M_Z
+  unyt_quantity(0.0259, 'dimensionless')
+  >>> M_Z.convert_to_units("Zsun_angr")
+  >>> M_Z
+  unyt_quantity(1.33711926, 'Zsun_angr')
+
 Other Unit Systems
 ------------------
 
