@@ -2631,6 +2631,17 @@ def test_string_formatting():
         ("-inf g", -float("inf") * Unit("g"), "-inf g"),
         ("1", 1.0 * Unit(), "1 dimensionless"),
         ("g", 1.0 * Unit("g"), "1 g"),
+        # from https://github.com/yt-project/unyt/issues/361
+        ("1 g**2/cm**2", 1.0 * Unit("g") ** 2 / Unit("cm") ** 2, "1 g**2/cm**2"),
+        ("g**2/cm**2", 1.0 * Unit("g") ** 2 / Unit("cm") ** 2, "1 g**2/cm**2"),
+        ("1*cm**2", 1.0 * Unit("cm") ** 2, "1 cm**2"),
+        ("1/cm**2", 1.0 / Unit("cm") ** 2, "1 cm**(-2)"),
+        ("1 / cm**2", 1.0 / Unit("cm") ** 2, "1 cm**(-2)"),
+        (
+            "1e-3 g**2 / cm**2",
+            1e-3 * Unit("g") ** 2 / Unit("cm") ** 2,
+            "0.001 g**2/cm**2",
+        ),
     ],
 )
 def test_valid_quantity_from_string(s, expected, normalized):
