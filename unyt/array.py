@@ -145,7 +145,7 @@ _NUMB_PATTERN = (
 )
 # *all* greek letters are considered valid unit string elements.
 # This may be an overshoot. We rely on unyt.Unit to do the actual validation
-_UNIT_PATTERN = r"([*/]?[α-ωΑ-Ωa-zA-Z]+(\*\*([+/-]?[0-9]+))?)+"
+_UNIT_PATTERN = r"((\s*[*/]\s*)?[α-ωΑ-Ωa-zA-Z]+(\*\*([+/-]?[0-9]+))?)+"
 _QUAN_PATTERN = rf"{_NUMB_PATTERN}\s*{_UNIT_PATTERN}"
 _NUMB_REGEXP = re.compile(_NUMB_PATTERN)
 _UNIT_REGEXP = re.compile(_UNIT_PATTERN)
@@ -1401,7 +1401,7 @@ class unyt_array(np.ndarray):
             res = re.search(_NUMB_REGEXP, v)
             num = res.group()
             res = re.search(_UNIT_REGEXP, v[res.span()[1] :])
-            unit = res.group()
+            unit = res.group().strip()
             if unit.startswith(("/", "*")):
                 unit = f"1{unit}"
         try:
