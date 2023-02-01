@@ -1402,6 +1402,8 @@ class unyt_array(np.ndarray):
             num = res.group()
             res = re.search(_UNIT_REGEXP, v[res.span()[1] :])
             unit = res.group()
+            if unit.startswith(("/", "*")):
+                unit = f"1{unit}"
         try:
             num = int(num)
         except ValueError:
