@@ -2667,6 +2667,9 @@ def test_valid_quantity_from_string(s, expected, normalized):
         "cm10",
         "cm 10.",
         ".cm",
+        "1cm**(-1",
+        "1cm**/2",
+        "1cm**3 hello",
     ],
 )
 def test_invalid_expression_quantity_from_string(s):
