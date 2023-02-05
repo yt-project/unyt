@@ -1395,7 +1395,7 @@ class unyt_array(np.ndarray):
         elif re.fullmatch(_UNIT_REGEXP, v):
             num = 1
             unit = Unit(re.match(_UNIT_REGEXP, v).group())
-        elif not re.match(_QUAN_REGEXP, v):
+        elif not re.fullmatch(_QUAN_REGEXP, v):
             raise ValueError(f"Received invalid quantity expression '{s}'.")
         else:
             res = re.search(_NUMB_REGEXP, v)
