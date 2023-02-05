@@ -28,6 +28,9 @@ luminous_intensity = Symbol("(luminous_intensity)", positive=True)
 dimensionless = sympify(1)
 #: logarithmic
 logarithmic = Symbol("(logarithmic)", positive=True)
+#: currency
+currency = Symbol("(currency)", positive=True)
+
 
 #: A list of all of the base dimensions
 base_dimensions = [
@@ -40,6 +43,7 @@ base_dimensions = [
     dimensionless,
     luminous_intensity,
     logarithmic,
+    currency,
 ]
 
 #
@@ -143,6 +147,19 @@ capacitance = capacitance_mks = charge / electric_potential
 magnetic_flux = magnetic_flux_mks = magnetic_field_mks * area
 #: inductance
 inductance = inductance_mks = magnetic_flux_mks / current_mks
+
+# Cost basis units
+#: cost per length
+cost_per_length = cost_per_distance = currency / length
+#: cost per area
+cost_per_area = currency / area
+#: cost per volume
+cost_per_volume = currency / volume
+#: cost per energy
+cost_per_energy = cost_per_erg = currency / energy
+#: cost per power
+cost_per_power = currency / power
+
 
 #: a list containing all derived_dimensions
 derived_dimensions = [

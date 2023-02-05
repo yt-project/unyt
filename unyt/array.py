@@ -107,7 +107,7 @@ from sympy import Rational
 from unyt._on_demand_imports import _astropy, _dask, _pint
 from unyt._pint_conversions import convert_pint_units
 from unyt._unit_lookup_table import default_unit_symbol_lut
-from unyt.dimensions import angle, temperature
+from unyt.dimensions import angle, currency, temperature
 from unyt.equivalencies import equivalence_registry
 from unyt.exceptions import (
     InvalidUnitEquivalence,
@@ -129,6 +129,7 @@ from unyt.unit_registry import (
 
 from ._deprecation import warn_deprecated
 
+_ALLOWED_CURRENCY_CONVERSION = [("$", "\u00A2"), ("\u00A2", "$")]
 NULL_UNIT = Unit()
 POWER_MAPPING = {multiply: lambda x: x, divide: lambda x: 2 - x}
 DISALLOWED_DTYPES = ("S", "U", "a", "O", "M", "m", "b")
@@ -145,7 +146,7 @@ _NUMB_PATTERN = (
 )
 # *all* greek letters are considered valid unit string elements.
 # This may be an overshoot. We rely on unyt.Unit to do the actual validation
-_UNIT_PATTERN = r"([α-ωΑ-Ωa-zA-Z]+(\*\*([+/-]?[0-9]+)|[*/])?)+"
+_UNIT_PATTERN = r"([α-ωΑ-Ωa-zA-Z$¢¥€£]+(\*\*([+/-]?[0-9]+)|[*/])?)+"
 _QUAN_PATTERN = rf"{_NUMB_PATTERN}\s*{_UNIT_PATTERN}"
 _NUMB_REGEXP = re.compile(_NUMB_PATTERN)
 _UNIT_REGEXP = re.compile(_UNIT_PATTERN)
@@ -649,6 +650,10 @@ class unyt_array(np.ndarray):
         If the provided unit does not have the same dimensions as the array
         this will raise a UnitConversionError
 
+        If the current and provided units have dimensions of ``currency`` and
+        are not the same unit this will raise an InvalidUnitEquivalence
+        exception.
+
         Examples
         --------
 
@@ -660,6 +665,16 @@ class unyt_array(np.ndarray):
         """
         units = _sanitize_units_convert(units, self.units.registry)
         if equivalence is None:
+            if (
+                (self.units.dimensions == currency)
+                and (self.units.expr != units.expr)
+                and (
+                    (str(self.units.expr), str(units.expr))
+                    not in _ALLOWED_CURRENCY_CONVERSION
+                )
+            ):
+                equiv = "CurrencyConversion"
+                raise InvalidUnitEquivalence(equiv, self.units, units)
             conv_data = _check_em_conversion(
                 self.units, units, registry=self.units.registry
             )
@@ -841,7 +856,11 @@ class unyt_array(np.ndarray):
         Raises
         ------
         If the provided unit does not have the same dimensions as the array
-        this will raise a UnitConversionError
+        this will raise a UnitConversionError.
+
+        If the current and provided units have dimensions of ``currency`` and
+        are not the same unit this will raise an InvalidUnitEquivalence
+        exception.
 
         Examples
         --------
@@ -855,6 +874,16 @@ class unyt_array(np.ndarray):
         """
         units = _sanitize_units_convert(units, self.units.registry)
         if equivalence is None:
+            if (
+                (self.units.dimensions == currency)
+                and (self.units.expr != units.expr)
+                and (
+                    (str(self.units.expr), str(units.expr))
+                    not in _ALLOWED_CURRENCY_CONVERSION
+                )
+            ):
+                equiv = "CurrencyConversion"
+                raise InvalidUnitEquivalence(equiv, self.units, units)
             conv_data = _check_em_conversion(
                 self.units, units, registry=self.units.registry
             )
@@ -926,6 +955,10 @@ class unyt_array(np.ndarray):
         ------
         If the provided unit does not have the same dimensions as the array
         this will raise a UnitConversionError
+
+        If the current and provided units have dimensions of ``currency`` and
+        are not the same unit this will raise an InvalidUnitEquivalence
+        exception.
 
         Examples
         --------

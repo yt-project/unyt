@@ -370,6 +370,58 @@ Performing arithmetic with temperature quantities can be ambiguous. To clarify i
   >>> print(tempco*2*delta_degC)
   20.0 V
 
+
+Currency Units
+--------------
+
+:mod:`unyt` natively supports several currency units that have dimensions of ``currency``.
+The base unit for currency is ``$``, but uses ``dollars`` as the Python identifier. Printing
+a currency unit will show the correct symbol. However, the monetary symbol will be displayed
+after the value.
+
+  >>> from unyt import dollars
+  >>> p1 = 10.77*dollars
+  >>> print(p1)
+  10.77 $
+
+The following currencies are defined natively
+
+* dollars ($), cents(¢)
+* euros (€)
+* pound sterling (£)
+* yen (or yuan) (¥)
+
+Users can use the :attr:`currency` dimension from :mod:`unyt.dimensions` to define their own
+currency as described in :ref:`user-defined` or :ref:`ureg`.
+
+.. note::
+  The pound sterling is simply ``sterling`` in :mod:`unyt` to avoid confusion with
+  the imperial unit of force, pounds.
+
+  :mod:`unyt` does not handle currency conversion due to the dynamic relationship among
+  currencies and because there is some ambiguity in currencies with similar names. For
+  example, the ``dollar`` is used in Canada, Australia, and the United States (to name a few).
+  The ``yen`` and ``yuan`` have the same symbol "¥". Therefore, converting between currencies
+  from different countries will result in an error.
+
+    >>> from unyt import dollars, euros
+    >>> p1 = 10.77*dollars
+    >>> p1.to(euros)
+    Traceback (most recent call last):
+    ...
+    unyt.exceptions.InvalidUnitEquivalence: The unit equivalence
+    'CurrencyConversion' does not exist for the units '$' and '€'.
+
+  However, converting between smaller increments within the same currency is allowed.
+
+    >>> from unyt import dollars, cents
+    >>> p1 = 10.77*dollars
+    >>> print(p1.to(cents))
+    1077.0 ¢
+
+  Currently, this is only supported for dollars and cents.
+
+
 Unit Conversions and Unit Systems
 +++++++++++++++++++++++++++++++++
 
@@ -593,6 +645,7 @@ atoms and molecules:
      current_mks: A
      luminous_intensity: cd
      logarithmic: Np
+     currency: $
     Other Units:
      energy: eV
    >>> print(atomic_unit_system)
@@ -617,6 +670,7 @@ It is also legal to define a unit system using :class:`unyt.Unit
       current_mks: A
       luminous_intensity: cd
       logarithmic: Np
+      currency: $
      Other Units:
 
 Or with a quantity:
@@ -632,6 +686,7 @@ Or with a quantity:
       current_mks: A
       luminous_intensity: cd
       logarithmic: Np
+      currency: $
      Other Units:
 
 
@@ -887,6 +942,7 @@ files. It is intended to be as flexible as possible on the string format, though
 it requires that the numerical value and the unit name be separated with some
 kind of whitespace.
 
+.. _user-defined:
 
 User-Defined Units
 ++++++++++++++++++
@@ -981,6 +1037,8 @@ origins, it is straightforward to build applications that ensure unit
 consistency by making use of :mod:`unyt`. Below we discuss a few topics that
 most often come up when integrating :mod:`unyt` into a new or existing Python
 library.
+
+.. _ureg:
 
 Unit registries
 ---------------

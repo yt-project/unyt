@@ -21,6 +21,7 @@ from unyt._physical_ratios import (
     btu_per_mmbtu,
     btu_per_quad,
     btu_per_therm,
+    dollars_per_cent,
     elementary_charge_C,
     eps_0,
     jansky_mks,
@@ -90,6 +91,15 @@ default_unit_symbol_lut = OrderedDict(
         ("A", (1.0, dimensions.current_mks, 0.0, r"\rm{A}", True)),
         ("cd", (1.0, dimensions.luminous_intensity, 0.0, r"\rm{cd}", True)),
         ("mol", (1.0 / amu_grams, dimensions.dimensionless, 0.0, r"\rm{mol}", True)),
+        # some currencies
+        ("$", (1.0, dimensions.currency, 0.0, r"\$", False)),
+        (
+            "¢",
+            (dollars_per_cent, dimensions.currency, 0.0, r"\textcent", False),
+        ),  # ('CENT SIGN' UxA2)
+        ("\u20ac", (1.0, dimensions.currency, 0.0, r"\texteuro", False)),
+        ("\u00a3", (1.0, dimensions.currency, 0.0, r"\textsterling", False)),
+        ("\u00a5", (1.0, dimensions.currency, 0.0, r"\textyen", False)),
         # some cgs
         ("dyn", (1.0e-5, dimensions.force, 0.0, r"\rm{dyn}", True)),
         ("erg", (1.0e-7, dimensions.energy, 0.0, r"\rm{erg}", True)),
@@ -459,6 +469,7 @@ default_base_units = {
     dimensions.angle: "radian",
     dimensions.current_mks: "A",
     dimensions.luminous_intensity: "cd",
+    dimensions.currency: "$",
 }
 
 physical_constants = OrderedDict(
@@ -551,6 +562,12 @@ default_unit_name_alternatives = OrderedDict(
         ("A", ("ampere", "amp", "Amp")),
         ("cd", ("candela",)),
         ("mol", ("mole",)),
+        # some currencies
+        ("$", ("dollars", "dollar", "USD", "usd")),
+        ("¢", ("cent", "cents")),
+        ("£", ("pounds", "sterling", "GBP", "gbp")),
+        ("€", ("euros", "euro", "EUR", "eur")),
+        ("¥", ("yen", "Yen", "JPY", "jpy", "cny", "CNY")),
         # some cgs
         ("dyn", ("dyne",)),
         ("erg", ("ergs",)),

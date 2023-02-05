@@ -177,6 +177,9 @@ class UnitSystem:
     luminous_intensity_unit : string or :class:`unyt.unit_object.Unit`, optional
         The base luminous intensity unit of this unit system.
         Defaults to "cd".
+    currency_unit : string or :class:`unyt.unit_object.Unit`, optional
+        The base currency unit for this unit system.
+        Defaults to "$".
     registry : :class:`unyt.unit_registry.UnitRegistry` object
         The unit registry associated with this unit system. Only
         useful for defining unit systems based on code units.
@@ -193,6 +196,7 @@ class UnitSystem:
         current_mks_unit="A",
         luminous_intensity_unit="cd",
         logarithmic_unit="Np",
+        currency_unit="$",
         registry=None,
     ):
         self.registry = registry
@@ -206,6 +210,7 @@ class UnitSystem:
                 (dimensions.current_mks, current_mks_unit),
                 (dimensions.luminous_intensity, luminous_intensity_unit),
                 (dimensions.logarithmic, logarithmic_unit),
+                (dimensions.currency, currency_unit),
             ]
         )
         for k, v in self.units_map.items():
@@ -239,6 +244,7 @@ class UnitSystem:
             "current_mks",
             "luminous_intensity",
             "logarithmic",
+            "currency",
         ]
         self.registry = registry
         self.base_units = self.units_map.copy()
