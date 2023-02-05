@@ -2646,10 +2646,16 @@ def test_string_formatting():
 )
 def test_valid_quantity_from_string(s, expected, normalized):
     actual = unyt_quantity.from_string(s)
+    assert actual.to_string() == normalized
+    roundtrip = unyt_quantity.from_string(actual.to_string())
+
     if "nan" in s:
         assert actual != expected
+        assert roundtrip != expected
     else:
         assert actual == expected
+        assert roundtrip == expected
+
     assert actual.to_string() == normalized
 
 
