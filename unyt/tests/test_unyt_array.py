@@ -2649,14 +2649,12 @@ def test_valid_quantity_from_string(s, expected, normalized):
     assert actual.to_string() == normalized
     roundtrip = unyt_quantity.from_string(actual.to_string())
 
-    if "nan" in s:
-        assert actual != expected
-        assert roundtrip != expected
-    else:
+    if "nan" not in s:
         assert actual == expected
         assert roundtrip == expected
 
     assert actual.to_string() == normalized
+    assert roundtrip.to_string() == normalized
 
 
 @pytest.mark.parametrize(
