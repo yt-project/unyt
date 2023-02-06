@@ -10,10 +10,10 @@ unyt
         :target: https://anaconda.org/conda-forge/unyt
         :alt: conda-forge
 
-.. image:: https://github.com/yt-project/unyt/actions/workflows/ci.yml/badge.svg?branch=master
+.. image:: https://github.com/yt-project/unyt/actions/workflows/ci.yml/badge.svg?branch=main
         :target: https://github.com/yt-project/unyt/actions/workflows/ci.yml
 
-.. image:: https://github.com/yt-project/unyt/actions/workflows/bleeding-edge.yaml/badge.svg?branch=master
+.. image:: https://github.com/yt-project/unyt/actions/workflows/bleeding-edge.yaml/badge.svg?branch=main
         :target: https://github.com/yt-project/unyt/actions/workflows/bleeding-edge.yaml
 
 .. image:: https://readthedocs.org/projects/unyt/badge/?version=latest

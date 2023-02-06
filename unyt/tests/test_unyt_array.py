@@ -24,6 +24,7 @@ import re
 import shutil
 import tempfile
 import warnings
+from importlib.metadata import version
 from pathlib import Path
 
 import numpy as np
@@ -69,6 +70,8 @@ from unyt.exceptions import (
 from unyt.testing import _process_warning, assert_allclose_units
 from unyt.unit_registry import UnitRegistry
 from unyt.unit_symbols import cm, degree, g, m
+
+NUMPY_VERSION = Version(version("numpy"))
 
 
 def operate_and_compare(a, b, op, answer):
@@ -1492,11 +1495,16 @@ def test_string_operations_raise_errors():
         a * "hello"
     with pytest.raises(IterableUnitCoercionError):
         a ** "hello"
-    if Version(np.__version__) < Version("1.24"):
-        with pytest.warns(FutureWarning):
-            assert a != "hello"
+
+
+def test_string_ne():
+    a = unyt_array([1, 2, 3], "g")
+    if NUMPY_VERSION >= Version("1.25.0.dev0"):
+        ctx = pytest.raises(ValueError)
     else:
-        assert (a != "hello").all()
+        ctx = pytest.warns(FutureWarning)
+    with ctx:
+        assert a != "hello"
 
 
 def test_string_operations_raise_errors_quantity():
@@ -2583,42 +2591,58 @@ def test_string_formatting():
 
 
 @pytest.mark.parametrize(
-    "s, expected",
+    "s, expected, normalized",
     [
-        ("+1cm", 1.0 * Unit("cm")),
-        ("1cm", 1.0 * Unit("cm")),
-        ("1.cm", 1.0 * Unit("cm")),
-        ("1.0 cm", 1.0 * Unit("cm")),
-        ("1.0\tcm", 1.0 * Unit("cm")),
-        ("1.0\t cm", 1.0 * Unit("cm")),
-        ("1.0  cm", 1.0 * Unit("cm")),
-        ("1.0\t\tcm", 1.0 * Unit("cm")),
-        ("10e-1cm", 1.0 * Unit("cm")),
-        ("10E-1cm", 1.0 * Unit("cm")),
-        ("+1cm", 1.0 * Unit("cm")),
-        ("1um", 1.0 * Unit("μm")),
-        ("1μm", 1.0 * Unit("μm")),
-        ("-5 Msun", -5.0 * Unit("Msun")),
-        ("1e3km", 1e3 * Unit("km")),
-        ("-1e3    km", -1e3 * Unit("km")),
-        ("1.0 g/cm**3", 1.0 * Unit("g/cm**3")),
-        ("1 g*cm**-3", 1.0 * Unit("g/cm**3")),
-        ("1.0 g*cm", 1.0 * Unit("g*cm")),
-        ("nan g", float("nan") * Unit("g")),
-        ("-nan g", float("nan") * Unit("g")),
-        ("inf g", float("inf") * Unit("g")),
-        ("+inf g", float("inf") * Unit("g")),
-        ("-inf g", -float("inf") * Unit("g")),
-        ("1", 1.0 * Unit()),
-        ("g", 1.0 * Unit("g")),
+        ("+1cm", 1.0 * Unit("cm"), "1 cm"),
+        ("1cm", 1.0 * Unit("cm"), "1 cm"),
+        ("1.cm", 1.0 * Unit("cm"), "1.0 cm"),
+        ("1.0 cm", 1.0 * Unit("cm"), "1.0 cm"),
+        ("1.0\tcm", 1.0 * Unit("cm"), "1.0 cm"),
+        ("1.0\t cm", 1.0 * Unit("cm"), "1.0 cm"),
+        ("1.0  cm", 1.0 * Unit("cm"), "1.0 cm"),
+        ("1.0\t\tcm", 1.0 * Unit("cm"), "1.0 cm"),
+        ("10e-1cm", 1.0 * Unit("cm"), "1.0 cm"),
+        ("10E-1cm", 1.0 * Unit("cm"), "1.0 cm"),
+        ("+1cm", 1.0 * Unit("cm"), "1 cm"),
+        ("1um", 1.0 * Unit("μm"), "1 μm"),
+        ("1μm", 1.0 * Unit("μm"), "1 μm"),
+        ("-5 Msun", -5.0 * Unit("Msun"), "-5 Msun"),
+        ("1e3km", 1e3 * Unit("km"), "1000.0 km"),
+        ("-1e3    km", -1e3 * Unit("km"), "-1000.0 km"),
+        ("1.0 g/cm**3", 1.0 * Unit("g/cm**3"), "1.0 g/cm**3"),
+        ("1 g*cm**-3", 1.0 * Unit("g/cm**3"), "1 g/cm**3"),
+        ("1.0 g*cm", 1.0 * Unit("g*cm"), "1.0 cm*g"),
+        ("nan g", float("nan") * Unit("g"), "nan g"),
+        ("-nan g", float("nan") * Unit("g"), "nan g"),
+        ("inf g", float("inf") * Unit("g"), "inf g"),
+        ("+inf g", float("inf") * Unit("g"), "inf g"),
+        ("-inf g", -float("inf") * Unit("g"), "-inf g"),
+        ("1", 1.0 * Unit(), "1 dimensionless"),
+        ("g", 1.0 * Unit("g"), "1 g"),
+        # from https://github.com/yt-project/unyt/issues/361
+        ("1 g**2/cm**2", 1.0 * Unit("g") ** 2 / Unit("cm") ** 2, "1 g**2/cm**2"),
+        ("g**2/cm**2", 1.0 * Unit("g") ** 2 / Unit("cm") ** 2, "1 g**2/cm**2"),
+        ("1*cm**2", 1.0 * Unit("cm") ** 2, "1 cm**2"),
+        ("1/cm**2", 1.0 / Unit("cm") ** 2, "1 cm**(-2)"),
+        ("1 / cm**2", 1.0 / Unit("cm") ** 2, "1 cm**(-2)"),
+        (
+            "1e-3 g**2 / cm**2",
+            1e-3 * Unit("g") ** 2 / Unit("cm") ** 2,
+            "0.001 g**2/cm**2",
+        ),
     ],
 )
-def test_valid_quantity_from_string(s, expected):
+def test_valid_quantity_from_string(s, expected, normalized):
     actual = unyt_quantity.from_string(s)
-    if "nan" in s:
-        assert actual != expected
-    else:
+    assert actual.to_string() == normalized
+    roundtrip = unyt_quantity.from_string(actual.to_string())
+
+    if "nan" not in s:
         assert actual == expected
+        assert roundtrip == expected
+
+    assert actual.to_string() == normalized
+    assert roundtrip.to_string() == normalized
 
 
 @pytest.mark.parametrize(
@@ -2629,6 +2653,9 @@ def test_valid_quantity_from_string(s, expected):
         "cm10",
         "cm 10.",
         ".cm",
+        "1cm**(-1",
+        "1cm**/2",
+        "1cm**3 hello",
     ],
 )
 def test_invalid_expression_quantity_from_string(s):
