@@ -1392,7 +1392,7 @@ class unyt_array(np.ndarray):
         if re.fullmatch(_UNIT_REGEXP, v):
             return 1 * Unit(re.match(_UNIT_REGEXP, v).group())
         if not re.match(_QUAN_REGEXP, v):
-            raise ValueError("Received invalid quantity expression '{}'.".format(s))
+            raise ValueError(f"Received invalid quantity expression '{s}'.")
         res = re.search(_NUMB_REGEXP, v)
         num = res.group()
         res = re.search(_UNIT_REGEXP, v[res.span()[1] :])
