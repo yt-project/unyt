@@ -959,7 +959,6 @@ def unary_ufunc_comparison(ufunc, a):
             "positive",
         ]
     ):
-
         ret = ufunc(a, out=out)
 
         assert_array_equal(ret, out)
@@ -1297,7 +1296,6 @@ def test_reductions():
 
 
 def test_convenience():
-
     for orig in [
         [1.0, 2.0, 3.0],
         (1.0, 2.0, 3.0),
@@ -1372,7 +1370,6 @@ def test_registry_association():
 
 
 def test_to_value():
-
     a = unyt_array([1.0, 2.0, 3.0], "kpc")
     assert_equal(a.to_value(), np.array([1.0, 2.0, 3.0]))
     assert_equal(a.to_value(), a.value)
@@ -2111,7 +2108,6 @@ def test_numpy_wrappers():
     assert_array_equal(vstack_answer, np.stack([a2, a4]))
 
     with pytest.warns(DeprecationWarning):
-
         assert_array_equal(
             unyt_array(vstack_answer_last_axis, "cm"), ustack([a2, a4], axis=-1)
         )
@@ -2216,7 +2212,6 @@ def test_builtin_sum():
 
 
 def test_initialization_different_registries():
-
     reg1 = UnitRegistry()
     reg2 = UnitRegistry()
 

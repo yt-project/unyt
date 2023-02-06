@@ -39,7 +39,6 @@ def test_unyt_dask_creation():
 
 
 def test_unyt_dask_slice():
-
     # tests __getitem__
     x = dask.array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
@@ -111,7 +110,6 @@ def unary_result_test(dask_unyt_delayed, correct_unyt):
 
 
 def test_unary():
-
     x = dask.array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
     x_unyt = unyt_array(np.ones((10, 10)), m)
@@ -278,7 +276,6 @@ _func_args["topk"] = (1,)
     ("da_func", "args"), [(f, _func_args[f]) for f in _use_unary_decorator]
 )
 def test_dask_passthroughs(da_func, args):
-
     # tests the array class functions that do not modify units
     x = dask.array.ones((10, 10), chunks=(2, 2))
     x_da = unyt_from_dask(x, m)
@@ -320,7 +317,6 @@ def test_repr():
     ],
 )
 def test_dask_array_reductions(dask_func_str, actual, axis, check_nan):
-
     extra_kwargs = {}
     if axis is not None:
         extra_kwargs["axis"] = axis
@@ -361,7 +357,6 @@ def test_pickle():
 
 
 def test_np_array_funcs():
-
     # test some numpy array functions to catch __array_function__
 
     x_da = unyt_from_dask(dask.array.ones((10, 10), chunks=(2, 2)), m)

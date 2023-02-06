@@ -51,7 +51,6 @@ class OnDemand:
 
     @property
     def __is_available__(self) -> bool:
-
         return find_spec(self._name) is not None
 
 

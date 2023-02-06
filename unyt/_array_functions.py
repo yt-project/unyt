@@ -20,6 +20,7 @@ _HANDLED_FUNCTIONS = {}
 
 def implements(numpy_function):
     """Register an __array_function__ implementation for unyt_array objects."""
+
     # See NEP 18 https://numpy.org/neps/nep-0018-array-function-protocol.html
     def decorator(func):
         _HANDLED_FUNCTIONS[numpy_function] = func

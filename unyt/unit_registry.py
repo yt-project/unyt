@@ -19,7 +19,6 @@ from unyt.unit_systems import _split_prefix, mks_unit_system, unit_system_regist
 
 
 def _sanitize_unit_system(unit_system, obj):
-
     if unit_system is None:
         try:
             unit_system = obj.units.registry.unit_system
