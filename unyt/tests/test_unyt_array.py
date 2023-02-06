@@ -2619,15 +2619,30 @@ def test_string_formatting():
         ("-inf g", -float("inf") * Unit("g"), "-inf g"),
         ("1", 1.0 * Unit(), "1 dimensionless"),
         ("g", 1.0 * Unit("g"), "1 g"),
+        # from https://github.com/yt-project/unyt/issues/361
+        ("1 g**2/cm**2", 1.0 * Unit("g") ** 2 / Unit("cm") ** 2, "1 g**2/cm**2"),
+        ("g**2/cm**2", 1.0 * Unit("g") ** 2 / Unit("cm") ** 2, "1 g**2/cm**2"),
+        ("1*cm**2", 1.0 * Unit("cm") ** 2, "1 cm**2"),
+        ("1/cm**2", 1.0 / Unit("cm") ** 2, "1 cm**(-2)"),
+        ("1 / cm**2", 1.0 / Unit("cm") ** 2, "1 cm**(-2)"),
+        (
+            "1e-3 g**2 / cm**2",
+            1e-3 * Unit("g") ** 2 / Unit("cm") ** 2,
+            "0.001 g**2/cm**2",
+        ),
     ],
 )
 def test_valid_quantity_from_string(s, expected, normalized):
     actual = unyt_quantity.from_string(s)
-    if "nan" in s:
-        assert actual != expected
-    else:
-        assert actual == expected
     assert actual.to_string() == normalized
+    roundtrip = unyt_quantity.from_string(actual.to_string())
+
+    if "nan" not in s:
+        assert actual == expected
+        assert roundtrip == expected
+
+    assert actual.to_string() == normalized
+    assert roundtrip.to_string() == normalized
 
 
 @pytest.mark.parametrize(
@@ -2638,6 +2653,9 @@ def test_valid_quantity_from_string(s, expected, normalized):
         "cm10",
         "cm 10.",
         ".cm",
+        "1cm**(-1",
+        "1cm**/2",
+        "1cm**3 hello",
     ],
 )
 def test_invalid_expression_quantity_from_string(s):

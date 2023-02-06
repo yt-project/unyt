@@ -155,8 +155,8 @@ _NUMB_PATTERN = (
 )
 # *all* greek letters are considered valid unit string elements.
 # This may be an overshoot. We rely on unyt.Unit to do the actual validation
-_UNIT_PATTERN = r"([α-ωΑ-Ωa-zA-Z]+(\*\*([+/-]?[0-9]+)|[*/])?)+"
-_QUAN_PATTERN = r"{}\s*{}".format(_NUMB_PATTERN, _UNIT_PATTERN)
+_UNIT_PATTERN = r"((\s*[*/]\s*)?[α-ωΑ-Ωa-zA-Z]+(\*\*([+-]?\d+|\([+-]?\d+\)))?)+"
+_QUAN_PATTERN = rf"{_NUMB_PATTERN}\s*{_UNIT_PATTERN}"
 _NUMB_REGEXP = re.compile(_NUMB_PATTERN)
 _UNIT_REGEXP = re.compile(_UNIT_PATTERN)
 _QUAN_REGEXP = re.compile(_QUAN_PATTERN)
@@ -1395,13 +1395,15 @@ class unyt_array(np.ndarray):
         elif re.fullmatch(_UNIT_REGEXP, v):
             num = 1
             unit = Unit(re.match(_UNIT_REGEXP, v).group())
-        elif not re.match(_QUAN_REGEXP, v):
+        elif not re.fullmatch(_QUAN_REGEXP, v):
             raise ValueError(f"Received invalid quantity expression '{s}'.")
         else:
             res = re.search(_NUMB_REGEXP, v)
             num = res.group()
             res = re.search(_UNIT_REGEXP, v[res.span()[1] :])
-            unit = res.group()
+            unit = res.group().strip()
+            if unit.startswith(("/", "*")):
+                unit = f"1{unit}"
         try:
             num = int(num)
         except ValueError:
