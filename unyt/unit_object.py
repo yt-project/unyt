@@ -104,7 +104,6 @@ def _get_latex_representation(expr, registry):
 
 
 class _ImportCache:
-
     __slots__ = ["_ua", "_uq"]
 
     def __init__(self):

@@ -131,7 +131,6 @@ def _sanitize_unit_args(*input):
         # (e.g., addition must have same dimensions).
         ui_0, ui_1 = unyt_inputs[0], unyt_inputs[1]
         if _check_unyt_inputs(ui_0, ui_1):
-
             # convert to the unit with the larger base
             input = list(input)
             if ui_0.units.base_value < ui_1.units.base_value:
@@ -244,7 +243,6 @@ class unyt_dask_array(DaskArray):
         input_units=None,
         unyt_name=None,
     ):
-
         # get the base dask array
         obj = super().__new__(
             cls,

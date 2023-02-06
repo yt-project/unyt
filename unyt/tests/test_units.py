@@ -884,7 +884,6 @@ def test_delta_degF():
 
 
 def test_mixed_registry_operations():
-
     reg = UnitRegistry(unit_system="cgs")
     reg.add("fake_length", 0.001, length)
     a = unyt_quantity(1, units="fake_length", registry=reg)
