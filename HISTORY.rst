@@ -2,6 +2,32 @@
 History
 =======
 
+2.9.4 (2023-02-06)
+------------------
+
+* Make ``unyt_quantity.from_string`` parse ints.
+  See `PR #278 <https://github.com/yt-project/unyt/pull/278>`_.
+  Thank you to Nahan Goldbaum (@ngoldbaum on GitHub) for the contribution.
+* TST: migrate from tox-pyenv to tox-gh-actions #344
+  See `PR #344 <https://github.com/yt-project/unyt/pull/344>`_.
+  Thank you to Clément Robert (@neutrinoceros on GitHub) for the contribution.
+* Correctly test string comparison depending on numpy version #358
+  See `PR #358 <https://github.com/yt-project/unyt/pull/358>`_.
+  Thank you to Clément Robert (@neutrinoceros on GitHub) for the contribution.
+* Multiple fixes for ``unyt_quantity.from_string``
+
+  - fix a bug where ``unyt_quantity.from_string`` would drop part of the unit expression
+  - fix a bug where ``unyt_quantity.from_string`` would choke on unit expressions starting with ``'*'`` or ``'/'``
+  - fix a bug where ``unyt_quantity.from_string`` would choke on space-separated unit expressions
+  - fix roundtrip for ``unyt_quantity.from_string`` and ``unyt_quantity.to_string`` methods
+  - simplify unit regexp (``'**/2'`` isn't a valid exponent)
+  - fix a bug where malformed string input would be incorrectly parsed by ``unyt_quantity.from_string``
+
+  See `PR #362 <https://github.com/yt-project/unyt/pull/362>`_.
+  Thank you to Clément Robert (@neutrinoceros on GitHub) for the contribution,
+  and to Chris Byrohl (@cbyrohl on GitHub) for the report.
+
+
 2.9.3 (2022-12-07)
 ------------------
 
@@ -9,7 +35,7 @@ History
   ``unyt_array`` objects to non-numeric objects (e.g. strings) would cause a
   crash. See `PR #333 <https://github.com/yt-project/unyt/pull/333>`_. Thank you
   to Clément Robert (@neutrinoceros on GitHub) and Nathan Goldbaum (@ngoldbaum
-  on GitHub) the contribution.
+  on GitHub) for the contribution.
 
 2.9.2 (2022-07-20)
 ------------------
