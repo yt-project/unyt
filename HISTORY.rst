@@ -15,12 +15,14 @@ History
   See `PR #358 <https://github.com/yt-project/unyt/pull/358>`_.
   Thank you to Clément Robert (@neutrinoceros on GitHub) for the contribution.
 * Multiple fixes for ``unyt_quantity.from_string``
+
   - fix a bug where ``unyt_quantity.from_string`` would drop part of the unit expression
   - fix a bug where ``unyt_quantity.from_string`` would choke on unit expressions starting with ``'*'`` or ``'/'``
   - fix a bug where ``unyt_quantity.from_string`` would choke on space-separated unit expressions
   - fix roundtrip for ``unyt_quantity.from_string`` and ``unyt_quantity.to_string`` methods
   - simplify unit regexp (``'**/2'`` isn't a valid exponent)
   - fix a bug where malformed string input would be incorrectly parsed by ``unyt_quantity.from_string``
+
   See `PR #362 <https://github.com/yt-project/unyt/pull/362>`_.
   Thank you to Clément Robert (@neutrinoceros on GitHub) for the contribution,
   and to Chris Byrohl (@cbyrohl on GitHub) for the report.
