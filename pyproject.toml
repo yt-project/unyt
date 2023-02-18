@@ -89,11 +89,31 @@ exclude = '''
 )
 '''
 
+[tool.ruff]
+target-version = "py38" # https://github.com/charliermarsh/ruff/issues/2039
+exclude = [
+    ".*/",
+    "benchmarks/*.py",
+    "paper/*.py",
+    "*/_version.py",
+    "*/__init__.py",
+]
+ignore = [
+    "E501",
+    "B904",
+]
+select = [
+    "E",
+    "F",
+    "W",
+    "B",   # flake8-bugbear
+    "YTT", # flake8-2020
+    "I",   # isort
+    "UP",  # pyupgrade
+]
 
-[tool.isort]
-profile = "black"
-combine_as_imports = true
-skip =  ["venv", "benchmarks"]
+[tool.ruff.isort]
+combine-as-imports = true
 
 [tool.setuptools_scm]
 write_to = "unyt/_version.py"
