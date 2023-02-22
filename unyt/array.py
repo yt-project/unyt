@@ -1725,6 +1725,13 @@ class unyt_array(np.ndarray):
             ret.units = self.units
         return ret
 
+    def __setitem__(self, item, value):
+        value_u = getattr(value, "units", None)
+        if value_u is not None:
+            if value_u != self.units:
+                value = value.to(self.units)
+        super().__setitem__(item, value)
+
     def __pow__(self, p, mod=None, /):
         """
         Power function
