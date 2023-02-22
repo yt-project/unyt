@@ -751,8 +751,8 @@ def choose(a, choices, out=None, *args, **kwargs):
     res = np.choose._implementation(
         a,
         [np.asarray(c) for c in choices],
-        out=out.view(np.ndarray),
         *args,
+        out=out.view(np.ndarray),
         **kwargs,
     )
     if getattr(out, "units", None) is not None:
@@ -867,8 +867,8 @@ def clip(a, a_min, a_max, out=None, *args, **kwargs):
             np.asarray(a),
             np.asarray(a_min),
             np.asarray(a_max),
-            out=out.view(np.ndarray),
             *args,
+            out=out.view(np.ndarray),
             **kwargs,
         )
         * a.units

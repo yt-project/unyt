@@ -197,7 +197,7 @@ class Unit:
             if unit_expr.shape != ():
                 raise UnitParseError(
                     "Cannot create a unit from a non-scalar unyt_array, "
-                    "received: %s" % (unit_expr,)
+                    f"received: {unit_expr}"
                 )
             value = unit_expr.value
             if value == 1:
@@ -218,7 +218,7 @@ class Unit:
         if not isinstance(unit_expr, Expr):
             raise UnitParseError(
                 "Unit representation must be a string or "
-                "sympy Expr. '%s' has type '%s'." % (unit_expr, type(unit_expr))
+                f"sympy Expr. '{unit_expr}' has type '{type(unit_expr)}'."
             )
 
         if dimensions is None and unit_expr is sympy_one:
@@ -246,7 +246,7 @@ class Unit:
             except ValueError:
                 raise UnitParseError(
                     "Could not use base_value as a float. "
-                    "base_value is '%s' (type '%s')." % (base_value, type(base_value))
+                    f"base_value is '{base_value}' (type {type(base_value)})."
                 )
 
             # check that dimensions is valid
@@ -389,8 +389,8 @@ class Unit:
                 units = self
             if data.dtype.kind not in ("f", "u", "i", "c"):
                 raise InvalidUnitOperation(
-                    "Tried to multiply a Unit object with '%s' (type %s). "
-                    "This behavior is undefined." % (u, type(u))
+                    f"Tried to multiply a Unit object with '{u}' (type {type(u)}). "
+                    "This behavior is undefined."
                 )
             if data.shape == ():
                 return _import_cache_singleton.uq(data, units, bypass_validation=True)
@@ -429,8 +429,8 @@ class Unit:
                 return unyt_quantity(1.0, self) / u
             else:
                 raise InvalidUnitOperation(
-                    "Tried to divide a Unit object by '%s' (type %s). This "
-                    "behavior is undefined." % (u, type(u))
+                    f"Tried to divide a Unit object by '{u}' (type {type(u)}). "
+                    "This behavior is undefined."
                 )
         elif self.dimensions is logarithmic and not u.is_dimensionless:
             raise InvalidUnitOperation(f"Tried to divide '{self}' and '{u}'.")
@@ -464,9 +464,8 @@ class Unit:
             p = Rational(str(p)).limit_denominator()
         except (ValueError, TypeError):
             raise InvalidUnitOperation(
-                "Tried to take a Unit object to the "
-                "power '%s' (type %s). Failed to cast "
-                "it to a float." % (p, type(p))
+                f"Tried to take a Unit object to the power '{p}' (type {type(p)}). "
+                "Failed to cast it to a float."
             )
 
         if self.dimensions is logarithmic and p != 1.0:

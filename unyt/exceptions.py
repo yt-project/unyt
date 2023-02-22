@@ -37,11 +37,11 @@ class UnitOperationError(ValueError):
 
     def __str__(self):
         err = (
-            'The %s operator for unyt_arrays with units "%s" '
-            '(dimensions "%s") ' % (self.operation, self.unit1, self.unit1.dimensions)
+            f"The {self.operation} operator for unyt_arrays with units "
+            f"'{self.unit1}' (dimensions '{self.unit1.dimensions}')"
         )
         if self.unit2 is not None:
-            err += f'and "{self.unit2}" (dimensions "{self.unit2.dimensions}") '
+            err += f"and '{self.unit2}' (dimensions '{self.unit2.dimensions}') "
         err += "is not well defined."
         return err
 
@@ -95,11 +95,9 @@ class UnitConversionError(Exception):
         Exception.__init__(self)
 
     def __str__(self):
-        err = "Cannot convert between '%s' (dim '%s') and '%s' " "(dim '%s')." % (
-            self.unit1,
-            self.dimension1,
-            self.unit2,
-            self.dimension2,
+        err = (
+            f"Cannot convert between '{self.unit1}' (dim '{self.dimension1}') "
+            f"and '{self.unit2}' (dim '{self.dimension2}')."
         )
         return err
 

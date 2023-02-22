@@ -2471,7 +2471,7 @@ def _get_binary_op_return_class(cls1, cls2):
     else:
         raise RuntimeError(
             "Undefined operation for a unyt_array subclass. "
-            "Received operand types (%s) and (%s)" % (cls1, cls2)
+            f"Received operand types ({cls1}) and ({cls2})"
         )
 
 
