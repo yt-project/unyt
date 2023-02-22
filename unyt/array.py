@@ -141,7 +141,14 @@ from unyt.unit_registry import (
 
 NULL_UNIT = Unit()
 POWER_MAPPING = {multiply: lambda x: x, divide: lambda x: 2 - x}
-DISALLOWED_DTYPES = ("S", "U", "a", "O", "M", "m", "b")
+DISALLOWED_DTYPES = (
+    "S",  # bytestring
+    "a",  # bytestring
+    "U",  # (unicode) bytes
+    "O",  # Python object
+    "M",  # datetime
+    "m",  # timedelta
+)
 
 __doctest_requires__ = {
     ("unyt_array.from_pint", "unyt_array.to_pint"): ["pint"],

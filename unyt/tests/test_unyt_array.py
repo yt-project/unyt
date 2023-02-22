@@ -2739,3 +2739,9 @@ def test_string_comparison():
     a = 1 * cm
     assert not (a == "hello")
     assert a != "hello"
+
+
+def test_int8_comparison():
+    # see regression https://github.com/yt-project/unyt/issues/369
+    a = unyt_array(np.zeros(5, dtype=np.int8))
+    assert all(e == 0 for e in a)
