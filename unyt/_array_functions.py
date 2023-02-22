@@ -876,3 +876,23 @@ def clip(a, a_min, a_max, out=None, *args, **kwargs):
     if getattr(out, "units", None) is not None:
         out.units = a.units
     return unyt_array(res, a.units, bypass_validation=True)
+
+
+@implements(np.where)
+def where(condition, *args, **kwargs):
+    if len(args) == 0:
+        return np.where._implementation(condition.view(np.ndarray), **kwargs)
+
+    elif len(args) < 2:
+        # error message borrowed from numpy 1.24.1
+        raise ValueError("either both or neither of x and y should be given")
+
+    x, y, *args = args
+
+    retu = _validate_units_consistency((x, y))
+    return (
+        np.where._implementation(
+            condition, np.asarray(x), np.asarray(y), *args, **kwargs
+        )
+        * retu
+    )
