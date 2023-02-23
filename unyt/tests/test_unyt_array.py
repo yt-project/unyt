@@ -2760,3 +2760,7 @@ def test_setitem():
     a[1] = 2
     assert a[1].value == 2
     assert a[1].units == cm
+
+    a[1] = unyt_quantity(2)
+    assert a[1].value == 2
+    assert a[1].units == cm
