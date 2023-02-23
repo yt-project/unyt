@@ -1726,8 +1726,9 @@ class unyt_array(np.ndarray):
         return ret
 
     def __setitem__(self, item, value):
-        if hasattr(value, "units") and value.units != self.units:
-            value = value.to(self.units)
+        if hasattr(value, "units"):
+            if value.units != self.units and value.units != NULL_UNIT:
+                value = value.to(self.units)
         super().__setitem__(item, value)
 
     def __pow__(self, p, mod=None, /):
