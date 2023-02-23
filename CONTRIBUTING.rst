@@ -220,6 +220,7 @@ Do a test publication
 
 Test the result (best using a fresh environment here)
 
+  $ python -m pip install pytest
   $ python -m pip install --index-url https://test.pypi.org/simple/ unyt --extra-index-url https://pypi.org/simple --force
   $ python -c "import unyt; unyt.test()"
   $ python -m pip install --index-url https://test.pypi.org/simple/ unyt --extra-index-url https://pypi.org/simple --no-binary unyt --force
