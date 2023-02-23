@@ -141,7 +141,14 @@ from unyt.unit_registry import (
 
 NULL_UNIT = Unit()
 POWER_MAPPING = {multiply: lambda x: x, divide: lambda x: 2 - x}
-DISALLOWED_DTYPES = ("S", "U", "a", "O", "M", "m", "b")
+DISALLOWED_DTYPES = (
+    "S",  # bytestring
+    "a",  # bytestring
+    "U",  # (unicode) bytes
+    "O",  # Python object
+    "M",  # datetime
+    "m",  # timedelta
+)
 
 __doctest_requires__ = {
     ("unyt_array.from_pint", "unyt_array.to_pint"): ["pint"],
@@ -1720,6 +1727,12 @@ class unyt_array(np.ndarray):
         except AttributeError:
             pass
         return ret
+
+    def __setitem__(self, item, value):
+        if hasattr(value, "units"):
+            if value.units != self.units and value.units != NULL_UNIT:
+                value = value.to(self.units)
+        super().__setitem__(item, value)
 
     def __pow__(self, p, mod=None, /):
         """
