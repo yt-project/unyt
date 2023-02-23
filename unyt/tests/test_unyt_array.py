@@ -2745,3 +2745,18 @@ def test_int8_comparison():
     # see regression https://github.com/yt-project/unyt/issues/369
     a = unyt_array(np.zeros(5, dtype=np.int8))
     assert all(e == 0 for e in a)
+
+
+def test_setitem():
+    # see https://github.com/yt-project/unyt/issues/373
+    a = [1, 2, 3] * cm
+    a[1] = 2 * m
+    assert a[1].value == 200
+    assert a[1].units == cm
+
+    with pytest.raises(UnitConversionError):
+        a[1] = 2 * g
+
+    a[1] = 2
+    assert a[1].value == 2
+    assert a[1].units == cm

@@ -1728,6 +1728,11 @@ class unyt_array(np.ndarray):
             pass
         return ret
 
+    def __setitem__(self, item, value):
+        if hasattr(value, "units") and value.units != self.units:
+            value = value.to(self.units)
+        super().__setitem__(item, value)
+
     def __pow__(self, p, mod=None, /):
         """
         Power function, over-rides the ufunc as
