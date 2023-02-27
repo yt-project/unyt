@@ -2,12 +2,26 @@
 History
 =======
 
+2.9.5 (2023-02-22)
+------------------
+
+* Fix a regression where arrays elements with dtype ``'int8'`` would not compare to floats
+  as intended. See `PR #371 <https://github.com/yt-project/unyt/pull/371>`_. Thank you to
+  Clément Robert (@neutrinoceros on GitHub) and Nathan Goldbaum (@ngoldbaum on GitHub) for
+  the contribution.
+
+* Raise an error in case an array element is assigned to a new value with incompatible
+  units. See `PR #375 <https://github.com/yt-project/unyt/pull/375>`_ and `PR #376
+  <https://github.com/yt-project/unyt/pull/376>`_. Thank you to Nathan Goldbaum
+  (@ngoldbaum on GitHub) for the contribution.
+
+
 2.9.4 (2023-02-06)
 ------------------
 
 * Make ``unyt_quantity.from_string`` parse ints.
   See `PR #278 <https://github.com/yt-project/unyt/pull/278>`_.
-  Thank you to Nahan Goldbaum (@ngoldbaum on GitHub) for the contribution.
+  Thank you to Nathan Goldbaum (@ngoldbaum on GitHub) for the contribution.
 * TST: migrate from tox-pyenv to tox-gh-actions #344
   See `PR #344 <https://github.com/yt-project/unyt/pull/344>`_.
   Thank you to Clément Robert (@neutrinoceros on GitHub) for the contribution.
