@@ -386,7 +386,7 @@ default_unit_symbol_lut = OrderedDict(
         ("nt", (1.0, dimensions.luminance, 0.0, r"\rm{nt}", False)),
         # Planck units
         ("m_pl", (planck_mass_kg, dimensions.mass, 0.0, r"m_{\rm{P}}", False)),
-        ("l_pl", (planck_length_m, dimensions.length, 0.0, r"\ell_\rm{P}", False)),
+        ("l_pl", (planck_length_m, dimensions.length, 0.0, r"\ell_{\rm{P}}", False)),
         ("t_pl", (planck_time_s, dimensions.time, 0.0, r"t_{\rm{P}}", False)),
         (
             "T_pl",
