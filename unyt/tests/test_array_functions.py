@@ -104,7 +104,6 @@ NOOP_FUNCTIONS = {
     np.swapaxes,  # works out of the box (tested)
     np.moveaxis,  # works out of the box (tested)
     np.nansum,  # works out of the box (tested)
-    np.product,  # is implemented via np.prod
     np.std,  # works out of the box (tested)
     np.nanstd,  # works out of the box (tested)
     np.nanvar,  # works out of the box (tested)
@@ -130,7 +129,6 @@ NOOP_FUNCTIONS = {
     np.gradient,  # works out of the box (tested)
     np.cumsum,  # works out of the box (tested)
     np.nancumsum,  # works out of the box (tested)
-    np.cumproduct,  # we get it for free with np.cumprod (tested)
     np.nancumprod,  # we get it for free with np.cumprod (tested)
     np.bincount,  # works out of the box (tested)
     np.unique,  # works out of the box (tested)
@@ -214,6 +212,8 @@ DEPRECATED_FUNCTIONS = {
     "rank",  # deprecated in numpy 1.10, removed in 1.18
     "rate",  # deprecated in numpy 1.18, removed in 1.20
     "msort",  # deprecated in numpy 1.24
+    "product",  # deprecated in numpy 1.25
+    "cumproduct",  # deprecated in numpy 1.25
 }
 
 NOT_HANDLED_FUNCTIONS = NOOP_FUNCTIONS | TODO_FUNCTIONS | IGNORED_FUNCTIONS
@@ -608,15 +608,14 @@ def test_trim_zeros():
     assert type(res) is unyt_array
 
 
-@pytest.mark.parametrize("func", [np.any, np.sometrue])
-def test_any(func):
-    assert not func([0, 0, 0] * cm)
-    assert func([1, 0, 0] * cm)
+def test_any():
+    assert not np.any([0, 0, 0] * cm)
+    assert np.any([1, 0, 0] * cm)
 
     x = [1, 2, 3] * cm
-    assert func(x >= 3)
-    assert func(x >= 3 * cm)
-    assert not func(x >= 3 * km)
+    assert np.any(x >= 3)
+    assert np.any(x >= 3 * cm)
+    assert not np.any(x >= 3 * km)
 
 
 def test_append():
@@ -1025,7 +1024,6 @@ def test_xsplit(func, args):
     "func, expected_units",
     [
         (np.prod, cm**9),
-        (np.product, cm**9),
         (np.var, cm**2),
         (np.std, cm),
         (np.nanprod, cm**9),
@@ -1313,7 +1311,6 @@ def test_cumsum(func):
     "func",
     [
         np.cumprod,
-        np.cumproduct,
         np.nancumprod,
     ],
 )
