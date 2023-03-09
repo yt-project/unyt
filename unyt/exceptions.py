@@ -38,7 +38,7 @@ class UnitOperationError(ValueError):
     def __str__(self):
         err = (
             f"The {self.operation} operator for unyt_arrays with units "
-            f"'{self.unit1}' (dimensions '{self.unit1.dimensions}')"
+            f"'{self.unit1}' (dimensions '{self.unit1.dimensions}') "
         )
         if self.unit2 is not None:
             err += f"and '{self.unit2}' (dimensions '{self.unit2.dimensions}') "
