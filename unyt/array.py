@@ -28,6 +28,7 @@ from numpy import (
     bitwise_or,
     bitwise_xor,
     ceil,
+    clip,
     conj,
     copysign,
     cos,
@@ -101,7 +102,7 @@ from numpy import (
     true_divide,
     trunc,
 )
-from numpy.core.umath import _ones_like, clip
+from numpy.core.umath import _ones_like
 from sympy import Rational
 
 from unyt._on_demand_imports import _astropy, _dask, _pint
