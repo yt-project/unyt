@@ -195,17 +195,16 @@ def _validate_units_consistency_v2(ref_units, *args) -> None:
 
 
 @implements(np.concatenate)
-def concatenate(arrs, /, axis=0, out=None, dtype=None, casting="same_kind"):
+def concatenate(arrs, /, axis=0, out=None, *args, **kwargs):
     ret_units = _validate_units_consistency(arrs)
     if out is None:
         if NUMPY_VERSION >= Version("1.20"):
             res = np.concatenate._implementation(
-                [_.view(np.ndarray) for _ in arrs],
-                axis=axis,
-                dtype=dtype,
-                casting=casting,
+                [_.view(np.ndarray) for _ in arrs], axis, *args, **kwargs
             )
         else:
+            assert not args
+            assert not kwargs
             res = np.concatenate._implementation(
                 [_.view(np.ndarray) for _ in arrs],
                 axis=axis,
@@ -214,12 +213,14 @@ def concatenate(arrs, /, axis=0, out=None, dtype=None, casting="same_kind"):
         if NUMPY_VERSION >= Version("1.20"):
             res = np.concatenate._implementation(
                 [_.view(np.ndarray) for _ in arrs],
-                axis=axis,
+                axis,
+                *args,
                 out=out.view(np.ndarray),
-                dtype=dtype,
-                casting=casting,
+                **kwargs,
             )
         else:
+            assert not args
+            assert not kwargs
             res = np.concatenate._implementation(
                 [_.view(np.ndarray) for _ in arrs],
                 axis=axis,
@@ -231,16 +232,11 @@ def concatenate(arrs, /, axis=0, out=None, dtype=None, casting="same_kind"):
 
 
 @implements(np.cross)
-def cross(a, b, axisa=-1, axisb=-1, axisc=-1, axis=None):
+def cross(a, b, *args, **kwargs):
     prod_units = getattr(a, "units", NULL_UNIT) * getattr(b, "units", NULL_UNIT)
     return (
         np.cross._implementation(
-            a.view(np.ndarray),
-            b.view(np.ndarray),
-            axisa=axisa,
-            axisb=axisb,
-            axisc=axisc,
-            axis=axis,
+            a.view(np.ndarray), b.view(np.ndarray), *args, **kwargs
         )
         * prod_units
     )
@@ -271,13 +267,8 @@ def union1d(arr1, arr2, /):
 
 
 @implements(np.linalg.norm)
-def norm(x, /, ord=None, axis=None, keepdims=False):
-    return (
-        np.linalg.norm._implementation(
-            x.view(np.ndarray), ord=ord, axis=axis, keepdims=keepdims
-        )
-        * x.units
-    )
+def norm(x, /, *args, **kwargs):
+    return np.linalg.norm._implementation(x.view(np.ndarray), *args, **kwargs) * x.units
 
 
 @implements(np.vstack)
