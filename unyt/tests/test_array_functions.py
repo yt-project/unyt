@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from packaging.version import Version
 
-from unyt import K, cm, degC, degF, delta_degC, g, km, s
+from unyt import A, K, cm, degC, degF, delta_degC, g, km, s
 from unyt._array_functions import _HANDLED_FUNCTIONS as HANDLED_FUNCTIONS
 from unyt.array import unyt_array, unyt_quantity
 from unyt.exceptions import (
@@ -185,13 +185,10 @@ TODO_FUNCTIONS = {
     np.einsum,
     np.einsum_path,
     np.i0,
-    np.imag,
     np.in1d,
     np.interp,
     np.ix_,
     np.linalg.svd,
-    np.real,
-    np.real_if_close,
     np.take_along_axis,
     np.tensordot,
     np.tril,
@@ -1570,3 +1567,18 @@ def test_where_xy():
     res = np.where(x > y, x, y)
     assert type(res) is unyt_array
     assert res.units == cm
+
+
+@pytest.mark.parametrize(
+    "func",
+    [
+        np.imag,
+        np.real,
+        np.real_if_close,
+    ],
+)
+def test_complex_reductions(func):
+    a = [1 + 1j for _ in range(3)] * A
+    res = func(a)
+    assert type(res) is unyt_array
+    assert res.units == A
