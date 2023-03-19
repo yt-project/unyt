@@ -69,8 +69,6 @@ unyt = [
 
 
 [tool.black]
-target-version = ['py38']
-line-length = 88
 exclude = '''
 (
   /(
