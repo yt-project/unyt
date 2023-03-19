@@ -88,7 +88,6 @@ exclude = '''
 '''
 
 [tool.ruff]
-target-version = "py38" # https://github.com/charliermarsh/ruff/issues/2039
 exclude = [
     ".*/",
     "benchmarks/*.py",
