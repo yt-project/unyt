@@ -191,8 +191,6 @@ TODO_FUNCTIONS = {
     np.linalg.svd,
     np.take_along_axis,
     np.tensordot,
-    np.tril,
-    np.triu,
     np.unwrap,
 }
 
@@ -1582,3 +1580,14 @@ def test_complex_reductions(func):
     res = func(a)
     assert type(res) is unyt_array
     assert res.units == A
+
+
+@pytest.mark.parametrize(
+    "func",
+    [np.tril, np.triu],
+)
+def test_triangles(func):
+    a = np.eye(4) * cm
+    res = func(a)
+    assert type(res) is unyt_array
+    assert res.units == cm
