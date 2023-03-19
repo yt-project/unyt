@@ -2,7 +2,6 @@ import warnings
 from numbers import Number
 
 import numpy as np
-from packaging.version import Version
 
 from unyt import delta_degC
 from unyt.array import NULL_UNIT, unyt_array
@@ -14,7 +13,6 @@ from unyt.exceptions import (
     UnytError,
 )
 
-NUMPY_VERSION = Version(np.__version__)
 _HANDLED_FUNCTIONS = {}
 
 
@@ -197,37 +195,19 @@ def _validate_units_consistency_v2(ref_units, *args) -> None:
 @implements(np.concatenate)
 def concatenate(arrs, /, axis=0, out=None, *args, **kwargs):
     ret_units = _validate_units_consistency(arrs)
-    if out is None:
-        if NUMPY_VERSION >= Version("1.20"):
-            res = np.concatenate._implementation(
-                [_.view(np.ndarray) for _ in arrs], axis, *args, **kwargs
-            )
-        else:
-            assert not args
-            assert not kwargs
-            res = np.concatenate._implementation(
-                [_.view(np.ndarray) for _ in arrs],
-                axis=axis,
-            )
+
+    if out is not None:
+        out_view = out.view(np.ndarray)
     else:
-        if NUMPY_VERSION >= Version("1.20"):
-            res = np.concatenate._implementation(
-                [_.view(np.ndarray) for _ in arrs],
-                axis,
-                *args,
-                out=out.view(np.ndarray),
-                **kwargs,
-            )
-        else:
-            assert not args
-            assert not kwargs
-            res = np.concatenate._implementation(
-                [_.view(np.ndarray) for _ in arrs],
-                axis=axis,
-                out=out.view(np.ndarray),
-            )
-        if getattr(out, "units", None) is not None:
-            out.units = ret_units
+        out_view = out
+
+    res = np.concatenate._implementation(
+        [_.view(np.ndarray) for _ in arrs], axis, out_view, *args, **kwargs
+    )
+
+    if getattr(out, "units", None) is not None:
+        out.units = ret_units
+
     return unyt_array(res, ret_units, bypass_validation=True)
 
 
