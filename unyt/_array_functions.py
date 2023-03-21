@@ -899,3 +899,14 @@ def einsum(subscripts, *operands, out=None, **kwargs):
         cls = unyt_array
 
     return cls(res, ret_units, bypass_validation=True)
+
+
+@implements(np.convolve)
+def convolve(a, v, *args, **kwargs):
+    ret_units = np.prod(get_units((a, v)))
+    return (
+        np.convolve._implementation(
+            a.view(np.ndarray), v.view(np.ndarray), *args, **kwargs
+        )
+        * ret_units
+    )
