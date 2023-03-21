@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from packaging.version import Version
 
-from unyt import K, cm, degC, degF, delta_degC, g, km, s
+from unyt import A, K, cm, degC, degF, delta_degC, g, km, s
 from unyt._array_functions import _HANDLED_FUNCTIONS as HANDLED_FUNCTIONS
 from unyt.array import unyt_array, unyt_quantity
 from unyt.exceptions import (
@@ -136,6 +136,13 @@ NOOP_FUNCTIONS = {
     np.min_scalar_type,  # returns dtypes
     np.extract,  # works out of the box (tested)
     np.setxor1d,  # we get it for free with previously implemented functions (tested)
+    np.lexsort,  # returns pure numbers
+    np.digitize,  # returns pure numbers
+    np.tril_indices_from,  # returns pure numbers
+    np.triu_indices_from,  # returns pure numbers
+    np.imag,  # works out of the box (tested)
+    np.real,  # works out of the box (tested)
+    np.real_if_close,  # works out of the box (tested)
 }
 
 # Functions that are wrappable but don't really make sense with units
@@ -158,42 +165,32 @@ IGNORED_FUNCTIONS = {
     np.savez_compressed,
     # datetime64 is not a sensible dtype for unyt_array
     np.datetime_as_string,
+    np.busday_count,
+    np.busday_offset,
+    np.is_busday,
     # not clear how to approach
-    # astropy.units doens't have a simple implementation either
-    np.piecewise,
+    np.piecewise,  # astropy.units doens't have a simple implementation either
+    np.packbits,
+    np.unpackbits,
 }
 
 # this set represents all functions that need inspection, tests, or both
 # it is always possible that some of its elements belong in NOOP_FUNCTIONS
 TODO_FUNCTIONS = {
-    np.busday_count,
-    np.busday_offset,
     np.compress,
     np.convolve,
     np.corrcoef,
     np.correlate,
     np.cov,
-    np.digitize,
     np.einsum,
     np.einsum_path,
     np.i0,
-    np.imag,
     np.in1d,
     np.interp,
-    np.is_busday,
     np.ix_,
-    np.lexsort,
     np.linalg.svd,
-    np.packbits,
-    np.real,
-    np.real_if_close,
     np.take_along_axis,
     np.tensordot,
-    np.tril,
-    np.tril_indices_from,
-    np.triu,
-    np.triu_indices_from,
-    np.unpackbits,
     np.unwrap,
 }
 
@@ -1566,5 +1563,31 @@ def test_where_xy():
     x = [-1, 2, -3] * cm
     y = [0, 0, 0] * cm
     res = np.where(x > y, x, y)
+    assert type(res) is unyt_array
+    assert res.units == cm
+
+
+@pytest.mark.parametrize(
+    "func",
+    [
+        np.imag,
+        np.real,
+        np.real_if_close,
+    ],
+)
+def test_complex_reductions(func):
+    a = [1 + 1j for _ in range(3)] * A
+    res = func(a)
+    assert type(res) is unyt_array
+    assert res.units == A
+
+
+@pytest.mark.parametrize(
+    "func",
+    [np.tril, np.triu],
+)
+def test_triangles(func):
+    a = np.eye(4) * cm
+    res = func(a)
     assert type(res) is unyt_array
     assert res.units == cm

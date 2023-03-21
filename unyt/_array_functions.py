@@ -896,3 +896,13 @@ def where(condition, *args, **kwargs):
         )
         * retu
     )
+
+
+@implements(np.triu)
+def triu(m, *args, **kwargs):
+    return np.triu._implementation(np.asarray(m), *args, **kwargs) * m.units
+
+
+@implements(np.tril)
+def tril(m, *args, **kwargs):
+    return np.tril._implementation(np.asarray(m), *args, **kwargs) * m.units
