@@ -143,6 +143,7 @@ NOOP_FUNCTIONS = {
     np.imag,  # works out of the box (tested)
     np.real,  # works out of the box (tested)
     np.real_if_close,  # works out of the box (tested)
+    np.einsum_path,  # returns pure numbers
 }
 
 # Functions that are wrappable but don't really make sense with units
@@ -182,8 +183,6 @@ TODO_FUNCTIONS = {
     np.corrcoef,
     np.correlate,
     np.cov,
-    np.einsum,
-    np.einsum_path,
     np.i0,
     np.in1d,
     np.interp,
@@ -1590,4 +1589,25 @@ def test_triangles(func):
     a = np.eye(4) * cm
     res = func(a)
     assert type(res) is unyt_array
+    assert res.units == cm
+
+
+@pytest.mark.skipif(
+    NUMPY_VERSION < Version("1.19"),
+    reason=(
+        "einsum raises a spurious TypeError with out=None and optimize=False "
+        "(which are default values)"
+    ),
+)
+def test_einsum():
+    a = np.eye(4) * cm
+
+    # extract diagonal
+    res = np.einsum("ii->i", a)
+    assert type(res) is unyt_array
+    assert res.units == cm
+
+    # sum diagonal elements, the result should be a scalar
+    res = np.einsum("ii", a)
+    assert type(res) is unyt_quantity
     assert res.units == cm

@@ -4,7 +4,7 @@ from numbers import Number
 import numpy as np
 
 from unyt import delta_degC
-from unyt.array import NULL_UNIT, unyt_array
+from unyt.array import NULL_UNIT, unyt_array, unyt_quantity
 from unyt.dimensions import temperature
 from unyt.exceptions import (
     InvalidUnitOperation,
@@ -877,3 +877,25 @@ def triu(m, *args, **kwargs):
 @implements(np.tril)
 def tril(m, *args, **kwargs):
     return np.tril._implementation(np.asarray(m), *args, **kwargs) * m.units
+
+
+@implements(np.einsum)
+def einsum(subscripts, *operands, out=None, **kwargs):
+    ret_units = _validate_units_consistency(operands)
+
+    if out is not None:
+        out_view = out.view(np.ndarray)
+    else:
+        out_view = out
+
+    res = np.einsum._implementation(subscripts, *operands, out=out_view)
+
+    if getattr(out, "units", None) is not None:
+        out.units = ret_units
+
+    if res.ndim == 0:
+        cls = unyt_quantity
+    else:
+        cls = unyt_array
+
+    return cls(res, ret_units, bypass_validation=True)
