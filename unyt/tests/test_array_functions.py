@@ -179,7 +179,6 @@ IGNORED_FUNCTIONS = {
 # it is always possible that some of its elements belong in NOOP_FUNCTIONS
 TODO_FUNCTIONS = {
     np.compress,
-    np.convolve,
     np.corrcoef,
     np.correlate,
     np.cov,
@@ -1611,3 +1610,11 @@ def test_einsum():
     res = np.einsum("ii", a)
     assert type(res) is unyt_quantity
     assert res.units == cm
+
+
+def test_convolve():
+    a = [1, 2, 3] * cm
+    v = [4, 5, 6] * s
+    res = np.convolve(a, v)
+    assert type(res) is unyt_array
+    assert res.units == cm * s
