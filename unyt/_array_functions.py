@@ -910,3 +910,25 @@ def convolve(a, v, *args, **kwargs):
         )
         * ret_units
     )
+
+
+@implements(np.correlate)
+def correlate(a, v, *args, **kwargs):
+    ret_units = np.prod(get_units((a, v)))
+    return (
+        np.correlate._implementation(
+            a.view(np.ndarray), v.view(np.ndarray), *args, **kwargs
+        )
+        * ret_units
+    )
+
+
+@implements(np.tensordot)
+def tensordot(a, b, *args, **kwargs):
+    ret_units = np.prod(get_units((a, b)))
+    return (
+        np.tensordot._implementation(
+            a.view(np.ndarray), b.view(np.ndarray), *args, **kwargs
+        )
+        * ret_units
+    )
