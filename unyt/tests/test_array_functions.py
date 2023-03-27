@@ -144,6 +144,8 @@ NOOP_FUNCTIONS = {
     np.real,  # works out of the box (tested)
     np.real_if_close,  # works out of the box (tested)
     np.einsum_path,  # returns pure numbers
+    np.cov,  # returns pure numbers
+    np.corrcoef,  # returns pure numbers
 }
 
 # Functions that are wrappable but don't really make sense with units
@@ -179,16 +181,12 @@ IGNORED_FUNCTIONS = {
 # it is always possible that some of its elements belong in NOOP_FUNCTIONS
 TODO_FUNCTIONS = {
     np.compress,
-    np.corrcoef,
-    np.correlate,
-    np.cov,
     np.i0,
     np.in1d,
     np.interp,
     np.ix_,
     np.linalg.svd,
     np.take_along_axis,
-    np.tensordot,
     np.unwrap,
 }
 
@@ -1616,5 +1614,21 @@ def test_convolve():
     a = [1, 2, 3] * cm
     v = [4, 5, 6] * s
     res = np.convolve(a, v)
+    assert type(res) is unyt_array
+    assert res.units == cm * s
+
+
+def test_correlate():
+    a = [1, 2, 3] * cm
+    v = [4, 5, 6] * s
+    res = np.correlate(a, v)
+    assert type(res) is unyt_array
+    assert res.units == cm * s
+
+
+def test_tensordot():
+    a = np.arange(60.0).reshape(3, 4, 5) * cm
+    b = np.arange(24.0).reshape(4, 3, 2) * s
+    res = np.tensordot(a, b, axes=([1, 0], [0, 1]))
     assert type(res) is unyt_array
     assert res.units == cm * s
