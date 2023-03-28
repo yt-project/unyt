@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from packaging.version import Version
 
-from unyt import A, K, cm, degC, degF, delta_degC, g, km, s
+from unyt import A, K, cm, degC, degF, delta_degC, g, km, rad, s
 from unyt._array_functions import _HANDLED_FUNCTIONS as HANDLED_FUNCTIONS
 from unyt.array import unyt_array, unyt_quantity
 from unyt.exceptions import (
@@ -146,6 +146,8 @@ NOOP_FUNCTIONS = {
     np.einsum_path,  # returns pure numbers
     np.cov,  # returns pure numbers
     np.corrcoef,  # returns pure numbers
+    np.compress,  # works out of the box (tested)
+    np.take_along_axis,  # works out of the box (tested)
 }
 
 # Functions that are wrappable but don't really make sense with units
@@ -175,19 +177,16 @@ IGNORED_FUNCTIONS = {
     np.piecewise,  # astropy.units doens't have a simple implementation either
     np.packbits,
     np.unpackbits,
+    np.i0,
 }
 
 # this set represents all functions that need inspection, tests, or both
 # it is always possible that some of its elements belong in NOOP_FUNCTIONS
 TODO_FUNCTIONS = {
-    np.compress,
-    np.i0,
     np.in1d,
     np.interp,
     np.ix_,
     np.linalg.svd,
-    np.take_along_axis,
-    np.unwrap,
 }
 
 DEPRECATED_FUNCTIONS = {
@@ -1632,3 +1631,34 @@ def test_tensordot():
     res = np.tensordot(a, b, axes=([1, 0], [0, 1]))
     assert type(res) is unyt_array
     assert res.units == cm * s
+
+
+def test_compress():
+    a = [1, 2, 3] * cm
+    res = np.compress(a > 1, a)
+    assert type(res) is unyt_array
+    assert res.units == cm
+
+    np.compress(a > 1, a, out=res)
+    assert type(res) is unyt_array
+    assert res.units == cm
+
+    np.compress(a > 1, a, out=res.view(np.ndarray))
+    assert type(res) is unyt_array
+    assert res.units == cm
+
+
+def test_take_along_axis():
+    a = np.array([[10, 30, 20], [60, 40, 50]]) * cm
+    ai = np.argsort(a, axis=1)
+    res = np.take_along_axis(a, ai, axis=1)
+    assert type(res) is unyt_array
+    assert res.units == cm
+
+
+def test_unwrap():
+    phase = np.linspace(0, np.pi, num=5) * rad
+    phase[3:] += np.pi * rad
+    res = np.unwrap(phase)
+    assert type(res) is unyt_array
+    assert res.units == rad
