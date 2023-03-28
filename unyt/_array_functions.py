@@ -756,6 +756,12 @@ def isin(element, test_elements, *args, **kwargs):
     )
 
 
+@implements(np.in1d)
+def in1d(ar1, ar2, *args, **kwargs):
+    _validate_units_consistency((ar1, ar2))
+    return np.isin._implementation(np.asarray(ar1), np.asarray(ar2), *args, **kwargs)
+
+
 @implements(np.place)
 def place(arr, mask, vals, *args, **kwargs) -> None:
     _validate_units_consistency_v2(arr.units, vals)

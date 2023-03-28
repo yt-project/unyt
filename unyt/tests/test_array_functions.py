@@ -183,7 +183,6 @@ IGNORED_FUNCTIONS = {
 # this set represents all functions that need inspection, tests, or both
 # it is always possible that some of its elements belong in NOOP_FUNCTIONS
 TODO_FUNCTIONS = {
-    np.in1d,
     np.interp,
     np.ix_,
     np.linalg.svd,
@@ -1410,6 +1409,18 @@ def test_isin_mixed_units():
 def test_isin():
     a = [1, 2, 3] * cm
     assert np.isin(1 * cm, a)
+
+
+def test_in1d_mixed_units():
+    a = [1, 2, 3] * cm
+    with pytest.raises(UnitInconsistencyError):
+        np.in1d([1, 2], a)
+
+
+def test_in1d():
+    a = [1, 2, 3] * cm
+    b = [1, 2] * cm
+    assert np.all(np.in1d(b, a))
 
 
 def test_place_mixed_units():
