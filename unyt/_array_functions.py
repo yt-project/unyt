@@ -13,6 +13,32 @@ from unyt.exceptions import (
     UnytError,
 )
 
+# Functions for which passing units doesn't make sense
+# bail out with NotImplemented (escalated to TypeError by numpy)
+_UNSUPPORTED_FUNCTIONS = {
+    # Polynomials
+    np.poly,
+    np.polyadd,
+    np.polyder,
+    np.polydiv,
+    np.polyfit,
+    np.polyint,
+    np.polymul,
+    np.polysub,
+    np.polyval,
+    np.roots,
+    np.vander,
+    # datetime64 is not a sensible dtype for unyt_array
+    np.datetime_as_string,
+    np.busday_count,
+    np.busday_offset,
+    np.is_busday,
+    # not clear how to approach
+    np.piecewise,  # astropy.units doens't have a simple implementation either
+    np.packbits,
+    np.unpackbits,
+}
+
 _HANDLED_FUNCTIONS = {}
 
 

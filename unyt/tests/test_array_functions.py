@@ -7,7 +7,10 @@ import pytest
 from packaging.version import Version
 
 from unyt import A, K, cm, degC, degF, delta_degC, g, km, rad, s
-from unyt._array_functions import _HANDLED_FUNCTIONS as HANDLED_FUNCTIONS
+from unyt._array_functions import (
+    _HANDLED_FUNCTIONS as HANDLED_FUNCTIONS,
+    _UNSUPPORTED_FUNCTIONS as UNSUPPORTED_FUNCTIONS,
+)
 from unyt.array import unyt_array, unyt_quantity
 from unyt.exceptions import (
     InvalidUnitOperation,
@@ -150,35 +153,15 @@ NOOP_FUNCTIONS = {
     np.take_along_axis,  # works out of the box (tested)
 }
 
-# Functions that are wrappable but don't really make sense with units
+# Functions for which behaviour is intentionally left to default
 IGNORED_FUNCTIONS = {
-    # Polynomials
-    np.poly,
-    np.polyadd,
-    np.polyder,
-    np.polydiv,
-    np.polyfit,
-    np.polyint,
-    np.polymul,
-    np.polysub,
-    np.polyval,
-    np.roots,
-    np.vander,
+    np.i0,
     # IO functions (no way to add units)
     np.save,
     np.savez,
     np.savez_compressed,
-    # datetime64 is not a sensible dtype for unyt_array
-    np.datetime_as_string,
-    np.busday_count,
-    np.busday_offset,
-    np.is_busday,
-    # not clear how to approach
-    np.piecewise,  # astropy.units doens't have a simple implementation either
-    np.packbits,
-    np.unpackbits,
-    np.i0,
 }
+
 
 # this set represents all functions that need inspection, tests, or both
 # it is always possible that some of its elements belong in NOOP_FUNCTIONS
@@ -208,7 +191,9 @@ DEPRECATED_FUNCTIONS = {
     "cumproduct",  # deprecated in numpy 1.25
 }
 
-NOT_HANDLED_FUNCTIONS = NOOP_FUNCTIONS | TODO_FUNCTIONS | IGNORED_FUNCTIONS
+NOT_HANDLED_FUNCTIONS = (
+    NOOP_FUNCTIONS | TODO_FUNCTIONS | UNSUPPORTED_FUNCTIONS | IGNORED_FUNCTIONS
+)
 
 for func in DEPRECATED_FUNCTIONS:
     if hasattr(np, func):
