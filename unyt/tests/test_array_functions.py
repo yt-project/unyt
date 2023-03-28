@@ -177,12 +177,12 @@ IGNORED_FUNCTIONS = {
     np.piecewise,  # astropy.units doens't have a simple implementation either
     np.packbits,
     np.unpackbits,
+    np.i0,
 }
 
 # this set represents all functions that need inspection, tests, or both
 # it is always possible that some of its elements belong in NOOP_FUNCTIONS
 TODO_FUNCTIONS = {
-    np.i0,
     np.in1d,
     np.interp,
     np.ix_,
