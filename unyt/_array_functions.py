@@ -932,3 +932,9 @@ def tensordot(a, b, *args, **kwargs):
         )
         * ret_units
     )
+
+
+@implements(np.unwrap)
+def unwrap(p, *args, **kwargs):
+    ret_units = p.units
+    return np.unwrap._implementation(p.view(np.ndarray), *args, **kwargs) * ret_units
