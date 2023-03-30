@@ -37,6 +37,7 @@ _UNSUPPORTED_FUNCTIONS = {
     np.piecewise,  # astropy.units doens't have a simple implementation either
     np.packbits,
     np.unpackbits,
+    np.ix_,
 }
 
 _HANDLED_FUNCTIONS = {}
