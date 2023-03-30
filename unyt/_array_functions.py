@@ -120,6 +120,19 @@ def linalg_pinv(a, *args, **kwargs):
     return np.linalg.pinv._implementation(a, *args, **kwargs).view(np.ndarray) / a.units
 
 
+@implements(np.linalg.svd)
+def linalg_svd(a, full_matrices=True, compute_uv=True, *args, **kwargs):
+    ret_units = a.units
+    retv = np.linalg.svd._implementation(
+        a.view(np.ndarray), full_matrices, compute_uv, *args, **kwargs
+    )
+    if compute_uv:
+        u, s, vh = retv
+        return (u, s * ret_units, vh)
+    else:
+        return retv * ret_units
+
+
 def _sanitize_range(_range, units):
     # helper function to histogram* functions
     ndim = len(units)
