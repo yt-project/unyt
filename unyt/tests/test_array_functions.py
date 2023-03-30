@@ -183,8 +183,6 @@ IGNORED_FUNCTIONS = {
 # this set represents all functions that need inspection, tests, or both
 # it is always possible that some of its elements belong in NOOP_FUNCTIONS
 TODO_FUNCTIONS = {
-    np.in1d,
-    np.interp,
     np.ix_,
     np.linalg.svd,
 }
@@ -1412,6 +1410,18 @@ def test_isin():
     assert np.isin(1 * cm, a)
 
 
+def test_in1d_mixed_units():
+    a = [1, 2, 3] * cm
+    with pytest.raises(UnitInconsistencyError):
+        np.in1d([1, 2], a)
+
+
+def test_in1d():
+    a = [1, 2, 3] * cm
+    b = [1, 2] * cm
+    assert np.all(np.in1d(b, a))
+
+
 def test_place_mixed_units():
     arr = np.arange(6).reshape(2, 3) * cm
     with pytest.raises(UnitInconsistencyError):
@@ -1662,3 +1672,30 @@ def test_unwrap():
     res = np.unwrap(phase)
     assert type(res) is unyt_array
     assert res.units == rad
+
+
+def test_interp():
+    _x = np.array([1.1, 2.2, 3.3])
+    _xp = np.array([1, 2, 3])
+    _fp = np.array([4, 8, 12])
+
+    # any of the three input array-like might be unitful
+    # let's test all relevant combinations
+    # return type should match fp's
+
+    with pytest.raises(UnitInconsistencyError):
+        np.interp(_x * cm, _xp, _fp)
+
+    with pytest.raises(UnitInconsistencyError):
+        res = np.interp(_x, _xp * cm, _fp)
+
+    res = np.interp(_x * cm, _xp * cm, _fp)
+    assert type(res) is np.ndarray
+
+    res = np.interp(_x, _xp, _fp * K)
+    assert type(res) is unyt_array
+    assert res.units == K
+
+    res = np.interp(_x * cm, _xp * cm, _fp * K)
+    assert type(res) is unyt_array
+    assert res.units == K

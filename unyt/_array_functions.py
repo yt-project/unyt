@@ -756,6 +756,12 @@ def isin(element, test_elements, *args, **kwargs):
     )
 
 
+@implements(np.in1d)
+def in1d(ar1, ar2, *args, **kwargs):
+    _validate_units_consistency((ar1, ar2))
+    return np.isin._implementation(np.asarray(ar1), np.asarray(ar2), *args, **kwargs)
+
+
 @implements(np.place)
 def place(arr, mask, vals, *args, **kwargs) -> None:
     _validate_units_consistency_v2(arr.units, vals)
@@ -938,3 +944,18 @@ def tensordot(a, b, *args, **kwargs):
 def unwrap(p, *args, **kwargs):
     ret_units = p.units
     return np.unwrap._implementation(p.view(np.ndarray), *args, **kwargs) * ret_units
+
+
+@implements(np.interp)
+def interp(x, xp, fp, *args, **kwargs):
+    _validate_units_consistency((x, xp))
+
+    # return array type should match fp's
+    # so, the fallback multiplier is 1 instead of NULL_UNITS
+    # This avoid leaking a dimensionless unyt_array if reference data
+    # is a pure np.ndarray
+    ret_units = getattr(fp, "units", 1)
+    return (
+        np.interp(np.asarray(x), np.asarray(xp), np.asarray(fp), *args, **kwargs)
+        * ret_units
+    )
