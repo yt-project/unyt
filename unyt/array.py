@@ -1982,7 +1982,13 @@ class unyt_array(np.ndarray):
     def __array_function__(self, func, types, args, kwargs):
         # Follow NEP 18 guidelines
         # https://numpy.org/neps/nep-0018-array-function-protocol.html
-        from unyt._array_functions import _HANDLED_FUNCTIONS
+        from unyt._array_functions import _HANDLED_FUNCTIONS, _UNSUPPORTED_FUNCTIONS
+
+        if func in _UNSUPPORTED_FUNCTIONS:
+            # following NEP 18, return NotImplemented as a sentinel value
+            # which will lead to raising a TypeError, while
+            # leaving other arguments a chance to take the lead
+            return NotImplemented
 
         if func not in _HANDLED_FUNCTIONS:
             # default to numpy's private implementation
