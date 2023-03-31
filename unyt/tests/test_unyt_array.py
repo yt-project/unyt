@@ -14,7 +14,6 @@ import pickle
 import re
 import shutil
 import tempfile
-import warnings
 from importlib.metadata import version
 from pathlib import Path
 
@@ -2400,26 +2399,6 @@ def test_overflow_warnings():
     _process_warning(data.to, message, RuntimeWarning, ("mile",))
     _process_warning(data.in_units, message, RuntimeWarning, ("mile",))
     _process_warning(data.convert_to_units, message, RuntimeWarning, ("mile",))
-
-
-def test_input_units_deprecation():
-    from unyt.array import unyt_array, unyt_quantity
-
-    message = "input_units has been deprecated, please use units instead"
-
-    _process_warning(
-        unyt_array, message, DeprecationWarning, ([1, 2, 3],), {"input_units": "mile"}
-    )
-    _process_warning(
-        unyt_quantity, message, DeprecationWarning, (3,), {"input_units": "mile"}
-    )
-
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        assert_array_equal(
-            unyt_array([1, 2, 3], "mile"), unyt_array([1, 2, 3], input_units="mile")
-        )
-        assert unyt_quantity(3, "mile") == unyt_quantity(3, input_units="mile")
 
 
 def test_clip():

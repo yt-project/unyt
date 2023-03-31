@@ -224,7 +224,6 @@ class unyt_dask_array(DaskArray):
     registry
     bypass_validation
     unyt_name
-    input_units
 
     """
 
@@ -240,7 +239,6 @@ class unyt_dask_array(DaskArray):
         units=None,
         registry=None,
         bypass_validation=False,
-        input_units=None,
         unyt_name=None,
     ):
         # get the base dask array
@@ -261,9 +259,8 @@ class unyt_dask_array(DaskArray):
             units,
             registry,
             dtype,
-            bypass_validation,
-            input_units,
-            unyt_name,
+            bypass_validation=bypass_validation,
+            name=unyt_name,
         )
 
         obj.units = obj._unyt_array.units
@@ -537,7 +534,6 @@ def unyt_from_dask(
     *,
     registry=None,
     bypass_validation=False,
-    input_units=None,
     unyt_name=None,
 ):
     """
@@ -551,14 +547,14 @@ def unyt_from_dask(
         The units of the array. Powers must be specified using python
         syntax (cm**3, not cm^3).
     registry : :class:`unyt.unit_registry.UnitRegistry`
-        The registry to create units from. If input_units is already associated
+        The registry to create units from. If units is already associated
         with a unit registry and this is specified, this will be used instead
         of the registry associated with the unit object.
     bypass_validation : boolean
         If True, all input validation is skipped. Using this option may produce
         corrupted, invalid units or array data, but can lead to significant
         speedups in the input validation logic adds significant overhead. If
-        set, input_units *must* be a valid unit object. Defaults to False.
+        set, units *must* be a valid unit object. Defaults to False.
     unyt_name : string
         The name of the array. Defaults to None. This attribute does not propagate
         through mathematical operations, but is preserved under indexing
@@ -602,7 +598,6 @@ def unyt_from_dask(
         registry=registry,
         bypass_validation=bypass_validation,
         unyt_name=unyt_name,
-        input_units=input_units,
     )
 
     return da
