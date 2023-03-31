@@ -163,13 +163,6 @@ IGNORED_FUNCTIONS = {
 }
 
 
-# this set represents all functions that need inspection, tests, or both
-# it is always possible that some of its elements belong in NOOP_FUNCTIONS
-TODO_FUNCTIONS = {
-    np.ix_,
-    np.linalg.svd,
-}
-
 DEPRECATED_FUNCTIONS = {
     "alen",  # deprecated in numpy 1.18, removed in 1.22
     "asscalar",  # deprecated in numpy 1.18, removed in 1.22
@@ -189,9 +182,7 @@ DEPRECATED_FUNCTIONS = {
     "cumproduct",  # deprecated in numpy 1.25
 }
 
-NOT_HANDLED_FUNCTIONS = (
-    NOOP_FUNCTIONS | TODO_FUNCTIONS | UNSUPPORTED_FUNCTIONS | IGNORED_FUNCTIONS
-)
+NOT_HANDLED_FUNCTIONS = NOOP_FUNCTIONS | UNSUPPORTED_FUNCTIONS | IGNORED_FUNCTIONS
 
 for func in DEPRECATED_FUNCTIONS:
     if hasattr(np, func):
@@ -1164,6 +1155,19 @@ def test_eigvals(func):
     w = func(a)
     assert type(w) is unyt_array
     assert w.units == cm
+
+
+def test_linalg_svd():
+    a = (np.random.randn(9, 6) + 1j * np.random.randn(9, 6)) * cm
+    u, s, vh = np.linalg.svd(a)
+    assert type(u) is np.ndarray
+    assert type(vh) is np.ndarray
+    assert type(s) is unyt_array
+    assert s.units == cm
+
+    s = np.linalg.svd(a, compute_uv=False)
+    assert type(s) is unyt_array
+    assert s.units == cm
 
 
 def test_savetxt(tmp_path):

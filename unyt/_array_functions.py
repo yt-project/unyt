@@ -37,6 +37,7 @@ _UNSUPPORTED_FUNCTIONS = {
     np.piecewise,  # astropy.units doens't have a simple implementation either
     np.packbits,
     np.unpackbits,
+    np.ix_,
 }
 
 _HANDLED_FUNCTIONS = {}
@@ -117,6 +118,19 @@ def linalg_tensorinv(a, *args, **kwargs):
 @implements(np.linalg.pinv)
 def linalg_pinv(a, *args, **kwargs):
     return np.linalg.pinv._implementation(a, *args, **kwargs).view(np.ndarray) / a.units
+
+
+@implements(np.linalg.svd)
+def linalg_svd(a, full_matrices=True, compute_uv=True, *args, **kwargs):
+    ret_units = a.units
+    retv = np.linalg.svd._implementation(
+        a.view(np.ndarray), full_matrices, compute_uv, *args, **kwargs
+    )
+    if compute_uv:
+        u, s, vh = retv
+        return (u, s * ret_units, vh)
+    else:
+        return retv * ret_units
 
 
 def _sanitize_range(_range, units):
