@@ -2659,10 +2659,6 @@ def allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
     >>> allclose_units(actual, desired)
     True
     """
-    # TODO: see https://github.com/yt-project/unyt/issues/289
-    # warn_deprecated(
-    #    "unyt.allclose_units", replacement="use numpy.allclose", since_version="3.0"
-    # )
     # Create a copy to ensure this function does not alter input arrays
     act = unyt_array(actual)
     des = unyt_array(desired)
