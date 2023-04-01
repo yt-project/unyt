@@ -483,10 +483,14 @@ def _array_comp_helper(a, b):
 
 @implements(np.isclose)
 def isclose(a, b, *args, **kwargs):
-    a, b = _array_comp_helper(a, b)
-    return np.isclose._implementation(
-        a.view(np.ndarray), b.view(np.ndarray), *args, **kwargs
-    )
+    try:
+        a, b = _array_comp_helper(a, b)
+    except UnitConversionError:
+        return False
+    else:
+        return np.isclose._implementation(
+            a.view(np.ndarray), b.view(np.ndarray), *args, **kwargs
+        )
 
 
 @implements(np.allclose)

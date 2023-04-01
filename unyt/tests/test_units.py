@@ -46,7 +46,6 @@ from unyt.dimensions import (
     time,
 )
 from unyt.exceptions import InvalidUnitOperation, UnitConversionError, UnitsNotReducible
-from unyt.testing import assert_allclose_units
 from unyt.unit_object import Unit, UnitParseError, default_unit_registry
 from unyt.unit_registry import UnitRegistry
 from unyt.unit_systems import UnitSystem, cgs_unit_system
@@ -188,10 +187,10 @@ def test_create_from_expr():
     assert u3.expr == s3
     assert u4.expr == s4
 
-    assert_allclose_units(u1.base_value, pc_mks, 1e-12)
-    assert_allclose_units(u2.base_value, yr_mks, 1e-12)
-    assert_allclose_units(u3.base_value, pc_mks * yr_mks, 1e-12)
-    assert_allclose_units(u4.base_value, pc_mks**2 / yr_mks, 1e-12)
+    assert_allclose(u1.base_value, pc_mks, 1e-12)
+    assert_allclose(u2.base_value, yr_mks, 1e-12)
+    assert_allclose(u3.base_value, pc_mks * yr_mks, 1e-12)
+    assert_allclose(u4.base_value, pc_mks**2 / yr_mks, 1e-12)
 
     assert u1.dimensions == length
     assert u2.dimensions == time
@@ -213,7 +212,7 @@ def test_create_with_duplicate_dimensions():
     assert u1.base_value == 1
     assert u1.dimensions == power
 
-    assert_allclose_units(u2.base_value, km_mks / Mpc_mks, 1e-12)
+    assert_allclose(u2.base_value, km_mks / Mpc_mks, 1e-12)
     assert u2.dimensions == rate
 
 
@@ -335,7 +334,7 @@ def test_multiplication():
     u3 = u1 * u2
 
     assert u3.expr == msun_sym * pc_sym
-    assert_allclose_units(u3.base_value, msun_mks * pc_mks, 1e-12)
+    assert_allclose(u3.base_value, msun_mks * pc_mks, 1e-12)
     assert u3.dimensions == mass * length
 
     # Pow and Mul operations
@@ -345,7 +344,7 @@ def test_multiplication():
     u6 = u4 * u5
 
     assert u6.expr == pc_sym**2 * msun_sym * s_sym
-    assert_allclose_units(u6.base_value, pc_mks**2 * msun_mks, 1e-12)
+    assert_allclose(u6.base_value, pc_mks**2 * msun_mks, 1e-12)
     assert u6.dimensions == length**2 * mass * time
 
 
@@ -369,7 +368,7 @@ def test_division():
     u3 = u1 / u2
 
     assert u3.expr == pc_sym / (km_sym * s_sym)
-    assert_allclose_units(u3.base_value, pc_mks / km_mks, 1e-12)
+    assert_allclose(u3.base_value, pc_mks / km_mks, 1e-12)
     assert u3.dimensions == 1 / time
 
 
@@ -390,14 +389,12 @@ def test_power():
     u2 = u1**2
 
     assert u2.dimensions == u1_dims**2
-    assert_allclose_units(u2.base_value, (pc_mks**2 * mK_mks**4) ** 2, 1e-12)
+    assert_allclose(u2.base_value, (pc_mks**2 * mK_mks**4) ** 2, 1e-12)
 
     u3 = u1 ** (-1.0 / 3)
 
     assert u3.dimensions == nsimplify(u1_dims ** (-1.0 / 3))
-    assert_allclose_units(
-        u3.base_value, (pc_mks**2 * mK_mks**4) ** (-1.0 / 3), 1e-12
-    )
+    assert_allclose(u3.base_value, (pc_mks**2 * mK_mks**4) ** (-1.0 / 3), 1e-12)
 
     assert u1**0.0 == dimensionless
 
@@ -470,7 +467,7 @@ def test_base_equivalent():
     assert u2.expr == u3.expr
     assert u2 == u3
 
-    assert_allclose_units(u1.base_value, Msun_mks / Mpc_mks**3, 1e-12)
+    assert_allclose(u1.base_value, Msun_mks / Mpc_mks**3, 1e-12)
     assert u2.base_value == 1
     assert u3.base_value == 1
 
@@ -480,9 +477,7 @@ def test_base_equivalent():
     assert u2.dimensions == mass_density
     assert u3.dimensions == mass_density
 
-    assert_allclose_units(
-        u1.get_conversion_factor(u3)[0], Msun_mks / Mpc_mks**3, 1e-12
-    )
+    assert_allclose(u1.get_conversion_factor(u3)[0], Msun_mks / Mpc_mks**3, 1e-12)
 
     with pytest.raises(UnitConversionError):
         u1.get_conversion_factor(Unit("m"))
@@ -831,7 +826,7 @@ def test_equal_has_same_hash():
 def test_bel_neper():
     assert Unit("B").dimensions == Unit("Np").dimensions
     a = 1 * Unit("B") / (np.log(10) / 2)
-    assert_allclose_units(a.to("Np"), 1 * Unit("Np"))
+    assert_allclose(a.to("Np"), 1 * Unit("Np"))
     a = 2 * Unit("B")
     b = 20 * Unit("decibel")
     assert (a == b).all()
@@ -855,13 +850,13 @@ def test_degC():
 
 
 def test_degC_with_SIprefixes():
-    assert_allclose_units(1 * Unit("mdegC"), 0.001 * Unit("degC"))
-    assert_allclose_units(1 * Unit("degC"), 1000 * Unit("mdegC"))
-    assert_allclose_units(73 * Unit("degF"), 22777.779 * Unit("mdegC"))
-    assert_allclose_units(22777.779 * Unit("mdegC"), 73 * Unit("degF"))
-    assert_allclose_units(22777.779 * Unit("mdegC"), 532.67 * Unit("R"))
-    assert_allclose_units(1 * Unit("mK"), -273149.0 * Unit("mdegC"))
-    assert_allclose_units(1 * Unit("mdegC"), 273151.0 * Unit("mK"))
+    assert_allclose(1 * Unit("mdegC"), 0.001 * Unit("degC"))
+    assert_allclose(1 * Unit("degC"), 1000 * Unit("mdegC"))
+    assert_allclose(73 * Unit("degF"), 22777.779 * Unit("mdegC"))
+    assert_allclose(22777.779 * Unit("mdegC"), 73 * Unit("degF"))
+    assert_allclose(22777.779 * Unit("mdegC"), 532.67 * Unit("R"))
+    assert_allclose(1 * Unit("mK"), -273149.0 * Unit("mdegC"))
+    assert_allclose(1 * Unit("mdegC"), 273151.0 * Unit("mK"))
 
 
 def test_delta_degC():

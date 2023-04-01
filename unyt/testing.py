@@ -8,6 +8,8 @@ import warnings
 
 from unyt.array import NULL_UNIT, allclose_units
 
+from ._deprecation import warn_deprecated
+
 
 def assert_allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
     """Raise an error if two objects are not equal up to desired tolerance
@@ -45,6 +47,12 @@ def assert_allclose_units(actual, desired, rtol=1e-7, atol=0, **kwargs):
     >>> desired = actual.to("cm")
     >>> assert_allclose_units(actual, desired)
     """
+    warn_deprecated(
+        "unyt.testing.assert_allclose_units",
+        replacement="use numpy.testing.assert_allclose",
+        since_version="3.0",
+    )
+
     if not allclose_units(actual, desired, rtol, atol, **kwargs):
         raise AssertionError
 
@@ -71,6 +79,7 @@ def assert_array_equal_units(x, y, **kwargs):
     :func:`numpy.testing.assert_array_equel`, see the documentation of that
     function for details.
     """
+    # TODO: remove this function (never released, no deprecation needed)
     # see https://github.com/yt-project/unyt/issues/281
     from numpy.testing import assert_array_equal
 

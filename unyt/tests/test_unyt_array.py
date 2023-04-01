@@ -23,6 +23,7 @@ import pytest
 import sympy
 from numpy import array
 from numpy.testing import (
+    assert_allclose,
     assert_almost_equal,
     assert_array_almost_equal,
     assert_array_equal,
@@ -60,7 +61,6 @@ from unyt.exceptions import (
 )
 from unyt.testing import (
     _process_warning,
-    assert_allclose_units,
     assert_array_equal_units,
 )
 from unyt.unit_registry import UnitRegistry
@@ -1623,23 +1623,23 @@ def test_equivalencies():
 
     mp = u.mp.copy()
     mp.convert_to_units("keV", "mass_energy")
-    assert_allclose_units(u.mp.in_units("keV", "mass_energy"), mp)
-    assert_allclose_units(mp, u.mp * u.clight * u.clight)
-    assert_allclose_units(u.mp, mp.in_units("g", "mass_energy"))
+    assert_allclose(u.mp.in_units("keV", "mass_energy"), mp)
+    assert_allclose(mp, u.mp * u.clight * u.clight)
+    assert_allclose(u.mp, mp.in_units("g", "mass_energy"))
     mp.convert_to_units("g", "mass_energy")
-    assert_allclose_units(u.mp, mp)
+    assert_allclose(u.mp, mp)
 
     # Thermal
 
     T = 1e8 * u.K
     E = T.in_units("W*hr", "thermal")
-    assert_allclose_units(E, (u.kboltz * T).in_units("W*hr"))
-    assert_allclose_units(T, E.in_units("K", "thermal"))
+    assert_allclose(E, (u.kboltz * T).in_units("W*hr"))
+    assert_allclose(T, E.in_units("K", "thermal"))
 
     T.convert_to_units("W*hr", "thermal")
-    assert_allclose_units(E, T)
+    assert_allclose(E, T)
     T.convert_to_units("K", "thermal")
-    assert_allclose_units(T, 1e8 * u.K)
+    assert_allclose(T, 1e8 * u.K)
 
     # Spectral
 
@@ -1647,9 +1647,9 @@ def test_equivalencies():
 
     lam = 4000 * u.angstrom
     nu = lam.in_units("Hz", "spectral")
-    assert_allclose_units(nu, u.clight / lam)
+    assert_allclose(nu, u.clight / lam)
     lam.convert_to_units("MHz", "spectral")
-    assert_allclose_units(lam, nu)
+    assert_allclose(lam, nu)
     assert lam.units == u.MHz.units
     assert nu.units == u.Hz.units
 
@@ -1657,9 +1657,9 @@ def test_equivalencies():
 
     lam = 4000 * u.angstrom
     hnu = lam.in_units("erg", "spectral")
-    assert_allclose_units(hnu, u.h_mks * u.clight / lam)
+    assert_allclose(hnu, u.h_mks * u.clight / lam)
     lam.convert_to_units("eV", "spectral")
-    assert_allclose_units(lam, hnu)
+    assert_allclose(lam, hnu)
     assert lam.units == u.eV.units
     assert hnu.units == u.erg.units
 
@@ -1667,9 +1667,9 @@ def test_equivalencies():
 
     lam = 4000 * u.angstrom
     nubar = lam.in_units("1/angstrom", "spectral")
-    assert_allclose_units(nubar, 1 / lam)
+    assert_allclose(nubar, 1 / lam)
     lam.convert_to_units("1/cm", "spectral")
-    assert_allclose_units(lam, nubar)
+    assert_allclose(lam, nubar)
     assert lam.units == (1 / u.cm).units
     assert nubar.units == (1 / u.angstrom).units
 
@@ -1677,9 +1677,9 @@ def test_equivalencies():
 
     nu = 1.0 * u.MHz
     lam = nu.to("km", "spectral")
-    assert_allclose_units(lam, u.clight / nu)
+    assert_allclose(lam, u.clight / nu)
     nu.convert_to_units("m", "spectral")
-    assert_allclose_units(lam, nu)
+    assert_allclose(lam, nu)
     assert lam.units == u.km.units
     assert nu.units == u.m.units
 
@@ -1687,9 +1687,9 @@ def test_equivalencies():
 
     nu = 1.0 * u.MHz
     nubar = nu.to("1/km", "spectral")
-    assert_allclose_units(nubar, nu / u.clight)
+    assert_allclose(nubar, nu / u.clight)
     nu.convert_to_units("1/m", "spectral")
-    assert_allclose_units(nubar, nu)
+    assert_allclose(nubar, nu)
     assert nubar.units == (1 / u.km).units
     assert nu.units == (1 / u.m).units
 
@@ -1697,9 +1697,9 @@ def test_equivalencies():
 
     nu = 1.0 * u.MHz
     E = nu.to("erg", "spectral")
-    assert_allclose_units(E, u.h_mks * nu)
+    assert_allclose(E, u.h_mks * nu)
     nu.convert_to_units("J", "spectral")
-    assert_allclose_units(nu, E)
+    assert_allclose(nu, E)
     assert nu.units == u.J.units
     assert E.units == u.erg.units
 
@@ -1707,9 +1707,9 @@ def test_equivalencies():
 
     E = 13.6 * u.eV
     nu = E.to("Hz", "spectral")
-    assert_allclose_units(nu, E / u.h_mks)
+    assert_allclose(nu, E / u.h_mks)
     E.convert_to_units("MHz", "spectral")
-    assert_allclose_units(nu, E)
+    assert_allclose(nu, E)
     assert E.units == u.MHz.units
     assert nu.units == u.Hz.units
 
@@ -1717,9 +1717,9 @@ def test_equivalencies():
 
     E = 13.6 * u.eV
     lam = E.to("nm", "spectral")
-    assert_allclose_units(lam, u.h_mks * u.clight / E)
+    assert_allclose(lam, u.h_mks * u.clight / E)
     E.convert_to_units("angstrom", "spectral")
-    assert_allclose_units(E, lam)
+    assert_allclose(E, lam)
     assert E.units == u.angstrom.units
     assert lam.units == u.nm.units
 
@@ -1727,9 +1727,9 @@ def test_equivalencies():
 
     E = 13.6 * u.eV
     nubar = E.to("1/nm", "spectral")
-    assert_allclose_units(nubar, E / (u.h_mks * u.clight))
+    assert_allclose(nubar, E / (u.h_mks * u.clight))
     E.convert_to_units("1/angstrom", "spectral")
-    assert_allclose_units(E, nubar)
+    assert_allclose(E, nubar)
     assert E.units == (1 / u.angstrom).units
     assert nubar.units == (1 / u.nm).units
 
@@ -1737,9 +1737,9 @@ def test_equivalencies():
 
     nubar = 1500.0 / u.cm
     nu = nubar.to("Hz", "spectral")
-    assert_allclose_units(nu, nubar * u.clight)
+    assert_allclose(nu, nubar * u.clight)
     nubar.convert_to_units("MHz", "spectral")
-    assert_allclose_units(nu, nubar)
+    assert_allclose(nu, nubar)
     assert nubar.units == u.MHz.units
     assert nu.units == u.Hz.units
 
@@ -1747,9 +1747,9 @@ def test_equivalencies():
 
     nubar = 1500.0 / u.cm
     lam = nubar.to("nm", "spectral")
-    assert_allclose_units(lam, 1 / nubar)
+    assert_allclose(lam, 1 / nubar)
     nubar.convert_to_units("angstrom", "spectral")
-    assert_allclose_units(nubar, lam)
+    assert_allclose(nubar, lam)
     assert nubar.units == u.angstrom.units
     assert lam.units == u.nm.units
 
@@ -1757,9 +1757,9 @@ def test_equivalencies():
 
     nubar = 1500.0 / u.cm
     E = nubar.to("erg", "spectral")
-    assert_allclose_units(E, u.h_mks * u.clight * nubar)
+    assert_allclose(E, u.h_mks * u.clight * nubar)
     nubar.convert_to_units("J", "spectral")
-    assert_allclose_units(nubar, E)
+    assert_allclose(nubar, E)
     assert nubar.units == u.J.units
     assert E.units == u.erg.units
 
@@ -1771,10 +1771,10 @@ def test_equivalencies():
     gg = 5.0 / 3.0
     T = 1e8 * u.K
     c_s = T.in_units("km/s", equivalence="sound_speed")
-    assert_allclose_units(c_s, np.sqrt(gg * u.kboltz * T / (mu * u.mh)))
-    assert_allclose_units(T, c_s.in_units("K", "sound_speed"))
+    assert_allclose(c_s, np.sqrt(gg * u.kboltz * T / (mu * u.mh)))
+    assert_allclose(T, c_s.in_units("K", "sound_speed"))
     T.convert_to_units("m/s", "sound_speed")
-    assert_allclose_units(c_s, T)
+    assert_allclose(c_s, T)
     assert T.units == u.m.units / u.s.units
     assert c_s.units == u.km.units / u.s.units
 
@@ -1782,10 +1782,10 @@ def test_equivalencies():
     gg = 4.0 / 3.0
     T = 1e8 * u.K
     c_s = T.in_units("km/s", "sound_speed", mu=mu, gamma=gg)
-    assert_allclose_units(c_s, np.sqrt(gg * u.kboltz * T / (mu * u.mh)))
-    assert_allclose_units(T, c_s.in_units("K", "sound_speed", mu=mu, gamma=gg))
+    assert_allclose(c_s, np.sqrt(gg * u.kboltz * T / (mu * u.mh)))
+    assert_allclose(T, c_s.in_units("K", "sound_speed", mu=mu, gamma=gg))
     T.convert_to_units("m/s", "sound_speed", mu=mu, gamma=gg)
-    assert_allclose_units(c_s, T)
+    assert_allclose(c_s, T)
     assert T.units == u.m.units / u.s.units
     assert c_s.units == u.km.units / u.s.units
 
@@ -1795,52 +1795,50 @@ def test_equivalencies():
     gg = 4.0 / 3.0
     T = 1e8 * u.K
     kT = T.in_units("eV", "sound_speed", mu=mu, gamma=gg)
-    assert_allclose_units(kT, u.kboltz * T)
+    assert_allclose(kT, u.kboltz * T)
     T.convert_to_units("erg", "sound_speed", mu=mu, gamma=gg)
-    assert_allclose_units(T, kT)
+    assert_allclose(T, kT)
     assert T.units == u.erg.units
     assert kT.units == u.eV.units
-    assert_allclose_units(T.in_units("K", "sound_speed", mu=mu, gamma=gg), 1e8 * u.K)
+    assert_allclose(T.in_units("K", "sound_speed", mu=mu, gamma=gg), 1e8 * u.K)
     kT.convert_to_units("K", "sound_speed", mu=mu, gamma=gg)
-    assert_allclose_units(kT, 1e8 * u.K)
+    assert_allclose(kT, 1e8 * u.K)
 
     # velocity <-> energy
 
     c_s = 300 * u.m / u.s
     kT = c_s.in_units("erg", "sound_speed", mu=mu, gamma=gg)
-    assert_allclose_units(kT, c_s**2 * mu * u.mh / gg)
+    assert_allclose(kT, c_s**2 * mu * u.mh / gg)
     c_s.convert_to_units("J", "sound_speed", mu=mu, gamma=gg)
-    assert_allclose_units(c_s, kT)
+    assert_allclose(c_s, kT)
     assert c_s.units == u.J.units
     assert kT.units == u.erg.units
-    assert_allclose_units(
-        kT.in_units("m/s", "sound_speed", mu=mu, gamma=gg), 300 * u.m / u.s
-    )
+    assert_allclose(kT.in_units("m/s", "sound_speed", mu=mu, gamma=gg), 300 * u.m / u.s)
     c_s.convert_to_units("m/s", "sound_speed", mu=mu, gamma=gg)
-    assert_allclose_units(c_s, 300 * u.m / u.s)
+    assert_allclose(c_s, 300 * u.m / u.s)
 
     # Lorentz
 
     v = 0.8 * u.clight
     g = v.in_units("dimensionless", "lorentz")
     g2 = unyt_quantity(1.0 / np.sqrt(1.0 - 0.8 * 0.8), "dimensionless")
-    assert_allclose_units(g, g2)
+    assert_allclose(g, g2)
     v.convert_to_units("", "lorentz")
-    assert_allclose_units(v, g2)
+    assert_allclose(v, g2)
     v.convert_to_units("c", "lorentz")
     v2 = g2.in_units("mile/hr", "lorentz")
-    assert_allclose_units(v2, v.in_units("mile/hr"))
+    assert_allclose(v2, v.in_units("mile/hr"))
 
     # Schwarzschild
 
     msun = 1.0 * u.unit_symbols.Msun
     msun.convert_to_equivalent("km", "schwarzschild")
     R = u.mass_sun_mks.in_units("kpc", "schwarzschild")
-    assert_allclose_units(msun, R)
-    assert_allclose_units(R.in_mks(), 2 * u.G * u.mass_sun_mks / (u.clight**2))
-    assert_allclose_units(u.mass_sun_mks, R.in_units("kg", "schwarzschild"))
+    assert_allclose(msun, R)
+    assert_allclose(R.in_mks(), 2 * u.G * u.mass_sun_mks / (u.clight**2))
+    assert_allclose(u.mass_sun_mks, R.in_units("kg", "schwarzschild"))
     R.convert_to_units("Msun", "schwarzschild")
-    assert_allclose_units(u.mass_sun_mks, R)
+    assert_allclose(u.mass_sun_mks, R)
     assert R.units == u.unit_symbols.Msun.units
     assert msun.units == u.km.units
 
@@ -1849,9 +1847,9 @@ def test_equivalencies():
     me = 1.0 * u.me
     me.convert_to_units("nm", "compton")
     length = u.me.in_units("angstrom", "compton")
-    assert_allclose_units(length, me)
-    assert_allclose_units(length, u.h_mks / (u.me * u.clight))
-    assert_allclose_units(u.me, length.in_units("g", "compton"))
+    assert_allclose(length, me)
+    assert_allclose(length, u.h_mks / (u.me * u.clight))
+    assert_allclose(u.me, length.in_units("g", "compton"))
     assert me.units == u.nm.units
     assert length.units == u.angstrom.units
     me.convert_to_units("me", "compton")
@@ -1861,38 +1859,36 @@ def test_equivalencies():
 
     rho = u.mp / u.m**3
     n = rho.in_units("m**-3", "number_density")
-    assert_allclose_units(n, rho / (u.mh * 0.6))
-    assert_allclose_units(rho, n.in_units("kg/m**3", "number_density"))
+    assert_allclose(n, rho / (u.mh * 0.6))
+    assert_allclose(rho, n.in_units("kg/m**3", "number_density"))
     rho.convert_to_units("cm**-3", "number_density")
     assert rho.units == (1 / u.cm**3).units
     assert n.units == (1 / u.m**3).units
-    assert_allclose_units(n, rho)
+    assert_allclose(n, rho)
     rho.convert_to_units("kg/m**3", "number_density")
-    assert_allclose_units(u.mp / u.m**3, rho)
+    assert_allclose(u.mp / u.m**3, rho)
     assert rho.units == (u.kg / u.m**3).units
 
     rho = u.mp / u.m**3
     n = rho.in_units("m**-3", equivalence="number_density", mu=0.75)
-    assert_allclose_units(n, rho / (u.mh * 0.75))
-    assert_allclose_units(
-        rho, n.in_units("kg/m**3", equivalence="number_density", mu=0.75)
-    )
+    assert_allclose(n, rho / (u.mh * 0.75))
+    assert_allclose(rho, n.in_units("kg/m**3", equivalence="number_density", mu=0.75))
     rho.convert_to_units("cm**-3", "number_density", mu=0.75)
     assert rho.units == (1 / u.cm**3).units
     assert n.units == (1 / u.m**3).units
-    assert_allclose_units(n, rho)
+    assert_allclose(n, rho)
     rho.convert_to_units("kg/m**3", "number_density", mu=0.75)
-    assert_allclose_units(u.mp / u.m**3, rho)
+    assert_allclose(u.mp / u.m**3, rho)
     assert rho.units == (u.kg / u.m**3).units
 
     # Effective temperature
 
     T = 1e4 * u.K
     F = T.in_units("W/m**2", equivalence="effective_temperature")
-    assert_allclose_units(F, u.stefan_boltzmann_constant * T**4)
-    assert_allclose_units(T, F.in_units("K", equivalence="effective_temperature"))
+    assert_allclose(F, u.stefan_boltzmann_constant * T**4)
+    assert_allclose(T, F.in_units("K", equivalence="effective_temperature"))
     T.convert_to_units("erg/s/cm**2", "effective_temperature")
-    assert_allclose_units(T, F)
+    assert_allclose(T, F)
     assert T.units == u.Unit("erg/cm**2/s")
     assert F.units == u.W / u.m**2
     assert_almost_equal(T.in_units("K", "effective_temperature").value, 1e4)
@@ -1902,10 +1898,8 @@ def test_equivalencies():
 
     # to_value test
 
-    assert_allclose_units(
-        F.value, T.to_value("W/m**2", equivalence="effective_temperature")
-    )
-    assert_allclose_units(
+    assert_allclose(F.value, T.to_value("W/m**2", equivalence="effective_temperature"))
+    assert_allclose(
         n.value, rho.to_value("m**-3", equivalence="number_density", mu=0.75)
     )
 
@@ -2521,15 +2515,15 @@ def test_delta_degF():
 
 
 def test_mil():
-    assert_allclose_units(unyt_quantity(1, "mil"), unyt_quantity(0.001, "inch"))
+    assert_allclose(unyt_quantity(1, "mil"), unyt_quantity(0.001, "inch"))
 
 
 def test_kip():
-    assert_allclose_units(unyt_quantity(1, "lbf"), unyt_quantity(0.001, "kip"))
+    assert_allclose(unyt_quantity(1, "lbf"), unyt_quantity(0.001, "kip"))
 
 
 def test_ksi():
-    assert_allclose_units(unyt_quantity(1, "lbf/inch**2"), unyt_quantity(0.001, "ksi"))
+    assert_allclose(unyt_quantity(1, "lbf/inch**2"), unyt_quantity(0.001, "ksi"))
 
 
 def test_masked_array():
@@ -2564,30 +2558,28 @@ def test_complexvalued(tmp_path):
     assert np.all(arr.v == np.asarray([-1j, -1j * 0.1]))
     arr = unyt_array([1j, 1j * 10], "mJ")
     arr.convert_to_base()
-    assert_allclose_units(arr, unyt_array([1j * 0.001, 1j * 0.01], "J"))
+    assert_allclose(arr, unyt_array([1j * 0.001, 1j * 0.01], "J"))
     arr.convert_to_units("mJ")
-    assert_allclose_units(arr, unyt_array([1j, 1j * 10], "mJ"))
+    assert_allclose(arr, unyt_array([1j, 1j * 10], "mJ"))
     arr.convert_to_mks()
-    assert_allclose_units(arr, unyt_array([1j * 0.001, 1j * 0.01], "J"))
+    assert_allclose(arr, unyt_array([1j * 0.001, 1j * 0.01], "J"))
     arr.convert_to_cgs()
-    assert_allclose_units(arr, unyt_array([1j * 10000, 1j * 100000], "erg"))
+    assert_allclose(arr, unyt_array([1j * 10000, 1j * 100000], "erg"))
     arr.convert_to_equivalent("K", "thermal")
-    assert_allclose_units(
-        arr, unyt_array([1j * 7.24297157e19, 1j * 7.24297157e20], "K")
-    )
+    assert_allclose(arr, unyt_array([1j * 7.24297157e19, 1j * 7.24297157e20], "K"))
     arr = arr.to_equivalent("J", "thermal")
-    assert_allclose_units(arr, unyt_array([1j * 0.001, 1j * 0.01], "J"))
-    assert_allclose_units(arr.to_ndarray(), np.asarray([1j * 0.001, 1j * 0.01]))
-    assert_allclose_units(arr.to_value(), np.asarray([1j * 0.001, 1j * 0.01]))
+    assert_allclose(arr, unyt_array([1j * 0.001, 1j * 0.01], "J"))
+    assert_allclose(arr.to_ndarray(), np.asarray([1j * 0.001, 1j * 0.01]))
+    assert_allclose(arr.to_value(), np.asarray([1j * 0.001, 1j * 0.01]))
     assert arr.tolist() == [1j * 0.001, 1j * 0.01]
-    assert_allclose_units(arr.in_units("mJ"), unyt_array([1j, 1j * 10], "mJ"))
-    assert_allclose_units(arr.in_base(), unyt_array([1j * 0.001, 1j * 0.01], "J"))
-    assert_allclose_units(arr.in_cgs(), unyt_array([1j * 10000, 1j * 100000], "erg"))
-    assert_allclose_units(arr.in_mks(), unyt_array([1j * 0.001, 1j * 0.01], "J"))
+    assert_allclose(arr.in_units("mJ"), unyt_array([1j, 1j * 10], "mJ"))
+    assert_allclose(arr.in_base(), unyt_array([1j * 0.001, 1j * 0.01], "J"))
+    assert_allclose(arr.in_cgs(), unyt_array([1j * 10000, 1j * 100000], "erg"))
+    assert_allclose(arr.in_mks(), unyt_array([1j * 0.001, 1j * 0.01], "J"))
     fname = tmp_path / "testcomplexvalued.txt"
     savetxt(fname, arr)
     farr = loadtxt(fname, dtype=np.complex128)
-    assert_allclose_units(farr, unyt_array([1j * 0.001, 1j * 0.01], "J"))
+    assert_allclose(farr, unyt_array([1j * 0.001, 1j * 0.01], "J"))
 
 
 def test_string_formatting():
