@@ -152,7 +152,7 @@ These enable testing the docstrings and doctest examples scattered throughout
 the unyt and its documentation.
 
 You will need to install ``pytest`` and ``pytest-doctestplus`` to run this
-command. Some tests depend on ``h5py``, ``Pint``, ``astropy`` and ``matplotlib``
+command. Some tests depend on ``h5py``, ``Pint``, ``astropy``, ``matplotlib`` and ``dask``
 being installed.
 
 If you would like to run the tests on multiple python versions, first ensure
