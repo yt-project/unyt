@@ -1,10 +1,8 @@
 # tests for NumPy __array_function__ support
 import re
-from importlib.metadata import version
 
 import numpy as np
 import pytest
-from packaging.version import Version
 
 from unyt import A, K, cm, degC, degF, delta_degC, g, km, rad, s
 from unyt._array_functions import (
@@ -20,7 +18,6 @@ from unyt.exceptions import (
 )
 from unyt.testing import assert_array_equal_units
 
-NUMPY_VERSION = Version(version("numpy"))
 # this is a subset of NOT_HANDLED_FUNCTIONS for which there's nothing to do
 # because they don't apply to (real) numeric types
 # or they work as expected out of the box
@@ -862,9 +859,6 @@ def test_copy():
     assert type(y) is np.ndarray
 
 
-@pytest.mark.skipif(
-    NUMPY_VERSION < Version("1.19"), reason="np.copy's subok arg requires numpy 1.19+"
-)
 def test_copy_subok():
     x = [1, 2, 3] * cm
     y = np.copy(x, subok=True)
@@ -1587,13 +1581,6 @@ def test_triangles(func):
     assert res.units == cm
 
 
-@pytest.mark.skipif(
-    NUMPY_VERSION < Version("1.19"),
-    reason=(
-        "einsum raises a spurious TypeError with out=None and optimize=False "
-        "(which are default values)"
-    ),
-)
 def test_einsum():
     a = np.eye(4) * cm
 
