@@ -480,24 +480,17 @@ class Unit:
 
     def __eq__(self, u):
         """Test unit equality."""
-        if not isinstance(u, Unit):
-            return False
         return (
-            math.isclose(self.base_value, u.base_value)
-            and self.dimensions == u.dimensions
+            isinstance(u, Unit)
+            and math.isclose(self.base_value, u.base_value)
+            and math.isclose(self.base_offset, u.base_offset)
+            and (
+                # use 'is' comparison dimensions to avoid expensive sympy operation
+                self.dimensions is u.dimensions
+                # fall back to expensive sympy comparison
+                or self.dimensions == u.dimensions
+            )
         )
-
-    def __ne__(self, u):
-        """Test unit inequality."""
-        if not isinstance(u, Unit):
-            return True
-        if not math.isclose(self.base_value, u.base_value):
-            return True
-        # use 'is' comparison dimensions to avoid expensive sympy operation
-        if self.dimensions is u.dimensions:
-            return False
-        # fall back to expensive sympy comparison
-        return self.dimensions != u.dimensions
 
     def copy(self, *, deep=False):
         expr = str(self.expr)
