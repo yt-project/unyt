@@ -504,14 +504,24 @@ def test_base_equivalent():
     assert u.get_base_equivalent(unit_system="mks") == Unit("A")
 
 
-def test_temperature_offsets():
-    u1 = Unit("degC")
-    u2 = Unit("degF")
-
+@pytest.mark.parametrize(
+    ("u1", "u2"),
+    [
+        (Unit("degC"), Unit("degF")),
+        (Unit("degC"), Unit("K")),
+        (Unit("degF"), Unit("K")),
+    ],
+)
+def test_temperature_offsets(u1, u2):
     with pytest.raises(InvalidUnitOperation):
         operator.mul(u1, u2)
     with pytest.raises(InvalidUnitOperation):
         operator.truediv(u1, u2)
+
+    assert u1 != u2
+    assert u2 != u1
+    assert not u1 == u2
+    assert not u2 == u1
 
 
 def test_latex_repr():
