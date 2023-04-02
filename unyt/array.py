@@ -405,11 +405,11 @@ class unyt_array(np.ndarray):
 
     input_array : iterable
         A tuple, list, or array to attach units to
-    input_units : String unit name, unit symbol object, or astropy unit
+    units : String unit name, unit symbol object, or astropy unit
         The units of the array. Powers must be specified using python
         syntax (cm**3, not cm^3).
     registry : :class:`unyt.unit_registry.UnitRegistry`
-        The registry to create units from. If input_units is already associated
+        The registry to create units from. If units is already associated
         with a unit registry and this is specified, this will be used instead
         of the registry associated with the unit object.
     dtype : numpy dtype or dtype name
@@ -419,7 +419,7 @@ class unyt_array(np.ndarray):
         If True, all input validation is skipped. Using this option may produce
         corrupted, invalid units or array data, but can lead to significant
         speedups in the input validation logic adds significant overhead. If
-        set, input_units *must* be a valid unit object. Defaults to False.
+        set, units *must* be a valid unit object. Defaults to False.
     name : string
         The name of the array. Defaults to None. This attribute does not propagate
         through mathematical operations, but is preserved under indexing
@@ -549,19 +549,11 @@ class unyt_array(np.ndarray):
         units=None,
         registry=None,
         dtype=None,
+        *,
         bypass_validation=False,
-        input_units=None,
         name=None,
     ):
-        # deprecate input_units in favor of units
-        if input_units is not None:
-            warnings.warn(
-                "input_units has been deprecated, please use units instead",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        if units is not None:
-            input_units = units
+        input_units = units
         if bypass_validation is True:
             if dtype is None:
                 dtype = input_array.dtype
@@ -2130,16 +2122,20 @@ class unyt_quantity(unyt_array):
 
     input_scalar : an integer or floating point scalar
         The scalar to attach units to
-    input_units : String unit specification, unit symbol object, or astropy
-                  units
+    units : String unit specification, unit symbol object, or astropy units
         The units of the quantity. Powers must be specified using python syntax
         (cm**3, not cm^3).
     registry : A UnitRegistry object
-        The registry to create units from. If input_units is already associated
+        The registry to create units from. If units is already associated
         with a unit registry and this is specified, this will be used instead
         of the registry associated with the unit object.
     dtype : data-type
         The dtype of the array data.
+    bypass_validation : boolean
+        If True, all input validation is skipped. Using this option may produce
+        corrupted, invalid units or array data, but can lead to significant
+        speedups in the input validation logic adds significant overhead. If
+        set, units *must* be a valid unit object. Defaults to False.
     name : string
         The name of the scalar. Defaults to None. This attribute does not propagate
         through mathematical operations, but is preserved under indexing
@@ -2176,18 +2172,11 @@ class unyt_quantity(unyt_array):
         units=None,
         registry=None,
         dtype=None,
+        *,
         bypass_validation=False,
-        input_units=None,
         name=None,
     ):
-        if input_units is not None:
-            warnings.warn(
-                "input_units has been deprecated, please use units instead",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        if units is not None:
-            input_units = units
+        input_units = units
         if not (
             bypass_validation
             or isinstance(input_scalar, (numeric_type, np.number, np.ndarray))
