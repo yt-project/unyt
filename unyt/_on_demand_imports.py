@@ -98,7 +98,7 @@ class astropy_imports(OnDemand):
     def units(self):
         from astropy import units
 
-        self.log
+        self.log  # noqa: B018
         return units
 
     @safe_import
