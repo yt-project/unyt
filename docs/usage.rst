@@ -363,9 +363,9 @@ Performing arithmetic with temperature quantities can be ambiguous. To clarify i
   >>> t1 = 23*degC
   >>> t2 = 1*delta_degC
   >>> print(t1 + t2)
-  24 °C
+  24.0 °C
   >>> print(t2 - t1)
-  -22 °C
+  -22.0 °C
   >>> tempco = 10.0*V/delta_degC
   >>> print(tempco*2*delta_degC)
   20.0 V
