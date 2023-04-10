@@ -4,7 +4,7 @@ import re
 import numpy as np
 import pytest
 
-from unyt import A, K, cm, delta_degC, g, km, rad, s
+from unyt import A, K, cm, degC, delta_degC, g, km, rad, s
 from unyt._array_functions import (
     _HANDLED_FUNCTIONS as HANDLED_FUNCTIONS,
     _UNSUPPORTED_FUNCTIONS as UNSUPPORTED_FUNCTIONS,
@@ -798,6 +798,7 @@ def test_allclose():
     [
         ([1, 2, 3] * cm, [1, 2, 3] * km, [False] * 3),
         ([1, 2, 3] * cm, [1, 2, 3], [True] * 3),
+        ([1, 2, 3] * K, [-272.15, -271.15, -270.15] * degC, [True] * 3),
     ],
 )
 def test_isclose(a, b, expected):
