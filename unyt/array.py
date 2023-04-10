@@ -127,6 +127,7 @@ from unyt.unit_registry import (
     _sanitize_unit_system,
     default_unit_registry,
 )
+from unyt.unit_symbols import delta_degC, delta_degF
 
 from ._deprecation import warn_deprecated
 
@@ -192,6 +193,42 @@ def _preserve_units(unit1, unit2=None):
     if unit1.base_offset == 0.0 and unit2.base_offset != 0.0:
         return 1, unit2
     return 1, unit1
+
+
+@lru_cache(maxsize=128, typed=False)
+def _difference_units(unit1, unit2=None):
+    if unit1.dimensions is not temperature:
+        return _preserve_units(unit1, unit2)
+
+    s1 = repr(unit1)
+    if unit2 is not None and unit2 != unit1:
+        s2 = repr(unit2)
+        if s1 in s2 and s2.startswith("delta_"):
+            return 1, unit1
+        elif s2 in s1 and s1.startswith("delta_"):
+            return 1, unit2
+        else:
+            raise InvalidUnitOperation(
+                "Quantities with units of Fahrenheit or Celsius "
+                "cannot be multiplied, divided, subtracted or "
+                "added with data that has different units."
+            )
+
+    if unit1.base_offset == 0.0:
+        return 1, unit1
+
+    if s1 == "degF":
+        return 1, delta_degF
+    elif s1 == "degC":
+        return 1, delta_degC
+    else:
+        # This is supposed to be unreachable
+        raise RuntimeError(
+            "Could not determine difference temperature units "
+            f"in operation ({unit1} - {unit2}).\n"
+            "If you see this error please file an issue at "
+            "https://github.com/yt-project/unyt/issues/new"
+        )
 
 
 @lru_cache(maxsize=128, typed=False)
@@ -444,7 +481,7 @@ class unyt_array(np.ndarray):
 
     _ufunc_registry = {
         add: _preserve_units,
-        subtract: _preserve_units,
+        subtract: _difference_units,
         multiply: _multiply_units,
         divide: _divide_units,
         logaddexp: _return_without_unit,
@@ -1834,7 +1871,12 @@ class unyt_array(np.ndarray):
             ):
                 raise UnitOperationError(ufunc, u0, u1)
 
-            if unit_operator in (_preserve_units, _comparison_unit, _arctan2_unit):
+            if unit_operator in (
+                _preserve_units,
+                _comparison_unit,
+                _arctan2_unit,
+                _difference_units,
+            ):
                 # check "is" equality first for speed
                 if u0 is not u1 and u0 != u1:
                     # we allow adding, multiplying, comparisons with
