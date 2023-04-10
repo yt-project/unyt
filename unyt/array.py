@@ -1884,7 +1884,11 @@ class unyt_array(np.ndarray):
                     conv, offset = u1.get_conversion_factor(u0, inp1.dtype)
                     new_dtype = np.dtype("f" + str(inp1.dtype.itemsize))
                     conv = new_dtype.type(conv)
-                    if offset is not None:
+                    if (
+                        offset is not None
+                        and u1.base_offset != 0.0
+                        and not repr(u0).startswith("delta_")
+                    ):
                         raise InvalidUnitOperation(
                             "Quantities with units of Fahrenheit or Celsius "
                             "cannot by multiplied, divided, subtracted or "
