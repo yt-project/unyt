@@ -2471,11 +2471,8 @@ def test_delta_degC():
     t1 = 10 * degC
     t2 = 1 * K
     assert t1 + t2 == 11 * degC
-    # In the current implementation 1*K + 10*degC = 11*K
-    # In the future, this will generate UnitOperationError
-    with pytest.warns(FutureWarning):
+    with pytest.raises(UnitOperationError):
         t2 + t1
-    assert t2 + t1 == 11 * K
     t3 = 1 * delta_degC
     assert t1 + t3 == 11 * degC
     assert t3 + t1 == 11 * degC
@@ -2487,11 +2484,8 @@ def test_delta_degF():
     t1 = 10 * degF
     t2 = 1 * R
     assert t1 + t2 == 11 * degF
-    # In the current implementation 1*R + 10*degF = 11*R
-    # In the future, this will generate UnitOperationError
-    with pytest.warns(FutureWarning):
+    with pytest.raises(UnitOperationError):
         t2 + t1
-    assert t2 + t1 == 11 * R
     t3 = 1 * delta_degF
     assert t1 + t3 == 11 * degF
     assert t3 + t1 == 11 * degF

@@ -185,21 +185,11 @@ def _multiply_units(unit1, unit2):
     return ret.as_coeff_unit()
 
 
-TEMPERATURE_WARNING = """
-    Ambiguous operation with heterogeneous temperature units.
-    In the future, such operations will generate UnitOperationError.
-    Use delta_degC or delta_degF to avoid the ambiguity.
-"""
-
-
 @lru_cache(maxsize=128, typed=False)
 def _preserve_units(unit1, unit2=None):
     if unit2 is None or unit1.dimensions is not temperature:
         return 1, unit1
     if unit1.base_offset == 0.0 and unit2.base_offset != 0.0:
-        if str(unit1.expr) in ["K", "R"]:
-            warnings.warn(TEMPERATURE_WARNING, FutureWarning, stacklevel=3)
-            return 1, unit1
         return 1, unit2
     return 1, unit1
 
@@ -1833,6 +1823,17 @@ class unyt_array(np.ndarray):
                 else:
                     u1 = 1.0
             unit_operator = self._ufunc_registry[ufunc]
+
+            if (
+                unit_operator is _preserve_units
+                and u0.dimensions is temperature
+                and u1 is not None
+                and u1.base_offset != 0.0
+                and u0.base_offset == 0.0
+                and str(u0.expr) in ["K", "R"]
+            ):
+                raise UnitOperationError(ufunc, u0, u1)
+
             if unit_operator in (_preserve_units, _comparison_unit, _arctan2_unit):
                 # check "is" equality first for speed
                 if u0 is not u1 and u0 != u1:
