@@ -706,7 +706,7 @@ def diff_helper(func, arr, *args, **kwargs):
         if u.base_offset:
             raise InvalidUnitOperation(
                 "Quantities with units of Fahrenheit or Celsius "
-                "cannot by multiplied, divided, subtracted or added."
+                "cannot be multiplied, divided, subtracted or added."
             )
         ret_units = delta_degC
     else:

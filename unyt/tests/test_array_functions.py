@@ -1260,7 +1260,7 @@ def test_invalid_deltas(func, input_units):
         InvalidUnitOperation,
         match=re.escape(
             "Quantities with units of Fahrenheit or Celsius "
-            "cannot by multiplied, divided, subtracted or added."
+            "cannot be multiplied, divided, subtracted or added."
         ),
     ):
         func(x)

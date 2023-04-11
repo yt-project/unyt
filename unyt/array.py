@@ -1891,7 +1891,7 @@ class unyt_array(np.ndarray):
                     ):
                         raise InvalidUnitOperation(
                             "Quantities with units of Fahrenheit or Celsius "
-                            "cannot by multiplied, divided, subtracted or "
+                            "cannot be multiplied, divided, subtracted or "
                             "added with data that has different units."
                         )
                     inp1 = np.asarray(inp1, dtype=new_dtype) * conv
@@ -1917,7 +1917,7 @@ class unyt_array(np.ndarray):
                 ):
                     raise InvalidUnitOperation(
                         "Quantities with units of Fahrenheit or Celsius "
-                        "cannot by multiplied, divided, subtracted or added."
+                        "cannot be multiplied, divided, subtracted or added."
                     )
         else:
             if ufunc is clip:
