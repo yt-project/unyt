@@ -8,7 +8,6 @@ from unyt.array import NULL_UNIT, unyt_array, unyt_quantity
 from unyt.dimensions import temperature
 from unyt.exceptions import (
     InvalidUnitOperation,
-    UnitConversionError,
     UnitInconsistencyError,
     UnytError,
 )
@@ -469,10 +468,7 @@ def _array_comp_helper(a, b):
     au = getattr(a, "units", NULL_UNIT)
     bu = getattr(b, "units", NULL_UNIT)
     if bu != au and au != NULL_UNIT and bu != NULL_UNIT:
-        if (bu / au).is_dimensionless:
-            b = np.array(b) * (1 * bu).to(au)
-        else:
-            raise UnitConversionError(au, au.dimensions, bu, bu.dimensions)
+        b = b.in_units(au)
     elif bu == NULL_UNIT:
         b = np.array(b) * au
     elif au == NULL_UNIT:
