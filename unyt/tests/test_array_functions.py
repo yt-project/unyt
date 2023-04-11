@@ -806,7 +806,7 @@ def test_isclose(a, b, expected):
     np.testing.assert_array_equal(res, expected)
 
 
-def test_iclose_error():
+def test_isclose_error():
     x = [1, 2, 3] * cm
     y = [1, 2, 3] * g
     with pytest.raises(UnitConversionError):
