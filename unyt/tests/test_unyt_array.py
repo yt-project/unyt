@@ -2493,6 +2493,26 @@ def test_delta_degF():
     assert 2 * delta_degF == unyt_quantity(2, "delta_degF")
 
 
+@pytest.mark.parametrize(
+    ("u0", "u1", "uout"),
+    [
+        (K, K, K),
+        (R, R, R),
+        (degC, degC, delta_degC),
+        (degF, degF, delta_degF),
+        (degC, delta_degC, degC),
+        (delta_degC, degC, degC),
+        (degF, delta_degF, degF),
+        (delta_degF, degF, degF),
+    ],
+)
+def test_delta_temperature_diff(u0, u1, uout):
+    # using repr comparison because
+    # 1) we don't care that Unit instances might not be the same
+    # 2) some temperature units will compare as equal even when they are not identical (e.g. K and delta_degC)
+    assert repr((2 * u0 - 1 * u1).units) == repr(uout)
+
+
 def test_mil():
     assert_allclose_units(unyt_quantity(1, "mil"), unyt_quantity(0.001, "inch"))
 

@@ -4,14 +4,13 @@ import re
 import numpy as np
 import pytest
 
-from unyt import A, K, cm, degC, degF, delta_degC, g, km, rad, s
+from unyt import A, K, cm, delta_degC, g, km, rad, s
 from unyt._array_functions import (
     _HANDLED_FUNCTIONS as HANDLED_FUNCTIONS,
     _UNSUPPORTED_FUNCTIONS as UNSUPPORTED_FUNCTIONS,
 )
 from unyt.array import unyt_array, unyt_quantity
 from unyt.exceptions import (
-    InvalidUnitOperation,
     UnitConversionError,
     UnitInconsistencyError,
     UnytError,
@@ -1242,28 +1241,6 @@ def test_deltas(func, input_units, output_units):
     res = func(x)
     assert isinstance(res, unyt_array)
     assert res.units == output_units
-
-
-@pytest.mark.parametrize(
-    "func",
-    [
-        np.diff,
-        np.ediff1d,
-        np.gradient,
-        np.ptp,
-    ],
-)
-@pytest.mark.parametrize("input_units", [degC, degF])
-def test_invalid_deltas(func, input_units):
-    x = np.arange(0, 4) * input_units
-    with pytest.raises(
-        InvalidUnitOperation,
-        match=re.escape(
-            "Quantities with units of Fahrenheit or Celsius "
-            "cannot be multiplied, divided, subtracted or added."
-        ),
-    ):
-        func(x)
 
 
 @pytest.mark.parametrize(
