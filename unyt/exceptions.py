@@ -33,7 +33,7 @@ class UnitOperationError(ValueError):
         self.operation = operation
         self.unit1 = unit1
         self.unit2 = unit2
-        ValueError.__init__(self)
+        super().__init__()
 
     def __str__(self):
         err = (
@@ -47,7 +47,7 @@ class UnitOperationError(ValueError):
 
 
 class UnitInconsistencyError(UnitOperationError):
-    """An error raised for non-allower numpy calls on arrays with different units.
+    """An error raised on forbidden numpy API expecting arrays with identical units.
 
     Example
     -------
@@ -92,7 +92,7 @@ class UnitConversionError(Exception):
         self.unit2 = unit2
         self.dimension1 = dimension1
         self.dimension2 = dimension2
-        Exception.__init__(self)
+        super().__init__()
 
     def __str__(self):
         err = (
@@ -127,6 +127,7 @@ class MissingMKSCurrent(Exception):
 
     def __init__(self, unit_system_name):
         self.unit_system_name = unit_system_name
+        super().__init__()
 
     def __str__(self):
         err = (
@@ -167,7 +168,7 @@ class UnitsNotReducible(Exception):
     def __init__(self, unit, units_base):
         self.unit = unit
         self.units_base = units_base
-        Exception.__init__(self)
+        super().__init__()
 
     def __str__(self):
         err = (
@@ -198,6 +199,7 @@ class IterableUnitCoercionError(Exception):
 
     def __init__(self, op):
         self.op = op
+        super().__init__()
 
     def __str__(self):
         err = (
@@ -227,6 +229,7 @@ class InvalidUnitEquivalence(Exception):
         self.equiv = equiv
         self.unit1 = unit1
         self.unit2 = unit2
+        super().__init__()
 
     def __str__(self):
         from unyt.unit_object import Unit
@@ -319,6 +322,7 @@ class IllDefinedUnitSystem(Exception):
 
     def __init__(self, units_map):
         self.units_map = units_map
+        super().__init__()
 
     def __str__(self):
         return (
