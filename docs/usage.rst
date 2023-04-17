@@ -1303,7 +1303,7 @@ It is possible to catch any exceptions from unyt as
   ... except UnytError:
   ...     pass
 
-However, it is in general advised to only catch specifi exceptions types that
+However, it is in general advised to only catch specific exceptions types that
 are known-possible outcomes. All custom exceptions types live in the
 :mod:`unyt.exceptions` module and may be imported from there.
 
