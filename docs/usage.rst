@@ -1286,6 +1286,28 @@ As for HDF5 data, the unit registry associated with the unit object is saved to
 the pickle. If you have custom units defined, the reloaded data will know about
 your custom unit and be able to convert data to and from the custom unit.
 
+Handling errors from :mod:`unyt`
+--------------------------------
+
+:mod:`unyt` sometimes raises exceptions with unique exception types, e.g., to signal
+invalid operations, like summation of quantities with different dimensions.
+
+It is possible to catch any exceptions from unyt as
+
+  >>> from unyt import cm, s
+  >>> from unyt.exceptions import UnytError
+  >>> a = 1 * cm
+  >>> b = 1 / s
+  >>> try:
+  ...     a + b
+  ... except UnytError:
+  ...     pass
+
+However, it is in general advised to only catch specific exceptions types that
+are known-possible outcomes. All custom exceptions types live in the
+:mod:`unyt.exceptions` module and may be imported from there.
+
+
 Performance Considerations
 --------------------------
 

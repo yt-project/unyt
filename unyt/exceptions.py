@@ -7,13 +7,31 @@ Exception classes defined by unyt
 
 
 class UnytError(Exception):
-    # a generic exception type that just signals "this is coming from unyt"
-    # TBD: should this be named `UnitError` instead ?
-    # TBD: should all other custom excpetion inherit from it ?
+    """
+    A generic exception type that all unyt exceptions are derived from.
+    It may be raised directly in rare situations that do not fit any existing
+    exceptions and don't justify the creation of a new one.
+
+    Since it serves as a base class for all unyt exceptions, it may be used
+    as a catch-all exception type in dependent code. For instance
+
+    >>> from unyt import cm, s
+    >>> from unyt.exceptions import UnytError
+    >>> a = 1 * cm
+    >>> b = 1 / s
+    >>> try:
+    ...     a + b
+    ... except UnytError:
+    ...     pass
+
+    However, it is generally recommended to only capture exceptions as
+    specific as possible.
+    """
+
     pass
 
 
-class UnitOperationError(ValueError):
+class UnitOperationError(UnytError, ValueError):
     """An exception that is raised when unit operations are not allowed
 
     Example
@@ -72,7 +90,7 @@ class UnitInconsistencyError(UnitOperationError):
         )
 
 
-class UnitConversionError(Exception):
+class UnitConversionError(UnytError):
     """An error raised when converting to a unit with different dimensions.
 
     Example
@@ -102,7 +120,7 @@ class UnitConversionError(Exception):
         return err
 
 
-class MissingMKSCurrent(Exception):
+class MissingMKSCurrent(UnytError):
     """Raised when querying a unit system for MKS current dimensions
 
     Since current is a base dimension for SI or SI-like unit systems but not in
@@ -137,7 +155,7 @@ class MissingMKSCurrent(Exception):
         return err
 
 
-class MKSCGSConversionError(Exception):
+class MKSCGSConversionError(UnytError):
     """Raised when conversion between MKS and CGS units cannot be performed
 
     This error is raised and caught internally and will expose itself
@@ -148,7 +166,7 @@ class MKSCGSConversionError(Exception):
     pass
 
 
-class UnitsNotReducible(Exception):
+class UnitsNotReducible(UnytError):
     """Raised when a unit cannot be safely represented in a unit system
 
     Example
@@ -179,7 +197,7 @@ class UnitsNotReducible(Exception):
         return err
 
 
-class IterableUnitCoercionError(Exception):
+class IterableUnitCoercionError(UnytError):
     """Raised when an iterable cannot be converted to a unyt_array
 
     Example
@@ -209,7 +227,7 @@ class IterableUnitCoercionError(Exception):
         return err
 
 
-class InvalidUnitEquivalence(Exception):
+class InvalidUnitEquivalence(UnytError):
     """Raised an equivalence does not apply to a unit conversion
 
     Example
@@ -247,7 +265,7 @@ class InvalidUnitEquivalence(Exception):
         return msg % (self.equiv, self.unit1, self.unit2)
 
 
-class InvalidUnitOperation(Exception):
+class InvalidUnitOperation(UnytError):
     """Raised when an operation on a unit object is not allowed
 
     Example
@@ -264,7 +282,7 @@ class InvalidUnitOperation(Exception):
     pass
 
 
-class SymbolNotFoundError(Exception):
+class SymbolNotFoundError(UnytError):
     """Raised when a unit name is not available in a unit registry
 
     Example
@@ -282,7 +300,7 @@ class SymbolNotFoundError(Exception):
     pass
 
 
-class UnitParseError(Exception):
+class UnitParseError(UnytError):
     """Raised when a string unit name is not parseable as a valid unit
 
     Example
@@ -300,7 +318,7 @@ class UnitParseError(Exception):
     pass
 
 
-class IllDefinedUnitSystem(Exception):
+class IllDefinedUnitSystem(UnytError):
     """Raised when the dimensions of the base units of a unit system are
     inconsistent.
 
