@@ -191,7 +191,9 @@ class UnitsNotReducible(UnytError):
     def __str__(self):
         err = (
             'The unit "{}" (dimensions "{}") cannot be reduced to an '
-            "expression within the {} system of units.".format(self.unit, self.unit.dimensions, self.units_base)
+            "expression within the {} system of units.".format(
+                self.unit, self.unit.dimensions, self.units_base
+            )
         )
         return err
 
