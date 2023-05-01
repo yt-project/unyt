@@ -189,13 +189,10 @@ class UnitsNotReducible(UnytError):
         super().__init__()
 
     def __str__(self):
-        err = (
-            'The unit "{}" (dimensions "{}") cannot be reduced to an '
-            "expression within the {} system of units.".format(
-                self.unit, self.unit.dimensions, self.units_base
-            )
+        return (
+            f"The unit '{self.unit}' (dimensions '{self.unit.dimensions}') cannot be "
+            f"reduced to an expression within the {self.units_base} system of units."
         )
-        return err
 
 
 class IterableUnitCoercionError(UnytError):
