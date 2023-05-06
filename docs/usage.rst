@@ -701,7 +701,7 @@ equivalence to be specified: :meth:`unyt_array.to_equivalent
 <unyt.array.unyt_array.to_equivalent>` and
 :meth:`unyt_array.convert_to_equivalent
 <unyt.array.unyt_array.convert_to_equivalent>`. These are identical to their
-counterparts described above, except they equivalence is a required positional
+counterparts described above, except that equivalence is a required positional
 argument to the function rather than an optional keyword argument. Use these
 functions when you want to emphasize that an equivalence is being used.
 
