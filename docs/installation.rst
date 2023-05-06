@@ -51,7 +51,7 @@ Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl  -OL https://github.com/yt-project/unyt/tarball/master
+    $ curl -OL https://github.com/yt-project/unyt/tarball/master
 
 Once you have a copy of the source, you can install it by navigating to the root of the installation and issuing the following command:
 
