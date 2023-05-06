@@ -12,7 +12,7 @@ To use unyt in a project::
 The top-level :mod:`unyt` namespace defines both a number of useful functions as
 well as a number of units and physical constants populated from the
 :mod:`unyt.unit_symbols` and :mod:`unyt.physical_constants` namespaces you can
-use to attach units to NumPy arrays and other common python data container types
+use to attach units to NumPy arrays and other common Python data container types
 like ``list`` and ``tuple``. For an exhaustive listing of units and physical
 constants defined in :mod:`unyt`, see :ref:`unit-listing`.
 
@@ -68,7 +68,7 @@ in the example::
   >>> semimajor_axis
   unyt_array([0.002819  , 0.0044856 , 0.00715526, 0.01258513], 'AU')
 
-By multiplying by ``km``, we converted the python list into a
+By multiplying by ``km``, we converted the Python list into a
 :class:`unyt.unyt_array <unyt.array.unyt_array>` instance. This is a class
 that's built into :mod:`unyt`, has units attached to it, and knows how to
 convert itself into different dimensionally equivalent units::
@@ -197,7 +197,7 @@ the :class:`unyt.unyt_array <unyt.array.unyt_array>` class to quickly apply unit
 Powers, Logarithms, Exponentials, and Trigonometric Functions
 -------------------------------------------------------------
 
-The :mod:`unyt` library represents powers using standard python syntax. This
+The :mod:`unyt` library represents powers using standard Python syntax. This
 means you must use ``**`` and not ``^``, even when writing a unit as a string:
 
   >>> from unyt import kg, m
@@ -976,7 +976,7 @@ Integrating :mod:`unyt` Into a Python Library
 
 The :mod:`unyt` library began life as the unit system for the ``yt`` data
 analysis and visualization package, in the form of ``yt.units``. In this role,
-:mod:`unyt` was deeply integrated into a larger python library. Due to these
+:mod:`unyt` was deeply integrated into a larger Python library. Due to these
 origins, it is straightforward to build applications that ensure unit
 consistency by making use of :mod:`unyt`. Below we discuss a few topics that
 most often come up when integrating :mod:`unyt` into a new or existing Python
