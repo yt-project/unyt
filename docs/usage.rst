@@ -35,7 +35,7 @@ and plugging in conversion factors by hand), it's much easier to do this sort of
 thing symbolically and let :mod:`unyt` handle the unit conversions.
 
 To do this we'll need to know the mass of Jupiter (fortunately that is built
-into :mod:`unyt`) and the semimajor axis of the orbits of Jupiter's moons, which
+into :mod:`unyt`) and the semi-major axis of the orbits of Jupiter's moons, which
 we can look up from `Wikipedia
 <https://en.wikipedia.org/wiki/Moons_of_Jupiter#List>`_ and enter by hand::
 
