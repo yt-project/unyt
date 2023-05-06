@@ -765,7 +765,7 @@ To obtain a new array containing a copy of the original data, use either the
 
 Similarly, to obtain a ndarray containing a view of the data in the original
 array, use either the :attr:`unyt_array.ndview <unyt.array.unyt_array.ndview>`
-or the :attr:`unyt_array.d <unyt.array.unyt_array.d>` properties:
+property (or :attr:`unyt_array.d <unyt.array.unyt_array.d>` for shorts):
 
   >>> data.view(np.ndarray)
   array([1., 2., 3.])
