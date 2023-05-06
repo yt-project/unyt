@@ -429,7 +429,7 @@ the two most popular unit systems, MKS (meter kilogram second) and CGS
 (centimeter gram second). For CGS these are :meth:`unyt_array.in_cgs
 <unyt.array.unyt_array.in_cgs>` and :meth:`unyt_array.convert_to_cgs
 <unyt.array.unyt_array.convert_to_cgs>`. These functions create a new copy of an
-array in CGS units and convert an array in-place to CGS. respectively. For MKS,
+array in CGS units and convert an array in-place to CGS respectively. For MKS,
 there are the :meth:`unyt_array.in_mks <unyt.array.unyt_array.in_mks>`
 and :meth:`unyt_array.convert_to_mks <unyt.array.unyt_array.convert_to_mks>` methods, which play analogous roles.
 
