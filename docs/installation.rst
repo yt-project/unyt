@@ -41,33 +41,34 @@ From source
 
 The sources for :mod:`unyt` can be downloaded from the `Github repo`_.
 
-You can either clone the public repository:
+If you don't need an editable install, the following line is all you need to run
+
+.. code-block:: console
+
+    $ python -m pip install git+https//github.com/yt-project/unyt.git
+
+If you would like to make an "editable" where you can directly edit the
+Python source files of the installed version of ``unyt``, then you can download
+the latest version from Github either with ``git``
 
 .. code-block:: console
 
     $ git clone git://github.com/yt-project/unyt
 
-Or download the `tarball`_:
+or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl -OL https://github.com/yt-project/unyt/tarball/master
+    $ curl -OL https://github.com/yt-project/unyt/tarball/main
 
 Once you have a copy of the source, you can install it by navigating to the root of the installation and issuing the following command:
-
-.. code-block:: console
-
-    $ python -m pip install .
-
-If you would like to make an "editable" where you can directly edit the
-Python source files of the installed version of ``unyt``, then you can do:
 
 .. code-block:: console
 
     $ python -m pip install -e .
 
 .. _Github repo: https://github.com/yt-project/unyt
-.. _tarball: https://github.com/yt-project/unyt/tarball/master
+.. _tarball: https://github.com/yt-project/unyt/tarball/main
 
 Running the tests
 -----------------
@@ -79,3 +80,5 @@ on your intalled copy:
 
   >>> import unyt
   >>> unyt.test()  # doctest: +SKIP
+
+Note that you'll need ``pytest`` installed for this function to run.
