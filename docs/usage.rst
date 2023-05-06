@@ -252,7 +252,7 @@ Printing Units
 --------------
 
 The print formatting of :class:`unyt_array <unyt.array.unyt_array>` can be
-controlled identically to numpy arrays, using ``numpy.setprintoptions``:
+controlled identically to NumPy arrays, using ``numpy.setprintoptions``:
 
   >>> import numpy as np
   >>> import unyt as u
@@ -738,8 +738,8 @@ Stripping units off of data
 
 The :mod:`unyt` library provides a number of ways to convert
 :class:`unyt_quantity <unyt.array.unyt_quantity>` instances into floats and
-:class:`unyt_array <unyt.array.unyt_array>` instances into numpy arrays. These
-methods either return a copy of the data as a numpy array or return a view
+:class:`unyt_array <unyt.array.unyt_array>` instances into NumPy arrays. These
+methods either return a copy of the data as a NumPy array or return a view
 onto the underlying array data owned by a :class:`unyt_array
 <unyt.array.unyt_array>` instance.
 
@@ -779,13 +779,13 @@ Applying units to data
 
 .. note::
 
-   A numpy array that shares memory with another numpy array points to the array
+   A NumPy array that shares memory with another NumPy array points to the array
    that owns the data with the ``base`` attribute. If ``arr1.base is arr2`` is
    ``True`` then ``arr1`` is a view onto ``arr2`` and ``arr2.base`` will be
    ``None``.
 
 When you create a :class:`unyt_array <unyt.array.unyt_array>` instance from a
-numpy array, :mod:`unyt` will create a copy of the original array:
+NumPy array, :mod:`unyt` will create a copy of the original array:
 
   >>> from unyt import g
   >>> data = np.random.random((100, 100))
@@ -1141,7 +1141,7 @@ Dealing with units as strings
 
 If all you want to do is save data to disk in a physical unit or you are working
 in a physical unit system, then you only need to save the unit name as a string
-and treat the array data you are trying to save as a regular numpy array, as in
+and treat the array data you are trying to save as a regular NumPy array, as in
 this example:
 
   >>> import numpy as np
@@ -1487,6 +1487,6 @@ arguments for the array function:
     unyt_array([2., 2., 2., 2., 2.], 'm')
 
 As a final note: the initial Dask array provided to :mod:`dask_array.unyt_from_dask` can be
-constructed in any of the usual ways of constructing Dask arrays -- from :mod:`numpy`-like
+constructed in any of the usual ways of constructing Dask arrays -- from :mod:`NumPy`-like
 array instantiation as in the above examples to reading from file or delayed operations.
 For more on creating arrays, check out the `Dask documentation <https://docs.dask.org/en/stable/array-creation.html>`_.
