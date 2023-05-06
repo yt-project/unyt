@@ -3,7 +3,7 @@ unyt
 
 This is the documentation for ``unyt`` (pronounced like "unit"). ``unyt`` is a Python
 library for working with data that has physical units. It was
-originally developed as part of `The yt Project <https://yt-project.org>`_ but
+originally developed as part of `the yt Project <https://yt-project.org>`_ and
 was split out as an independent project so that other Python projects can easily
 make use of it.
 
