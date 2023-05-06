@@ -526,7 +526,7 @@ Note that in MKS units the current unit, Ampere, is a base unit in the unit
 system. In CGS units the electromagnetic units like Gauss and statA are
 decomposable in terms of the base mass, length, and time units in the unit
 system. For this reason quantities defined in E&M units in CGS units are not
-readily convertible to MKS units and vice verse since the units are not
+readily convertible to MKS units and vice versa since the units are not
 dimensionally equivalent. The :mod:`unyt` library does have limited support for converting electromagnetic units between MKS and CGS, however only simple conversions of data with a single specific unit are supported and no conversions are allowed for complex combinations of units. For example converting between Gauss and Tesla is supported:
 
   >>> from unyt import T
