@@ -12,7 +12,7 @@ To install :mod:`unyt`, run this command in your terminal:
 
 .. code-block:: console
 
-    $ pip install unyt
+    $ python -m pip install unyt
 
 If you have a C compiler available, we also suggest installing `fastcache`_,
 which will improve the performance of `SymPy`_.
@@ -57,14 +57,14 @@ Once you have a copy of the source, you can install it by navigating to the root
 
 .. code-block:: console
 
-    $ pip install .
+    $ python -m pip install .
 
 If you would like to make an "editable" where you can directly edit the
 Python source files of the installed version of ``unyt``, then you can do:
 
 .. code-block:: console
 
-    $ pip install -e .
+    $ python -m pip install -e .
 
 .. _Github repo: https://github.com/yt-project/unyt
 .. _tarball: https://github.com/yt-project/unyt/tarball/master
