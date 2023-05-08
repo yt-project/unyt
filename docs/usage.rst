@@ -1217,7 +1217,7 @@ You can even write to files and groups that already exist:
 If the dataset that you would like to write to already exists, :mod:`unyt`
 will clobber that dataset.
 
-Note that with this method of saving data to hdf5 files, the
+Note that with this method of saving data to HDF5 files, the
 :class:`unyt.UnitRegistry <unyt.unit_registry.UnitRegistry>` instance associated
 with the units of the data will be saved in the HDF5 file. This means that if
 you create custom units and save a unit to disk, you will be able to convert
