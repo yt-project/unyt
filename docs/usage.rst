@@ -784,8 +784,9 @@ Applying units to data
    ``True`` then ``arr1`` is a view onto ``arr2`` and ``arr2.base`` will be
    ``None``.
 
-When you create a :class:`unyt_array <unyt.array.unyt_array>` instance from a
-NumPy array, :mod:`unyt` will create a copy of the original array:
+When a :class:`unyt_array <unyt.array.unyt_array>` instance is created from a
+NumPy array and a :class:`Unit <unyt.unit_object.Unit>`, data from the NumPy array
+will be copied:
 
   >>> from unyt import g
   >>> data = np.random.random((100, 100))
