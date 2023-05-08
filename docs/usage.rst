@@ -1161,7 +1161,7 @@ Of course in this example using ``numpy.save`` we need to hard-code the units be
 
   >>> import h5py
   >>> import os
-  >>> from unyt import cm, Unit
+  >>> from unyt import cm, Unit, unyt_array
   ...
   >>> data = [1, 2, 3]*cm
   ...
@@ -1173,8 +1173,7 @@ Of course in this example using ``numpy.save`` we need to hard-code the units be
   ...     new_data = f['my_data'][:]
   ...     unit_str = f['my_data'].attrs['units']
   ...
-  >>> unit = Unit(unit_str)
-  >>> new_data = new_data*unit
+  >>> new_data = unyt_array(new_data, unit_str)
   >>> new_data
   unyt_array([1, 2, 3], 'cm')
   >>> os.remove('my_data.h5')
