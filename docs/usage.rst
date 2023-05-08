@@ -1161,7 +1161,7 @@ Of course in this example using ``numpy.save`` we need to hard-code the units be
 
   >>> import h5py
   >>> import os
-  >>> from unyt import cm, Unit, unyt_array
+  >>> from unyt import cm, unyt_array
   ...
   >>> data = [1, 2, 3]*cm
   ...
