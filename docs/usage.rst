@@ -1074,8 +1074,8 @@ Custom Unit Systems
 By default :mod:`unyt` uses the SI MKS unit system. However, libraries can
 create a unit registry using another unit system to expose that unit system to
 their users by creating a unit registry with a custom unit system. For example,
-to make CGS units the default unit for all operations, one might modify the
-``Simulation`` class defined above like so::
+to make CGS units the default unit for all operations, one might use a CGS
+``UnitRegistry`` to instancitate the ``Simulation`` class like so::
 
   >>> class Simulation:
   ...     def __init__(self, registry):
