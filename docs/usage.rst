@@ -962,7 +962,7 @@ bit floating point array.
    unyt_array([0.62137121, 1.24274242, 1.86411357], dtype=float32, units='mile')
 
 In-place operations will also mutate the dtype from float to integer in these
-cases, again in away that will preserve the byte size of the data.
+cases, again in a way that will preserve the byte size of the data.
 
    >>> data.convert_to_units('mile')
    >>> data
