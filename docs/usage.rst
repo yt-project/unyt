@@ -12,7 +12,7 @@ To use unyt in a project::
 The top-level :mod:`unyt` namespace defines both a number of useful functions as
 well as a number of units and physical constants populated from the
 :mod:`unyt.unit_symbols` and :mod:`unyt.physical_constants` namespaces you can
-use to attach units to NumPy arrays and other common python data container types
+use to attach units to NumPy arrays and other common Python data container types
 like ``list`` and ``tuple``. For an exhaustive listing of units and physical
 constants defined in :mod:`unyt`, see :ref:`unit-listing`.
 
@@ -35,7 +35,7 @@ and plugging in conversion factors by hand), it's much easier to do this sort of
 thing symbolically and let :mod:`unyt` handle the unit conversions.
 
 To do this we'll need to know the mass of Jupiter (fortunately that is built
-into :mod:`unyt`) and the semimajor axis of the orbits of Jupiter's moons, which
+into :mod:`unyt`) and the semi-major axis of the orbits of Jupiter's moons, which
 we can look up from `Wikipedia
 <https://en.wikipedia.org/wiki/Moons_of_Jupiter#List>`_ and enter by hand::
 
@@ -68,7 +68,7 @@ in the example::
   >>> semimajor_axis
   unyt_array([0.002819  , 0.0044856 , 0.00715526, 0.01258513], 'AU')
 
-By multiplying by ``km``, we converted the python list into a
+By multiplying by ``km``, we converted the Python list into a
 :class:`unyt.unyt_array <unyt.array.unyt_array>` instance. This is a class
 that's built into :mod:`unyt`, has units attached to it, and knows how to
 convert itself into different dimensionally equivalent units::
@@ -197,7 +197,7 @@ the :class:`unyt.unyt_array <unyt.array.unyt_array>` class to quickly apply unit
 Powers, Logarithms, Exponentials, and Trigonometric Functions
 -------------------------------------------------------------
 
-The :mod:`unyt` library represents powers using standard python syntax. This
+The :mod:`unyt` library represents powers using standard Python syntax. This
 means you must use ``**`` and not ``^``, even when writing a unit as a string:
 
   >>> from unyt import kg, m
@@ -252,7 +252,7 @@ Printing Units
 --------------
 
 The print formatting of :class:`unyt_array <unyt.array.unyt_array>` can be
-controlled identically to numpy arrays, using ``numpy.setprintoptions``:
+controlled identically to NumPy arrays, using ``numpy.setprintoptions``:
 
   >>> import numpy as np
   >>> import unyt as u
@@ -429,7 +429,7 @@ the two most popular unit systems, MKS (meter kilogram second) and CGS
 (centimeter gram second). For CGS these are :meth:`unyt_array.in_cgs
 <unyt.array.unyt_array.in_cgs>` and :meth:`unyt_array.convert_to_cgs
 <unyt.array.unyt_array.convert_to_cgs>`. These functions create a new copy of an
-array in CGS units and convert an array in-place to CGS. respectively. For MKS,
+array in CGS units and convert an array in-place to CGS respectively. For MKS,
 there are the :meth:`unyt_array.in_mks <unyt.array.unyt_array.in_mks>`
 and :meth:`unyt_array.convert_to_mks <unyt.array.unyt_array.convert_to_mks>` methods, which play analogous roles.
 
@@ -526,7 +526,7 @@ Note that in MKS units the current unit, Ampere, is a base unit in the unit
 system. In CGS units the electromagnetic units like Gauss and statA are
 decomposable in terms of the base mass, length, and time units in the unit
 system. For this reason quantities defined in E&M units in CGS units are not
-readily convertible to MKS units and vice verse since the units are not
+readily convertible to MKS units and vice versa since the units are not
 dimensionally equivalent. The :mod:`unyt` library does have limited support for converting electromagnetic units between MKS and CGS, however only simple conversions of data with a single specific unit are supported and no conversions are allowed for complex combinations of units. For example converting between Gauss and Tesla is supported:
 
   >>> from unyt import T
@@ -701,7 +701,7 @@ equivalence to be specified: :meth:`unyt_array.to_equivalent
 <unyt.array.unyt_array.to_equivalent>` and
 :meth:`unyt_array.convert_to_equivalent
 <unyt.array.unyt_array.convert_to_equivalent>`. These are identical to their
-counterparts described above, except they equivalence is a required positional
+counterparts described above, except that equivalence is a required
 argument to the function rather than an optional keyword argument. Use these
 functions when you want to emphasize that an equivalence is being used.
 
@@ -738,8 +738,8 @@ Stripping units off of data
 
 The :mod:`unyt` library provides a number of ways to convert
 :class:`unyt_quantity <unyt.array.unyt_quantity>` instances into floats and
-:class:`unyt_array <unyt.array.unyt_array>` instances into numpy arrays. These
-methods either return a copy of the data as a numpy array or return a view
+:class:`unyt_array <unyt.array.unyt_array>` instances into NumPy arrays. These
+methods either return a copy of the data as a NumPy array or return a view
 onto the underlying array data owned by a :class:`unyt_array
 <unyt.array.unyt_array>` instance.
 
@@ -765,7 +765,7 @@ To obtain a new array containing a copy of the original data, use either the
 
 Similarly, to obtain a ndarray containing a view of the data in the original
 array, use either the :attr:`unyt_array.ndview <unyt.array.unyt_array.ndview>`
-or the :attr:`unyt_array.d <unyt.array.unyt_array.d>` properties:
+property (or :attr:`unyt_array.d <unyt.array.unyt_array.d>` for shorts):
 
   >>> data.view(np.ndarray)
   array([1., 2., 3.])
@@ -779,13 +779,14 @@ Applying units to data
 
 .. note::
 
-   A numpy array that shares memory with another numpy array points to the array
+   A NumPy array that shares memory with another NumPy array points to the array
    that owns the data with the ``base`` attribute. If ``arr1.base is arr2`` is
    ``True`` then ``arr1`` is a view onto ``arr2`` and ``arr2.base`` will be
    ``None``.
 
-When you create a :class:`unyt_array <unyt.array.unyt_array>` instance from a
-numpy array, :mod:`unyt` will create a copy of the original array:
+When a :class:`unyt_array <unyt.array.unyt_array>` instance is created from a
+NumPy array and a :class:`Unit <unyt.unit_object.Unit>`, data from the NumPy array
+will be copied:
 
   >>> from unyt import g
   >>> data = np.random.random((100, 100))
@@ -961,7 +962,7 @@ bit floating point array.
    unyt_array([0.62137121, 1.24274242, 1.86411357], dtype=float32, units='mile')
 
 In-place operations will also mutate the dtype from float to integer in these
-cases, again in away that will preserve the byte size of the data.
+cases, again in a way that will preserve the byte size of the data.
 
    >>> data.convert_to_units('mile')
    >>> data
@@ -976,7 +977,7 @@ Integrating :mod:`unyt` Into a Python Library
 
 The :mod:`unyt` library began life as the unit system for the ``yt`` data
 analysis and visualization package, in the form of ``yt.units``. In this role,
-:mod:`unyt` was deeply integrated into a larger python library. Due to these
+:mod:`unyt` was deeply integrated into a larger Python library. Due to these
 origins, it is straightforward to build applications that ensure unit
 consistency by making use of :mod:`unyt`. Below we discuss a few topics that
 most often come up when integrating :mod:`unyt` into a new or existing Python
@@ -1073,8 +1074,8 @@ Custom Unit Systems
 By default :mod:`unyt` uses the SI MKS unit system. However, libraries can
 create a unit registry using another unit system to expose that unit system to
 their users by creating a unit registry with a custom unit system. For example,
-to make CGS units the default unit for all operations, one might modify the
-``Simulation`` class defined above like so::
+to make CGS units the default unit for all operations, one might use a CGS
+``UnitRegistry`` to instancitate the ``Simulation`` class like so::
 
   >>> class Simulation:
   ...     def __init__(self, registry):
@@ -1141,7 +1142,7 @@ Dealing with units as strings
 
 If all you want to do is save data to disk in a physical unit or you are working
 in a physical unit system, then you only need to save the unit name as a string
-and treat the array data you are trying to save as a regular numpy array, as in
+and treat the array data you are trying to save as a regular NumPy array, as in
 this example:
 
   >>> import numpy as np
@@ -1160,7 +1161,7 @@ Of course in this example using ``numpy.save`` we need to hard-code the units be
 
   >>> import h5py
   >>> import os
-  >>> from unyt import cm, Unit
+  >>> from unyt import cm, unyt_array
   ...
   >>> data = [1, 2, 3]*cm
   ...
@@ -1172,8 +1173,7 @@ Of course in this example using ``numpy.save`` we need to hard-code the units be
   ...     new_data = f['my_data'][:]
   ...     unit_str = f['my_data'].attrs['units']
   ...
-  >>> unit = Unit(unit_str)
-  >>> new_data = new_data*unit
+  >>> new_data = unyt_array(new_data, unit_str)
   >>> new_data
   unyt_array([1, 2, 3], 'cm')
   >>> os.remove('my_data.h5')
@@ -1217,7 +1217,7 @@ You can even write to files and groups that already exist:
 If the dataset that you would like to write to already exists, :mod:`unyt`
 will clobber that dataset.
 
-Note that with this method of saving data to hdf5 files, the
+Note that with this method of saving data to HDF5 files, the
 :class:`unyt.UnitRegistry <unyt.unit_registry.UnitRegistry>` instance associated
 with the units of the data will be saved in the HDF5 file. This means that if
 you create custom units and save a unit to disk, you will be able to convert
@@ -1487,6 +1487,6 @@ arguments for the array function:
     unyt_array([2., 2., 2., 2., 2.], 'm')
 
 As a final note: the initial Dask array provided to :mod:`dask_array.unyt_from_dask` can be
-constructed in any of the usual ways of constructing Dask arrays -- from :mod:`numpy`-like
+constructed in any of the usual ways of constructing Dask arrays -- from :mod:`NumPy`-like
 array instantiation as in the above examples to reading from file or delayed operations.
 For more on creating arrays, check out the `Dask documentation <https://docs.dask.org/en/stable/array-creation.html>`_.
