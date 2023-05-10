@@ -1,16 +1,19 @@
 # tests for NumPy __array_function__ support
+import os
 import re
+import warnings
 
 import numpy as np
 import pytest
 
-from unyt import A, K, cm, degC, delta_degC, g, km, rad, s
+from unyt import A, K, cm, degC, delta_degC, g, kg, km, rad, s
 from unyt._array_functions import (
     _HANDLED_FUNCTIONS as HANDLED_FUNCTIONS,
     _UNSUPPORTED_FUNCTIONS as UNSUPPORTED_FUNCTIONS,
 )
 from unyt.array import unyt_array, unyt_quantity
 from unyt.exceptions import (
+    InvalidUnitOperation,
     UnitConversionError,
     UnitInconsistencyError,
     UnytError,
@@ -408,6 +411,18 @@ def test_histogram():
     assert type(counts) is np.ndarray
     assert bins.units == arr.units
 
+    counts, bins = np.histogram(
+        arr, bins=10, range=(float(arr.min()), float(arr.max()))
+    )
+    assert type(counts) is np.ndarray
+    assert bins.units == arr.units
+
+    with pytest.raises(InvalidUnitOperation):
+        np.histogram(arr, bins=10, range=(float(arr.min()), arr.max()))
+
+    with pytest.raises(InvalidUnitOperation):
+        np.histogram(arr, bins=10, range=(arr.min(), float(arr.max())))
+
 
 def test_histogram2d():
     x = np.random.normal(size=100) * cm
@@ -442,6 +457,21 @@ def test_concatenate():
     res = np.concatenate((x1, x2))
     assert res.units == cm
     assert res.shape == (200,)
+
+    out = np.empty(200)
+    res = np.concatenate((x1, x2), out=out)
+    np.testing.assert_array_equal(res.v, out)
+    assert res.units == cm
+    assert res.shape == (200,)
+    assert type(out) is np.ndarray
+
+    out = np.empty(200) * km
+    res = np.concatenate((x1, x2), out=out)
+    np.testing.assert_array_equal(res, out)
+    assert res.units == cm
+    assert out.units == cm
+    assert res.shape == (200,)
+    assert type(out) is unyt_array
 
 
 def test_concatenate_different_units():
@@ -514,6 +544,21 @@ def test_stack(axis, expected):
     assert res.units == cm
     np.testing.assert_array_equal(res, expected)
 
+    out = np.empty(res.shape)
+    res = np.stack((x1, x2), axis=axis, out=out)
+    assert res.units == cm
+    np.testing.assert_array_equal(res, expected)
+    np.testing.assert_array_equal(res.v, out)
+    assert type(out) is np.ndarray
+
+    out = np.empty_like(res) * km
+    res = np.stack((x1, x2), axis=axis, out=out)
+    assert res.units == cm
+    assert out.units == cm
+    np.testing.assert_array_equal(res, expected)
+    np.testing.assert_array_equal(res, out)
+    assert type(out) is unyt_array
+
 
 def test_amax():
     x1 = [[0.0, 1.0, 2.0], [3.0, 4.0, 5.0]] * cm
@@ -536,6 +581,21 @@ def test_around():
     res = np.around(x1, 2)
     assert type(res) is unyt_array
     assert res.units == g
+
+    out = np.empty(res.shape)
+    res = np.around(x1, 2, out=out)
+    assert type(res) is unyt_array
+    assert res.units == g
+    np.testing.assert_array_equal(res.v, out)
+    assert type(out) is np.ndarray
+
+    out = np.empty(res.shape) * kg
+    res = np.around(x1, 2, out=out)
+    assert type(res) is unyt_array
+    assert res.units == g
+    assert out.units == g
+    np.testing.assert_array_equal(res, out)
+    assert type(out) is unyt_array
 
 
 def test_atleast_nd():
@@ -798,6 +858,7 @@ def test_allclose():
     [
         ([1, 2, 3] * cm, [1, 2, 3] * km, [False] * 3),
         ([1, 2, 3] * cm, [1, 2, 3], [True] * 3),
+        ([1, 2, 3], [1, 2, 3] * cm, [True] * 3),
         ([1, 2, 3] * K, [-272.15, -271.15, -270.15] * degC, [True] * 3),
     ],
 )
@@ -1179,6 +1240,12 @@ def test_savetxt(tmp_path):
     ):
         np.savetxt(tmp_path / "savefile.npy", a)
 
+    # test that it saves anyway
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        np.savetxt(tmp_path / "savefile.npy", a)
+        assert os.path.exists(tmp_path / "savefile.npy")
+
     # check that doing what the warning says doesn't trigger any other warning
     np.savetxt(tmp_path / "savefile.npy", a.d)
 
@@ -1242,6 +1309,12 @@ def test_deltas(func, input_units, output_units):
     res = func(x)
     assert isinstance(res, unyt_array)
     assert res.units == output_units
+
+
+def test_invalid_diff():
+    x = np.arange(0, 4) * degC
+    with pytest.raises(InvalidUnitOperation):
+        np.diff(x)
 
 
 @pytest.mark.parametrize(
@@ -1312,10 +1385,13 @@ def test_sinc():
     assert type(res) is np.ndarray
 
 
-def test_choose_mixed_units():
+def test_choose_invalid_units():
     choices = [[1, 2, 3] * cm, [4, 5, 6] * km]
     with pytest.raises(UnitInconsistencyError):
         np.choose([1, 0, 1], choices=choices)
+
+    with pytest.raises(InvalidUnitOperation):
+        np.choose([1, 0, 1] * cm, [[1, 2, 3], [4, 5, 6]])
 
 
 def test_choose():
@@ -1323,6 +1399,21 @@ def test_choose():
     res = np.choose([1, 0, 1], choices=choices)
     assert type(res) is unyt_array
     assert res.units == cm
+
+    out = np.empty(res.shape)
+    res = np.choose([1, 0, 1], choices=choices, out=out)
+    assert type(res) is unyt_array
+    assert res.units == cm
+    np.testing.assert_array_equal(res.v, out)
+    assert type(out) is np.ndarray
+
+    out = np.empty(res.shape) * km
+    res = np.choose([1, 0, 1], choices=choices, out=out)
+    assert type(res) is unyt_array
+    assert res.units == cm
+    assert out.units == cm
+    np.testing.assert_array_equal(res, out)
+    assert type(out) is unyt_array
 
 
 def test_extract():
@@ -1532,6 +1623,9 @@ def test_where_xy():
     assert type(res) is unyt_array
     assert res.units == cm
 
+    with pytest.raises(ValueError):
+        np.where(x > y, x)
+
 
 @pytest.mark.parametrize(
     "func",
@@ -1571,6 +1665,22 @@ def test_einsum():
     res = np.einsum("ii", a)
     assert type(res) is unyt_quantity
     assert res.units == cm
+
+    # test out semantics
+    out = np.empty(res.shape)
+    res = np.einsum("ii", a, out=out)
+    assert type(res) is unyt_quantity
+    assert res.units == cm
+    np.testing.assert_equal(res.v, out)
+    assert type(out) is np.ndarray
+
+    out = np.empty(res.shape) * km
+    res = np.einsum("ii", a, out=out)
+    assert type(res) is unyt_quantity
+    assert res.units == cm
+    assert out.units == cm
+    np.testing.assert_equal(out, res)
+    assert type(out) is unyt_quantity
 
 
 def test_convolve():

@@ -213,7 +213,6 @@ def _difference_units(unit1, unit2=None):
                 "cannot be multiplied, divided, subtracted or "
                 "added with data that has different units."
             )
-
     if unit1.base_offset == 0.0:
         return 1, unit1
 
@@ -1765,18 +1764,6 @@ class unyt_array(np.ndarray):
         else:
             return super().__pow__(p, mod)
 
-    def __eq__(self, other):
-        try:
-            return super().__eq__(other)
-        except (IterableUnitCoercionError, UnitOperationError):
-            return np.zeros(self.shape, dtype="bool")
-
-    def __ne__(self, other):
-        try:
-            return super().__ne__(other)
-        except (IterableUnitCoercionError, UnitOperationError):
-            return np.ones(self.shape, dtype="bool")
-
     #
     # Start operation methods
     #
@@ -1962,26 +1949,10 @@ class unyt_array(np.ndarray):
                         "cannot be multiplied, divided, subtracted or added."
                     )
         else:
-            if ufunc is clip:
-                inp = []
-                for i in inputs:
-                    if isinstance(i, unyt_array):
-                        inp.append(i.to(inputs[0].units).view(np.ndarray))
-                    else:
-                        inp.append(i)
-                if out is not None:
-                    _out = out.view(np.ndarray)
-                else:
-                    _out = None
-                out_arr = ufunc(*inp, out=_out)
-                unit = inputs[0].units
-                ret_class = type(inputs[0])
-                mul = 1
-            else:
-                raise RuntimeError(
-                    "Support for the %s ufunc with %i inputs has not been "
-                    "added to unyt_array." % (str(ufunc), len(inputs))
-                )
+            raise RuntimeError(
+                "Support for the %s ufunc with %i inputs has not been "
+                "added to unyt_array." % (str(ufunc), len(inputs))
+            )
         if unit is None:
             out_arr = np.array(out_arr, copy=False)
         elif ufunc in (modf, divmod_):

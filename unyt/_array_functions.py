@@ -9,7 +9,6 @@ from unyt.dimensions import temperature
 from unyt.exceptions import (
     InvalidUnitOperation,
     UnitInconsistencyError,
-    UnytError,
 )
 
 # Functions for which passing units doesn't make sense
@@ -141,11 +140,17 @@ def _sanitize_range(_range, units):
     for i in range(ndim):
         ilim = _range[2 * i : 2 * (i + 1)]
         imin, imax = ilim
-        if not (hasattr(imin, "units") and hasattr(imax, "units")):
-            raise TypeError(
-                f"Elements of range must both have a 'units' attribute. Got {_range}"
+        himin = hasattr(imin, "units")
+        himax = hasattr(imax, "units")
+        if himin != himax:
+            raise InvalidUnitOperation(
+                "Elements of range must both have a 'units' attribute if one does. "
+                f"Got {_range}"
             )
-        new_range[i] = imin.to(units[i]).value, imax.to(units[i]).value
+        elif himin:
+            new_range[i] = imin.to(units[i]).value, imax.to(units[i]).value
+        else:
+            new_range[i] = imin, imax
     return new_range.squeeze()
 
 
@@ -727,7 +732,7 @@ def ptp(a, *args, **kwargs):
 
 @implements(np.cumprod)
 def cumprod(a, *args, **kwargs):
-    raise UnytError(
+    raise InvalidUnitOperation(
         "numpy.cumprod (and other cumulative product function) cannot be used "
         "with a unyt_array as all return elements should (but cannot) "
         "have different units."
@@ -742,7 +747,7 @@ def pad(array, *args, **kwargs):
 @implements(np.choose)
 def choose(a, choices, out=None, *args, **kwargs):
     if (au := getattr(a, "units", NULL_UNIT)) != NULL_UNIT:
-        raise TypeError(
+        raise InvalidUnitOperation(
             f"The first argument to numpy.choose must be dimensionless, got units={au}"
         )
     retu = _validate_units_consistency(choices)
@@ -926,11 +931,9 @@ def einsum(subscripts, *operands, out=None, **kwargs):
     ret_units = _validate_units_consistency(operands)
 
     if out is not None:
-        out_view = out.view(np.ndarray)
+        res = np.einsum._implementation(subscripts, *operands, out=out.view(np.ndarray))
     else:
-        out_view = out
-
-    res = np.einsum._implementation(subscripts, *operands, out=out_view)
+        res = np.einsum._implementation(subscripts, *operands)
 
     if getattr(out, "units", None) is not None:
         out.units = ret_units

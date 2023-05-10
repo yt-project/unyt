@@ -692,8 +692,6 @@ def test_temperature_conversions():
     scales that have a proper zero point.
 
     """
-    from unyt.unit_object import InvalidUnitOperation
-
     km = unyt_quantity(1, "km", dtype="float64")
     balmy = unyt_quantity(300, "K", dtype="float64")
     balmy_F = unyt_quantity(80.33, "degF")
