@@ -862,7 +862,9 @@ def test_unpickling_old_array():
     # the expected error is "AttributeError: 'One' object has no attribute '__dict__'"
     PFILE = Path(__file__).parent / "data" / "unyt_array_sympy1.8.pickle"
     with open(PFILE, "rb") as fh:
-        pickle.load(fh)
+        arr = pickle.load(fh)
+
+    assert arr.units.dimensions == cm.dimensions
 
 
 def test_copy():
