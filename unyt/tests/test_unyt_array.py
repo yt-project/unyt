@@ -19,7 +19,6 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-import sympy
 from numpy import array
 from numpy.testing import (
     assert_almost_equal,
@@ -848,11 +847,17 @@ def test_unyt_array_pickle():
         assert_equal(float(data.units.base_value), float(loaded_data.units.base_value))
 
 
+SYMPY_VERSION = Version(version("sympy"))
+
+
 @pytest.mark.xfail(
-    condition=(
-        (Version(sympy.__version__) == Version("1.9"))
-        or (Version(sympy.__version__) == Version("1.10"))
-    ),
+    condition=(SYMPY_VERSION == Version("1.12")),
+    reason="regression in sympy 1.12",
+    raises=AssertionError,
+    strict=True,
+)
+@pytest.mark.xfail(
+    condition=(SYMPY_VERSION in (Version("1.9"), Version("1.10"))),
     reason="Not resolved upstream as of sympy 1.10",
     raises=AttributeError,
     strict=True,
@@ -864,6 +869,8 @@ def test_unpickling_old_array():
     with open(PFILE, "rb") as fh:
         arr = pickle.load(fh)
 
+    # this comparison fails with sympy==1.12
+    # see https://github.com/sympy/sympy/issues/25134
     assert arr.units.dimensions == cm.dimensions
 
 
