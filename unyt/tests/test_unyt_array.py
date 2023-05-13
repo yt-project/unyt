@@ -830,7 +830,7 @@ def test_iteration():
         assert_equal(ib.units, b.units)
 
 
-def test_ytarray_pickle():
+def test_unyt_array_pickle():
     test_data = [unyt_quantity(12.0, "cm"), unyt_array([1, 2, 3], "km")]
 
     for data in test_data:
@@ -1383,23 +1383,23 @@ def test_astropy():
     pytest.importorskip("astropy")
 
     ap_arr = np.arange(10) * _astropy.units.km / _astropy.units.hr
-    yt_arr = unyt_array(np.arange(10), "km/hr")
-    yt_arr2 = unyt_array.from_astropy(ap_arr)
+    un_arr = unyt_array(np.arange(10), "km/hr")
+    un_arr2 = unyt_array.from_astropy(ap_arr)
 
     ap_quan = 10.0 * _astropy.units.Msun**0.5 / (_astropy.units.kpc**3)
-    yt_quan = unyt_quantity(10.0, "sqrt(Msun)/kpc**3")
-    yt_quan2 = unyt_quantity.from_astropy(ap_quan)
+    un_quan = unyt_quantity(10.0, "sqrt(Msun)/kpc**3")
+    un_quan2 = unyt_quantity.from_astropy(ap_quan)
 
-    assert_array_equal(ap_arr, yt_arr.to_astropy())
-    assert_array_equal(yt_arr, unyt_array.from_astropy(ap_arr))
-    assert_array_equal(yt_arr, yt_arr2)
+    assert_array_equal(ap_arr, un_arr.to_astropy())
+    assert_array_equal(un_arr, unyt_array.from_astropy(ap_arr))
+    assert_array_equal(un_arr, un_arr2)
 
-    assert_equal(ap_quan, yt_quan.to_astropy())
-    assert_equal(yt_quan, unyt_quantity.from_astropy(ap_quan))
-    assert_equal(yt_quan, yt_quan2)
+    assert_equal(ap_quan, un_quan.to_astropy())
+    assert_equal(un_quan, unyt_quantity.from_astropy(ap_quan))
+    assert_equal(un_quan, un_quan2)
 
-    assert_array_equal(yt_arr, unyt_array.from_astropy(yt_arr.to_astropy()))
-    assert_equal(yt_quan, unyt_quantity.from_astropy(yt_quan.to_astropy()))
+    assert_array_equal(un_arr, unyt_array.from_astropy(un_arr.to_astropy()))
+    assert_equal(un_quan, unyt_quantity.from_astropy(un_quan.to_astropy()))
 
 
 def test_pint():
@@ -1412,23 +1412,23 @@ def test_pint():
     ureg = _pint.UnitRegistry()
 
     p_arr = np.arange(10) * ureg.km / ureg.year
-    yt_arr = unyt_array(np.arange(10), "km/yr")
-    yt_arr2 = unyt_array.from_pint(p_arr)
+    un_arr = unyt_array(np.arange(10), "km/yr")
+    un_arr2 = unyt_array.from_pint(p_arr)
 
     p_quan = 10.0 * ureg.g**0.5 / (ureg.mm**3)
-    yt_quan = unyt_quantity(10.0, "sqrt(g)/mm**3")
-    yt_quan2 = unyt_quantity.from_pint(p_quan)
+    un_quan = unyt_quantity(10.0, "sqrt(g)/mm**3")
+    un_quan2 = unyt_quantity.from_pint(p_quan)
 
-    assert_pint_array_equal(p_arr, yt_arr.to_pint())
-    assert_array_equal(yt_arr, unyt_array.from_pint(p_arr))
-    assert_array_equal(yt_arr, yt_arr2)
+    assert_pint_array_equal(p_arr, un_arr.to_pint())
+    assert_array_equal(un_arr, unyt_array.from_pint(p_arr))
+    assert_array_equal(un_arr, un_arr2)
 
-    assert_pint_array_equal(p_quan, yt_quan.to_pint())
-    assert_equal(yt_quan, unyt_quantity.from_pint(p_quan))
-    assert_equal(yt_quan, yt_quan2)
+    assert_pint_array_equal(p_quan, un_quan.to_pint())
+    assert_equal(un_quan, unyt_quantity.from_pint(p_quan))
+    assert_equal(un_quan, un_quan2)
 
-    assert_array_equal(yt_arr, unyt_array.from_pint(yt_arr.to_pint()))
-    assert_equal(yt_quan, unyt_quantity.from_pint(yt_quan.to_pint()))
+    assert_array_equal(un_arr, unyt_array.from_pint(un_arr.to_pint()))
+    assert_equal(un_quan, unyt_quantity.from_pint(un_quan.to_pint()))
 
 
 def test_subclass():
@@ -2034,7 +2034,7 @@ def test_electromagnetic():
     assert_almost_equal((1.0 / (u.clight**2 * mu_0)).in_units(eps_0.units), eps_0)
 
 
-def test_ytarray_coercion():
+def test_unyt_array_coercion():
     a = unyt_array([1, 2, 3], "cm")
     q = unyt_quantity(3, "cm")
     na = np.array([1, 2, 3])

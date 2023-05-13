@@ -575,7 +575,7 @@ def test_latitude_longitude():
     assert_equal((lon * 180.0).in_units("deg"), deg * 360)
 
 
-def test_creation_from_ytarray():
+def test_creation_from_unyt_array():
     from unyt import electrostatic_unit, elementary_charge_cgs
 
     u1 = Unit(electrostatic_unit)
