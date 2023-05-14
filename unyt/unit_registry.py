@@ -258,7 +258,7 @@ class UnitRegistry:
         are of equivalent dimensions to *unit_object*.
         """
         equiv = [k for k, v in self.lut.items() if v[1] is unit_object.dimensions]
-        equiv = list(sorted(set(equiv)))
+        equiv = sorted(set(equiv))
         return equiv
 
     def __deepcopy__(self, memodict=None):
