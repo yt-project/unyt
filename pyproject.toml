@@ -102,6 +102,7 @@ select = [
     "E",
     "F",
     "W",
+    "C4",  # flake8-comprehensions
     "B",   # flake8-bugbear
     "YTT", # flake8-2020
     "I",   # isort
