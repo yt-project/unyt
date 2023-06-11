@@ -145,7 +145,7 @@ def _sanitize_range(_range, units):
             raise TypeError(
                 f"Elements of range must both have a 'units' attribute. Got {_range}"
             )
-        new_range[i] = imin.to(units[i]).value, imax.to(units[i]).value
+        new_range[i] = imin.to_value(units[i]), imax.to_value(units[i])
     return new_range.squeeze()
 
 
