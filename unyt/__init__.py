@@ -62,21 +62,14 @@ from unyt.unit_systems import UnitSystem  # NOQA: F401
 from ._version import __version__
 
 
-# function to only import quantities into this namespace
-# we go through the trouble of doing this instead of "import *"
-# to avoid including extraneous variables (e.g. floating point
-# constants used to *construct* a physical constant) in this namespace
-def import_units(module, namespace):
-    """Import Unit objects from a module into a namespace"""
-    for key, value in module.__dict__.items():
-        if isinstance(value, (unyt_quantity, Unit)):
-            namespace[key] = value
-
-
-import_units(unit_symbols, globals())
-import_units(physical_constants, globals())
-
-del import_units
+def __getattr__(name):
+    if isinstance(
+        attr := getattr(physical_constants, name, None), (unyt_quantity, Unit)
+    ):
+        return attr
+    if isinstance(attr := getattr(unit_symbols, name, None), (unyt_quantity, Unit)):
+        return attr
+    raise AttributeError
 
 
 def test():  # pragma: no cover
