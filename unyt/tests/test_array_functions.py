@@ -185,6 +185,37 @@ for func in DEPRECATED_FUNCTIONS:
         NOT_HANDLED_FUNCTIONS.add(getattr(np, func))
 
 
+def get_decorators(func):
+    # adapted from
+    # https://stackoverflow.com/questions/3232024/introspection-to-get-decorator-names-on-a-method
+    import ast
+    import inspect
+
+    target = func
+    decorators = {}
+
+    def visit_FunctionDef(node):
+        decorators[node.name] = []
+        for n in node.decorator_list:
+            name = ""
+            if isinstance(n, ast.Call):
+                name = n.func.attr if isinstance(n.func, ast.Attribute) else n.func.id
+            else:
+                name = n.attr if isinstance(n, ast.Attribute) else n.id
+
+            decorators[node.name].append(name)
+
+    node_iter = ast.NodeVisitor()
+    node_iter.visit_FunctionDef = visit_FunctionDef
+    try:
+        node_iter.visit(ast.parse(inspect.getsource(target)))
+        return decorators[func.__name__]
+    except TypeError:
+        # may be raised if inspecting a C compiled function
+        # in which case, we return with empty hands
+        return []
+
+
 def get_wrapped_functions(*modules):
     """get functions that support __array_function__ in modules
 
@@ -194,7 +225,11 @@ def get_wrapped_functions(*modules):
     for mod in modules:
         for name, f in mod.__dict__.items():
             if callable(f) and hasattr(f, "__wrapped__"):
-                if f is np.printoptions or f.__name__.startswith("_"):
+                if (
+                    f is np.printoptions
+                    or f.__name__.startswith("_")
+                    or "deprecate" in get_decorators(f)
+                ):
                     continue
                 wrapped_functions[mod.__name__ + "." + name] = f
     return dict(sorted(wrapped_functions.items()))
