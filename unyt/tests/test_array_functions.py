@@ -35,7 +35,6 @@ NOOP_FUNCTIONS = {
     np.argpartition,  # returns pure numbers
     np.argsort,  # returns pure numbers
     np.argwhere,  # returns pure numbers
-    np.array_repr,  # hooks into __repr__
     np.array_str,  # hooks into __str__
     np.atleast_1d,  # works out of the box (tested)
     np.atleast_2d,  # works out of the box (tested)
@@ -256,7 +255,7 @@ def test_wrapping_completeness():
 
 def test_array_repr():
     arr = [1, 2, 3] * cm
-    assert np.array_repr(arr) == "unyt_array([1, 2, 3], units='cm')"
+    assert re.fullmatch(r"unyt_array\(\[1, 2, 3\], (units=)?'cm'\)", np.array_repr(arr))
 
 
 def test_dot_vectors():

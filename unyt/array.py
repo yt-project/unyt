@@ -636,12 +636,7 @@ class unyt_array(np.ndarray):
         return obj
 
     def __repr__(self):
-        rep = super().__repr__()
-        units_repr = self.units.__repr__()
-        if "=" in rep:
-            return rep[:-1] + ", units='" + units_repr + "')"
-        else:
-            return rep[:-1] + ", '" + units_repr + "')"
+        return np.array_repr(self)
 
     def __str__(self):
         return str(self.view(np.ndarray)) + " " + str(self.units)

@@ -995,3 +995,14 @@ def interp(x, xp, fp, *args, **kwargs):
         np.interp(np.asarray(x), np.asarray(xp), np.asarray(fp), *args, **kwargs)
         * ret_units
     )
+
+
+@implements(np.array_repr)
+def array_repr(arr, *args, **kwargs):
+    rep = np.array_repr._implementation(arr.view(np.ndarray), *args, **kwargs)
+    rep = rep.replace("array", arr.__class__.__name__)
+    units_repr = arr.units.__repr__()
+    if "=" in rep:
+        return rep[:-1] + ", units='" + units_repr + "')"
+    else:
+        return rep[:-1] + ", '" + units_repr + "')"
