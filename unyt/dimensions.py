@@ -290,14 +290,14 @@ def accepts(**arg_units):
     return check_accepts
 
 
-def returns(r_unit):
+def returns(*r_unit):
     """Decorator for checking function return units.
 
     Parameters
     ----------
     r_unit: :py:class:`sympy.core.symbol.Symbol`
         SI base unit (or combination of units), eg. length/time
-        of the value returned by the original function
+        of the value(s) returned by the original function
 
     Examples
     --------
@@ -318,7 +318,13 @@ def returns(r_unit):
     Traceback (most recent call last):
     ...
     TypeError: result '6 m' does not match (length)/(time)
-
+    >>> @returns(length, length/time**2)
+    ... def f(a, v):
+    ...     return a * v, v / a
+    ...
+    >>> res = f(a= 2 * u.s, v = 3 * u.m/u.s)
+    >>> print(*res)
+    6 m 1.5 m/s**2
     """
 
     def check_returns(f):
@@ -338,7 +344,7 @@ def returns(r_unit):
 
         @wraps(f)
         def new_f(*args, **kwargs):
-            """The decorated function, which checks the return unit.
+            """The decorated function, which checks the return units.
 
             Raises
             ------
@@ -346,10 +352,19 @@ def returns(r_unit):
                 If the units do not match.
 
             """
-            result = f(*args, **kwargs)
-            if not _has_dimensions(result, r_unit):
-                raise TypeError(f"result '{result}' does not match {r_unit}")
-            return result
+            results = f(*args, **kwargs)
+
+            # Make results a tuple so we can treat single and multiple return values the
+            # same way.
+            if isinstance(results, tuple):
+                result_tuple = results
+            else:
+                result_tuple = results,
+
+            for result, dimension in zip(result_tuple, r_unit, strict=True):
+                if not _has_dimensions(result, dimension):
+                    raise TypeError(f"result '{result}' does not match {dimension}")
+            return results
 
         return new_f
 
