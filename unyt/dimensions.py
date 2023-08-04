@@ -361,7 +361,7 @@ def returns(*r_unit):
             else:
                 result_tuple = results,
 
-            for result, dimension in zip(result_tuple, r_unit, strict=True):
+            for result, dimension in zip(result_tuple, r_unit):
                 if not _has_dimensions(result, dimension):
                     raise TypeError(f"result '{result}' does not match {dimension}")
             return results
