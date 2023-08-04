@@ -359,7 +359,7 @@ def returns(*r_unit):
             if isinstance(results, tuple):
                 result_tuple = results
             else:
-                result_tuple = results,
+                result_tuple = (results,)
 
             for result, dimension in zip(result_tuple, r_unit):
                 if not _has_dimensions(result, dimension):

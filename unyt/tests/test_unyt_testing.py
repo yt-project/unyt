@@ -43,62 +43,66 @@ def test_atol_conversion_error():
     with pytest.raises(AssertionError):
         assert_allclose_units(a1, a2, atol=unyt_quantity(0.0, "kg"))
 
+
 def test_accepts():
-    @accepts(a=time, v=length/time)
+    @accepts(a=time, v=length / time)
     def foo(a, v):
         return a * v
 
-    _ = foo(a = 2 * second, v = 3 * meter / second)
+    _ = foo(a=2 * second, v=3 * meter / second)
 
     with pytest.raises(TypeError):
-        _ = foo(a = 2 * meter, v = 3 * meter / second)
+        _ = foo(a=2 * meter, v=3 * meter / second)
 
     with pytest.raises(TypeError):
-        _ = foo(a = 2 * second, v = 3 * meter)
+        _ = foo(a=2 * second, v=3 * meter)
+
 
 def test_accepts_partial():
     @accepts(a=time)
     def bar(a, v):
         return a * v
 
-    _ = bar(a = 2 * second, v = 3 * meter / second)
-    _ = bar(a = 2 * second, v = 3 * meter)
+    _ = bar(a=2 * second, v=3 * meter / second)
+    _ = bar(a=2 * second, v=3 * meter)
 
     with pytest.raises(TypeError):
-        _ = bar(a = 2 * meter, v = 3 * meter / second)
+        _ = bar(a=2 * meter, v=3 * meter / second)
 
-    @accepts(v=length/time)
+    @accepts(v=length / time)
     def baz(a, v):
         return a * v
 
-    _ = baz(a = 2 * second, v = 3 * meter / second)
-    _ = baz(a = 2 * meter, v = 3 * meter / second)
+    _ = baz(a=2 * second, v=3 * meter / second)
+    _ = baz(a=2 * meter, v=3 * meter / second)
 
     with pytest.raises(TypeError):
-        _ = baz(a = 2 * second, v = 3 * meter)
+        _ = baz(a=2 * second, v=3 * meter)
+
 
 def test_returns():
     @returns(length)
     def foo(a, v):
         return a * v
 
-    _ = foo(a = 2 * second, v = 3 * meter / second)
+    _ = foo(a=2 * second, v=3 * meter / second)
 
     with pytest.raises(TypeError):
-        _ = foo(a = 2 * meter, v = 3 * meter / second)
+        _ = foo(a=2 * meter, v=3 * meter / second)
 
     with pytest.raises(TypeError):
-        _ = foo(a = 2 * second, v = 3 * meter)
+        _ = foo(a=2 * second, v=3 * meter)
+
 
 def test_returns_multiple():
-    @returns(time, length/time)
+    @returns(time, length / time)
     def bar(a, v):
         return a, v
 
-    _ = bar(a= 2 * second, v = 3 * meter / second)
+    _ = bar(a=2 * second, v=3 * meter / second)
 
     with pytest.raises(TypeError):
-        _ = bar(a = 2 * meter, v = 3 * meter / second)
+        _ = bar(a=2 * meter, v=3 * meter / second)
 
     with pytest.raises(TypeError):
-        _ = bar(a = 2 * second, v = 3 * meter)
+        _ = bar(a=2 * second, v=3 * meter)
