@@ -1313,7 +1313,11 @@ class unyt_array(np.ndarray):
         >>> data.to_astropy()
         <Quantity [3., 4., 5.] g / cm3>
         """
-        return self.value * _astropy.units.Unit(str(self.units), **kwargs)
+        if self.units.is_dimensionless:
+            s_units = ""
+        else:
+            s_units = str(self.units)
+        return self.value * _astropy.units.Unit(s_units, **kwargs)
 
     @classmethod
     def from_pint(cls, arr, unit_registry=None):

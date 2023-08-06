@@ -1402,6 +1402,17 @@ def test_astropy():
     assert_equal(yt_quan, unyt_quantity.from_astropy(yt_quan.to_astropy()))
 
 
+def test_astropy_dimensionless():
+    # see https://github.com/yt-project/unyt/issues/436
+    pytest.importorskip("astropy")
+
+    arr = unyt_array([1, 2, 3], "")
+    ap_arr = np.array([1, 2, 3]) * _astropy.units.Unit("")
+
+    assert_array_equal(ap_arr, arr.to_astropy())
+    assert_array_equal(arr, unyt_array.from_astropy(ap_arr))
+
+
 def test_pint():
     pytest.importorskip("pint")
 
