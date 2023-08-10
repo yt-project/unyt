@@ -49,13 +49,13 @@ def test_accepts():
     def foo(a, v):
         return a * v
 
-    _ = foo(a=2 * second, v=3 * meter / second)
+    foo(a=2 * second, v=3 * meter / second)
 
     with pytest.raises(TypeError):
-        _ = foo(a=2 * meter, v=3 * meter / second)
+        foo(a=2 * meter, v=3 * meter / second)
 
     with pytest.raises(TypeError):
-        _ = foo(a=2 * second, v=3 * meter)
+        foo(a=2 * second, v=3 * meter)
 
 
 def test_accepts_partial():
@@ -63,21 +63,21 @@ def test_accepts_partial():
     def bar(a, v):
         return a * v
 
-    _ = bar(a=2 * second, v=3 * meter / second)
-    _ = bar(a=2 * second, v=3 * meter)
+    bar(a=2 * second, v=3 * meter / second)
+    bar(a=2 * second, v=3 * meter)
 
     with pytest.raises(TypeError):
-        _ = bar(a=2 * meter, v=3 * meter / second)
+        bar(a=2 * meter, v=3 * meter / second)
 
     @accepts(v=length / time)
     def baz(a, v):
         return a * v
 
-    _ = baz(a=2 * second, v=3 * meter / second)
-    _ = baz(a=2 * meter, v=3 * meter / second)
+    baz(a=2 * second, v=3 * meter / second)
+    baz(a=2 * meter, v=3 * meter / second)
 
     with pytest.raises(TypeError):
-        _ = baz(a=2 * second, v=3 * meter)
+        baz(a=2 * second, v=3 * meter)
 
 
 def test_returns():
@@ -85,13 +85,13 @@ def test_returns():
     def foo(a, v):
         return a * v
 
-    _ = foo(a=2 * second, v=3 * meter / second)
+    foo(a=2 * second, v=3 * meter / second)
 
     with pytest.raises(TypeError):
-        _ = foo(a=2 * meter, v=3 * meter / second)
+        foo(a=2 * meter, v=3 * meter / second)
 
     with pytest.raises(TypeError):
-        _ = foo(a=2 * second, v=3 * meter)
+        foo(a=2 * second, v=3 * meter)
 
 
 def test_returns_multiple():
@@ -99,10 +99,10 @@ def test_returns_multiple():
     def bar(a, v):
         return a, v
 
-    _ = bar(a=2 * second, v=3 * meter / second)
+    bar(a=2 * second, v=3 * meter / second)
 
     with pytest.raises(TypeError):
-        _ = bar(a=2 * meter, v=3 * meter / second)
+        bar(a=2 * meter, v=3 * meter / second)
 
     with pytest.raises(TypeError):
-        _ = bar(a=2 * second, v=3 * meter)
+        bar(a=2 * second, v=3 * meter)

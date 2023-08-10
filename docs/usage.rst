@@ -325,7 +325,7 @@ using the :meth:`@accepts <unyt.dimensions.accepts>` and :meth:`@returns <unyt.d
   ... def foo(a, v):
   ...     return a * v
   ...
-  >>> res = foo(a= 2 * u.s, v = 3 * u.m/u.s)
+  >>> res = foo(a=2*u.s, v=3*u.m/u.s)
   >>> print(res)
   6 m
 
@@ -336,7 +336,7 @@ using the :meth:`@accepts <unyt.dimensions.accepts>` and :meth:`@returns <unyt.d
   ... def bar(a, v):
   ...     return a * v, v / a
   ...
-  >>> res = bar(a= 2 * u.s, v = 3 * u.m/u.s)
+  >>> res = bar(a=2*u.s, v=3*u.m/u.s)
   >>> print(*res)
   6 m 1.5 m/s**2
 
