@@ -85,24 +85,39 @@ def test_returns():
     def foo(a, v):
         return a * v
 
-    foo(a=2 * second, v=3 * meter / second)
+    # This usage is deprecated, but we still want to support it for now.
+    with pytest.deprecated_call():
 
-    with pytest.raises(TypeError):
-        foo(a=2 * meter, v=3 * meter / second)
+        @returns(r_unit=length)
+        def bar(a, v):
+            return a * v
 
-    with pytest.raises(TypeError):
-        foo(a=2 * second, v=3 * meter)
+    for func in [foo, bar]:
+        func(a=2 * second, v=3 * meter / second)
+
+        with pytest.raises(TypeError):
+            func(a=2 * meter, v=3 * meter / second)
+
+        with pytest.raises(TypeError):
+            func(a=2 * second, v=3 * meter)
+
+    # We don't support a mixture of the two usage styles.
+    with pytest.raises(ValueError):
+
+        @returns(length, r_unit=time)
+        def _(a, v):
+            return a, v
 
 
 def test_returns_multiple():
     @returns(time, length / time)
-    def bar(a, v):
+    def baz(a, v):
         return a, v
 
-    bar(a=2 * second, v=3 * meter / second)
+    baz(a=2 * second, v=3 * meter / second)
 
     with pytest.raises(TypeError):
-        bar(a=2 * meter, v=3 * meter / second)
+        baz(a=2 * meter, v=3 * meter / second)
 
     with pytest.raises(TypeError):
-        bar(a=2 * second, v=3 * meter)
+        baz(a=2 * second, v=3 * meter)

@@ -5,6 +5,7 @@ Dimensions of physical quantities
 """
 
 
+import warnings
 from functools import wraps
 from itertools import chain
 
@@ -290,14 +291,16 @@ def accepts(**arg_units):
     return check_accepts
 
 
-def returns(*r_unit):
+def returns(*r_units, r_unit=None):
     """Decorator for checking function return units.
 
     Parameters
     ----------
-    r_unit: :py:class:`sympy.core.symbol.Symbol`
+    *r_units: :py:class:`sympy.core.symbol.Symbol`
         SI base unit (or combination of units), eg. length/time
         of the value(s) returned by the original function
+    r_unit: :py:class:`sympy.core.symbol.Symbol`
+        Deprecated version of `r_units` which supports only one named return value.
 
     Examples
     --------
@@ -326,6 +329,21 @@ def returns(*r_unit):
     >>> print(*res)
     6 m 1.5 m/s**2
     """
+
+    # Convert deprecated arguments into current ones where possible.
+    if r_unit is not None:
+        if len(r_units) > 0:
+            raise ValueError(
+                "Cannot specify `r_unit` and other return values simultaneously"
+            )
+        else:
+            warnings.warn(
+                "Use of the @returns(r_unit=...) syntax is deprecated. "
+                "Please use @returns(...) instead.",
+                category=DeprecationWarning,
+                stacklevel=2,
+            )
+            r_units = (r_unit,)
 
     def check_returns(f):
         """Decorates original function.
@@ -361,7 +379,7 @@ def returns(*r_unit):
             else:
                 result_tuple = (results,)
 
-            for result, dimension in zip(result_tuple, r_unit):
+            for result, dimension in zip(result_tuple, r_units):
                 if not _has_dimensions(result, dimension):
                     raise TypeError(f"result '{result}' does not match {dimension}")
             return results
