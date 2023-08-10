@@ -332,7 +332,7 @@ using the :meth:`@accepts <unyt.dimensions.accepts>` and :meth:`@returns <unyt.d
 :meth:`@accepts <unyt.dimensions.accepts>` can specify the dimensions of any subset of inputs and :meth:`@returns <unyt.dimensions.returns>` must always describe all outputs.
 
   >>> @returns(length, length/time**2)
-  >>> @accepts(v=length/time)
+  ... @accepts(v=length/time)
   ... def bar(a, v):
   ...     return a * v, v / a
   ...
