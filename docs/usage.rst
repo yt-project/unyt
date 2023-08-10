@@ -329,6 +329,17 @@ using the :meth:`@accepts <unyt.dimensions.accepts>` and :meth:`@returns <unyt.d
   >>> print(res)
   6 m
 
+:meth:`@accepts <unyt.dimensions.accepts>` can specify the dimensions of any subset of inputs and :meth:`@returns <unyt.dimensions.returns>` must always describe all outputs.
+
+  >>> @returns(length, length/time**2)
+  >>> @accepts(v=length/time)
+  ... def bar(a, v):
+  ...     return a * v, v / a
+  ...
+  >>> res = bar(a= 2 * u.s, v = 3 * u.m/u.s)
+  >>> print(*res)
+  6 m 1.5 m/s**2
+
 .. note::
    Using these decorators may incur some performance overhead, especially for small arrays.
 
