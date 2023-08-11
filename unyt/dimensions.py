@@ -5,7 +5,6 @@ Dimensions of physical quantities
 """
 
 
-import warnings
 from functools import wraps
 from itertools import chain
 
