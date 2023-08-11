@@ -11,6 +11,8 @@ from itertools import chain
 
 from sympy import Rational, Symbol, sympify
 
+from unyt._deprecation import warn_deprecated
+
 #: mass
 mass = Symbol("(mass)", positive=True)
 #: length
@@ -337,11 +339,10 @@ def returns(*r_units, r_unit=None):
                 "Cannot specify `r_unit` and other return values simultaneously"
             )
         else:
-            warnings.warn(
-                "Use of the @returns(r_unit=...) syntax is deprecated. "
-                "Please use @returns(...) instead.",
-                category=DeprecationWarning,
-                stacklevel=2,
+            warn_deprecated(
+                "@unyt.returns(r_unit=...)",
+                replacement="use @unyt.returns(...)",
+                since_version="3.0",
             )
             r_units = (r_unit,)
 
