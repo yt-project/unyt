@@ -970,14 +970,14 @@ bit floating point array.
 
    >>> data = np.array([1, 2, 3], dtype='int32')*km
    >>> data.in_units('mile')
-   unyt_array([0.62137121, 1.24274242, 1.86411357], dtype=float32, units='mile')
+   unyt_array([0.6213712, 1.2427424, 1.8641136], dtype=float32, units='mile')
 
 In-place operations will also mutate the dtype from float to integer in these
 cases, again in a way that will preserve the byte size of the data.
 
    >>> data.convert_to_units('mile')
    >>> data
-   unyt_array([0.62137121, 1.24274242, 1.86411357], dtype=float32, units='mile')
+   unyt_array([0.6213712, 1.2427424, 1.8641136], dtype=float32, units='mile')
 
 It is possible that arrays containing large integers (16777217 for 32 bit and
 9007199254740993 for 64 bit) will lose precision when converting data to a
