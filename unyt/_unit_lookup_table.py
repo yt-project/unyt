@@ -131,12 +131,20 @@ default_unit_symbol_lut = OrderedDict(
         ("degC", (1.0, dimensions.temperature, -273.15, r"^\circ\rm{C}", True)),
         ("delta_degC", (1.0, dimensions.temperature, 0, r"\Delta^\circ\rm{C}", True)),
         ("L", (1e-3, dimensions.volume, 0, r"\rm{L}", True)),
+        ("ha", (1.0e4, dimensions.area, 0.0, r"\rm{ha}", False)),
         # Imperial and other non-metric units
         ("mil", (1e-3 * m_per_inch, dimensions.length, 0.0, r"\rm{mil}", False)),
         ("inch", (m_per_inch, dimensions.length, 0.0, r"\rm{in}", False)),
         ("ft", (m_per_ft, dimensions.length, 0.0, r"\rm{ft}", False)),
         ("yd", (0.9144, dimensions.length, 0.0, r"\rm{yd}", False)),
         ("mile", (1609.344, dimensions.length, 0.0, r"\rm{mile}", False)),
+        ("nmi", (1852.0330752, dimensions.length, 0.0, r"\rm{nmi}", False)),
+        ("mph", (1609.344 / sec_per_hr, dimensions.velocity, 0.0, r"\rm{mph}", False)),
+        (
+            "kt",
+            (1852.0330752 / sec_per_hr, dimensions.velocity, 0.0, r"\rm{kt}", False),
+        ),
+        ("acre", (4046.8564224, dimensions.area, 0.0, r"\rm{acre}", False)),
         ("furlong", (m_per_ft * 660.0, dimensions.length, 0.0, r"\rm{fur}", False)),
         (
             "degF",
@@ -291,6 +299,11 @@ default_unit_symbol_lut = OrderedDict(
         ("min", (sec_per_min, dimensions.time, 0.0, r"\rm{min}", False)),
         ("hr", (sec_per_hr, dimensions.time, 0.0, r"\rm{hr}", False)),
         ("day", (sec_per_day, dimensions.time, 0.0, r"\rm{d}", False)),
+        ("week", (7.0 * sec_per_day, dimensions.time, 0.0, r"\rm{week}", False)),
+        (
+            "fortnight",
+            (14.0 * sec_per_day, dimensions.time, 0.0, r"\rm{fortnight}", False),
+        ),
         ("yr", (sec_per_year, dimensions.time, 0.0, r"\rm{yr}", True)),
         # Velocities
         ("c", (speed_of_light_m_per_s, dimensions.velocity, 0.0, r"\rm{c}", False)),
@@ -577,6 +590,7 @@ default_unit_name_alternatives = OrderedDict(
         ("lx", ("lux",)),
         ("degC", ("degree_celsius", "degree_Celsius", "celcius", "celsius", "°C")),
         ("L", ("liter", "litre", "l")),
+        ("ha", ("hectare",)),
         # Imperial and other non-metric units
         ("mil", ("thou", "thousandth")),
         ("inch", ("in",)),
@@ -591,6 +605,8 @@ default_unit_name_alternatives = OrderedDict(
         ("atm", ("atmosphere",)),
         ("hp", ("horsepower",)),
         ("oz", ("ounce",)),
+        ("nmi", ("nautical_mile",)),
+        ("kt", ("knot",)),
         ("cal", ("calorie",)),
         (
             "BTU",
