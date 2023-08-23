@@ -132,6 +132,7 @@ default_unit_symbol_lut = OrderedDict(
         ("delta_degC", (1.0, dimensions.temperature, 0, r"\Delta^\circ\rm{C}", True)),
         ("L", (1e-3, dimensions.volume, 0, r"\rm{L}", True)),
         ("ha", (1.0e4, dimensions.area, 0.0, r"\rm{ha}", False)),
+        ("t", (1.0e3, dimensions.mass, 0.0, r"\rm{t}", False)),
         # Imperial and other non-metric units
         ("mil", (1e-3 * m_per_inch, dimensions.length, 0.0, r"\rm{mil}", False)),
         ("inch", (m_per_inch, dimensions.length, 0.0, r"\rm{in}", False)),
@@ -195,6 +196,10 @@ default_unit_symbol_lut = OrderedDict(
         ("hp", (watt_per_horsepower, dimensions.power, 0.0, r"\rm{hp}", False)),
         ("oz", (kg_per_pound / 16.0, dimensions.mass, 0.0, r"\rm{oz}", False)),
         ("ton", (kg_per_pound * 2000.0, dimensions.mass, 0.0, r"\rm{ton}", False)),
+        (
+            "ton_UK",
+            (kg_per_pound * 2240.0, dimensions.mass, 0.0, r"\rm{ton (UK)}", False),
+        ),
         (
             "slug",
             (
@@ -379,6 +384,10 @@ default_unit_symbol_lut = OrderedDict(
         (
             "rpm",
             (2.0 * np.pi / 60.0, dimensions.angular_frequency, 0.0, r"\rm{RPM}", False),
+        ),
+        (
+            "rev",
+            (2.0 * np.pi, dimensions.angle, 0.0, r"\rm{rev}", False),
         ),
         # misc
         ("eV", (J_per_eV, dimensions.energy, 0.0, r"\rm{eV}", True)),
@@ -591,6 +600,13 @@ default_unit_name_alternatives = OrderedDict(
         ("degC", ("degree_celsius", "degree_Celsius", "celcius", "celsius", "°C")),
         ("L", ("liter", "litre", "l")),
         ("ha", ("hectare",)),
+        (
+            "t",
+            (
+                "tonne",
+                "metric_ton",
+            ),
+        ),
         # Imperial and other non-metric units
         ("mil", ("thou", "thousandth")),
         ("inch", ("in",)),
@@ -602,6 +618,8 @@ default_unit_name_alternatives = OrderedDict(
         ("lbf", ("pound_force",)),
         ("kip", ("kilopound", "kipf")),
         ("lb", ("pound", "pound_mass", "lbm")),
+        ("ton", ("ton_US", "ton_US_short", "short_ton")),
+        ("ton_UK", ("ton_US_long", "long_ton")),
         ("atm", ("atmosphere",)),
         ("hp", ("horsepower",)),
         ("oz", ("ounce",)),
@@ -677,6 +695,7 @@ default_unit_name_alternatives = OrderedDict(
         ("sr", ("steradian",)),
         ("lat", ("latitude", "degree_latitude")),
         ("lon", ("longitude", "degree_longitude")),
+        ("rev", ("revolution",)),
         # misc
         ("eV", ("electronvolt",)),
         ("amu", ("atomic_mass_unit",)),
