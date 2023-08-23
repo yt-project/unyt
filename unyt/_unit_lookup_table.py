@@ -74,6 +74,8 @@ from unyt._physical_ratios import (
     speed_of_light_m_per_s,
     standard_gravity_m_per_s2,
     temp_sun_kelvin,
+    uk_fl_oz_per_L,
+    us_fl_oz_per_L,
     watt_per_horsepower,
 )
 
@@ -205,10 +207,10 @@ default_unit_symbol_lut = OrderedDict(
         ("atm", (pascal_per_atm, dimensions.pressure, 0.0, r"\rm{atm}", False)),
         ("hp", (watt_per_horsepower, dimensions.power, 0.0, r"\rm{hp}", False)),
         ("oz", (kg_per_pound / 16.0, dimensions.mass, 0.0, r"\rm{oz}", False)),
-        ("ton", (kg_per_pound * 2000.0, dimensions.mass, 0.0, r"\rm{ton}", False)),
+        ("ton", (kg_per_pound * 2000.0, dimensions.mass, 0.0, r"\rm{US ton}", False)),
         (
             "ton_UK",
-            (kg_per_pound * 2240.0, dimensions.mass, 0.0, r"\rm{ton (UK)}", False),
+            (kg_per_pound * 2240.0, dimensions.mass, 0.0, r"\rm{UK ton}", False),
         ),
         (
             "slug",
@@ -219,6 +221,32 @@ default_unit_symbol_lut = OrderedDict(
                 r"\rm{slug}",
                 False,
             ),
+        ),
+        ("fl_oz_US", (us_fl_oz_per_L, dimensions.volume, 0.0, r"\rm{US fl oz}", False)),
+        ("fl_oz_UK", (uk_fl_oz_per_L, dimensions.volume, 0.0, r"\rm{UK fl oz}", False)),
+        (
+            "pt_US",
+            (us_fl_oz_per_L * 16.0, dimensions.volume, 0.0, r"\rm{US pt}", False),
+        ),
+        (
+            "pt_UK",
+            (uk_fl_oz_per_L * 20.0, dimensions.volume, 0.0, r"\rm{UK pt}", False),
+        ),
+        (
+            "qt_US",
+            (us_fl_oz_per_L * 32.0, dimensions.volume, 0.0, r"\rm{US qt}", False),
+        ),
+        (
+            "qt_UK",
+            (uk_fl_oz_per_L * 40.0, dimensions.volume, 0.0, r"\rm{UK qt}", False),
+        ),
+        (
+            "gal_US",
+            (us_fl_oz_per_L * 128.0, dimensions.volume, 0.0, r"\rm{US gal}", False),
+        ),
+        (
+            "gal_UK",
+            (uk_fl_oz_per_L * 160.0, dimensions.volume, 0.0, r"\rm{UK gal}", False),
         ),
         ("cal", (4.184, dimensions.energy, 0.0, r"\rm{cal}", True)),
         ("BTU", (J_per_BTU, dimensions.energy, 0.0, r"\rm{BTU}", False)),
@@ -634,6 +662,14 @@ default_unit_name_alternatives = OrderedDict(
         ("hp", ("horsepower",)),
         ("oz", ("ounce",)),
         ("nmi", ("nautical_mile",)),
+        ("fl_oz_US", ("fluid_ounce_US",)),
+        ("fl_oz_UK", ("fluid_ounce_UK",)),
+        ("pt_US", ("pint_US",)),
+        ("pt_UK", ("pint_UK",)),
+        ("qt_US", ("quart_US",)),
+        ("qt_UK", ("quart_UK",)),
+        ("gal_US", ("gallon_US",)),
+        ("gal_UK", ("gallon_UK",)),
         ("kt", ("knot",)),
         ("cal", ("calorie",)),
         (
