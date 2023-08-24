@@ -178,6 +178,7 @@ pascal_per_atm = 101325.0
 m_per_inch = 0.0254
 m_per_ft = 0.3048
 m_per_mile = 1609.344
+# https://en.wikipedia.org/wiki/Comparison_of_the_imperial_and_US_customary_measurement_systems
 uk_fl_oz_per_L = 0.0284130625e-3
 us_fl_oz_per_L = 0.0295735295625e-3
 # logarithmic units
