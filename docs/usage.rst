@@ -924,11 +924,11 @@ This function makes it possible to easily define a new unit that is unknown to
 the :mod:`unyt` library:
 
   >>> import unyt as u
-  >>> two_weeks = 14.0*u.day
-  >>> one_day = 1.0*u.day
-  >>> u.define_unit("fortnight", two_weeks)
-  >>> print((3*u.fortnight)/one_day)
-  42.0 dimensionless
+  >>> ninety_pounds = 90.0*u.lb
+  >>> one_pound = 1.0*u.lb
+  >>> u.define_unit("firkin", ninety_pounds)
+  >>> print((3*u.firkin)/one_pound)
+  270.0 dimensionless
 
 This is primarily useful for one-off definitions of units that the :mod:`unyt`
 library does not already have predefined. For more complex uses cases that need

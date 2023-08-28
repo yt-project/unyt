@@ -329,7 +329,7 @@ class LorentzEquivalence(Equivalence):
 
       \\gamma = \\frac{1}{\\sqrt{1 - v^2/c^2}}
 
-    ans similarly
+    and similarly
 
     .. math::
 

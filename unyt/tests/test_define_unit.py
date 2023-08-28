@@ -6,9 +6,9 @@ from unyt.unit_registry import UnitRegistry
 
 
 def test_define_unit():
-    define_unit("mph", (1.0, "mile/hr"))
-    a = unyt_quantity(2.0, "mph")
-    b = unyt_quantity(1.0, "mile")
+    define_unit("kph", (1.0, "km/hr"))
+    a = unyt_quantity(2.0, "kph")
+    b = unyt_quantity(1.0, "km")
     c = unyt_quantity(1.0, "hr")
     assert a == 2.0 * b / c
     d = unyt_quantity(1000.0, "cm**3")

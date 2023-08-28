@@ -32,6 +32,7 @@ from unyt._physical_ratios import (
     m_per_ft,
     m_per_inch,
     m_per_ly,
+    m_per_mile,
     m_per_pc,
     m_per_rearth,
     m_per_rjup,
@@ -73,6 +74,8 @@ from unyt._physical_ratios import (
     speed_of_light_m_per_s,
     standard_gravity_m_per_s2,
     temp_sun_kelvin,
+    uk_fl_oz_per_L,
+    us_fl_oz_per_L,
     watt_per_horsepower,
 )
 
@@ -131,12 +134,30 @@ default_unit_symbol_lut = OrderedDict(
         ("degC", (1.0, dimensions.temperature, -273.15, r"^\circ\rm{C}", True)),
         ("delta_degC", (1.0, dimensions.temperature, 0, r"\Delta^\circ\rm{C}", True)),
         ("L", (1e-3, dimensions.volume, 0, r"\rm{L}", True)),
+        ("ha", (1.0e4, dimensions.area, 0.0, r"\rm{ha}", False)),
+        ("t", (1.0e3, dimensions.mass, 0.0, r"\rm{t}", False)),
         # Imperial and other non-metric units
         ("mil", (1e-3 * m_per_inch, dimensions.length, 0.0, r"\rm{mil}", False)),
         ("inch", (m_per_inch, dimensions.length, 0.0, r"\rm{in}", False)),
         ("ft", (m_per_ft, dimensions.length, 0.0, r"\rm{ft}", False)),
         ("yd", (0.9144, dimensions.length, 0.0, r"\rm{yd}", False)),
-        ("mile", (1609.344, dimensions.length, 0.0, r"\rm{mile}", False)),
+        ("mile", (m_per_mile, dimensions.length, 0.0, r"\rm{mile}", False)),
+        ("nmi", (m_per_mile * 1.1508, dimensions.length, 0.0, r"\rm{nmi}", False)),
+        (
+            "mph",
+            (m_per_mile / sec_per_hr, dimensions.velocity, 0.0, r"\rm{mph}", False),
+        ),
+        (
+            "kt",
+            (
+                m_per_mile * 1.1508 / sec_per_hr,
+                dimensions.velocity,
+                0.0,
+                r"\rm{kt}",
+                False,
+            ),
+        ),
+        ("acre", (4046.8564224, dimensions.area, 0.0, r"\rm{acre}", False)),
         ("furlong", (m_per_ft * 660.0, dimensions.length, 0.0, r"\rm{fur}", False)),
         (
             "degF",
@@ -186,7 +207,11 @@ default_unit_symbol_lut = OrderedDict(
         ("atm", (pascal_per_atm, dimensions.pressure, 0.0, r"\rm{atm}", False)),
         ("hp", (watt_per_horsepower, dimensions.power, 0.0, r"\rm{hp}", False)),
         ("oz", (kg_per_pound / 16.0, dimensions.mass, 0.0, r"\rm{oz}", False)),
-        ("ton", (kg_per_pound * 2000.0, dimensions.mass, 0.0, r"\rm{ton}", False)),
+        ("ton", (kg_per_pound * 2000.0, dimensions.mass, 0.0, r"\rm{US ton}", False)),
+        (
+            "ton_UK",
+            (kg_per_pound * 2240.0, dimensions.mass, 0.0, r"\rm{UK ton}", False),
+        ),
         (
             "slug",
             (
@@ -196,6 +221,32 @@ default_unit_symbol_lut = OrderedDict(
                 r"\rm{slug}",
                 False,
             ),
+        ),
+        ("fl_oz_US", (us_fl_oz_per_L, dimensions.volume, 0.0, r"\rm{US fl oz}", False)),
+        ("fl_oz_UK", (uk_fl_oz_per_L, dimensions.volume, 0.0, r"\rm{UK fl oz}", False)),
+        (
+            "pt_US",
+            (us_fl_oz_per_L * 16.0, dimensions.volume, 0.0, r"\rm{US pt}", False),
+        ),
+        (
+            "pt_UK",
+            (uk_fl_oz_per_L * 20.0, dimensions.volume, 0.0, r"\rm{UK pt}", False),
+        ),
+        (
+            "qt_US",
+            (us_fl_oz_per_L * 32.0, dimensions.volume, 0.0, r"\rm{US qt}", False),
+        ),
+        (
+            "qt_UK",
+            (uk_fl_oz_per_L * 40.0, dimensions.volume, 0.0, r"\rm{UK qt}", False),
+        ),
+        (
+            "gal_US",
+            (us_fl_oz_per_L * 128.0, dimensions.volume, 0.0, r"\rm{US gal}", False),
+        ),
+        (
+            "gal_UK",
+            (uk_fl_oz_per_L * 160.0, dimensions.volume, 0.0, r"\rm{UK gal}", False),
         ),
         ("cal", (4.184, dimensions.energy, 0.0, r"\rm{cal}", True)),
         ("BTU", (J_per_BTU, dimensions.energy, 0.0, r"\rm{BTU}", False)),
@@ -291,6 +342,11 @@ default_unit_symbol_lut = OrderedDict(
         ("min", (sec_per_min, dimensions.time, 0.0, r"\rm{min}", False)),
         ("hr", (sec_per_hr, dimensions.time, 0.0, r"\rm{hr}", False)),
         ("day", (sec_per_day, dimensions.time, 0.0, r"\rm{d}", False)),
+        ("week", (7.0 * sec_per_day, dimensions.time, 0.0, r"\rm{week}", False)),
+        (
+            "fortnight",
+            (14.0 * sec_per_day, dimensions.time, 0.0, r"\rm{fortnight}", False),
+        ),
         ("yr", (sec_per_year, dimensions.time, 0.0, r"\rm{yr}", True)),
         # Velocities
         ("c", (speed_of_light_m_per_s, dimensions.velocity, 0.0, r"\rm{c}", False)),
@@ -366,6 +422,10 @@ default_unit_symbol_lut = OrderedDict(
         (
             "rpm",
             (2.0 * np.pi / 60.0, dimensions.angular_frequency, 0.0, r"\rm{RPM}", False),
+        ),
+        (
+            "rev",
+            (2.0 * np.pi, dimensions.angle, 0.0, r"\rm{rev}", False),
         ),
         # misc
         ("eV", (J_per_eV, dimensions.energy, 0.0, r"\rm{eV}", True)),
@@ -577,6 +637,14 @@ default_unit_name_alternatives = OrderedDict(
         ("lx", ("lux",)),
         ("degC", ("degree_celsius", "degree_Celsius", "celcius", "celsius", "°C")),
         ("L", ("liter", "litre", "l")),
+        ("ha", ("hectare",)),
+        (
+            "t",
+            (
+                "tonne",
+                "metric_ton",
+            ),
+        ),
         # Imperial and other non-metric units
         ("mil", ("thou", "thousandth")),
         ("inch", ("in",)),
@@ -588,9 +656,21 @@ default_unit_name_alternatives = OrderedDict(
         ("lbf", ("pound_force",)),
         ("kip", ("kilopound", "kipf")),
         ("lb", ("pound", "pound_mass", "lbm")),
+        ("ton", ("ton_US", "ton_US_short", "short_ton")),
+        ("ton_UK", ("ton_US_long", "long_ton")),
         ("atm", ("atmosphere",)),
         ("hp", ("horsepower",)),
         ("oz", ("ounce",)),
+        ("nmi", ("nautical_mile",)),
+        ("fl_oz_US", ("fluid_ounce_US",)),
+        ("fl_oz_UK", ("fluid_ounce_UK",)),
+        ("pt_US", ("pint_US",)),
+        ("pt_UK", ("pint_UK",)),
+        ("qt_US", ("quart_US",)),
+        ("qt_UK", ("quart_UK",)),
+        ("gal_US", ("gallon_US",)),
+        ("gal_UK", ("gallon_UK",)),
+        ("kt", ("knot",)),
         ("cal", ("calorie",)),
         (
             "BTU",
@@ -661,6 +741,7 @@ default_unit_name_alternatives = OrderedDict(
         ("sr", ("steradian",)),
         ("lat", ("latitude", "degree_latitude")),
         ("lon", ("longitude", "degree_longitude")),
+        ("rev", ("revolution",)),
         # misc
         ("eV", ("electronvolt",)),
         ("amu", ("atomic_mass_unit",)),
