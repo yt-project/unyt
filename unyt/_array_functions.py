@@ -1,7 +1,9 @@
 import warnings
+from importlib.metadata import version
 from numbers import Number
 
 import numpy as np
+from packaging.version import Version
 
 from unyt import delta_degC
 from unyt.array import NULL_UNIT, unyt_array, unyt_quantity
@@ -11,6 +13,8 @@ from unyt.exceptions import (
     UnitInconsistencyError,
     UnytError,
 )
+
+NUMPY_VERSION = Version(version("numpy"))
 
 # Functions for which passing units doesn't make sense
 # bail out with NotImplemented (escalated to TypeError by numpy)
@@ -345,12 +349,6 @@ def around(a, decimals=0, out=None):
     if getattr(out, "units", None) is not None:
         out.units = ret_units
     return unyt_array(res, ret_units, bypass_validation=True)
-
-
-@implements(np.asfarray)
-def asfarray(a, dtype=np.double):
-    ret_units = a.units
-    return np.asfarray._implementation(a.view(np.ndarray), dtype=dtype) * ret_units
 
 
 @implements(np.block)
@@ -1006,3 +1004,11 @@ def array_repr(arr, *args, **kwargs):
         return rep[:-1] + ", units='" + units_repr + "')"
     else:
         return rep[:-1] + ", '" + units_repr + "')"
+
+
+if NUMPY_VERSION < Version("2.0.0dev0"):
+    # functions that are removed in numpy 2.0.0
+    @implements(np.asfarray)
+    def asfarray(a, dtype=np.double):
+        ret_units = a.units
+        return np.asfarray._implementation(a.view(np.ndarray), dtype=dtype) * ret_units

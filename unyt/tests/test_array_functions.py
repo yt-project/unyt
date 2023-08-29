@@ -1,8 +1,10 @@
 # tests for NumPy __array_function__ support
 import re
+from importlib.metadata import version
 
 import numpy as np
 import pytest
+from packaging.version import Version
 
 from unyt import A, K, cm, degC, delta_degC, g, km, rad, s
 from unyt._array_functions import (
@@ -16,6 +18,8 @@ from unyt.exceptions import (
     UnytError,
 )
 from unyt.testing import assert_array_equal_units
+
+NUMPY_VERSION = Version(version("numpy"))
 
 # this is a subset of NOT_HANDLED_FUNCTIONS for which there's nothing to do
 # because they don't apply to (real) numeric types
@@ -633,6 +637,9 @@ def test_append_inconsistent_units():
         np.append(a, [4, 5, 6])
 
 
+@pytest.mark.skipif(
+    NUMPY_VERSION >= Version("2.0.0dev0"), reason="np.asfarray is removed in numpy 2.0"
+)
 def test_asfarray():
     x1 = np.eye(3, dtype="int64") * cm
 
