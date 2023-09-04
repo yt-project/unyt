@@ -164,7 +164,7 @@ def as_rest_table(data, full=False):
         line_marker = "="
 
     meta_template = vertical_separator.join(
-        ["{{{{{0}:{{{0}}}}}}}".format(i) for i in range(num_elts)]
+        [f"{{{{{i}:{{{i}}}}}}}" for i in range(num_elts)]
     )
     template = f"{start_of_line}{meta_template.format(*sizes)}{end_of_line}"
     # determine top/bottom borders
