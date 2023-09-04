@@ -112,7 +112,7 @@ def _check_unyt_inputs(ui_0, ui_1):
 
 
 def _is_iterable(obj):
-    return type(obj) is tuple or type(obj) is list
+    return type(obj) is tuple or type(obj) is list  # noqa E721
 
 
 def _sanitize_unit_args(*input):
