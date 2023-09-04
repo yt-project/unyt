@@ -27,7 +27,6 @@ NUMPY_VERSION = Version(version("numpy"))
 # This is not necessarilly complete !
 NOOP_FUNCTIONS = {
     np.all,  # expects booleans
-    np.alltrue,  # expects booleans
     np.amax,  # works out of the box (tested)
     np.amin,  # works out of the box (tested)
     np.angle,  # expects complex numbers
@@ -71,7 +70,6 @@ NOOP_FUNCTIONS = {
     np.repeat,  # works out of the box (tested)
     np.tile,  # works out of the box (tested)
     np.shares_memory,  # works out of the box (tested)
-    np.sometrue,  # works out of the box (tested)
     np.nonzero,  # works out of the box (tested)
     np.count_nonzero,  # returns pure numbers
     np.flatnonzero,  # works out of the box (tested)
@@ -119,7 +117,6 @@ NOOP_FUNCTIONS = {
     np.unravel_index,  # returns pure numbers
     np.fix,  # works out of the box (tested)
     np.round,  # is implemented via np.around
-    np.round_,  # is implemented via np.around
     np.may_share_memory,  # returns pure numbers (booleans)
     np.linalg.matrix_power,  # works out of the box (tested)
     np.linalg.cholesky,  # works out of the box (tested)
@@ -177,8 +174,12 @@ DEPRECATED_FUNCTIONS = {
     "rank",  # deprecated in numpy 1.10, removed in 1.18
     "rate",  # deprecated in numpy 1.18, removed in 1.20
     "msort",  # deprecated in numpy 1.24
-    "product",  # deprecated in numpy 1.25
-    "cumproduct",  # deprecated in numpy 1.25
+    # numpy 1.25 deprecations
+    "product",
+    "cumproduct",
+    "round_",  # removed in 2.0
+    "sometrue",
+    "alltrue",
 }
 
 NOT_HANDLED_FUNCTIONS = NOOP_FUNCTIONS | UNSUPPORTED_FUNCTIONS | IGNORED_FUNCTIONS
