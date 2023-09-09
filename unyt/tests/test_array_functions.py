@@ -734,6 +734,7 @@ def test_fft_shift(func):
     assert res.units == cm
 
 
+@pytest.mark.filterwarnings("ignore:`trapz` is deprecated. Use `scipy.*")
 def test_trapz_no_x():
     y = [0, 1, 2, 3] * cm
     res = np.trapz(y)
@@ -741,6 +742,7 @@ def test_trapz_no_x():
     assert res.units == cm
 
 
+@pytest.mark.filterwarnings("ignore:`trapz` is deprecated. Use `scipy.*")
 def test_trapz_with_raw_x():
     y = [0, 1, 2, 3] * cm
     x = [0, 1, 2, 3]
@@ -749,6 +751,7 @@ def test_trapz_with_raw_x():
     assert res.units == cm
 
 
+@pytest.mark.filterwarnings("ignore:`trapz` is deprecated. Use `scipy.*")
 def test_trapz_with_unit_x():
     y = [0, 1, 2, 3] * cm
     x = [0, 1, 2, 3] * s
@@ -757,6 +760,7 @@ def test_trapz_with_unit_x():
     assert res.units == cm * s
 
 
+@pytest.mark.filterwarnings("ignore:`trapz` is deprecated. Use `scipy.*")
 def test_trapz_with_raw_dx():
     y = [0, 1, 2, 3] * cm
     dx = 2.0
@@ -765,6 +769,7 @@ def test_trapz_with_raw_dx():
     assert res.units == cm
 
 
+@pytest.mark.filterwarnings("ignore:`trapz` is deprecated. Use `scipy.*")
 def test_trapz_with_unit_dx():
     y = [0, 1, 2, 3] * cm
     dx = 2.0 * s
@@ -1413,12 +1418,14 @@ def test_isin():
     assert np.isin(1 * cm, a)
 
 
+@pytest.mark.filterwarnings("ignore:`in1d` is deprecated. Use `np.isin` instead.")
 def test_in1d_mixed_units():
     a = [1, 2, 3] * cm
     with pytest.raises(UnitInconsistencyError):
         np.in1d([1, 2], a)
 
 
+@pytest.mark.filterwarnings("ignore:`in1d` is deprecated. Use `np.isin` instead.")
 def test_in1d():
     a = [1, 2, 3] * cm
     b = [1, 2] * cm

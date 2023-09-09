@@ -441,22 +441,6 @@ def fft_ifftshift(x, *args, **kwargs):
     )
 
 
-@implements(np.trapz)
-def trapz(y, x=None, dx=1.0, *args, **kwargs):
-    ret_units = y.units
-    if x is None:
-        ret_units = ret_units * getattr(dx, "units", NULL_UNIT)
-    else:
-        ret_units = ret_units * getattr(x, "units", NULL_UNIT)
-    if isinstance(x, np.ndarray):
-        x = x.view(np.ndarray)
-    if isinstance(dx, np.ndarray):
-        dx = dx.view(np.ndarray)
-    return (
-        np.trapz._implementation(y.view(np.ndarray), x, dx, *args, **kwargs) * ret_units
-    )
-
-
 @implements(np.sort_complex)
 def sort_complex(a):
     return np.sort_complex._implementation(a.view(np.ndarray)) * a.units
@@ -790,12 +774,6 @@ def isin(element, test_elements, *args, **kwargs):
     )
 
 
-@implements(np.in1d)
-def in1d(ar1, ar2, *args, **kwargs):
-    _validate_units_consistency((ar1, ar2))
-    return np.isin._implementation(np.asarray(ar1), np.asarray(ar2), *args, **kwargs)
-
-
 @implements(np.place)
 def place(arr, mask, vals, *args, **kwargs) -> None:
     _validate_units_consistency_v2(arr.units, vals)
@@ -1012,3 +990,33 @@ if NUMPY_VERSION < Version("2.0.0dev0"):
     def asfarray(a, dtype=np.double):
         ret_units = a.units
         return np.asfarray._implementation(a.view(np.ndarray), dtype=dtype) * ret_units
+
+
+# functions with pending deprecations
+if hasattr(np, "trapz"):
+
+    @implements(np.trapz)
+    def trapz(y, x=None, dx=1.0, *args, **kwargs):
+        ret_units = y.units
+        if x is None:
+            ret_units = ret_units * getattr(dx, "units", NULL_UNIT)
+        else:
+            ret_units = ret_units * getattr(x, "units", NULL_UNIT)
+        if isinstance(x, np.ndarray):
+            x = x.view(np.ndarray)
+        if isinstance(dx, np.ndarray):
+            dx = dx.view(np.ndarray)
+        return (
+            np.trapz._implementation(y.view(np.ndarray), x, dx, *args, **kwargs)
+            * ret_units
+        )
+
+
+if hasattr(np, "in1d"):
+
+    @implements(np.in1d)
+    def in1d(ar1, ar2, *args, **kwargs):
+        _validate_units_consistency((ar1, ar2))
+        return np.isin._implementation(
+            np.asarray(ar1), np.asarray(ar2), *args, **kwargs
+        )
