@@ -124,6 +124,7 @@ filterwarnings = [
     "ignore:FigureCanvasAgg is non-interactive, and thus cannot be shown:UserWarning",
     "ignore:In accordance with NEP 32:DeprecationWarning",
     "ignore:distutils Version classes are deprecated. Use packaging.version instead.:DeprecationWarning",
+    'ignore:datetime\.datetime\.utcfromtimestamp\(\) is deprecated:DeprecationWarning', # https://github.com/dateutil/dateutil/pull/1285
 ]
 
 [tool.coverage.run]
