@@ -33,7 +33,7 @@ def setup(app):
     setup.config = app.config
     setup.confdir = app.confdir
 
-    retdict = dict(version="0.1")
+    retdict = {"version": "0.1"}
 
     return retdict
 

@@ -794,7 +794,7 @@ def generate_name_alternatives():
                     used_prefix = prefix
                 append_name(names[prefix + key], used_prefix + key, prefix + key)
         elif len(key) > 3 and key.title() != key:
-            if all([len(k) > 3 for k in key.split("_")]):
+            if all(len(k) > 3 for k in key.split("_")):
                 append_name(names[key], key, key.title())
         if key in default_unit_name_alternatives:
             alternatives = default_unit_name_alternatives[key]
