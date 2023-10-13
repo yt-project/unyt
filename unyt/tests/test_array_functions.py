@@ -149,6 +149,13 @@ NOOP_FUNCTIONS = {
     np.take_along_axis,  # works out of the box (tested)
 }
 
+
+if NUMPY_VERSION >= Version("2.0.0dev0"):
+    NOOP_FUNCTIONS |= {
+        np.linalg.diagonal,  # works out of the box (tested)
+        np.linalg.trace,  # works out of the box (tested)
+    }
+
 # Functions for which behaviour is intentionally left to default
 IGNORED_FUNCTIONS = {
     np.i0,
@@ -439,6 +446,26 @@ def test_invalid_matrix_stack_linalg_pinv():
         ),
     ):
         np.linalg.pinv(stack)
+
+
+@pytest.mark.skipif(
+    NUMPY_VERSION < Version("2.0.0dev0"), reason="linalg.diagonal is new in numpy 2.0"
+)
+def test_linalg_diagonal():
+    a = np.eye(3) * cm
+    b = np.linalg.diagonal(a)
+    assert type(b) is unyt_array
+    assert b.units == a.units
+
+
+@pytest.mark.skipif(
+    NUMPY_VERSION < Version("2.0.0dev0"), reason="linalg.trace is new in numpy 2.0"
+)
+def test_linalg_trace():
+    a = np.eye(3) * cm
+    b = np.linalg.trace(a)
+    assert type(b) is unyt_quantity
+    assert b.units == a.units
 
 
 def test_histogram():
