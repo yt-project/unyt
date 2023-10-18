@@ -102,7 +102,6 @@ from numpy import (
     true_divide,
     trunc,
 )
-from numpy.core.umath import _ones_like
 from sympy import Rational
 
 from unyt._on_demand_imports import _astropy, _dask, _pint
@@ -563,7 +562,6 @@ class unyt_array(np.ndarray):
         divmod_: _passthrough_unit,
         isnat: _return_without_unit,
         heaviside: _preserve_units,
-        _ones_like: _preserve_units,
         matmul: _multiply_units,
         clip: _passthrough_unit,
     }
@@ -1754,9 +1752,7 @@ class unyt_array(np.ndarray):
         """
         Power function
         """
-        # over-rides the ufunc as ``numpy`` passes the ``_ones_like`` ufunc for
-        # powers of zero (in some cases), which leads to an incorrect unit
-        # calculation.
+        # see https://github.com/yt-project/unyt/issues/203
         if p == 0.0:
             ret = self.ua
             ret.units = Unit("dimensionless")
