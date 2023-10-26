@@ -1297,8 +1297,18 @@ def test_common_type():
 
 
 def test_result_type():
-    dtype = np.result_type(3 * cm, np.arange(7, dtype="i1"))
-    assert dtype == np.dtype("int8")
+    scalar = 3 * cm
+    array = np.arange(7, dtype="i1")
+    if NUMPY_VERSION >= Version("2.0.0dev0"):
+        # promotion rules vary under NEP 50. The default behaviour is different
+        # in numpy 2.0 VS numpy 1.x
+        # see https://github.com/numpy/numpy/pull/23912
+        # see https://numpy.org/neps/nep-0050-scalar-promotion.html
+        expected_dtype = scalar.dtype
+    else:
+        expected_dtype = array.dtype
+
+    assert np.result_type(scalar, array) == expected_dtype
 
 
 @pytest.mark.parametrize(
