@@ -5,6 +5,7 @@ Credits
 Contributors
 ------------
 
+* Daniel Bates
 * Ricarda Beckmann <ricarda.beckmann@astro.ox.ac.uk>
 * Andrei Berceanu <andreiberceanu@gmail.com>
 * Josh Borrow <joshua.borrow@durham.ac.uk>
@@ -12,6 +13,7 @@ Contributors
 * Bili Dong <qobilidop@gmail.com>
 * Nathan Goldbaum <nathan12343@gmail.com>
 * David Hannasch <David.A.Hannasch@gmail.com>
+* Peter Hayman
 * Cameron Hummels <chummels@gmail.com>
 * Thomas Hisch <t.hisch@gmail.com>
 * Paul Ivanov <pivanov5@bloomberg.net>

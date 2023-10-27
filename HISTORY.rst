@@ -45,6 +45,7 @@ Major contributions include:
 
 * A number of PRs to support NumPy 2.0, thank you to Clément Robert
   (@neutrinoceros on GitHub) for the contributions:
+
   - `PR #434 <https://github.com/yt-project/unyt/pull/434>`_.
   - `PR #442 <https://github.com/yt-project/unyt/pull/442>`_.
   - `PR #443 <https://github.com/yt-project/unyt/pull/443>`_.
@@ -56,6 +57,7 @@ Major contributions include:
 * A number of PRs to support
   `NEP 18 <https://numpy.org/neps/nep-0018-array-function-protocol.html>`_,
   thank you to Clément Robert (@neutrinoceros on GitHub) for the contributions:
+
   - `PR #388 <https://github.com/yt-project/unyt/pull/388>`_.
   - `PR #391 <https://github.com/yt-project/unyt/pull/391>`_.
   - `PR #394 <https://github.com/yt-project/unyt/pull/394>`_.
