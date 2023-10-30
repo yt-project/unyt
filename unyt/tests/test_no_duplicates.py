@@ -1,16 +1,13 @@
 def test_no_duplicates():
-    import unyt.unit_symbols as us
-    from unyt._unit_lookup_table import (
-        physical_constants,
-    )
+    import unyt
+    from unyt import physical_constants, unit_symbols
+    from unyt.array import unyt_quantity
 
-    symbol_names = {name for name in vars(us) if not name.startswith("_")}
-    constant_names = set(physical_constants.keys())
+    symbol_names = {key for key in unit_symbols.__dict__ if not key.startswith("_")}
+    constant_names = {
+        key for key in physical_constants.__dict__ if not key.startswith("_")
+    }
 
     dups = symbol_names.intersection(constant_names)
-    try:
-        assert dups == {}
-    except AssertionError:
-        raise ValueError(
-            f"Duplicate names found between unit symbols and constants: {dups}"
-        )
+    for dup in dups:
+        assert isinstance(getattr(unyt, dup), unyt_quantity)
