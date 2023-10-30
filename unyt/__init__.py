@@ -69,12 +69,12 @@ from ._version import __version__
 def import_units(module, namespace):
     """Import Unit objects from a module into a namespace"""
     for key, value in module.__dict__.items():
-        if isinstance(value, (unyt_quantity, Unit)):
+        if key not in namespace and isinstance(value, (unyt_quantity, Unit)):
             namespace[key] = value
 
 
-import_units(unit_symbols, globals())
 import_units(physical_constants, globals())
+import_units(unit_symbols, globals())
 
 del import_units
 
