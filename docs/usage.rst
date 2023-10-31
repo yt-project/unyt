@@ -22,8 +22,12 @@ constants defined in :mod:`unyt`, see :ref:`unit-listing`.
     :mod:`unyt` namespace. Some names occur as both unit symbols and physical
     constants, e.g. ``"me"``, ``"mp"``, ``"E_pl"``, etc. In such cases, the
     top-level namespace defaults to exporting the physical constant with the
-    duplicate name. As described below, there are other ways to import the
-    unit symbols and/or physical constants besides the top-level namespace.
+    duplicate name. This means that there may be a (very rare) case where an
+    :class:`Unit <unyt.unit_object.Unit>` object that at one point can be
+    imported from the top-level namespace may at a later point be only imported
+    as an :class:`unyt_quantity <unyt.array.unyt_quantity>` object with the
+    same name. As described below, there are other ways to import the unit
+    symbols and/or physical constants besides the top-level namespace.
 
 An Example from High School Physics
 -----------------------------------
