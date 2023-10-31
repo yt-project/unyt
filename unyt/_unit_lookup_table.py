@@ -524,7 +524,6 @@ default_base_units = {
 physical_constants = OrderedDict(
     [
         ("me", (mass_electron_kg, "kg", ["mass_electron", "electron_mass"])),
-        ("amu", (amu_kg, "kg", ["atomic_mass_unit"])),
         ("Na", (avogadros_number, "mol**-1", ["Avogadros_number", "avogadros_number"])),
         ("mp", (mass_proton_kg, "kg", ["proton_mass", "mass_proton"])),
         ("mh", (mass_hydrogen_kg, "kg", ["hydrogen_mass", "mass_hydrogen"])),
