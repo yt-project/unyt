@@ -524,8 +524,8 @@ def test_concatenate_different_units():
 
 
 def test_cross():
-    x1 = np.random.random_sample((2, 2)) * cm
-    x2 = np.eye(2) * s
+    x1 = [1, 2, 3] * cm
+    x2 = [4, 5, 6] * s
     res = np.cross(x1, x2)
     assert res.units == cm * s
 
