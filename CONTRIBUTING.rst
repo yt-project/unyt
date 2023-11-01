@@ -199,9 +199,9 @@ AUTHORS.rst).
 
 If doing a bugfix release, you may need to create a - or checkout an existing -
 backport branch named ``vX.Y.x`` where ``X`` and ``Y`` represent the relevant
-major and minor version numbers, and the lowercase ``x`` is literal.
-
-Otherwise you may just release from the development branch.
+major and minor version numbers, and the lowercase ``x`` is literal. Otherwise
+you may just release from the development branch. Once you are ready, create
+a tag and push it to the upstream repository::
 
   $ git tag vX.Y.Z            # where X, Y and Z should be meaningful major, minor and micro version numbers
   $ git push upstream --tag   # assuming the mother repo yt-project/unyt is set as a remote under the name "upstream"
@@ -213,12 +213,12 @@ If the tests pass you can then subsequently manually upload to PyPI::
   $ rm -r build dist
   $ python -m build
 
-Do a test publication
+Do a test publication::
 
   $ twine check dist/*
   $ twine upload dist/* --repository-url https://test.pypi.org/legacy/
 
-Test the result (best using a fresh environment here)
+Test the result (best using a fresh environment here)::
 
   $ python -m pip install pytest
   $ python -m pip install --index-url https://test.pypi.org/simple/ unyt --extra-index-url https://pypi.org/simple --force
@@ -226,6 +226,6 @@ Test the result (best using a fresh environment here)
   $ python -m pip install --index-url https://test.pypi.org/simple/ unyt --extra-index-url https://pypi.org/simple --no-binary unyt --force
   $ python -c "import unyt; unyt.test()"
 
-Finally, if everything works well, push the release to the normal PyPI index as
+Finally, if everything works well, push the release to the normal PyPI index as::
 
   $ twine upload dist/*

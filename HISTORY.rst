@@ -2,6 +2,108 @@
 History
 =======
 
+3.0.0 (2023-11-01)
+------------------
+
+This new major release of ``unyt`` fixes a number of issues and adds a number
+of new features. Major contributions include:
+
+* Support for Python 3.8 has been dropped.
+* Support for Python 3.12 has been added.
+* Support for NumPy <1.19.3 has been dropped.
+* Support for SymPy <1.7 has been dropped.
+* A new ``unyt_dask_array`` class, which implements a subclass of standard
+  `dask arrays <https://docs.dask.org/en/stable/>`_ with units attached, has
+  been added (`PR #185 <https://github.com/yt-project/unyt/pull/185>`_). See
+  :ref:`dask` for more details. Thank you to Chris Havlin (@chrishavlin on
+  Github) for the contribution.
+
+* A number of new metric and non-metric units have been added in
+  `PR #441 <https://github.com/yt-project/unyt/pull/442>`_. Thank you
+  to John ZuHone (@jzuhone on GitHub) for the contribution.
+
+* A number of common values for the solar metallicity found in the
+  literature have been added as new metallicity units
+  (`PR #315 <https://github.com/yt-project/unyt/pull/315>`_). See
+  :ref:`metal_conversions` for more details. Thank you to John ZuHone
+  (@jzuhone on GitHub) for the contribution.
+
+* The "liter" unit has been added (`PR #305 <https://github.com/yt-project/unyt/pull/305>`_).
+  Thank you to Nathan Goldbaum (@ngoldbaum on GitHub) for the contribution.
+
+* The following common systems engineering units for energy have been added:
+  ``MMBTU``, ``therm``, ``quad``, and ``Wh``
+  (`PR #294 <https://github.com/yt-project/unyt/pull/294>`_). Thank you to
+  Sam Dotson (@samgdotson on GitHub) for the contribution.
+
+* The ``@returns`` decorator (documented in :ref:`checking_units`) now allows
+  dimension-checking of multiple return values
+  (`PR #435 <https://github.com/yt-project/unyt/pull/435>`_).
+  Thank you to Daniel Bates (@db434 on GitHub) for the contribution.
+
+* A number of PRs to support
+  `NEP 18 <https://numpy.org/neps/nep-0018-array-function-protocol.html>`_,
+  including the following (thank you to Clément Robert, @neutrinoceros on
+  GitHub, and Nathan Goldbaum, @ngoldbaum on Github, for the contributions):
+
+  - `PR #200 <https://github.com/yt-project/unyt/pull/200>`_.
+  - `PR #293 <https://github.com/yt-project/unyt/pull/293>`_.
+  - `PR #295 <https://github.com/yt-project/unyt/pull/295>`_.
+  - `PR #304 <https://github.com/yt-project/unyt/pull/304>`_.
+  - `PR #309 <https://github.com/yt-project/unyt/pull/309>`_.
+  - `PR #313 <https://github.com/yt-project/unyt/pull/313>`_.
+  - `PR #316 <https://github.com/yt-project/unyt/pull/316>`_.
+  - `PR #317 <https://github.com/yt-project/unyt/pull/317>`_.
+  - `PR #319 <https://github.com/yt-project/unyt/pull/319>`_.
+  - `PR #320 <https://github.com/yt-project/unyt/pull/320>`_.
+  - `PR #324 <https://github.com/yt-project/unyt/pull/324>`_.
+  - `PR #325 <https://github.com/yt-project/unyt/pull/325>`_.
+  - `PR #329 <https://github.com/yt-project/unyt/pull/329>`_.
+  - `PR #338 <https://github.com/yt-project/unyt/pull/338>`_.
+  - `PR #348 <https://github.com/yt-project/unyt/pull/348>`_.
+  - `PR #351 <https://github.com/yt-project/unyt/pull/351>`_.
+  - `PR #352 <https://github.com/yt-project/unyt/pull/352>`_.
+  - `PR #388 <https://github.com/yt-project/unyt/pull/388>`_.
+  - `PR #394 <https://github.com/yt-project/unyt/pull/394>`_.
+  - `PR #395 <https://github.com/yt-project/unyt/pull/395>`_.
+  - `PR #396 <https://github.com/yt-project/unyt/pull/396>`_.
+  - `PR #397 <https://github.com/yt-project/unyt/pull/397>`_.
+  - `PR #398 <https://github.com/yt-project/unyt/pull/398>`_.
+
+* A fix for for the LaTeX representation of Planck units
+  (`PR #379 <https://github.com/yt-project/unyt/pull/379>`_). Thank you to
+  Peter Hayman (@haymanpf on GitHub) for the contribution.
+
+* A fix for a bug that prevented the conversion of dimensionless arrays
+  to their corresponding `AstroPy Quantities <https://docs.astropy.org/en/stable/units/>`_
+  (`PR #437 <https://github.com/yt-project/unyt/pull/437>`_). Thank you to
+  Clément Robert (@neutrinoceros on GitHub) for the contribution.
+
+* A fix for a bug in subtraction of temperature quantities that resulted in
+  ``degC`` units being returned instead of ``delta_degC`` units
+  (`PR #413 <https://github.com/yt-project/unyt/pull/413>`_). Thank you
+  to Clément Robert (@neutrinoceros on GitHub) for the contribution.
+
+* Fixes for issues with the comparison of temperature quantities
+  (`PR #408 <https://github.com/yt-project/unyt/pull/408>`_ and
+  `PR #412 <https://github.com/yt-project/unyt/pull/412>`_). Thank you
+  to Clément Robert (@neutrinoceros on GitHub) for the contribution.
+
+* Support for versions of NumPy < 1.19 has been dropped in this version
+  (`PR #403 <https://github.com/yt-project/unyt/pull/434>`_). Thank you
+  to Clément Robert (@neutrinoceros on GitHub) for the contribution.
+
+* A number of PRs to support NumPy 2.0, thank you to Clément Robert
+  (@neutrinoceros on GitHub) for the contributions:
+
+  - `PR #434 <https://github.com/yt-project/unyt/pull/434>`_.
+  - `PR #442 <https://github.com/yt-project/unyt/pull/442>`_.
+  - `PR #443 <https://github.com/yt-project/unyt/pull/443>`_.
+  - `PR #445 <https://github.com/yt-project/unyt/pull/445>`_.
+  - `PR #448 <https://github.com/yt-project/unyt/pull/448>`_.
+  - `PR #455 <https://github.com/yt-project/unyt/pull/455>`_.
+  - `PR #456 <https://github.com/yt-project/unyt/pull/456>`_.
+
 2.9.5 (2023-02-22)
 ------------------
 
