@@ -458,6 +458,8 @@ and :meth:`unyt_array.convert_to_mks <unyt.array.unyt_array.convert_to_mks>` met
 
 See below for details on CGS and MKS electromagnetic units.
 
+.. _metal_conversions:
+
 Metallicity Unit Conversions
 ----------------------------
 
@@ -1464,6 +1466,8 @@ There are three ways to use the context manager:
   >>> import unyt
   >>> unyt.matplotlib_support()
   >>> import matplotlib.pyplot as plt
+
+.. _dask:
 
 Working with Dask arrays
 ++++++++++++++++++++++++
