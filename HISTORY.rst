@@ -10,6 +10,7 @@ of new features. Major contributions include:
 
 * Support for Python 3.8 has been dropped.
 * Support for Python 3.12 has been added.
+* Support for NumPy <1.19 has been dropped.
 * A new ``unyt_dask_array`` class, which implements a subclass of standard
   `dask arrays <https://docs.dask.org/en/stable/>`_ with units attached, has
   been added (`PR #185 <https://github.com/yt-project/unyt/pull/185>`_). See
