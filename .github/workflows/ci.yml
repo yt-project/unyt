@@ -18,7 +18,6 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         python-version:
-          - '3.8'
           - '3.9'
           - '3.10'
           - '3.11'
@@ -26,9 +25,9 @@ jobs:
         # Test all on ubuntu, test ends on macos and windows
         include:
           - os: macos-latest
-            python-version: '3.8'
+            python-version: '3.9'
           - os: windows-latest
-            python-version: '3.8'
+            python-version: '3.9'
           - os: macos-latest
             python-version: '3.12'
           - os: windows-latest

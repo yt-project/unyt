@@ -5,7 +5,6 @@ A set of convenient on-demand imports
 import sys
 from functools import wraps
 from importlib.util import find_spec
-from typing import Type
 
 
 class NotAModule:
@@ -50,7 +49,7 @@ class NotAModule:
 
 
 class OnDemand:
-    _default_factory: Type[NotAModule] = NotAModule
+    _default_factory: type[NotAModule] = NotAModule
 
     def __init_subclass__(cls):
         if not cls.__name__.endswith("_imports"):
