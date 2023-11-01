@@ -36,7 +36,7 @@ of new features. Major contributions include:
   (`PR #294 <https://github.com/yt-project/unyt/pull/294>`_). Thank you to
   Sam Dotson (@samgdotson on GitHub) for the contribution.
 
-* The ``@returns`` decorator (documented in :ref:`<Checking Units>`) now allows
+* The ``@returns`` decorator (documented in :ref:`checking_units`) now allows
   dimension-checking of multiple return values
   (`PR #435 <https://github.com/yt-project/unyt/pull/435>`_).
   Thank you to Daniel Bates (@db434 on GitHub) for the contribution.

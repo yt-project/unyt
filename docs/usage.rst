@@ -321,6 +321,7 @@ and quantities will be simplified to make interactive work more intuitive::
   >>> print(power*elapsed_time)
   [ 3600.  7200. 14400.] erg
 
+.. _checking_units:
 
 Checking Units
 --------------
