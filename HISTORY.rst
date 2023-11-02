@@ -8,7 +8,7 @@ History
 This new bugfix release of ``unyt`` fixes a few bugs since the v3.0.0 release.
 
 * Fix an issue where array functions would raise ``UnitConsistencyError`` on
-  ``unyt_array``s using non-default unit registries
+  ``unyt_array`` objects using non-default unit registries
   (`PR #463 <https://github.com/yt-project/unyt/pull/463>`_). Thank you to
   Clément Robert (@neutrinoceros on GitHub) for the contribution.
 
