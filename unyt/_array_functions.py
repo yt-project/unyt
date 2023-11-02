@@ -68,10 +68,8 @@ def array2string(a, *args, **kwargs):
 def product_helper(a, b, out, func):
     prod_units = getattr(a, "units", NULL_UNIT) * getattr(b, "units", NULL_UNIT)
     if out is None:
-        return func._implementation(a.view(np.ndarray), b.view(np.ndarray)) * prod_units
-    res = func._implementation(
-        a.view(np.ndarray), b.view(np.ndarray), out=out.view(np.ndarray)
-    )
+        return func._implementation(np.asarray(a), np.asarray(b)) * prod_units
+    res = func._implementation(np.asarray(a), np.asarray(b), out=np.asarray(out))
     if getattr(out, "units", None) is not None:
         out.units = prod_units
     return unyt_array(res, prod_units, bypass_validation=True)
@@ -84,14 +82,14 @@ def dot(a, b, out=None):
 
 @implements(np.vdot)
 def vdot(a, b):
-    return np.vdot._implementation(a.view(np.ndarray), b.view(np.ndarray)) * (
+    return np.vdot._implementation(np.asarray(a), np.asarray(b)) * (
         getattr(a, "units", NULL_UNIT) * getattr(b, "units", NULL_UNIT)
     )
 
 
 @implements(np.inner)
 def inner(a, b):
-    return np.inner._implementation(a.view(np.ndarray), b.view(np.ndarray)) * (
+    return np.inner._implementation(np.asarray(a), np.asarray(b)) * (
         getattr(a, "units", NULL_UNIT) * getattr(b, "units", NULL_UNIT)
     )
 
@@ -103,14 +101,14 @@ def outer(a, b, out=None):
 
 @implements(np.kron)
 def kron(a, b):
-    return np.kron._implementation(a.view(np.ndarray), b.view(np.ndarray)) * (
+    return np.kron._implementation(np.asarray(a), np.asarray(b)) * (
         getattr(a, "units", NULL_UNIT) * getattr(b, "units", NULL_UNIT)
     )
 
 
 @implements(np.linalg.inv)
 def linalg_inv(a, *args, **kwargs):
-    return np.linalg.inv._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+    return np.linalg.inv._implementation(np.asarray(a), *args, **kwargs) / a.units
 
 
 @implements(np.linalg.tensorinv)
@@ -127,7 +125,7 @@ def linalg_pinv(a, *args, **kwargs):
 def linalg_svd(a, full_matrices=True, compute_uv=True, *args, **kwargs):
     ret_units = a.units
     retv = np.linalg.svd._implementation(
-        a.view(np.ndarray), full_matrices, compute_uv, *args, **kwargs
+        np.asarray(a), full_matrices, compute_uv, *args, **kwargs
     )
     if compute_uv:
         u, s, vh = retv
@@ -170,7 +168,7 @@ def histogram(
 ):
     range = _sanitize_range(range, units=[a.units])
     counts, bins = np.histogram._implementation(
-        a.view(np.ndarray), bins, range, *args, **kwargs
+        np.asarray(a), bins, range, *args, **kwargs
     )
     return counts, bins * a.units
 
@@ -179,7 +177,7 @@ def histogram(
 def histogram2d(x, y, bins=10, range=None, *args, **kwargs):
     range = _sanitize_range(range, units=[x.units, y.units])
     counts, xbins, ybins = np.histogram2d._implementation(
-        x.view(np.ndarray), y.view(np.ndarray), bins, range, *args, **kwargs
+        np.asarray(x), np.asarray(y), bins, range, *args, **kwargs
     )
     return counts, xbins * x.units, ybins * y.units
 
@@ -189,7 +187,7 @@ def histogramdd(sample, bins=10, range=None, *args, **kwargs):
     units = [_.units for _ in sample]
     range = _sanitize_range(range, units=units)
     counts, bins = np.histogramdd._implementation(
-        [_.view(np.ndarray) for _ in sample], bins, range, *args, **kwargs
+        [np.asarray(_) for _ in sample], bins, range, *args, **kwargs
     )
     return counts, tuple(_bin * u for _bin, u in zip(bins, units))
 
@@ -197,8 +195,7 @@ def histogramdd(sample, bins=10, range=None, *args, **kwargs):
 @implements(np.histogram_bin_edges)
 def histogram_bin_edges(a, *args, **kwargs):
     return (
-        np.histogram_bin_edges._implementation(a.view(np.ndarray), *args, **kwargs)
-        * a.units
+        np.histogram_bin_edges._implementation(np.asarray(a), *args, **kwargs) * a.units
     )
 
 
@@ -247,12 +244,12 @@ def concatenate(arrs, /, axis=0, out=None, *args, **kwargs):
     ret_units = _validate_units_consistency(arrs)
 
     if out is not None:
-        out_view = out.view(np.ndarray)
+        out_view = np.asarray(out)
     else:
         out_view = out
 
     res = np.concatenate._implementation(
-        [_.view(np.ndarray) for _ in arrs], axis, out_view, *args, **kwargs
+        [np.asarray(_) for _ in arrs], axis, out_view, *args, **kwargs
     )
 
     if getattr(out, "units", None) is not None:
@@ -265,9 +262,7 @@ def concatenate(arrs, /, axis=0, out=None, *args, **kwargs):
 def cross(a, b, *args, **kwargs):
     prod_units = getattr(a, "units", NULL_UNIT) * getattr(b, "units", NULL_UNIT)
     return (
-        np.cross._implementation(
-            a.view(np.ndarray), b.view(np.ndarray), *args, **kwargs
-        )
+        np.cross._implementation(np.asarray(a), np.asarray(b), *args, **kwargs)
         * prod_units
     )
 
@@ -276,8 +271,8 @@ def cross(a, b, *args, **kwargs):
 def intersect1d(arr1, arr2, /, assume_unique=False, return_indices=False):
     _validate_units_consistency((arr1, arr2))
     retv = np.intersect1d._implementation(
-        arr1.view(np.ndarray),
-        arr2.view(np.ndarray),
+        np.asarray(arr1),
+        np.asarray(arr2),
         assume_unique=assume_unique,
         return_indices=return_indices,
     )
@@ -290,41 +285,36 @@ def intersect1d(arr1, arr2, /, assume_unique=False, return_indices=False):
 @implements(np.union1d)
 def union1d(arr1, arr2, /):
     _validate_units_consistency((arr1, arr2))
-    return (
-        np.union1d._implementation(arr1.view(np.ndarray), arr2.view(np.ndarray))
-        * arr1.units
-    )
+    return np.union1d._implementation(np.asarray(arr1), np.asarray(arr2)) * arr1.units
 
 
 @implements(np.linalg.norm)
 def norm(x, /, *args, **kwargs):
-    return np.linalg.norm._implementation(x.view(np.ndarray), *args, **kwargs) * x.units
+    return np.linalg.norm._implementation(np.asarray(x), *args, **kwargs) * x.units
 
 
 @implements(np.vstack)
 def vstack(tup, /):
     ret_units = _validate_units_consistency(tup)
-    return np.vstack._implementation([_.view(np.ndarray) for _ in tup]) * ret_units
+    return np.vstack._implementation([np.asarray(_) for _ in tup]) * ret_units
 
 
 @implements(np.hstack)
 def hstack(tup, /):
     ret_units = _validate_units_consistency(tup)
-    return np.vstack._implementation([_.view(np.ndarray) for _ in tup]) * ret_units
+    return np.vstack._implementation([np.asarray(_) for _ in tup]) * ret_units
 
 
 @implements(np.dstack)
 def dstack(tup, /):
     ret_units = _validate_units_consistency(tup)
-    return np.dstack._implementation([_.view(np.ndarray) for _ in tup]) * ret_units
+    return np.dstack._implementation([np.asarray(_) for _ in tup]) * ret_units
 
 
 @implements(np.column_stack)
 def column_stack(tup, /):
     ret_units = _validate_units_consistency(tup)
-    return (
-        np.column_stack._implementation([_.view(np.ndarray) for _ in tup]) * ret_units
-    )
+    return np.column_stack._implementation([np.asarray(_) for _ in tup]) * ret_units
 
 
 @implements(np.stack)
@@ -332,11 +322,11 @@ def stack(arrays, /, axis=0, out=None):
     ret_units = _validate_units_consistency(arrays)
     if out is None:
         return (
-            np.stack._implementation([_.view(np.ndarray) for _ in arrays], axis=axis)
+            np.stack._implementation([np.asarray(_) for _ in arrays], axis=axis)
             * ret_units
         )
     res = np.stack._implementation(
-        [_.view(np.ndarray) for _ in arrays], axis=axis, out=out.view(np.ndarray)
+        [np.asarray(_) for _ in arrays], axis=axis, out=np.asarray(out)
     )
     if getattr(out, "units", None) is not None:
         out.units = ret_units
@@ -347,11 +337,9 @@ def stack(arrays, /, axis=0, out=None):
 def around(a, decimals=0, out=None):
     ret_units = a.units
     if out is None:
-        return (
-            np.around._implementation(a.view(np.ndarray), decimals=decimals) * ret_units
-        )
+        return np.around._implementation(np.asarray(a), decimals=decimals) * ret_units
     res = np.around._implementation(
-        a.view(np.ndarray), decimals=decimals, out=out.view(np.ndarray)
+        np.asarray(a), decimals=decimals, out=np.asarray(out)
     )
     if getattr(out, "units", None) is not None:
         out.units = ret_units
@@ -366,91 +354,87 @@ def block(arrays):
 
 @implements(np.fft.fft)
 def ftt_fft(a, *args, **kwargs):
-    return np.fft.fft._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+    return np.fft.fft._implementation(np.asarray(a), *args, **kwargs) / a.units
 
 
 @implements(np.fft.fft2)
 def ftt_fft2(a, *args, **kwargs):
-    return np.fft.fft2._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+    return np.fft.fft2._implementation(np.asarray(a), *args, **kwargs) / a.units
 
 
 @implements(np.fft.fftn)
 def ftt_fftn(a, *args, **kwargs):
-    return np.fft.fftn._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+    return np.fft.fftn._implementation(np.asarray(a), *args, **kwargs) / a.units
 
 
 @implements(np.fft.hfft)
 def ftt_hfft(a, *args, **kwargs):
-    return np.fft.hfft._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+    return np.fft.hfft._implementation(np.asarray(a), *args, **kwargs) / a.units
 
 
 @implements(np.fft.rfft)
 def ftt_rfft(a, *args, **kwargs):
-    return np.fft.rfft._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+    return np.fft.rfft._implementation(np.asarray(a), *args, **kwargs) / a.units
 
 
 @implements(np.fft.rfft2)
 def ftt_rfft2(a, *args, **kwargs):
-    return np.fft.rfft2._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+    return np.fft.rfft2._implementation(np.asarray(a), *args, **kwargs) / a.units
 
 
 @implements(np.fft.rfftn)
 def ftt_rfftn(a, *args, **kwargs):
-    return np.fft.rfftn._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+    return np.fft.rfftn._implementation(np.asarray(a), *args, **kwargs) / a.units
 
 
 @implements(np.fft.ifft)
 def ftt_ifft(a, *args, **kwargs):
-    return np.fft.ifft._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+    return np.fft.ifft._implementation(np.asarray(a), *args, **kwargs) / a.units
 
 
 @implements(np.fft.ifft2)
 def ftt_ifft2(a, *args, **kwargs):
-    return np.fft.ifft2._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+    return np.fft.ifft2._implementation(np.asarray(a), *args, **kwargs) / a.units
 
 
 @implements(np.fft.ifftn)
 def ftt_ifftn(a, *args, **kwargs):
-    return np.fft.ifftn._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+    return np.fft.ifftn._implementation(np.asarray(a), *args, **kwargs) / a.units
 
 
 @implements(np.fft.ihfft)
 def ftt_ihfft(a, *args, **kwargs):
-    return np.fft.ihfft._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+    return np.fft.ihfft._implementation(np.asarray(a), *args, **kwargs) / a.units
 
 
 @implements(np.fft.irfft)
 def ftt_irfft(a, *args, **kwargs):
-    return np.fft.irfft._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+    return np.fft.irfft._implementation(np.asarray(a), *args, **kwargs) / a.units
 
 
 @implements(np.fft.irfft2)
 def ftt_irfft2(a, *args, **kwargs):
-    return np.fft.irfft2._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+    return np.fft.irfft2._implementation(np.asarray(a), *args, **kwargs) / a.units
 
 
 @implements(np.fft.irfftn)
 def ftt_irfftn(a, *args, **kwargs):
-    return np.fft.irfftn._implementation(a.view(np.ndarray), *args, **kwargs) / a.units
+    return np.fft.irfftn._implementation(np.asarray(a), *args, **kwargs) / a.units
 
 
 @implements(np.fft.fftshift)
 def fft_fftshift(x, *args, **kwargs):
-    return (
-        np.fft.fftshift._implementation(x.view(np.ndarray), *args, **kwargs) * x.units
-    )
+    return np.fft.fftshift._implementation(np.asarray(x), *args, **kwargs) * x.units
 
 
 @implements(np.fft.ifftshift)
 def fft_ifftshift(x, *args, **kwargs):
-    return (
-        np.fft.ifftshift._implementation(x.view(np.ndarray), *args, **kwargs) * x.units
-    )
+    return np.fft.ifftshift._implementation(np.asarray(x), *args, **kwargs) * x.units
 
 
 @implements(np.sort_complex)
 def sort_complex(a):
-    return np.sort_complex._implementation(a.view(np.ndarray)) * a.units
+    return np.sort_complex._implementation(np.asarray(a)) * a.units
 
 
 def _array_comp_helper(a, b):
@@ -469,17 +453,13 @@ def _array_comp_helper(a, b):
 @implements(np.isclose)
 def isclose(a, b, *args, **kwargs):
     a, b = _array_comp_helper(a, b)
-    return np.isclose._implementation(
-        a.view(np.ndarray), b.view(np.ndarray), *args, **kwargs
-    )
+    return np.isclose._implementation(np.asarray(a), np.asarray(b), *args, **kwargs)
 
 
 @implements(np.allclose)
 def allclose(a, b, *args, **kwargs):
     a, b = _array_comp_helper(a, b)
-    return np.allclose._implementation(
-        a.view(np.ndarray), b.view(np.ndarray), *args, **kwargs
-    )
+    return np.allclose._implementation(np.asarray(a), np.asarray(b), *args, **kwargs)
 
 
 @implements(np.array_equal)
@@ -490,7 +470,7 @@ def array_equal(a1, a2, *args, **kwargs) -> bool:
         return False
 
     return np.array_equal._implementation(
-        a1.view(np.ndarray), a2.view(np.ndarray), *args, **kwargs
+        np.asarray(a1), np.asarray(a2), *args, **kwargs
     )
 
 
@@ -502,7 +482,7 @@ def array_equiv(a1, a2, *args, **kwargs) -> bool:
         return False
 
     return np.array_equiv._implementation(
-        a1.view(np.ndarray), a2.view(np.ndarray), *args, **kwargs
+        np.asarray(a1), np.asarray(a2), *args, **kwargs
     )
 
 
@@ -511,7 +491,7 @@ def linspace(start, stop, *args, **kwargs):
     _validate_units_consistency((start, stop))
     return (
         np.linspace._implementation(
-            start.view(np.ndarray), stop.view(np.ndarray), *args, **kwargs
+            np.asarray(start), np.asarray(stop), *args, **kwargs
         )
         * start.units
     )
@@ -522,7 +502,7 @@ def logspace(start, stop, *args, **kwargs):
     _validate_units_consistency((start, stop))
     return (
         np.logspace._implementation(
-            start.view(np.ndarray), stop.view(np.ndarray), *args, **kwargs
+            np.asarray(start), np.asarray(stop), *args, **kwargs
         )
         * start.units
     )
@@ -533,7 +513,7 @@ def geomspace(start, stop, *args, **kwargs):
     _validate_units_consistency((start, stop))
     return (
         np.geomspace._implementation(
-            start.view(np.ndarray), stop.view(np.ndarray), *args, **kwargs
+            np.asarray(start), np.asarray(stop), *args, **kwargs
         )
         * start.units
     )
@@ -551,54 +531,50 @@ def copyto(dst, src, *args, **kwargs):
 
 @implements(np.prod)
 def prod(a, *args, **kwargs):
-    return (
-        np.prod._implementation(a.view(np.ndarray), *args, **kwargs) * a.units**a.size
-    )
+    return np.prod._implementation(np.asarray(a), *args, **kwargs) * a.units**a.size
 
 
 @implements(np.var)
 def var(a, *args, **kwargs):
-    return np.var._implementation(a.view(np.ndarray), *args, **kwargs) * a.units**2
+    return np.var._implementation(np.asarray(a), *args, **kwargs) * a.units**2
 
 
 @implements(np.trace)
 def trace(a, *args, **kwargs):
-    return np.trace._implementation(a.view(np.ndarray), *args, **kwargs) * a.units
+    return np.trace._implementation(np.asarray(a), *args, **kwargs) * a.units
 
 
 @implements(np.percentile)
 def percentile(a, *args, **kwargs):
-    return np.percentile._implementation(a.view(np.ndarray), *args, **kwargs) * a.units
+    return np.percentile._implementation(np.asarray(a), *args, **kwargs) * a.units
 
 
 @implements(np.quantile)
 def quantile(a, *args, **kwargs):
-    return np.quantile._implementation(a.view(np.ndarray), *args, **kwargs) * a.units
+    return np.quantile._implementation(np.asarray(a), *args, **kwargs) * a.units
 
 
 @implements(np.nanpercentile)
 def nanpercentile(a, *args, **kwargs):
-    return (
-        np.nanpercentile._implementation(a.view(np.ndarray), *args, **kwargs) * a.units
-    )
+    return np.nanpercentile._implementation(np.asarray(a), *args, **kwargs) * a.units
 
 
 @implements(np.nanquantile)
 def nanquantile(a, *args, **kwargs):
-    return np.nanquantile._implementation(a.view(np.ndarray), *args, **kwargs) * a.units
+    return np.nanquantile._implementation(np.asarray(a), *args, **kwargs) * a.units
 
 
 @implements(np.linalg.det)
 def linalg_det(a, *args, **kwargs):
-    return np.linalg.det._implementation(
-        a.view(np.ndarray), *args, **kwargs
-    ) * a.units ** (a.shape[0])
+    return np.linalg.det._implementation(np.asarray(a), *args, **kwargs) * a.units ** (
+        a.shape[0]
+    )
 
 
 @implements(np.linalg.lstsq)
 def linalg_lstsq(a, b, *args, **kwargs):
     x, residuals, rank, s = np.linalg.lstsq._implementation(
-        a.view(np.ndarray), b.view(np.ndarray), *args, **kwargs
+        np.asarray(a), np.asarray(b), *args, **kwargs
     )
     au = getattr(a, "units", NULL_UNIT)
     bu = getattr(b, "units", NULL_UNIT)
@@ -610,9 +586,7 @@ def linalg_solve(a, b, *args, **kwargs):
     au = getattr(a, "units", NULL_UNIT)
     bu = getattr(b, "units", NULL_UNIT)
     return (
-        np.linalg.solve._implementation(
-            a.view(np.ndarray), b.view(np.ndarray), *args, **kwargs
-        )
+        np.linalg.solve._implementation(np.asarray(a), np.asarray(b), *args, **kwargs)
         * bu
         / au
     )
@@ -624,7 +598,7 @@ def linalg_tensorsolve(a, b, *args, **kwargs):
     bu = getattr(b, "units", NULL_UNIT)
     return (
         np.linalg.tensorsolve._implementation(
-            a.view(np.ndarray), b.view(np.ndarray), *args, **kwargs
+            np.asarray(a), np.asarray(b), *args, **kwargs
         )
         * bu
         / au
@@ -634,30 +608,25 @@ def linalg_tensorsolve(a, b, *args, **kwargs):
 @implements(np.linalg.eig)
 def linalg_eig(a, *args, **kwargs):
     ret_units = a.units
-    w, v = np.linalg.eig._implementation(a.view(np.ndarray), *args, **kwargs)
+    w, v = np.linalg.eig._implementation(np.asarray(a), *args, **kwargs)
     return w * ret_units, v
 
 
 @implements(np.linalg.eigh)
 def linalg_eigh(a, *args, **kwargs):
     ret_units = a.units
-    w, v = np.linalg.eigh._implementation(a.view(np.ndarray), *args, **kwargs)
+    w, v = np.linalg.eigh._implementation(np.asarray(a), *args, **kwargs)
     return w * ret_units, v
 
 
 @implements(np.linalg.eigvals)
 def linalg_eigvals(a, *args, **kwargs):
-    return (
-        np.linalg.eigvals._implementation(a.view(np.ndarray), *args, **kwargs) * a.units
-    )
+    return np.linalg.eigvals._implementation(np.asarray(a), *args, **kwargs) * a.units
 
 
 @implements(np.linalg.eigvalsh)
 def linalg_eigvalsh(a, *args, **kwargs):
-    return (
-        np.linalg.eigvalsh._implementation(a.view(np.ndarray), *args, **kwargs)
-        * a.units
-    )
+    return np.linalg.eigvalsh._implementation(np.asarray(a), *args, **kwargs) * a.units
 
 
 @implements(np.savetxt)
@@ -671,12 +640,12 @@ def savetxt(fname, X, *args, **kwargs):
         "(and `unyt.loadtxt`) instead.",
         stacklevel=4,
     )
-    return np.savetxt._implementation(fname, X.view(np.ndarray), *args, **kwargs)
+    return np.savetxt._implementation(fname, np.asarray(X), *args, **kwargs)
 
 
 @implements(np.apply_over_axes)
 def apply_over_axes(func, a, axes):
-    res = func(a.view(np.ndarray), axes[0]) * a.units
+    res = func(np.asarray(a), axes[0]) * a.units
     if len(axes) > 1:
         # this function is recursive by nature,
         # here we intentionally do not call the base _implementation
@@ -696,7 +665,7 @@ def diff_helper(func, arr, *args, **kwargs):
         ret_units = delta_degC
     else:
         ret_units = u
-    return func._implementation(arr.view(np.ndarray), *args, **kwargs) * ret_units
+    return func._implementation(np.asarray(arr), *args, **kwargs) * ret_units
 
 
 @implements(np.diff)
@@ -725,7 +694,7 @@ def cumprod(a, *args, **kwargs):
 
 @implements(np.pad)
 def pad(array, *args, **kwargs):
-    return np.pad._implementation(array.view(np.ndarray), *args, **kwargs) * array.units
+    return np.pad._implementation(np.asarray(array), *args, **kwargs) * array.units
 
 
 @implements(np.choose)
@@ -748,7 +717,7 @@ def choose(a, choices, out=None, *args, **kwargs):
         a,
         [np.asarray(c) for c in choices],
         *args,
-        out=out.view(np.ndarray),
+        out=np.asarray(out),
         **kwargs,
     )
     if getattr(out, "units", None) is not None:
@@ -759,7 +728,7 @@ def choose(a, choices, out=None, *args, **kwargs):
 @implements(np.fill_diagonal)
 def fill_diagonal(a, val, *args, **kwargs) -> None:
     _validate_units_consistency_v2(a.units, val)
-    np.fill_diagonal._implementation(a.view(np.ndarray), val, *args, **kwargs)
+    np.fill_diagonal._implementation(np.asarray(a), val, *args, **kwargs)
 
 
 @implements(np.insert)
@@ -767,7 +736,7 @@ def insert(arr, obj, values, *args, **kwargs):
     _validate_units_consistency_v2(arr.units, values)
     return (
         np.insert._implementation(
-            arr.view(np.ndarray), obj, np.asarray(values), *args, **kwargs
+            np.asarray(arr), obj, np.asarray(values), *args, **kwargs
         )
         * arr.units
     )
@@ -784,38 +753,34 @@ def isin(element, test_elements, *args, **kwargs):
 @implements(np.place)
 def place(arr, mask, vals, *args, **kwargs) -> None:
     _validate_units_consistency_v2(arr.units, vals)
-    np.place._implementation(
-        arr.view(np.ndarray), mask, vals.view(np.ndarray), *args, **kwargs
-    )
+    np.place._implementation(np.asarray(arr), mask, np.asarray(vals), *args, **kwargs)
 
 
 @implements(np.put)
 def put(a, ind, v, *args, **kwargs) -> None:
     _validate_units_consistency_v2(a.units, v)
-    np.put._implementation(a.view(np.ndarray), ind, v.view(np.ndarray))
+    np.put._implementation(np.asarray(a), ind, np.asarray(v))
 
 
 @implements(np.put_along_axis)
 def put_along_axis(arr, indices, values, axis, *args, **kwargs) -> None:
     _validate_units_consistency_v2(arr.units, values)
     np.put_along_axis._implementation(
-        arr.view(np.ndarray), indices, np.asarray(values), axis, *args, **kwargs
+        np.asarray(arr), indices, np.asarray(values), axis, *args, **kwargs
     )
 
 
 @implements(np.putmask)
 def putmask(a, mask, values, *args, **kwargs) -> None:
     _validate_units_consistency_v2(a.units, values)
-    np.putmask._implementation(
-        a.view(np.ndarray), mask, np.asarray(values), *args, **kwargs
-    )
+    np.putmask._implementation(np.asarray(a), mask, np.asarray(values), *args, **kwargs)
 
 
 @implements(np.searchsorted)
 def searchsorted(a, v, *args, **kwargs):
     _validate_units_consistency_v2(a.units, v)
     return np.searchsorted._implementation(
-        a.view(np.ndarray), np.asarray(v), *args, **kwargs
+        np.asarray(a), np.asarray(v), *args, **kwargs
     )
 
 
@@ -844,7 +809,7 @@ def setdiff1d(ar1, ar2, *args, **kwargs):
 def sinc(x, *args, **kwargs):
     # this implementation becomes necessary after implementing where
     # we *want* this one to ignore units
-    return np.sinc._implementation(x.view(np.ndarray), *args, **kwargs)
+    return np.sinc._implementation(np.asarray(x), *args, **kwargs)
 
 
 @implements(np.clip)
@@ -864,7 +829,7 @@ def clip(a, a_min, a_max, out=None, *args, **kwargs):
             np.asarray(a_min),
             np.asarray(a_max),
             *args,
-            out=out.view(np.ndarray),
+            out=np.asarray(out),
             **kwargs,
         )
         * a.units
@@ -877,7 +842,7 @@ def clip(a, a_min, a_max, out=None, *args, **kwargs):
 @implements(np.where)
 def where(condition, *args, **kwargs):
     if len(args) == 0:
-        return np.where._implementation(condition.view(np.ndarray), **kwargs)
+        return np.where._implementation(np.asarray(condition), **kwargs)
 
     elif len(args) < 2:
         # error message borrowed from numpy 1.24.1
@@ -909,7 +874,7 @@ def einsum(subscripts, *operands, out=None, **kwargs):
     ret_units = _validate_units_consistency(operands)
 
     if out is not None:
-        out_view = out.view(np.ndarray)
+        out_view = np.asarray(out)
     else:
         out_view = out
 
@@ -930,9 +895,7 @@ def einsum(subscripts, *operands, out=None, **kwargs):
 def convolve(a, v, *args, **kwargs):
     ret_units = np.prod(get_units((a, v)))
     return (
-        np.convolve._implementation(
-            a.view(np.ndarray), v.view(np.ndarray), *args, **kwargs
-        )
+        np.convolve._implementation(np.asarray(a), np.asarray(v), *args, **kwargs)
         * ret_units
     )
 
@@ -941,9 +904,7 @@ def convolve(a, v, *args, **kwargs):
 def correlate(a, v, *args, **kwargs):
     ret_units = np.prod(get_units((a, v)))
     return (
-        np.correlate._implementation(
-            a.view(np.ndarray), v.view(np.ndarray), *args, **kwargs
-        )
+        np.correlate._implementation(np.asarray(a), np.asarray(v), *args, **kwargs)
         * ret_units
     )
 
@@ -952,9 +913,7 @@ def correlate(a, v, *args, **kwargs):
 def tensordot(a, b, *args, **kwargs):
     ret_units = np.prod(get_units((a, b)))
     return (
-        np.tensordot._implementation(
-            a.view(np.ndarray), b.view(np.ndarray), *args, **kwargs
-        )
+        np.tensordot._implementation(np.asarray(a), np.asarray(b), *args, **kwargs)
         * ret_units
     )
 
@@ -962,7 +921,7 @@ def tensordot(a, b, *args, **kwargs):
 @implements(np.unwrap)
 def unwrap(p, *args, **kwargs):
     ret_units = p.units
-    return np.unwrap._implementation(p.view(np.ndarray), *args, **kwargs) * ret_units
+    return np.unwrap._implementation(np.asarray(p), *args, **kwargs) * ret_units
 
 
 @implements(np.interp)
@@ -982,7 +941,7 @@ def interp(x, xp, fp, *args, **kwargs):
 
 @implements(np.array_repr)
 def array_repr(arr, *args, **kwargs):
-    rep = np.array_repr._implementation(arr.view(np.ndarray), *args, **kwargs)
+    rep = np.array_repr._implementation(np.asarray(arr), *args, **kwargs)
     rep = rep.replace("array", arr.__class__.__name__)
     units_repr = arr.units.__repr__()
     if "=" in rep:
@@ -996,7 +955,7 @@ if NUMPY_VERSION < Version("2.0.0dev0"):
     @implements(np.asfarray)
     def asfarray(a, dtype=np.double):
         ret_units = a.units
-        return np.asfarray._implementation(a.view(np.ndarray), dtype=dtype) * ret_units
+        return np.asfarray._implementation(np.asarray(a), dtype=dtype) * ret_units
 
 
 # functions with pending deprecations
@@ -1010,12 +969,11 @@ if hasattr(np, "trapz"):
         else:
             ret_units = ret_units * getattr(x, "units", NULL_UNIT)
         if isinstance(x, np.ndarray):
-            x = x.view(np.ndarray)
+            x = np.asarray(x)
         if isinstance(dx, np.ndarray):
-            dx = dx.view(np.ndarray)
+            dx = np.asarray(dx)
         return (
-            np.trapz._implementation(y.view(np.ndarray), x, dx, *args, **kwargs)
-            * ret_units
+            np.trapz._implementation(np.asarray(y), x, dx, *args, **kwargs) * ret_units
         )
 
 
