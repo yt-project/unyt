@@ -95,16 +95,17 @@ managing your python evironment using your operating system's package manager or
     $ export PYENV_ROOT="$HOME/.pyenv"
     $ export PATH="$HOME/.pyenv/bin:$PATH
     $ eval "$(pyenv init -)"
-    $ pyenv install -s 3.8.13
-    $ pyenv install -s 3.9.12
-    $ pyenv install -s 3.10.4
+    $ pyenv install -s 3.9
+    $ pyenv install -s 3.10
+    $ pyenv install -s 3.11
+    $ pyenv install -s 3.12
     $ pip install tox
 
 4. Install your local copy into a virtualenv or conda environment. You can also
    use one of the python interpreters we installed using ``pyenv``::
 
     $ cd unyt/
-    $ pyenv local 3.9.12
+    $ pyenv local 3.10
     $ python setup.py develop
 
 5. Create a branch for local development::
@@ -119,9 +120,9 @@ managing your python evironment using your operating system's package manager or
 
     $ pre-commit run --all-files
     $ pytest --doctest-modules --doctest-rst --doctest-plus
-    $ pyenv local 3.8.13 3.9.12 3.10.4
+    $ pyenv local 3.9 3.10 3.11 3.12
     $ tox
-    $ pyenv local 3.10.4
+    $ pyenv local 3.10
 
    To get ``pre-commit``, ``pytest``, ``pytest-doctestplus``, and
    ``tox``, just ``pip`` or ``conda`` install them into your python environment,
@@ -161,7 +162,7 @@ execute ``tox`` in the root of the ``unyt`` repository. For example, using the
 ``pyenv`` environment we set up above::
 
    $ cd unyt
-   $ pyenv local 3.8.13 3.9.12 3.10.4
+   $ pyenv local 3.9 3.10 3.11 3.12
    $ tox
 
 The ``tox`` package itself can be installed using the ``pip`` associated with
