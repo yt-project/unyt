@@ -146,9 +146,16 @@ def _sanitize_range(_range, units):
         ilim = _range[2 * i : 2 * (i + 1)]
         imin, imax = ilim
         if not (hasattr(imin, "units") and hasattr(imax, "units")):
-            raise TypeError(
-                f"Elements of range must both have a 'units' attribute. Got {_range}"
-            )
+            if len(units) == 1:
+                # allow range to be pure numerical scalars
+                # for backward compatibility with unyt 2.9.5
+                # see https://github.com/yt-project/unyt/issues/465
+                imin *= units[0]
+                imax *= units[0]
+            else:
+                raise TypeError(
+                    f"Elements of range must both have a 'units' attribute. Got {_range}"
+                )
         new_range[i] = imin.to_value(units[i]), imax.to_value(units[i])
     return new_range.squeeze()
 
