@@ -475,6 +475,14 @@ def test_histogram():
     assert bins.units == arr.units
 
 
+def test_histogram_implicit_units():
+    # see https://github.com/yt-project/unyt/issues/465
+    arr = np.random.normal(size=1000) * cm
+    counts, bins = np.histogram(arr, bins=10, range=(arr.min().value, arr.max().value))
+    assert type(counts) is np.ndarray
+    assert bins.units == arr.units
+
+
 def test_histogram2d():
     x = np.random.normal(size=100) * cm
     y = np.random.normal(loc=10, size=100) * s
