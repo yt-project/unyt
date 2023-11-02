@@ -272,7 +272,7 @@ def test_wrapping_completeness():
     [
         [np.array([1]), [2] * Unit()],
         [np.array([1]), [2] * Unit(registry=UnitRegistry())],
-        # [[1], [2] * Unit()],
+        [[1], [2] * Unit()],
     ],
 )
 def test_unit_validation(arrays):
