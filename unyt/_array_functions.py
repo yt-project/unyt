@@ -223,8 +223,8 @@ def _validate_units_consistency(objs):
     # because it's already a necessary condition for numpy to use our
     # custom implementations
     units = get_units(objs)
-    sunits = set(units)
-    if len(sunits) == 1:
+    unique_units = set(units)
+    if len(unique_units) == 1 or all(u.is_dimensionless for u in unique_units):
         return units[0]
     else:
         raise UnitInconsistencyError(*units)
