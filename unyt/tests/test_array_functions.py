@@ -415,7 +415,8 @@ def test_kron():
 
 
 def test_linalg_inv():
-    arr = np.random.random_sample((3, 3)) * cm
+    rng = np.random.default_rng()
+    arr = rng.random((3, 3)) * cm
     iarr = np.linalg.inv(arr)
     assert 1 * iarr.units == 1 / cm
 
@@ -428,7 +429,8 @@ def test_linalg_tensorinv():
 
 
 def test_linalg_pinv():
-    a = np.random.randn(9, 6) * cm
+    rng = np.random.default_rng()
+    a = rng.standard_normal(size=(9, 6)) * cm
     B = np.linalg.pinv(a)
     assert 1 * B.units == 1 / cm
     np.testing.assert_allclose(a, np.dot(a, np.dot(B, a)))
@@ -488,7 +490,8 @@ def test_linalg_trace():
 
 
 def test_histogram():
-    arr = np.random.normal(size=1000) * cm
+    rng = np.random.default_rng()
+    arr = rng.normal(size=1000) * cm
     counts, bins = np.histogram(arr, bins=10, range=(arr.min(), arr.max()))
     assert type(counts) is np.ndarray
     assert bins.units == arr.units
@@ -496,15 +499,17 @@ def test_histogram():
 
 def test_histogram_implicit_units():
     # see https://github.com/yt-project/unyt/issues/465
-    arr = np.random.normal(size=1000) * cm
+    rng = np.random.default_rng()
+    arr = rng.normal(size=1000) * cm
     counts, bins = np.histogram(arr, bins=10, range=(arr.min().value, arr.max().value))
     assert type(counts) is np.ndarray
     assert bins.units == arr.units
 
 
 def test_histogram2d():
-    x = np.random.normal(size=100) * cm
-    y = np.random.normal(loc=10, size=100) * s
+    rng = np.random.default_rng()
+    x = rng.normal(size=100) * cm
+    y = rng.normal(loc=10, size=100) * s
     counts, xbins, ybins = np.histogram2d(x, y)
     assert counts.ndim == 2
     assert xbins.units == x.units
@@ -512,9 +517,10 @@ def test_histogram2d():
 
 
 def test_histogramdd():
-    x = np.random.normal(size=100) * cm
-    y = np.random.normal(size=100) * s
-    z = np.random.normal(size=100) * g
+    rng = np.random.default_rng()
+    x = rng.normal(size=100) * cm
+    y = rng.normal(size=100) * s
+    z = rng.normal(size=100) * g
     counts, (xbins, ybins, zbins) = np.histogramdd((x, y, z))
     assert counts.ndim == 3
     assert xbins.units == x.units
@@ -523,23 +529,26 @@ def test_histogramdd():
 
 
 def test_histogram_bin_edges():
-    arr = np.random.normal(size=1000) * cm
+    rng = np.random.default_rng()
+    arr = rng.normal(size=1000) * cm
     bins = np.histogram_bin_edges(arr)
     assert type(bins) is unyt_array
     assert bins.units == arr.units
 
 
 def test_concatenate():
-    x1 = np.random.normal(size=100) * cm
-    x2 = np.random.normal(size=100) * cm
+    rng = np.random.default_rng()
+    x1 = rng.normal(size=100) * cm
+    x2 = rng.normal(size=100) * cm
     res = np.concatenate((x1, x2))
     assert res.units == cm
     assert res.shape == (200,)
 
 
 def test_concatenate_different_units():
-    x1 = np.random.normal(size=100) * cm
-    x2 = np.random.normal(size=100) * s
+    rng = np.random.default_rng()
+    x1 = rng.normal(size=100) * cm
+    x2 = rng.normal(size=100) * s
     with pytest.raises(
         UnitInconsistencyError,
         match=(
@@ -1253,7 +1262,8 @@ def test_eigvals(func):
 
 
 def test_linalg_svd():
-    a = (np.random.randn(9, 6) + 1j * np.random.randn(9, 6)) * cm
+    rng = np.random.default_rng()
+    a = (rng.standard_normal(size=(9, 6)) + 1j * rng.standard_normal(size=(9, 6))) * cm
     u, s, vh = np.linalg.svd(a)
     assert type(u) is np.ndarray
     assert type(vh) is np.ndarray

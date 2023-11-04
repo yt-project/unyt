@@ -125,20 +125,23 @@ def test_errorbar(ax):
 
 @check_matplotlib
 def test_hist2d(ax):
-    x = np.random.normal(size=50000) * s
-    y = 3 * x + np.random.normal(size=50000) * s
+    rng = np.random.default_rng()
+    x = rng.normal(size=50000) * s
+    y = 3 * x + rng.normal(size=50000) * s
     ax.hist2d(x, y, bins=(50, 50))
 
 
 @check_matplotlib
 def test_imshow(ax):
-    data = np.reshape(np.random.normal(size=10000), (100, 100))
+    rng = np.random.default_rng()
+    data = np.reshape(rng.normal(size=10000), (100, 100))
     ax.imshow(data, vmin=data.min(), vmax=data.max())
 
 
 @check_matplotlib
 def test_hist(ax):
-    data = np.random.normal(size=10000) * s
+    rng = np.random.default_rng()
+    data = rng.normal(size=10000) * s
     bin_edges = np.linspace(data.min(), data.max(), 50)
     ax.hist(data, bins=bin_edges)
 
