@@ -45,6 +45,18 @@ def test_add_modify_error():
     assert ureg["tayne"][:3] == ureg["m"][:3]
 
 
+def test_modify_symbol_from_default_unit_registry():
+    # see https://github.com/yt-project/unyt/issues/473
+    from unyt import km
+    from unyt.unit_object import default_unit_registry
+
+    with pytest.raises(TypeError):
+        default_unit_registry.modify("cm", 10 * km)
+
+    with pytest.raises(TypeError):
+        default_unit_registry.remove("cm")
+
+
 def test_keys():
     ureg = UnitRegistry()
     assert sorted(ureg.keys()) == sorted(ureg.lut.keys())
