@@ -266,8 +266,18 @@ class UnitRegistry:
         return type(self)(lut=lut)
 
 
+class _NonModifiableUnitRegistry(UnitRegistry):
+    """The class of the default unit registry"""
+
+    def modify(self, symbol, base_value):
+        raise TypeError("Units from unyt's default registry cannot be modified.")
+
+    def remove(self, symbol):
+        raise TypeError("Units from unyt's default registry cannot be removed.")
+
+
 #: The default unit registry
-default_unit_registry = UnitRegistry()
+default_unit_registry = _NonModifiableUnitRegistry()
 
 
 def _lookup_unit_symbol(symbol_str, unit_symbol_lut):

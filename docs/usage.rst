@@ -1023,7 +1023,7 @@ In practice, the unit metadata for a unit object is contained in an instance of 
 
   >>> from unyt import g
   >>> g.registry  # doctest: +ELLIPSIS
-  <unyt.unit_registry.UnitRegistry ...>
+  <unyt.unit_registry._NonModifiableUnitRegistry ...>
 
 All the unit objects in the :mod:`unyt` namespace make use of the default unit
 registry, importable as :data:`unyt.unit_registry.default_unit_registry`. This
