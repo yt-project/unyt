@@ -185,6 +185,8 @@ class UnitRegistry:
             )
 
         del self.lut[symbol]
+        if symbol in self._unit_object_cache:
+            del self._unit_object_cache[symbol]
 
     def modify(self, symbol, base_value):
         """
