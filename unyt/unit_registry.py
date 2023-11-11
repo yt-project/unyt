@@ -216,6 +216,8 @@ class UnitRegistry:
             new_dimensions = self.lut[symbol][1]
 
         self.lut[symbol] = (float(base_value), new_dimensions) + self.lut[symbol][2:]
+        if symbol in self._unit_object_cache:
+            del self._unit_object_cache[symbol]
 
     def keys(self):
         """
