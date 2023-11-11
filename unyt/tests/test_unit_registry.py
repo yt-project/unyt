@@ -57,6 +57,25 @@ def test_modify_symbol_from_default_unit_registry():
         default_unit_registry.remove("cm")
 
 
+def test_modify_cache_clear():
+    # see https://github.com/yt-project/unyt/issues/473
+
+    ureg = UnitRegistry()
+    ureg.add("celery", 1.0, length)
+    u0 = Unit("m", registry=ureg)
+    u1 = Unit("celery", registry=ureg)
+    assert u1 == u0
+
+    ureg.modify("celery", 0.5)
+
+    # check that this equality still holds post registry modification
+    assert u1 == u0
+
+    u2 = Unit("celery", registry=ureg)
+    assert u2 != u1
+    assert 1.0 * u2 == 0.5 * u0
+
+
 def test_keys():
     ureg = UnitRegistry()
     assert sorted(ureg.keys()) == sorted(ureg.lut.keys())
