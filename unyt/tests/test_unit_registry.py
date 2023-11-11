@@ -76,6 +76,14 @@ def test_modify_cache_clear():
     assert 1.0 * u2 == 0.5 * u0
 
 
+def test_remove_unit():
+    ureg = UnitRegistry()
+    ureg.add("celery", 1.0, length)
+    ureg.remove("celery")
+    with pytest.raises(UnitParseError):
+        Unit("celery", registry=ureg)
+
+
 def test_keys():
     ureg = UnitRegistry()
     assert sorted(ureg.keys()) == sorted(ureg.lut.keys())
