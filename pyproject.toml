@@ -107,6 +107,7 @@ select = [
     "YTT", # flake8-2020
     "I",   # isort
     "UP",  # pyupgrade
+    "NPY", # numpy specific rules
 ]
 
 [tool.ruff.isort]
