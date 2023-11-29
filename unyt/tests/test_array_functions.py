@@ -284,6 +284,15 @@ def test_unit_validation(arrays):
     assert res.units.is_dimensionless
 
 
+def test_unit_validation_dimensionless_factors():
+    # see https://github.com/yt-project/unyt/issues/477
+    # numpy.concatenate isn't essential to this test
+    # what we're really testing is the unit consistency validation
+    # underneath, but we do so using public API
+    res = np.concatenate([[1] * cm, unyt_array([1], "cm*dimensionless")])
+    assert res.units is cm
+
+
 def test_array_repr():
     arr = [1, 2, 3] * cm
     assert re.fullmatch(r"unyt_array\(\[1, 2, 3\], (units=)?'cm'\)", np.array_repr(arr))
