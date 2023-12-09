@@ -75,7 +75,10 @@ def assert_array_equal_units(x, y, **kwargs):
     from numpy.testing import assert_array_equal
 
     assert_array_equal(x, y, **kwargs)
-    assert getattr(x, "units", NULL_UNIT) == getattr(y, "units", NULL_UNIT)
+    if not (xu := getattr(x, "units", NULL_UNIT)) == (
+        yu := getattr(y, "units", NULL_UNIT)
+    ):
+        raise AssertionError(f"Arguments' units do not match (got {xu} and {yu})")
 
 
 def _process_warning(op, message, warning_class, args=(), kwargs=None):

@@ -4,6 +4,7 @@ from importlib.metadata import version
 
 import numpy as np
 import pytest
+from numpy.testing import assert_allclose
 from packaging.version import Version
 
 from unyt import A, K, cm, degC, delta_degC, g, km, rad, s
@@ -153,9 +154,19 @@ NOOP_FUNCTIONS = {
 
 
 if NUMPY_VERSION >= Version("2.0.0dev0"):
+    # the followin all work out of the box (tested)
     NOOP_FUNCTIONS |= {
-        np.linalg.diagonal,  # works out of the box (tested)
-        np.linalg.trace,  # works out of the box (tested)
+        np.linalg.cross,
+        np.linalg.diagonal,
+        np.linalg.matmul,
+        np.linalg.svdvals,
+        np.linalg.tensordot,
+        np.linalg.trace,
+        np.astype,
+        np.unique_all,
+        np.unique_counts,
+        np.unique_inverse,
+        np.unique_values,
     }
 
 # Functions for which behaviour is intentionally left to default
@@ -487,6 +498,66 @@ def test_linalg_trace():
     b = np.linalg.trace(a)
     assert type(b) is unyt_quantity
     assert b.units == a.units
+
+
+@pytest.mark.skipif(
+    NUMPY_VERSION < Version("2.0.0dev0"), reason="linalg.outer is new in numpy 2.0"
+)
+def test_linalg_outer():
+    a = np.arange(10) * cm
+    assert_array_equal_units(np.linalg.outer(a, a), np.outer(a, a))
+
+
+@pytest.mark.skipif(
+    NUMPY_VERSION < Version("2.0.0dev0"), reason="linalg.cross is new in numpy 2.0"
+)
+def test_linalg_cross():
+    a = np.arange(3) * cm
+    assert_array_equal_units(np.linalg.cross(a, a), np.cross(a, a))
+
+
+@pytest.mark.skipif(
+    NUMPY_VERSION < Version("2.0.0dev0"), reason="linalg.matmul is new in numpy 2.0"
+)
+def test_linalg_matmul():
+    a = np.eye(3) * cm
+    assert_array_equal_units(np.linalg.matmul(a, a), np.matmul(a, a))
+
+
+def test_linalg_svd():
+    rng = np.random.default_rng()
+    a = (rng.standard_normal(size=(9, 6)) + 1j * rng.standard_normal(size=(9, 6))) * cm
+    u, s, vh = np.linalg.svd(a)
+    assert type(u) is np.ndarray
+    assert type(vh) is np.ndarray
+    assert type(s) is unyt_array
+    assert s.units == cm
+
+    s = np.linalg.svd(a, compute_uv=False)
+    assert type(s) is unyt_array
+    assert s.units == cm
+
+
+@pytest.mark.skipif(
+    NUMPY_VERSION < Version("2.0.0dev0"), reason="linalg.svdvals is new in numpy 2.0"
+)
+def test_linalg_svdvals():
+    q = np.arange(9).reshape(3, 3) * cm
+
+    _, ref, _ = np.linalg.svd(q)
+    res = np.linalg.svdvals(q)
+    assert type(res) is unyt_array
+    assert_allclose(res, ref, rtol=5e-16)
+
+
+@pytest.mark.skipif(
+    NUMPY_VERSION < Version("2.0.0dev0"), reason="linalg.tensordot is new in numpy 2.0"
+)
+def test_linalg_tensordot():
+    q = np.arange(9).reshape(3, 3) * cm
+    ref = np.tensordot(q, q)
+    res = np.linalg.tensordot(q, q)
+    assert_array_equal_units(res, ref)
 
 
 def test_histogram():
@@ -1000,6 +1071,16 @@ def test_copyto_edge_cases():
     assert type(y) is np.ndarray
 
 
+@pytest.mark.skipif(
+    NUMPY_VERSION < Version("2.0.0dev0"), reason="astype is new in numpy 2.0"
+)
+def test_astype():
+    x = np.array([1, 2, 3], dtype="int64") * cm
+    res = np.astype(x, "int32")
+    assert type(res) is unyt_array
+    assert res.units == cm
+
+
 def test_meshgrid():
     x = [1, 2, 3] * cm
     y = [1, 2, 3] * s
@@ -1261,20 +1342,6 @@ def test_eigvals(func):
     assert w.units == cm
 
 
-def test_linalg_svd():
-    rng = np.random.default_rng()
-    a = (rng.standard_normal(size=(9, 6)) + 1j * rng.standard_normal(size=(9, 6))) * cm
-    u, s, vh = np.linalg.svd(a)
-    assert type(u) is np.ndarray
-    assert type(vh) is np.ndarray
-    assert type(s) is unyt_array
-    assert s.units == cm
-
-    s = np.linalg.svd(a, compute_uv=False)
-    assert type(s) is unyt_array
-    assert s.units == cm
-
-
 def test_savetxt(tmp_path):
     a = [1, 2, 3] * cm
     with pytest.raises(
@@ -1410,6 +1477,68 @@ def test_unique():
     res = np.unique(a)
     assert type(res) is unyt_array
     assert res.units == cm
+
+
+@pytest.mark.skipif(
+    NUMPY_VERSION < Version("2.0.0dev0"), reason="unique_all is new in numpy 2.0"
+)
+def test_unique_all():
+    q = np.arange(9).reshape(3, 3) * cm
+    values, indices, inverse_indices, counts = np.unique(
+        q,
+        return_index=True,
+        return_inverse=True,
+        return_counts=True,
+        equal_nan=False,
+    )
+    res = np.unique_all(q)
+    assert len(res) == 4
+    assert_array_equal_units(res.values, values)
+    assert_array_equal_units(res.indices, indices)
+    assert_array_equal_units(res.inverse_indices, inverse_indices)
+    assert_array_equal_units(res.counts, counts)
+
+
+@pytest.mark.skipif(
+    NUMPY_VERSION < Version("2.0.0dev0"), reason="unique_counts is new in numpy 2.0"
+)
+def test_unique_counts():
+    q = np.arange(9).reshape(3, 3) * cm
+    values, counts = np.unique(
+        q,
+        return_counts=True,
+        equal_nan=False,
+    )
+    res = np.unique_counts(q)
+    assert len(res) == 2
+    assert_array_equal_units(res.values, values)
+    assert_array_equal_units(res.counts, counts)
+
+
+@pytest.mark.skipif(
+    NUMPY_VERSION < Version("2.0.0dev0"), reason="unique_inverse is new in numpy 2.0"
+)
+def test_unique_inverse():
+    q = np.arange(9).reshape(3, 3) * cm
+    values, inverse_indices = np.unique(
+        q,
+        return_inverse=True,
+        equal_nan=False,
+    )
+    res = np.unique_inverse(q)
+    assert len(res) == 2
+    assert_array_equal_units(res.values, values)
+    assert_array_equal_units(res.inverse_indices, inverse_indices)
+
+
+@pytest.mark.skipif(
+    NUMPY_VERSION < Version("2.0.0dev0"), reason="unique_values is new in numpy 2.0"
+)
+def test_unique_values():
+    q = np.arange(9).reshape(3, 3) * cm
+    values = np.unique(q, equal_nan=False)
+    res = np.unique_values(q)
+    assert_array_equal_units(res, values)
 
 
 def test_take():
