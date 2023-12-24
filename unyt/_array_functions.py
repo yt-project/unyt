@@ -220,8 +220,12 @@ def _validate_units_consistency(objs):
     # because it's already a necessary condition for numpy to use our
     # custom implementations
     units = get_units(objs)
-    unique_units = set(units)
-    if len(unique_units) == 1 or all(u.is_dimensionless for u in unique_units):
+
+    # filtering unique units using equality comparison implicitly allows for units
+    # which have a dimensionless**(n) component to be treated as one and the same
+    unique_units = [units[0], *(u for u in units if u != units[0])]
+
+    if len(unique_units) == 1:
         return units[0]
     else:
         raise UnitInconsistencyError(*units)
