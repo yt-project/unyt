@@ -159,14 +159,20 @@ if NUMPY_VERSION >= Version("2.0.0dev0"):
         np.linalg.cross,
         np.linalg.diagonal,
         np.linalg.matmul,
+        np.linalg.matrix_norm,
+        np.linalg.matrix_transpose,
         np.linalg.svdvals,
         np.linalg.tensordot,
         np.linalg.trace,
+        np.linalg.vecdot,
+        np.linalg.vector_norm,
         np.astype,
+        np.matrix_transpose,
         np.unique_all,
         np.unique_counts,
         np.unique_inverse,
         np.unique_values,
+        np.vecdot,
     }
 
 # Functions for which behaviour is intentionally left to default
@@ -522,6 +528,50 @@ def test_linalg_cross():
 def test_linalg_matmul():
     a = np.eye(3) * cm
     assert_array_equal_units(np.linalg.matmul(a, a), np.matmul(a, a))
+
+
+@pytest.mark.skipif(
+    NUMPY_VERSION < Version("2.0.0dev0"),
+    reason="linalg.matrix_norm is new in numpy 2.0",
+)
+def test_linalg_matrix_norm():
+    a = np.eye(3) * cm
+    assert_array_equal_units(np.linalg.matrix_norm(a), np.linalg.norm(a))
+
+
+@pytest.mark.skipif(
+    NUMPY_VERSION < Version("2.0.0dev0"), reason="matrix_transpose is new in numpy 2.0"
+)
+@pytest.mark.parametrize("namespace", [None, "linalg"])
+def test_matrix_transpose(namespace):
+    if namespace is None:
+        func = np.matrix_transpose
+    else:
+        func = getattr(np, namespace).matrix_transpose
+    a = np.arange(0, 9).reshape(3, 3)
+    assert_array_equal_units(func(a), np.transpose(a))
+
+
+@pytest.mark.skipif(
+    NUMPY_VERSION < Version("2.0.0dev0"), reason="vecdot is new in numpy 2.0"
+)
+@pytest.mark.parametrize("namespace", [None, "linalg"])
+def test_vecdot(namespace):
+    if namespace is None:
+        func = np.vecdot
+    else:
+        func = getattr(np, namespace).vecdot
+    a = np.arange(0, 9)
+    assert_array_equal_units(func(a, a), np.vdot(a, a))
+
+
+@pytest.mark.skipif(
+    NUMPY_VERSION < Version("2.0.0dev0"),
+    reason="linalg.vector_norm is new in numpy 2.0",
+)
+def test_linalg_vector_norm():
+    a = np.arange(0, 9)
+    assert_array_equal_units(np.linalg.vector_norm(a), np.linalg.norm(a))
 
 
 def test_linalg_svd():
