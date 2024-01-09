@@ -961,6 +961,12 @@ if NUMPY_VERSION < Version("2.0.0dev0"):
         ret_units = a.units
         return np.asfarray._implementation(np.asarray(a), dtype=dtype) * ret_units
 
+elif NUMPY_VERSION >= Version("2.0.0dev0"):
+    # functions that were added in numpy 2.0.0
+    @implements(np.linalg.outer)
+    def linalg_outer(x1, x2, /):
+        return product_helper(x1, x2, out=None, func=np.linalg.outer)
+
 
 # functions with pending deprecations
 if hasattr(np, "trapz"):
