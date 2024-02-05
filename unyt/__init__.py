@@ -35,7 +35,6 @@ top-level ``unyt`` namespace:
 * :func:`unyt.dimensions.returns`
 """
 
-
 from unyt import physical_constants, unit_symbols
 from unyt.array import (  # NOQA: F401
     allclose_units,

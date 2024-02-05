@@ -5,6 +5,7 @@ Test ndarray subclass that handles symbolic units.
 
 
 """
+
 import copy
 import itertools
 import math

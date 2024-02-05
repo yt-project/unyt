@@ -4,7 +4,6 @@ A class that represents a unit symbol.
 
 """
 
-
 import copy
 import itertools
 import math

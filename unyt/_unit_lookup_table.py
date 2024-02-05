@@ -4,7 +4,6 @@ The default unit symbol lookup table.
 
 """
 
-
 from collections import OrderedDict, defaultdict
 
 import numpy as np

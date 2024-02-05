@@ -8,7 +8,6 @@ This feature is optional and has to be enabled using the matplotlib_support cont
 manager.
 """
 
-
 from unyt.array import unyt_array, unyt_quantity
 
 from ._on_demand_imports import _matplotlib

@@ -4,7 +4,6 @@ Dimensions of physical quantities
 
 """
 
-
 from functools import wraps
 from itertools import chain
 

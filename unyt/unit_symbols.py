@@ -13,7 +13,6 @@ For example::
 
 """
 
-
 from unyt._unit_lookup_table import name_alternatives as _name_alternatives
 from unyt.unit_object import Unit as _Unit
 from unyt.unit_registry import default_unit_registry as _registry

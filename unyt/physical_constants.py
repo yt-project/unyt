@@ -16,7 +16,6 @@ For example::
 
 """
 
-
 from unyt.unit_registry import default_unit_registry as _default_unit_registry
 from unyt.unit_systems import add_constants as _add_constants
 

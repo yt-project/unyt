@@ -4,7 +4,6 @@ A registry for units that can be added to and modified.
 
 """
 
-
 import copy
 import json
 from functools import lru_cache

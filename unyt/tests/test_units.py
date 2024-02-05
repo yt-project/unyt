@@ -6,7 +6,6 @@ Test symbolic unit handling.
 
 """
 
-
 import operator
 import pickle
 
@@ -395,9 +394,7 @@ def test_power():
     u3 = u1 ** (-1.0 / 3)
 
     assert u3.dimensions == nsimplify(u1_dims ** (-1.0 / 3))
-    assert_allclose_units(
-        u3.base_value, (pc_mks**2 * mK_mks**4) ** (-1.0 / 3), 1e-12
-    )
+    assert_allclose_units(u3.base_value, (pc_mks**2 * mK_mks**4) ** (-1.0 / 3), 1e-12)
 
     assert u1**0.0 == dimensionless
 
@@ -480,9 +477,7 @@ def test_base_equivalent():
     assert u2.dimensions == mass_density
     assert u3.dimensions == mass_density
 
-    assert_allclose_units(
-        u1.get_conversion_factor(u3)[0], Msun_mks / Mpc_mks**3, 1e-12
-    )
+    assert_allclose_units(u1.get_conversion_factor(u3)[0], Msun_mks / Mpc_mks**3, 1e-12)
 
     with pytest.raises(UnitConversionError):
         u1.get_conversion_factor(Unit("m"))
