@@ -927,46 +927,47 @@ def test_fft_shift(func):
     assert res.units == cm
 
 
-@pytest.mark.filterwarnings("ignore:`trapz` is deprecated. Use `scipy.*")
-def test_trapz_no_x():
+if NUMPY_VERSION >= Version("2.0.0dev0"):
+    _trapezoid_func = np.trapezoid
+else:
+    _trapezoid_func = np.trapz
+
+
+def test_trapezoid_no_x():
     y = [0, 1, 2, 3] * cm
-    res = np.trapz(y)
+    res = _trapezoid_func(y)
     assert type(res) is unyt_quantity
     assert res.units == cm
 
 
-@pytest.mark.filterwarnings("ignore:`trapz` is deprecated. Use `scipy.*")
-def test_trapz_with_raw_x():
+def test_trapezoid_with_raw_x():
     y = [0, 1, 2, 3] * cm
     x = [0, 1, 2, 3]
-    res = np.trapz(y, x)
+    res = _trapezoid_func(y, x)
     assert type(res) is unyt_quantity
     assert res.units == cm
 
 
-@pytest.mark.filterwarnings("ignore:`trapz` is deprecated. Use `scipy.*")
-def test_trapz_with_unit_x():
+def test_trapezoid_with_unit_x():
     y = [0, 1, 2, 3] * cm
     x = [0, 1, 2, 3] * s
-    res = np.trapz(y, x)
+    res = _trapezoid_func(y, x)
     assert type(res) is unyt_quantity
     assert res.units == cm * s
 
 
-@pytest.mark.filterwarnings("ignore:`trapz` is deprecated. Use `scipy.*")
-def test_trapz_with_raw_dx():
+def test_trapezoid_with_raw_dx():
     y = [0, 1, 2, 3] * cm
     dx = 2.0
-    res = np.trapz(y, dx=dx)
+    res = _trapezoid_func(y, dx=dx)
     assert type(res) is unyt_quantity
     assert res.units == cm
 
 
-@pytest.mark.filterwarnings("ignore:`trapz` is deprecated. Use `scipy.*")
-def test_trapz_with_unit_dx():
+def test_trapezoid_with_unit_dx():
     y = [0, 1, 2, 3] * cm
     dx = 2.0 * s
-    res = np.trapz(y, dx=dx)
+    res = _trapezoid_func(y, dx=dx)
     assert type(res) is unyt_quantity
     assert res.units == cm * s
 
