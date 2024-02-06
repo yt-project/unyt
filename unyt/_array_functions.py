@@ -956,10 +956,11 @@ def array_repr(arr, *args, **kwargs):
 
 if NUMPY_VERSION < Version("2.0.0dev0"):
     # functions that are removed in numpy 2.0.0
-    @implements(np.asfarray)
+    @implements(np.asfarray)  # noqa: NPY201
     def asfarray(a, dtype=np.double):
         ret_units = a.units
-        return np.asfarray._implementation(np.asarray(a), dtype=dtype) * ret_units
+        arr = np.asfarray._implementation(np.asarray(a), dtype=dtype)  # noqa: NPY201
+        return arr * ret_units
 
 elif NUMPY_VERSION >= Version("2.0.0dev0"):
     # functions that were added in numpy 2.0.0

@@ -3,7 +3,6 @@ Equivalencies between different kinds of units
 
 """
 
-
 from collections import OrderedDict
 
 import numpy as np

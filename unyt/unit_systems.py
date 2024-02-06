@@ -3,7 +3,6 @@ Unit system class.
 
 """
 
-
 from collections import OrderedDict
 
 from unyt import dimensions

@@ -94,6 +94,7 @@ exclude = [
     "*/_version.py",
     "*/__init__.py",
 ]
+[tool.ruff.lint]
 ignore = [
     "E501",
     "B904",
@@ -110,7 +111,7 @@ select = [
     "NPY", # numpy specific rules
 ]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 combine-as-imports = true
 
 [tool.setuptools_scm]

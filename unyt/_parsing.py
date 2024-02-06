@@ -5,7 +5,6 @@ parsing utilities
 
 """
 
-
 import token
 
 from sympy import Basic, Float, Integer, Rational, Symbol, sqrt

@@ -1,4 +1,5 @@
 """Test Matplotlib ConversionInterface"""
+
 import numpy as np
 import pytest
 

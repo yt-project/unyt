@@ -3,7 +3,6 @@ Utilities for writing tests
 
 """
 
-
 import warnings
 
 from unyt.array import NULL_UNIT, allclose_units

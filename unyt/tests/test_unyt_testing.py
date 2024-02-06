@@ -2,6 +2,7 @@
 Test unyt.testing module that contains utilities for writing tests.
 
 """
+
 import pytest
 
 from unyt import accepts, meter, returns, second

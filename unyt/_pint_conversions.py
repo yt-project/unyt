@@ -3,7 +3,6 @@ Stuff for pint conversions
 
 """
 
-
 pint_aliases = {
     "meter": "m",
     "second": "s",

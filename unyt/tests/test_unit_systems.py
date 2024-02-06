@@ -3,7 +3,6 @@ Test unit systems.
 
 """
 
-
 import pytest
 
 import unyt.unit_symbols as us

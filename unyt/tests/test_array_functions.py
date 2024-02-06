@@ -837,7 +837,7 @@ def test_append_inconsistent_units():
 def test_asfarray():
     x1 = np.eye(3, dtype="int64") * cm
 
-    x2 = np.asfarray(x1)
+    x2 = np.asfarray(x1)  # noqa: NPY201
     assert type(x2) is unyt_array
     assert x2.units == cm
     assert x2.dtype == "float64"

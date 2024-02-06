@@ -5,7 +5,6 @@ unyt_array class.
 
 """
 
-
 import copy
 import re
 import sys

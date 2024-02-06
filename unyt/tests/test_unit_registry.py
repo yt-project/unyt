@@ -6,7 +6,6 @@ Test unit lookup tables and registry
 
 """
 
-
 import os
 
 import pytest
