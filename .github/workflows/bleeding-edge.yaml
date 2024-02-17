@@ -12,9 +12,9 @@ on:
   pull_request:
     paths:
       - .github/workflows/bleeding-edge.yaml
-  # Run daily at 0:01 UTC
+  # Run every Wednesday at 0:01 UTC
   schedule:
-    - cron:  '1 0 * * *'
+    - cron:  1 0 * * 3
   workflow_dispatch:
 
 jobs:
