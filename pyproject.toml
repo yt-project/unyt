@@ -127,6 +127,7 @@ filterwarnings = [
     "ignore:In accordance with NEP 32:DeprecationWarning",
     "ignore:distutils Version classes are deprecated. Use packaging.version instead.:DeprecationWarning",
     'ignore:datetime\.datetime\.utcfromtimestamp\(\) is deprecated:DeprecationWarning', # https://github.com/dateutil/dateutil/pull/1285
+    'ignore:mpnumeric is deprecated:DeprecationWarning', # sympy 1.12 VS mpmath 1.4, solution: https://github.com/sympy/sympy/pull/25290
 ]
 
 [tool.coverage.run]
