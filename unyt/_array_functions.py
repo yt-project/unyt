@@ -962,30 +962,32 @@ if NUMPY_VERSION < Version("2.0.0dev0"):
         arr = np.asfarray._implementation(np.asarray(a), dtype=dtype)  # noqa: NPY201
         return arr * ret_units
 
+    _trapezoid_func = np.trapz
+
 elif NUMPY_VERSION >= Version("2.0.0dev0"):
     # functions that were added in numpy 2.0.0
     @implements(np.linalg.outer)
     def linalg_outer(x1, x2, /):
         return product_helper(x1, x2, out=None, func=np.linalg.outer)
 
+    _trapezoid_func = np.trapezoid
 
-# functions with pending deprecations
-if hasattr(np, "trapz"):
 
-    @implements(np.trapz)
-    def trapz(y, x=None, dx=1.0, *args, **kwargs):
-        ret_units = y.units
-        if x is None:
-            ret_units = ret_units * getattr(dx, "units", NULL_UNIT)
-        else:
-            ret_units = ret_units * getattr(x, "units", NULL_UNIT)
-        if isinstance(x, np.ndarray):
-            x = np.asarray(x)
-        if isinstance(dx, np.ndarray):
-            dx = np.asarray(dx)
-        return (
-            np.trapz._implementation(np.asarray(y), x, dx, *args, **kwargs) * ret_units
-        )
+@implements(_trapezoid_func)
+def trapezoid(y, x=None, dx=1.0, *args, **kwargs):
+    ret_units = y.units
+    if x is None:
+        ret_units = ret_units * getattr(dx, "units", NULL_UNIT)
+    else:
+        ret_units = ret_units * getattr(x, "units", NULL_UNIT)
+    if isinstance(x, np.ndarray):
+        x = np.asarray(x)
+    if isinstance(dx, np.ndarray):
+        dx = np.asarray(dx)
+    return (
+        _trapezoid_func._implementation(np.asarray(y), x, dx, *args, **kwargs)
+        * ret_units
+    )
 
 
 if hasattr(np, "in1d"):
