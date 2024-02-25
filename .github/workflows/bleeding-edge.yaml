@@ -3,7 +3,7 @@ name: CI (bleeding edge)
 # https://github.com/pandas-dev/pandas/blob/master/.github/workflows/python-dev.yml
 
 # check stability against dev version of Python, numpy, and matplotlib
-# and sympy pre-releases
+# and sympy pre-releases (but avoid pre-releases of sympy's dependencies)
 
 on:
   push:
@@ -44,7 +44,8 @@ jobs:
         python -m pip install --pre numpy --only-binary ":all:" --extra-index \
           https://pypi.anaconda.org/scientific-python-nightly-wheels/simple
         python -m pip install pytest
-        python -m pip install --pre sympy
+        python -m pip install sympy
+        python -m pip install --no-deps --upgrade --pre sympy
 
     - name: Build unyt
       run: python -m pip install --no-build-isolation .
