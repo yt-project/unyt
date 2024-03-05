@@ -973,7 +973,9 @@ def unary_ufunc_comparison(ufunc, a):
         assert_array_equal(ret, out)
         assert_array_equal(ret.to_ndarray(), ufunc(a_array))
         assert ret.units == out.units
-    elif ufunc in yield_np_ufuncs(["ones_like", "square", "sqrt", "reciprocal"]):
+    elif ufunc in yield_np_ufuncs(
+        ["ones_like", "square", "sqrt", "cbrt", "reciprocal"]
+    ):
         if ufunc is np.ones_like:
             ret = ufunc(a)
         else:
@@ -989,6 +991,9 @@ def unary_ufunc_comparison(ufunc, a):
         elif ufunc is np.sqrt:
             assert out.units == a.units**0.5
             assert ret.units == a.units**0.5
+        elif ufunc is np.cbrt:
+            assert out.units == a.units ** (1.0 / 3.0)
+            assert ret.units == a.units ** (1.0 / 3.0)
         elif ufunc is np.reciprocal:
             assert out.units == a.units**-1
             assert ret.units == a.units**-1
@@ -1056,6 +1061,7 @@ def unary_ufunc_comparison(ufunc, a):
             "ones_like",
             "square",
             "sqrt",
+            "cbrt",
             "reciprocal",
             "invert",
             "isnat",
