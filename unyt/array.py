@@ -26,6 +26,7 @@ from numpy import (
     bitwise_and,
     bitwise_or,
     bitwise_xor,
+    cbrt,
     ceil,
     clip,
     conj,
@@ -170,6 +171,11 @@ def _iterable(obj):
 @lru_cache(maxsize=128, typed=False)
 def _sqrt_unit(unit):
     return 1, unit**0.5
+
+
+@lru_cache(maxsize=128, typed=False)
+def _cbrt_unit(unit):
+    return 1, unit ** (1.0 / 3.0)
 
 
 @lru_cache(maxsize=128, typed=False)
@@ -339,6 +345,7 @@ unary_operators = (
     expm1,
     log1p,
     sqrt,
+    cbrt,
     square,
     reciprocal,
     sin,
@@ -504,6 +511,7 @@ class unyt_array(np.ndarray):
         expm1: _return_without_unit,
         log1p: _return_without_unit,
         sqrt: _sqrt_unit,
+        cbrt: _cbrt_unit,
         square: _square_unit,
         reciprocal: _reciprocal_unit,
         sin: _return_without_unit,
