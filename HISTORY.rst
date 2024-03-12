@@ -2,6 +2,40 @@
 History
 =======
 
+3.0.2 (2024-03-13)
+------------------
+
+This new bugfix release of ``unyt`` fixes bugs discovered since the v3.0.1 release,
+and is intended to be compatible with the upcoming NumPy 2.0 release.
+
+* Fix minimal requirement on setuptools_scm (`PR #471 <https://github.com/yt-
+  project/unyt/pull/471>`_). Thank you to Clément Robert (@neutrinoceros on GitHub)
+  for the contribution.
+
+* Explicitly forbid destructive edits to the default unit registry (`PR #475
+  <https://github.com/yt-project/unyt/pull/475>`_). Thank you to Clément Robert
+  (@neutrinoceros on GitHub) for the contribution.
+
+* Fix an issue where array functions would raise ``UnitInconsistencyError`` when
+  operands' units differ by some dimensionless factor (`PR #478
+  <https://github.com/yt-project/unyt/pull/478>`_). Thank you to Clément Robert
+  (@neutrinoceros on GitHub) for the contribution.
+
+* Implement and test array functions new in numpy 2.0 (`PR #483
+  <https://github.com/yt-project/unyt/pull/483>`_). Thank you to Clément Robert
+  (@neutrinoceros on GitHub) for the contribution.
+
+* Fix compat with numpy dev for ``np.trapezoid`` (previously named np.trapz) (`PR
+  #486 <https://github.com/yt-project/unyt/pull/486>`_). Thank you to Clément Robert
+  (@neutrinoceros on GitHub) for the contribution.
+
+* Implement missing support for ``np.cbrt`` (`PR #491 <https://github.com/yt-
+  project/unyt/pull/491>`_). Thank you to @yuyttenhove for the contribution.
+
+* Fix compatibility with numpy 2.0 copy semantics (`PR #492 <https://github.com/yt-
+  project/unyt/pull/492>`_). Thank you to Clément Robert (@neutrinoceros on GitHub)
+  for the contribution.
+
 3.0.1 (2023-11-02)
 ------------------
 
