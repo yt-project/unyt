@@ -10,6 +10,7 @@ import re
 import sys
 import warnings
 from functools import lru_cache
+from importlib.metadata import version
 from numbers import Number as numeric_type
 
 import numpy as np
@@ -101,6 +102,7 @@ from numpy import (
     true_divide,
     trunc,
 )
+from packaging.version import Version
 from sympy import Rational
 
 from unyt._on_demand_imports import _astropy, _dask, _pint
@@ -144,6 +146,8 @@ __doctest_requires__ = {
     ("unyt_array.from_pint", "unyt_array.to_pint"): ["pint"],
     ("unyt_array.from_astropy", "unyt_array.to_astropy"): ["astropy"],
 }
+
+_COPY_IF_NEEDED = None if Version(version("numpy")) >= Version("2.0.0dev0") else False
 
 # This is partially adapted from the following SO thread
 # https://stackoverflow.com/questions/41668588/regex-to-match-scientific-notation
@@ -1977,7 +1981,7 @@ class unyt_array(np.ndarray):
                     "added to unyt_array." % (str(ufunc), len(inputs))
                 )
         if unit is None:
-            out_arr = np.array(out_arr, copy=False)
+            out_arr = np.array(out_arr, copy=_COPY_IF_NEEDED)
         elif ufunc in (modf, divmod_):
             out_arr = tuple(ret_class(o, unit) for o in out_arr)
         elif out_arr.shape == ():
