@@ -1,5 +1,6 @@
 # tests for NumPy __array_function__ support
 import re
+import warnings
 from importlib.metadata import version
 
 import numpy as np
@@ -184,35 +185,47 @@ IGNORED_FUNCTIONS = {
     np.savez_compressed,
 }
 
-
+# map subsets of deprecated functions to the version they were removed
+# so that we can drop the ones that are not present in any version we support
 DEPRECATED_FUNCTIONS = {
-    "alen",  # deprecated in numpy 1.18, removed in 1.22
-    "asscalar",  # deprecated in numpy 1.18, removed in 1.22
-    "fv",  # deprecated in numpy 1.18, removed in 1.20
-    "ipmt",  # deprecated in numpy 1.18, removed in 1.20
-    "irr",  # deprecated in numpy 1.18, removed in 1.20
-    "mirr",  # deprecated in numpy 1.18, removed in 1.20
-    "nper",  # deprecated in numpy 1.18, removed in 1.20
-    "npv",  # deprecated in numpy 1.18, removed in 1.20
-    "pmt",  # deprecated in numpy 1.18, removed in 1.20
-    "ppmt",  # deprecated in numpy 1.18, removed in 1.20
-    "pv",  # deprecated in numpy 1.18, removed in 1.20
-    "rank",  # deprecated in numpy 1.10, removed in 1.18
-    "rate",  # deprecated in numpy 1.18, removed in 1.20
-    "msort",  # deprecated in numpy 1.24
-    # numpy 1.25 deprecations
-    "product",
-    "cumproduct",
-    "round_",  # removed in 2.0
-    "sometrue",
-    "alltrue",
+    Version("1.20"): {
+        "fv",
+        "ipmt",
+        "irr",
+        "mirr",
+        "nper",
+        "npv",
+        "pmt",
+        "ppmt",
+        "pv",
+        "rate",
+    },
+    Version("1.22"): {
+        "alen",
+        "asscalar",
+    },
+    Version("2.0.0b1"): {
+        "msort",
+        "product",
+        "cumproduct",
+        "round_",
+        "sometrue",
+        "alltrue",
+    },
+    # functions that are deprecated but not yet removed in any known version
+    # should be added here
+    Version("999.999.999"): set(),
 }
 
 NOT_HANDLED_FUNCTIONS = NOOP_FUNCTIONS | UNSUPPORTED_FUNCTIONS | IGNORED_FUNCTIONS
 
-for func in DEPRECATED_FUNCTIONS:
-    if hasattr(np, func):
-        NOT_HANDLED_FUNCTIONS.add(getattr(np, func))
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", DeprecationWarning)
+    for removal_version, functions in DEPRECATED_FUNCTIONS.items():
+        if NUMPY_VERSION >= removal_version:
+            continue
+        for func in functions:
+            NOT_HANDLED_FUNCTIONS.add(getattr(np, func))
 
 
 def get_decorators(func):
