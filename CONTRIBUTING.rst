@@ -106,7 +106,7 @@ managing your python evironment using your operating system's package manager or
 
     $ cd unyt/
     $ pyenv local 3.10
-    $ python setup.py develop
+    $ python -m pip install -e
 
 5. Create a branch for local development::
 
