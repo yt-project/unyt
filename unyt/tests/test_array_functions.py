@@ -1417,7 +1417,7 @@ def test_eigvals(func):
 
 def test_savetxt(tmp_path):
     a = [1, 2, 3] * cm
-    with pytest.raises(
+    with pytest.warns(
         UserWarning,
         match=re.escape(
             "numpy.savetxt does not preserve units, "
