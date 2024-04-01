@@ -175,22 +175,14 @@ def as_rest_table(data, full=False):
     start_of_line = start_of_line.translate(to_separator)
     vertical_separator = vertical_separator.translate(to_separator)
     end_of_line = end_of_line.translate(to_separator)
-    separator = "{}{}{}".format(
-        start_of_line,
-        vertical_separator.join([x * line_marker for x in sizes]),
-        end_of_line,
-    )
+    separator = f"{start_of_line}{vertical_separator.join([x * line_marker for x in sizes])}{end_of_line}"
     # determine header separator
     th_separator_tr = maketrans("-", "=")
     start_of_line = start_of_line.translate(th_separator_tr)
     line_marker = line_marker.translate(th_separator_tr)
     vertical_separator = vertical_separator.translate(th_separator_tr)
     end_of_line = end_of_line.translate(th_separator_tr)
-    th_separator = "{}{}{}".format(
-        start_of_line,
-        vertical_separator.join([x * line_marker for x in sizes]),
-        end_of_line,
-    )
+    th_separator = f"{start_of_line}{vertical_separator.join([x * line_marker for x in sizes])}{end_of_line}"
     # prepare result
     table.append(separator)
     # set table header
