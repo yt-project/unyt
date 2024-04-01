@@ -1546,7 +1546,8 @@ def test_h5_io():
 
     reg.add("code_length", 10.0, dimensions.length)
 
-    warr = unyt_array(np.random.random((256, 256)), "code_length", registry=reg)
+    rng = np.random.default_rng()
+    warr = unyt_array(rng.random((256, 256)), "code_length", registry=reg)
 
     warr.write_hdf5("test.h5")
 
@@ -1565,8 +1566,8 @@ def test_h5_io():
 
     # test code to overwrite existing dataset with data that has a different
     # shape
-
-    warr = unyt_array(np.random.random((255, 255)), "code_length", registry=reg)
+    rng = np.random.default_rng()
+    warr = unyt_array(rng.random((255, 255)), "code_length", registry=reg)
 
     warr.write_hdf5("test.h5")
 
@@ -2165,9 +2166,10 @@ def test_loadtxt_and_savetxt():
     curdir = os.getcwd()
     os.chdir(tmpdir)
 
-    a = unyt_array(np.random.random(10), "kpc")
-    b = unyt_array(np.random.random(10), "Msun")
-    c = unyt_array(np.random.random(10), "km/s")
+    rng = np.random.default_rng()
+    a = unyt_array(rng.random(10), "kpc")
+    b = unyt_array(rng.random(10), "Msun")
+    c = unyt_array(rng.random(10), "km/s")
 
     savetxt("arrays.dat", [a, b, c], delimiter=",")
 
@@ -2221,8 +2223,9 @@ def test_loadtxt_and_savetxt():
 
 
 def test_trig_ufunc_degrees():
+    rng = np.random.default_rng()
     for ufunc in (np.sin, np.cos, np.tan):
-        degree_values = np.random.random(10) * degree
+        degree_values = rng.random(10) * degree
         radian_values = degree_values.in_units("radian")
         assert_array_equal(ufunc(degree_values), ufunc(radian_values))
 
