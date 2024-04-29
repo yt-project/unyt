@@ -24,7 +24,8 @@ jobs:
           - '3.12'
         # Test all on ubuntu, test ends on macos and windows
         include:
-          - os: macos-latest
+          - os: macos-12
+            # pin macos-12 (x86) because Python 3.9 is broken in the arm64 image
             python-version: '3.9'
           - os: windows-latest
             python-version: '3.9'
