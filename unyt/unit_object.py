@@ -988,9 +988,8 @@ def _get_unit_data_from_expr(unit_expr, unit_symbol_lut):
         return (float(base_value), dimensions)
 
     raise UnitParseError(
-        "Cannot parse for unit data from '%s'. Please supply"
-        " an expression of only Unit, Symbol, Pow, and Mul"
-        "objects." % str(unit_expr)
+        f"Cannot parse for unit data from {str(unit_expr)!r}. Please supply "
+        "an expression of only Unit, Symbol, Pow, and Mul objects."
     )
 
 
@@ -1006,15 +1005,15 @@ def _validate_dimensions(dimensions):
     elif isinstance(dimensions, Pow):
         if not isinstance(dimensions.args[1], Number):
             raise UnitParseError(
-                "Dimensionality expression '%s' contains a "
-                "unit symbol as a power." % dimensions
+                f"Dimensionality expression '{dimensions}' contains a "
+                "unit symbol as a power."
             )
     elif isinstance(dimensions, (Add, Number)):
         if not isinstance(dimensions, One):
             raise UnitParseError(
                 "Only dimensions that are instances of Pow, "
                 "Mul, or symbols in the base dimensions are "
-                "allowed.  Got dimensions '%s'" % dimensions
+                f"allowed.  Got dimensions '{dimensions}'"
             )
     elif not isinstance(dimensions, Basic):
         raise UnitParseError(f"Bad dimensionality expression '{dimensions}'.")
