@@ -179,8 +179,8 @@ class UnitRegistry:
 
         if symbol not in self.lut:
             raise SymbolNotFoundError(
-                "Tried to remove the symbol '%s', but it does not exist "
-                "in this registry." % symbol
+                r"Tried to remove the symbol {symbol!r}, but it does not exist "
+                "in this registry."
             )
 
         del self.lut[symbol]
@@ -205,8 +205,8 @@ class UnitRegistry:
 
         if symbol not in self.lut:
             raise SymbolNotFoundError(
-                "Tried to modify the symbol '%s', but it does not exist "
-                "in this registry." % symbol
+                f"Tried to modify the symbol {symbol!r}, but it does not exist "
+                "in this registry."
             )
 
         if hasattr(base_value, "in_base"):

@@ -148,11 +148,10 @@ class MissingMKSCurrent(UnytError):
         super().__init__()
 
     def __str__(self):
-        err = (
-            "The %s unit system does not have a MKS current base unit"
-            % self.unit_system_name
+        return (
+            f"The {self.unit_system_name} unit system does not have "
+            "a MKS current base unit"
         )
-        return err
 
 
 class MKSCGSConversionError(UnytError):
@@ -343,5 +342,5 @@ class IllDefinedUnitSystem(UnytError):
     def __str__(self):
         return (
             "Cannot create unit system with inconsistent mapping from "
-            "dimensions to units. Received:\n%s" % self.units_map
+            f"dimensions to units. Received:\n{self.units_map}"
         )
