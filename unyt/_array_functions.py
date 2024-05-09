@@ -272,57 +272,57 @@ def cross(a, b, *args, **kwargs):
 
 
 @implements(np.intersect1d)
-def intersect1d(arr1, arr2, /, assume_unique=False, return_indices=False):
-    _validate_units_consistency((arr1, arr2))
+def intersect1d(ar1, ar2, assume_unique=False, return_indices=False):
+    _validate_units_consistency((ar1, ar2))
     retv = np.intersect1d._implementation(
-        np.asarray(arr1),
-        np.asarray(arr2),
+        np.asarray(ar1),
+        np.asarray(ar2),
         assume_unique=assume_unique,
         return_indices=return_indices,
     )
     if return_indices:
         return retv
     else:
-        return retv * arr1.units
+        return retv * ar1.units
 
 
 @implements(np.union1d)
-def union1d(arr1, arr2, /):
-    _validate_units_consistency((arr1, arr2))
-    return np.union1d._implementation(np.asarray(arr1), np.asarray(arr2)) * arr1.units
+def union1d(ar1, ar2):
+    _validate_units_consistency((ar1, ar2))
+    return np.union1d._implementation(np.asarray(ar1), np.asarray(ar2)) * ar1.units
 
 
 @implements(np.linalg.norm)
-def norm(x, /, *args, **kwargs):
+def norm(x, *args, **kwargs):
     return np.linalg.norm._implementation(np.asarray(x), *args, **kwargs) * x.units
 
 
 @implements(np.vstack)
-def vstack(tup, /):
+def vstack(tup, **kwargs):
     ret_units = _validate_units_consistency(tup)
-    return np.vstack._implementation([np.asarray(_) for _ in tup]) * ret_units
+    return np.vstack._implementation([np.asarray(_) for _ in tup], **kwargs) * ret_units
 
 
 @implements(np.hstack)
-def hstack(tup, /):
+def hstack(tup, **kwargs):
     ret_units = _validate_units_consistency(tup)
-    return np.vstack._implementation([np.asarray(_) for _ in tup]) * ret_units
+    return np.vstack._implementation([np.asarray(_) for _ in tup], **kwargs) * ret_units
 
 
 @implements(np.dstack)
-def dstack(tup, /):
+def dstack(tup):
     ret_units = _validate_units_consistency(tup)
     return np.dstack._implementation([np.asarray(_) for _ in tup]) * ret_units
 
 
 @implements(np.column_stack)
-def column_stack(tup, /):
+def column_stack(tup):
     ret_units = _validate_units_consistency(tup)
     return np.column_stack._implementation([np.asarray(_) for _ in tup]) * ret_units
 
 
 @implements(np.stack)
-def stack(arrays, /, axis=0, out=None):
+def stack(arrays, axis=0, out=None, **kwargs):
     ret_units = _validate_units_consistency(arrays)
     if out is None:
         return (
@@ -330,7 +330,7 @@ def stack(arrays, /, axis=0, out=None):
             * ret_units
         )
     res = np.stack._implementation(
-        [np.asarray(_) for _ in arrays], axis=axis, out=np.asarray(out)
+        [np.asarray(_) for _ in arrays], axis=axis, out=np.asarray(out), **kwargs
     )
     if getattr(out, "units", None) is not None:
         out.units = ret_units
@@ -678,8 +678,8 @@ def diff(a, *args, **kwargs):
 
 
 @implements(np.ediff1d)
-def ediff1d(a, *args, **kwargs):
-    return diff_helper(np.ediff1d, a, *args, **kwargs)
+def ediff1d(ary, *args, **kwargs):
+    return diff_helper(np.ediff1d, ary, *args, **kwargs)
 
 
 @implements(np.ptp)
@@ -874,7 +874,8 @@ def tril(m, *args, **kwargs):
 
 
 @implements(np.einsum)
-def einsum(subscripts, *operands, out=None, **kwargs):
+def einsum(*operands, out=None, **kwargs):
+    subscripts, *operands = operands
     ret_units = _validate_units_consistency(operands)
 
     if out is not None:
