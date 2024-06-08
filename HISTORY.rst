@@ -2,6 +2,32 @@
 History
 =======
 
+3.0.3 (2024-06-??)
+------------------
+
+This new bugfix release of ``unyt`` fixes bugs discovered since the v3.0.2 release.
+
+* Fix defects when running test suite in isolation from the project's pytest
+  configuration (`PR #495 <https://github.com/yt-project/unyt/pull/495>`_). Thank you
+  to Clément Robert (@neutrinoceros on GitHub) for the contribution.
+
+* Drop test case for unpickling old pickle files as too sensitive to upstream changes
+  (`PR #498 <https://github.com/yt-project/unyt/pull/498>`_). Thank you to Clément
+  Robert (@neutrinoceros on GitHub) for the contribution.
+
+* Fix signature incompatibilities in nep 18 wrapped functions (`PR #500
+  <https://github.com/yt-project/unyt/pull/500>`_). Thank you to Clément Robert
+  (@neutrinoceros on GitHub) for the contribution.
+
+* Fix an incompatibility with sympy 1.13.0rc1 (`PR #504
+  <https://github.com/yt-project/unyt/pull/504>`_). Thank you to Clément Robert
+  (@neutrinoceros on GitHub) for the contribution.
+
+* Adjust doctests to changes in array repr from numpy 2.0  (`PR #506
+  <https://github.com/yt-project/unyt/pull/506>`_). Thank you to Clément Robert
+  (@neutrinoceros on GitHub) for the contribution.
+
+
 3.0.2 (2024-03-13)
 ------------------
 
