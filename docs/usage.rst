@@ -1494,7 +1494,7 @@ Methods that hang off of a :mod:`unyt_dask_array` object and operations on
 One important caveat is that using Dask array functions may strip units:
 
     >>> da.sum(x_da).compute()
-    49995000
+    np.int64(49995000)
 
 For simple reductions, you can use the :mod:`reduce_with_units` function:
 
