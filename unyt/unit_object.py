@@ -467,7 +467,7 @@ class Unit:
                 "Failed to cast it to a float."
             )
 
-        if self.dimensions is logarithmic and p != 1.0:
+        if self.dimensions is logarithmic and p != 1:
             raise InvalidUnitOperation(f"Tried to raise '{self}' to power '{p}'")
 
         return Unit(
