@@ -963,7 +963,7 @@ if NUMPY_VERSION < Version("2.0.0dev0"):
         arr = np.asfarray._implementation(np.asarray(a), dtype=dtype)  # noqa: NPY201
         return arr * ret_units
 
-    _trapezoid_func = np.trapz
+    _trapezoid_func = np.trapz  # noqa: NPY201
 
 elif NUMPY_VERSION >= Version("2.0.0dev0"):
     # functions that were added in numpy 2.0.0
@@ -993,7 +993,7 @@ def trapezoid(y, x=None, dx=1.0, *args, **kwargs):
 
 if hasattr(np, "in1d"):
 
-    @implements(np.in1d)
+    @implements(np.in1d)  # noqa: NPY201
     def in1d(ar1, ar2, *args, **kwargs):
         _validate_units_consistency((ar1, ar2))
         return np.isin._implementation(
