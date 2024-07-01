@@ -951,7 +951,7 @@ def test_fft_shift(func):
 if NUMPY_VERSION >= Version("2.0.0dev0"):
     _trapezoid_func = np.trapezoid
 else:
-    _trapezoid_func = np.trapz
+    _trapezoid_func = np.trapz  # noqa: NPY201
 
 
 def test_trapezoid_no_x():
@@ -1706,14 +1706,14 @@ def test_isin():
 def test_in1d_mixed_units():
     a = [1, 2, 3] * cm
     with pytest.raises(UnitInconsistencyError):
-        np.in1d([1, 2], a)
+        np.in1d([1, 2], a)  # noqa: NPY201
 
 
 @pytest.mark.filterwarnings("ignore:`in1d` is deprecated. Use `np.isin` instead.")
 def test_in1d():
     a = [1, 2, 3] * cm
     b = [1, 2] * cm
-    assert np.all(np.in1d(b, a))
+    assert np.all(np.in1d(b, a))  # noqa: NPY201
 
 
 def test_place_mixed_units():
