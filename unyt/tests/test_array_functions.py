@@ -163,7 +163,7 @@ NOOP_FUNCTIONS = {
 
 
 if NUMPY_VERSION >= Version("2.0.0dev0"):
-    # the followin all work out of the box (tested)
+    # the following all work out of the box (tested)
     NOOP_FUNCTIONS |= {
         np.linalg.cross,
         np.linalg.diagonal,
@@ -182,6 +182,11 @@ if NUMPY_VERSION >= Version("2.0.0dev0"):
         np.unique_inverse,
         np.unique_values,
         np.vecdot,
+    }
+
+if NUMPY_VERSION >= Version("2.1.0dev0"):
+    NOOP_FUNCTIONS |= {
+        np.unstack,
     }
 
 # Functions for which behaviour is intentionally left to default
@@ -1223,16 +1228,25 @@ def test_broadcast_arrays():
 
 
 @pytest.mark.parametrize(
-    "func, args",
+    "func_name, args",
     [
-        (np.split, (3, 2)),
-        (np.dsplit, (3,)),
-        (np.hsplit, (2,)),
-        (np.vsplit, (1,)),
-        (np.array_split, (3,)),
+        ("split", (3, 2)),
+        ("dsplit", (3,)),
+        ("hsplit", (2,)),
+        ("vsplit", (1,)),
+        ("array_split", (3,)),
+        pytest.param(
+            "unstack",
+            (),
+            marks=pytest.mark.skipif(
+                NUMPY_VERSION < Version("2.1.0dev0"),
+                reason="np.unstack is new in NumPy 2.1",
+            ),
+        ),
     ],
 )
-def test_xsplit(func, args):
+def test_xsplit(func_name, args):
+    func = getattr(np, func_name)
     x = [
         [
             [
