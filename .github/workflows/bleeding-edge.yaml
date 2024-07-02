@@ -20,7 +20,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Python3.12-dev
+    name: Python3.13-dev
     timeout-minutes: 60
 
     concurrency:
@@ -35,7 +35,7 @@ jobs:
     - name: Set up Python Dev Version
       uses: actions/setup-python@v5
       with:
-        python-version: '3.12-dev'
+        python-version: '3.13-dev'
 
     - name: Install dependencies
       run: |
