@@ -27,6 +27,9 @@ This new bugfix release of ``unyt`` fixes bugs discovered since the v3.0.2 relea
   <https://github.com/yt-project/unyt/pull/506>`_). Thank you to Clément Robert
   (@neutrinoceros on GitHub) for the contribution.
 
+* TST: declare np.unstack as subclass-safe (fix incompatibility with Numpy 2.1)
+  (`PR #509 <https://github.com/yt-project/unyt/pull/509>`_). Thank you to
+  Clément Robert (@neutrinoceros on GitHub) for the contribution.
 
 3.0.2 (2024-03-13)
 ------------------
