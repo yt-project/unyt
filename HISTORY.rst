@@ -2,7 +2,7 @@
 History
 =======
 
-3.0.3 (2024-06-??)
+3.0.3 (2024-07-02)
 ------------------
 
 This new bugfix release of ``unyt`` fixes bugs discovered since the v3.0.2 release.
