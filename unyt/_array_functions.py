@@ -696,6 +696,13 @@ def cumprod(a, *args, **kwargs):
     )
 
 
+if NUMPY_VERSION >= Version("2.1.0.dev0"):
+
+    @implements(np.cumulative_prod)
+    def cumulative_prod(x, /, *args, **kwargs):
+        return cumprod(x, *args, **kwargs)
+
+
 @implements(np.pad)
 def pad(array, *args, **kwargs):
     return np.pad._implementation(np.asarray(array), *args, **kwargs) * array.units
