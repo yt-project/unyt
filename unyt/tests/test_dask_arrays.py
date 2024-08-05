@@ -103,7 +103,7 @@ def unary_result_test(dask_unyt_delayed, correct_unyt):
     assert result.units == correct_unyt.units
     assert type(result) is type(correct_unyt)
     # value comparison:
-    if type(result) == unyt_array:
+    if type(result) is unyt_array:
         assert_array_equal(result, correct_unyt)
     else:
         assert result == correct_unyt
@@ -253,11 +253,11 @@ def test_unyt_type_result():
     x_unyt = unyt_array(np.ones((10, 10)), m)
 
     result = x_da.compute()
-    assert type(result) == unyt_array
+    assert type(result) is unyt_array
     assert_array_equal(result, x_unyt)
 
     result = x_da.min().compute()
-    assert type(result) == unyt_quantity
+    assert type(result) is unyt_quantity
     assert result == unyt_quantity(1, m)
 
 
