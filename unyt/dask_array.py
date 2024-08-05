@@ -498,7 +498,7 @@ def _finalize_unyt(results, unit_name):
     # the result is an array, otherwise return a unyt_quantity.
     result = dask_finalize(results)
 
-    if type(result) == np.ndarray:
+    if type(result) is np.ndarray:
         return ua.unyt_array(result, unit_name)
     else:
         return ua.unyt_quantity(result, unit_name)
