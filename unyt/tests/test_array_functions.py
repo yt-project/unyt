@@ -187,6 +187,7 @@ if NUMPY_VERSION >= Version("2.0.0dev0"):
 if NUMPY_VERSION >= Version("2.1.0dev0"):
     NOOP_FUNCTIONS |= {
         np.unstack,
+        np.cumulative_sum,
     }
 
 # Functions for which behaviour is intentionally left to default
@@ -1528,28 +1529,44 @@ def test_deltas(func, input_units, output_units):
 
 
 @pytest.mark.parametrize(
-    "func",
+    "func_name",
     [
-        np.cumsum,
-        np.nancumsum,
+        "cumsum",
+        "nancumsum",
+        pytest.param(
+            "cumulative_sum",
+            marks=pytest.mark.skipif(
+                NUMPY_VERSION < Version("2.1.0dev0"),
+                reason="np.cumulative_sum is new in NumPy 2.1",
+            ),
+        ),
     ],
 )
-def test_cumsum(func):
+def test_cumsum(func_name):
     a = [1, 2, 3] * cm
+    func = getattr(np, func_name)
     res = func(a)
     assert type(res) is unyt_array
     assert res.units == cm
 
 
 @pytest.mark.parametrize(
-    "func",
+    "func_name",
     [
-        np.cumprod,
-        np.nancumprod,
+        "cumprod",
+        "nancumprod",
+        pytest.param(
+            "cumulative_prod",
+            marks=pytest.mark.skipif(
+                NUMPY_VERSION < Version("2.1.0dev0"),
+                reason="np.cumulative_prod is new in NumPy 2.1",
+            ),
+        ),
     ],
 )
-def test_cumprod(func):
+def test_cumprod(func_name):
     a = [1, 2, 3] * cm
+    func = getattr(np, func_name)
     with pytest.raises(
         UnytError,
         match=re.escape(
