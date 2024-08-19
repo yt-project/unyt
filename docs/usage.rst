@@ -269,10 +269,9 @@ controlled identically to NumPy arrays, using ``numpy.setprintoptions``:
   >>> import numpy as np
   >>> import unyt as u
   ...
-  >>> np.set_printoptions(precision=4)
-  >>> print([1.123456789]*u.km)
+  >>> with np.printoptions(precision=4):
+  ...     print([1.123456789]*u.km)
   [1.1235] km
-  >>> np.set_printoptions(precision=8)
 
 Print a :math:`\rm{\LaTeX}` representation of a set of units using the
 :meth:`unyt.unit_object.Unit.latex_representation` function or
