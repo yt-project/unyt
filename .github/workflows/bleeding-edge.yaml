@@ -43,7 +43,7 @@ jobs:
         python -m pip install --upgrade setuptools wheel setuptools_scm
         python -m pip install --pre numpy --only-binary ":all:" --extra-index \
           https://pypi.anaconda.org/scientific-python-nightly-wheels/simple
-        python -m pip install pytest
+        python -m pip install pytest pytest-doctestplus docutils
         python -m pip install sympy
         python -m pip install --no-deps --upgrade --pre sympy
 
@@ -53,4 +53,4 @@ jobs:
     - run: python -m pip list
 
     - name: Run Tests
-      run: pytest -vvv unyt/
+      run: pytest -vvv --doctest-modules --doctest-plus --doctest-rst unyt/
