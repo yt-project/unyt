@@ -696,6 +696,13 @@ def cumprod(a, *args, **kwargs):
     )
 
 
+if NUMPY_VERSION >= Version("2.1.0.dev0"):
+
+    @implements(np.cumulative_prod)
+    def cumulative_prod(x, /, *args, **kwargs):
+        return cumprod(x, *args, **kwargs)
+
+
 @implements(np.pad)
 def pad(array, *args, **kwargs):
     return np.pad._implementation(np.asarray(array), *args, **kwargs) * array.units
@@ -816,8 +823,7 @@ def sinc(x, *args, **kwargs):
     return np.sinc._implementation(np.asarray(x), *args, **kwargs)
 
 
-@implements(np.clip)
-def clip(a, a_min, a_max, out=None, *args, **kwargs):
+def clip_impl(a, a_min, a_max, out=None, *args, **kwargs):
     _validate_units_consistency_v2(a.units, a_min, a_max)
     if out is None:
         return (
@@ -841,6 +847,20 @@ def clip(a, a_min, a_max, out=None, *args, **kwargs):
     if getattr(out, "units", None) is not None:
         out.units = a.units
     return unyt_array(res, a.units, bypass_validation=True)
+
+
+if NUMPY_VERSION >= Version("2.1.0.dev0"):
+    from numpy._globals import _NoValue
+
+    @implements(np.clip)
+    def clip(a, a_min=_NoValue, a_max=_NoValue, out=None, *args, **kwargs):
+        return clip_impl(a, a_min, a_max, out, *args, **kwargs)
+
+else:
+
+    @implements(np.clip)
+    def clip(a, a_min, a_max, out=None, *args, **kwargs):
+        return clip_impl(a, a_min, a_max, out, *args, **kwargs)
 
 
 @implements(np.where)
