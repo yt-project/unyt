@@ -132,7 +132,7 @@ btu_per_mmbtu = 1e6 * J_per_BTU
 btu_per_therm = 1e5 * J_per_BTU
 btu_per_quad = 1e15 * J_per_BTU
 rydberg_unit_mks = planck_mks * speed_of_light_m_per_s * rydberg_constant_mks
-J_per_foe = 1.e44
+J_per_foe = 1.0e44
 
 # Solar System masses
 # Standish, E.M. (1995) "Report of the IAU WGAS Sub-Group on Numerical
