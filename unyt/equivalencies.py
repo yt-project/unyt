@@ -473,9 +473,9 @@ class EffectiveTemperatureEquivalence(Equivalence):
     effective_temperature: flux <-> temperature
     >>> from unyt import K, W, m
     >>> (5000.*K).to_equivalent('W/m**2', 'effective_temperature')
-    unyt_quantity(35439831.25, 'W/m**2')
+    unyt_quantity(35439828.89119583, 'W/m**2')
     >>> (100.*W/m**2).to_equivalent('K', 'effective_temperature')
-    unyt_quantity(204.92601414, 'K')
+    unyt_quantity(204.92601755, 'K')
     """
 
     type_name = "effective_temperature"
