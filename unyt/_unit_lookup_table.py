@@ -562,8 +562,18 @@ physical_constants = OrderedDict(
         ),
         ("h", (planck_mks, "J*s", ["planck_constant"])),
         ("hbar", (0.5 * planck_mks / np.pi, "J*s", ["reduced_planck_constant"])),
-        ("σ", (stefan_boltzmann_W_per_sqm_per_K4, "W/m**2/K**4", ["stefan_boltzmann_constant"])),
-        ("a", (radiation_constant_J_per_m3_per_K4, "J/m**3/K**4", ["radiation_constant"])),
+        (
+            "σ",
+            (
+                stefan_boltzmann_W_per_sqm_per_K4,
+                "W/m**2/K**4",
+                ["stefan_boltzmann_constant"],
+            ),
+        ),
+        (
+            "a",
+            (radiation_constant_J_per_m3_per_K4, "J/m**3/K**4", ["radiation_constant"]),
+        ),
         ("Tcmb", (2.726, "K", ["CMB_temperature"])),
         (
             "Msun",

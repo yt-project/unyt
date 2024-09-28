@@ -139,9 +139,7 @@ stefan_boltzmann_W_per_sqm_per_K4 = (
     / (15.0 * speed_of_light_m_per_s**2 * planck_mks**3)
 )
 radiation_constant_J_per_m3_per_K4 = (
-    4.0
-    * stefan_boltzmann_W_per_sqm_per_K4
-    / speed_of_light_m_per_s
+    4.0 * stefan_boltzmann_W_per_sqm_per_K4 / speed_of_light_m_per_s
 )
 
 # Solar System masses
