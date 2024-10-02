@@ -141,6 +141,7 @@ stefan_boltzmann_W_per_sqm_per_K4 = (
 radiation_constant_J_per_m3_per_K4 = (
     4.0 * stefan_boltzmann_W_per_sqm_per_K4 / speed_of_light_m_per_s
 )
+J_per_foe = 1.0e44
 
 # Solar System masses
 # Standish, E.M. (1995) "Report of the IAU WGAS Sub-Group on Numerical
