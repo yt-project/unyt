@@ -12,6 +12,7 @@ from unyt import dimensions
 from unyt._physical_ratios import (
     J_per_BTU,
     J_per_eV,
+    J_per_foe,
     J_per_watt_hour,
     amu_grams,
     amu_kg,
@@ -428,6 +429,9 @@ default_unit_symbol_lut = OrderedDict(
         ),
         # misc
         ("eV", (J_per_eV, dimensions.energy, 0.0, r"\rm{eV}", True)),
+        # note: 1 foe = 1 Bethe
+        ("foe", (J_per_foe, dimensions.energy, 0.0, r"\rm{foe}", False)),
+        ("bethe", (J_per_foe, dimensions.energy, 0.0, r"\rm{B}", False)),
         ("amu", (amu_kg, dimensions.mass, 0.0, r"\rm{amu}", False)),
         ("Å", (m_per_ang, dimensions.length, 0.0, r"\AA", False)),
         ("Jy", (jansky_mks, dimensions.specific_flux, 0.0, r"\rm{Jy}", True)),
