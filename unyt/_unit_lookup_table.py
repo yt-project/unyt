@@ -429,6 +429,7 @@ default_unit_symbol_lut = OrderedDict(
         ),
         # misc
         ("eV", (J_per_eV, dimensions.energy, 0.0, r"\rm{eV}", True)),
+        # note: 1 foe = 1 Bethe
         ("foe", (J_per_foe, dimensions.energy, 0.0, r"\rm{foe}", False)),
         ("bethe", (J_per_foe, dimensions.energy, 0.0, r"\rm{B}", False)),
         ("amu", (amu_kg, dimensions.mass, 0.0, r"\rm{amu}", False)),
