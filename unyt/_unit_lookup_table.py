@@ -576,7 +576,7 @@ physical_constants = OrderedDict(
         ),
         (
             "a",
-            (radiation_constant_J_per_m3_per_K4, "J/m**3/K**4", ["radiation_constant"]),
+            (radiation_constant_J_per_m3_per_K4, "J/m**3/K**4", ["radiation_density_constant"]),
         ),
         ("Tcmb", (2.726, "K", ["CMB_temperature"])),
         (
