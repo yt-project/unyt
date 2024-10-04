@@ -132,6 +132,15 @@ btu_per_mmbtu = 1e6 * J_per_BTU
 btu_per_therm = 1e5 * J_per_BTU
 btu_per_quad = 1e15 * J_per_BTU
 rydberg_unit_mks = planck_mks * speed_of_light_m_per_s * rydberg_constant_mks
+stefan_boltzmann_W_per_sqm_per_K4 = (
+    2.0
+    * np.pi**5
+    * boltzmann_constant_J_per_K**4
+    / (15.0 * speed_of_light_m_per_s**2 * planck_mks**3)
+)
+radiation_constant_J_per_m3_per_K4 = (
+    4.0 * stefan_boltzmann_W_per_sqm_per_K4 / speed_of_light_m_per_s
+)
 J_per_foe = 1.0e44
 
 # Solar System masses

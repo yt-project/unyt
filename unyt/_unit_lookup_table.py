@@ -65,6 +65,7 @@ from unyt._physical_ratios import (
     planck_mks,
     planck_temperature_K,
     planck_time_s,
+    radiation_constant_J_per_m3_per_K4,
     rydberg_constant_mks,
     rydberg_unit_mks,
     sec_per_day,
@@ -73,6 +74,7 @@ from unyt._physical_ratios import (
     sec_per_year,
     speed_of_light_m_per_s,
     standard_gravity_m_per_s2,
+    stefan_boltzmann_W_per_sqm_per_K4,
     temp_sun_kelvin,
     uk_fl_oz_per_L,
     us_fl_oz_per_L,
@@ -564,7 +566,22 @@ physical_constants = OrderedDict(
         ),
         ("h", (planck_mks, "J*s", ["planck_constant"])),
         ("hbar", (0.5 * planck_mks / np.pi, "J*s", ["reduced_planck_constant"])),
-        ("σ", (5.670373e-8, "W/m**2/K**4", ["stefan_boltzmann_constant"])),
+        (
+            "σ",
+            (
+                stefan_boltzmann_W_per_sqm_per_K4,
+                "W/m**2/K**4",
+                ["stefan_boltzmann_constant"],
+            ),
+        ),
+        (
+            "a",
+            (
+                radiation_constant_J_per_m3_per_K4,
+                "J/m**3/K**4",
+                ["radiation_density_constant"],
+            ),
+        ),
         ("Tcmb", (2.726, "K", ["CMB_temperature"])),
         (
             "Msun",
