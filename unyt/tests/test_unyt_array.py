@@ -551,7 +551,7 @@ def test_dimensionless_array_power(p):
         pytest.param(
             unyt_array([0, 1, 2, 3], "cm"),
             unyt_array([0, 1, 2, 3]),
-            id="non-uniform power with a non dimensionless",
+            id="non-uniform power with arr non dimensionless",
         ),
         pytest.param(
             unyt_array([0, 1, 2, 3]),
