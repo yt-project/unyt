@@ -528,6 +528,44 @@ def test_power():
     assert_array_equal_units(cm_arr**0, unyt_quantity(1.0, "dimensionless"))
 
 
+@pytest.mark.parametrize(
+    "p",
+    [
+        pytest.param(unyt_array(0), id="scalar power 0"),
+        pytest.param(unyt_array(1), id="scalar power 1"),
+        pytest.param(unyt_array([0, 0, 0, 0]), id="uniform power 0"),
+        pytest.param(unyt_array([1, 1, 1, 1]), id="uniform power 1"),
+        pytest.param(unyt_array([0, 1, 2, 3]), id="non-uniform power"),
+    ],
+)
+def test_dimensionless_array_power(p):
+    # see https://github.com/yt-project/unyt/issues/522
+    a = unyt_array([1, 2, 3, 4])
+    expected = a.value**p.value
+    assert_array_equal(expected, (a**p).value)
+
+
+@pytest.mark.parametrize(
+    "a, p",
+    [
+        pytest.param(
+            unyt_array([0, 1, 2, 3], "cm"),
+            unyt_array([0, 1, 2, 3]),
+            id="non-uniform power with a non dimensionless",
+        ),
+        pytest.param(
+            unyt_array([0, 1, 2, 3]),
+            unyt_array([0, 0, 0, 0], "cm"),
+            id="non dimensionless power",
+        ),
+    ],
+)
+def test_invalid_array_power(a, p):
+    # see https://github.com/yt-project/unyt/issues/522
+    with pytest.raises(UnitOperationError):
+        a**p
+
+
 def test_comparisons():
     """
     Test numpy ufunc comparison operators for unit consistency.
