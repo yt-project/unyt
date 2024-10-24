@@ -950,7 +950,7 @@ class unyt_array(np.ndarray):
             quantity, try the :meth:`list_equivalencies`
             method. Default: None
         kwargs: optional
-            Any additional keywoard arguments are supplied to the
+            Any additional keyword arguments are supplied to the
             equivalence
 
         Raises

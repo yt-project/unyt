@@ -131,7 +131,7 @@ class UnitRegistry:
         offset : float, optional
            If set, the zero-point offset to apply to the unit to convert
            to SI. This is mostly used for units like Farhenheit and
-           Celcius that are not defined on an absolute scale.
+           Celsius that are not defined on an absolute scale.
         prefixable : bool
            If True, then SI-prefix versions of the unit will be created
            along with the unit itself.
@@ -249,7 +249,7 @@ class UnitRegistry:
         ----------
 
         json_text : str
-           A string containing a json represention of a UnitRegistry
+           A string containing a json representation of a UnitRegistry
         """
         data = json.loads(json_text)
         lut = _correct_old_unit_registry(data, sympify=True)

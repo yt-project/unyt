@@ -74,7 +74,7 @@ Running the tests
 -----------------
 
 You can check that :mod:`unyt` is working properly by running the unit tests
-on your intalled copy:
+on your installed copy:
 
 .. doctest::
 

@@ -67,7 +67,7 @@ class NumberDensityEquivalence(Equivalence):
     Parameters
     ----------
     mu : float
-      The mean molecular weight. Defaults to 0.6 whcih is valid for fully
+      The mean molecular weight. Defaults to 0.6 which is valid for fully
       ionized gas with primordial composition.
 
     Example
@@ -455,7 +455,7 @@ class ComptonEquivalence(Equivalence):
 
 
 class EffectiveTemperatureEquivalence(Equivalence):
-    """Equivalence between the emmitted flux accross all wavelengths and
+    """Equivalence between the emitted flux across all wavelengths and
     temperature of a blackbody
 
     For a blackbody emitter with Temperature :math:`T` emitting radiation with

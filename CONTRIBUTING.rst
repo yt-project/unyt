@@ -81,7 +81,7 @@ tests will fail with errors about missing python executables.
 
 This guide makes use of ``pyenv`` to set up all of the Python versions used in
 the unyt test suite. You do not have to use ``pyenv`` if you have other ways of
-managing your python evironment using your operating system's package manager or
+managing your python environment using your operating system's package manager or
 ``conda``.
 
 1. Fork the ``unyt`` repo on GitHub.
@@ -143,7 +143,7 @@ We use the ``pytest`` test runner as well as the ``tox`` test wrapper to manage
 running tests on various versions of python.
 
 To run the tests on your copy of the ``unyt`` repository using your current
-python evironment, run ``pytest`` in the root of the repository using the
+python environment, run ``pytest`` in the root of the repository using the
 following arguments::
 
    $ cd unyt/

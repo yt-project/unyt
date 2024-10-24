@@ -37,7 +37,7 @@ _UNSUPPORTED_FUNCTIONS = {
     np.busday_offset,
     np.is_busday,
     # not clear how to approach
-    np.piecewise,  # astropy.units doens't have a simple implementation either
+    np.piecewise,  # astropy.units doesn't have a simple implementation either
     np.packbits,
     np.unpackbits,
     np.ix_,

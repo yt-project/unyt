@@ -1128,7 +1128,7 @@ data are stored internally in :mod:`unyt` in MKS units.
 You can also use two helper functions provided by :mod:`unyt`,
 :func:`unyt.unit_systems.add_constants` and
 :func:`unyt.unit_systems.add_symbols`, to populate a namespace with a set of
-predefined unit symbols or physical consants. This namespace could correspond to
+predefined unit symbols or physical constants. This namespace could correspond to
 the names importable from a module or the names of attributes of an object, or
 any other generic dictionary.
 
