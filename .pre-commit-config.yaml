@@ -5,39 +5,45 @@ ci:
     autoupdate_schedule: monthly
 
 exclude: "^(\
-paper/.*.py\
-)"
+    paper/.*.py\
+    )"
 
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
-    hooks:
-    - id: trailing-whitespace
-    - id: end-of-file-fixer
-    - id: no-commit-to-branch
-    - id: check-shebang-scripts-are-executable
-    - id: check-executables-have-shebangs
-    - id: check-yaml
-    - id: check-toml
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v5.0.0
+      hooks:
+          - id: trailing-whitespace
+          - id: end-of-file-fixer
+          - id: no-commit-to-branch
+          - id: check-shebang-scripts-are-executable
+          - id: check-executables-have-shebangs
+          - id: check-yaml
+          - id: check-toml
 
--   repo: https://github.com/psf/black
-    rev: 24.8.0
-    hooks:
-    - id: black
+    - repo: https://github.com/psf/black
+      rev: 24.10.0
+      hooks:
+          - id: black
 
--   repo: https://github.com/adamchainz/blacken-docs
-    rev: 1.18.0
-    hooks:
-    -   id: blacken-docs
-        additional_dependencies: [black==24.1.1]
+    - repo: https://github.com/adamchainz/blacken-docs
+      rev: 1.19.1
+      hooks:
+          - id: blacken-docs
+            additional_dependencies: [black==24.1.1]
 
-- repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.6.9
-  hooks:
-  - id: ruff
-    args: [--fix, --show-fixes]
+    - repo: https://github.com/astral-sh/ruff-pre-commit
+      rev: v0.7.1
+      hooks:
+          - id: ruff
+            args: [--fix, --show-fixes]
 
--   repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.10.0
-    hooks:
-    -   id: rst-backticks
+    - repo: https://github.com/pre-commit/pygrep-hooks
+      rev: v1.10.0
+      hooks:
+          - id: rst-backticks
+
+    - repo: https://github.com/codespell-project/codespell
+      rev: v2.3.0
+      hooks:
+          - id: codespell
+            args: [--skip="*.pdf", -L, 'smoot,copin,celcius,ue,bu,dne,ond']

@@ -71,7 +71,7 @@ we can look up from `Wikipedia
 Let's break up this example into a few components so you can see what's going
 on. First, we import the unit symbols we need from the :mod:`unyt` namespace::
 
-  >>> from unyt import Mjup, G, km
+  >>> from unyt import Mjup, G, AU
 
 The :mod:`unyt` namespace has a large number of units and physical constants you
 can import to apply units to data in your own code. You can see how that works
@@ -81,7 +81,7 @@ in the example::
   >>> semimajor_axis
   unyt_array([0.002819  , 0.0044856 , 0.00715526, 0.01258513], 'AU')
 
-By multiplying by ``km``, we converted the Python list into a
+By multiplying by ``AU``, we converted the Python list into a
 :class:`unyt.unyt_array <unyt.array.unyt_array>` instance. This is a class
 that's built into :mod:`unyt`, has units attached to it, and knows how to
 convert itself into different dimensionally equivalent units::
@@ -1128,7 +1128,7 @@ data are stored internally in :mod:`unyt` in MKS units.
 You can also use two helper functions provided by :mod:`unyt`,
 :func:`unyt.unit_systems.add_constants` and
 :func:`unyt.unit_systems.add_symbols`, to populate a namespace with a set of
-predefined unit symbols or physical consants. This namespace could correspond to
+predefined unit symbols or physical constants. This namespace could correspond to
 the names importable from a module or the names of attributes of an object, or
 any other generic dictionary.
 

@@ -36,7 +36,7 @@ POSITIONAL_OR_KEYWORD = inspect.Parameter.POSITIONAL_OR_KEYWORD
 # this is a subset of NOT_HANDLED_FUNCTIONS for which there's nothing to do
 # because they don't apply to (real) numeric types
 # or they work as expected out of the box
-# This is not necessarilly complete !
+# This is not necessarily complete !
 NOOP_FUNCTIONS = {
     np.all,  # expects booleans
     np.amax,  # works out of the box (tested)
@@ -383,7 +383,7 @@ def test_dot_matrices(out):
         assert isinstance(out, np.ndarray)
 
     if isinstance(out, unyt_array):
-        # check that the result can be converted to predictible units
+        # check that the result can be converted to predictable units
         res.in_units("cm * s")
         assert out.units == res.units
 

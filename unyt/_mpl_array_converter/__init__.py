@@ -34,7 +34,7 @@ class unyt_arrayConverter(ConversionInterface):
         unit : Unit object, string, or tuple
             This parameter comes from unyt_arrayConverter.default_units() or from
             user code such as Axes.plot(), Axis.set_units(), etc. In user code, it
-            is possible to convert the plotted units by specifing the new unit as
+            is possible to convert the plotted units by specifying the new unit as
             a string, such as "ms", or as a tuple, such as ("J", "thermal")
             following the call signature of unyt_array.convert_to_units().
         axis : Axis object
@@ -107,7 +107,7 @@ class unyt_arrayConverter(ConversionInterface):
         unit : Unit, string or tuple
             This parameter comes from unyt_arrayConverter.default_units() or from
             user code such as Axes.plot(), Axis.set_units(), etc. In user code, it
-            is possible to convert the plotted units by specifing the new unit as
+            is possible to convert the plotted units by specifying the new unit as
             a string, such as "ms", or as a tuple, such as ("J", "thermal")
             following the call signature of unyt_array.convert_to_units().
         axis : Axis object

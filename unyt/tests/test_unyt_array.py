@@ -1788,7 +1788,7 @@ def test_equivalencies():
     assert T.units == u.m.units / u.s.units
     assert c_s.units == u.km.units / u.s.units
 
-    # tempearture <-> energy
+    # temperature <-> energy
 
     mu = 0.5
     gg = 4.0 / 3.0

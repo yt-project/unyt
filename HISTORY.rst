@@ -532,7 +532,7 @@ This release includes a few minor new features and bugfixes for the 2.0.0 releas
 bugfixes. There are some small backwards incompatible changes in this release
 related to automatic unit simplification and handling of dtypes. Please see the
 release notes below for more details. If you are upgrading from ``unyt 1.x`` we
-suggest testing to make sure these changes do not siginificantly impact you. If
+suggest testing to make sure these changes do not significantly impact you. If
 you run into issues please let us know by `opening an issue on GitHub
 <https://github.com/yt-project/unyt/issues/new>`_.
 
@@ -703,7 +703,7 @@ DougAJ4, Ma Jianjun, Paul Ivanov, and Stephan Hoyer for reporting issues.
   ``unyt``. See `PR #21 <https://github.com/yt-project/unyt/pull/21>`_.
 * Made adjustments to the rules for converting between CGS and MKS E&M units so
   that errors are only raised when going between unit systems and not merely
-  when doing a complicated unit conversion invoving E&M units. See `PR #20
+  when doing a complicated unit conversion involving E&M units. See `PR #20
   <https://github.com/yt-project/unyt/pull/20>`_.
 * ``round(q)`` where ``q`` is a ``unyt_quantity`` instance will no
   longer raise an error and will now return the nearest rounded float.

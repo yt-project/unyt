@@ -29,7 +29,7 @@ class NotAModule:
             exc.add_note(error_note)
             self.error = exc
         else:
-            # mimick Python 3.11 behaviour:
+            # mimic Python 3.11 behaviour:
             # preserve error message and traceback
             self.error = type(exc)(f"{exc!s}\n{error_note}").with_traceback(
                 exc.__traceback__
