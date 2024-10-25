@@ -46,8 +46,4 @@ repos:
       rev: v2.3.0
       hooks:
           - id: codespell
-            name: codespell
-            description: Checks for common misspellings in text files.
-            entry: codespell --skip="*.pdf" -L smoot,copin,celcius,ue,bu,dne,ond
-            language: python
-            types: [text]
+            args: [--skip="*.pdf", -L, 'smoot,copin,celcius,ue,bu,dne,ond']
