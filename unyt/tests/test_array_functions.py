@@ -923,7 +923,7 @@ def test_fft_1D(func):
     x1 = [0, 1, 2] * cm
     res = func(x1)
     assert type(res) is unyt_array
-    assert res.units == (1 / cm).units
+    assert res.units == (1 * cm).units
 
 
 @pytest.mark.parametrize(
@@ -943,7 +943,7 @@ def test_fft_ND(func):
     x1 = [[0, 1, 2], [0, 1, 2], [0, 1, 2]] * cm
     res = func(x1)
     assert type(res) is unyt_array
-    assert res.units == (1 / cm).units
+    assert res.units == (1 * cm).units
 
 
 @pytest.mark.parametrize("func", [np.fft.fftshift, np.fft.ifftshift])
