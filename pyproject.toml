@@ -45,6 +45,37 @@ Homepage = "https://github.com/yt-project/unyt"
 Documentation = "https://unyt.readthedocs.io/en/stable/index.html"
 Changelog = "https://unyt.readthedocs.io/en/stable/history.html"
 
+[dependency-groups]
+test = [
+    "pytest-cov>=5.0.0",
+    "pytest-doctestplus>=1.2.1",
+    "pytest>=7.2.1",
+]
+covcheck = [
+    "coverage[toml]>=5.0.0",
+]
+doc = [
+    "docutils>=0.21.2",
+    "sphinx>=7.4.7",
+]
+integration = [
+    "astropy>=4.0.4",
+    "astropy>=5.0.0 ; platform_machine=='arm64' and platform_system=='Darwin'",
+    "dask[array,diagnostics]>=2021.4.1",
+    "dask[array,diagnostics]>=2021.5.1 ; platform_machine=='arm64' and platform_system=='Darwin'",
+    "h5py>=3.0.0",
+    "h5py>=3.7.0 ; platform_machine=='arm64' and platform_system=='Darwin'",
+    "matplotlib>=3.3.3,!=3.5.0",
+    "matplotlib>=3.5.1 ; platform_machine=='arm64' and platform_system=='Darwin'",
+    "pint>=0.9",
+
+    # this is redundant with runtime requirements, but needed for tox + tox-uv with
+    # UV_RESOLUTION=lowest-direct
+    # because tox installs dependency groups *before* installing the package itself
+    "numpy>=1.19.3, <3.0",
+    "numpy>=1.21.3, <3.0 ; platform_machine=='arm64' and platform_system=='Darwin'",
+]
+
 [tool.setuptools]
 include-package-data = true
 zip-safe = false
