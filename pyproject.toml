@@ -47,7 +47,6 @@ Changelog = "https://unyt.readthedocs.io/en/stable/history.html"
 
 [dependency-groups]
 test = [
-    "pytest-cov>=5.0.0",
     "pytest-doctestplus>=1.2.1",
     "pytest>=7.2.1",
 ]
