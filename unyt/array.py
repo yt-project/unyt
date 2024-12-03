@@ -1985,8 +1985,8 @@ class unyt_array(np.ndarray):
                 mul = 1
             else:
                 raise RuntimeError(
-                    "Support for the %s ufunc with %i inputs has not been "
-                    "added to unyt_array." % (str(ufunc), len(inputs))
+                    f"Support for the {ufunc} ufunc with {len(inputs)} "
+                    "inputs has not been added to unyt_array."
                 )
         if unit is None:
             out_arr = np.array(out_arr, copy=_COPY_IF_NEEDED)
