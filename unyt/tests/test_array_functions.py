@@ -667,15 +667,15 @@ def test_histogram_with_weights_density():
     # check case with density
     rng = np.random.default_rng()
     arr = rng.normal(size=1000) * cm
-    density, bins = np.histogram(arr, bins=10, range=(arr.min(), arr.max()), density=True)
+    density, bins = np.histogram(
+        arr, bins=10, range=(arr.min(), arr.max()), density=True
+    )
     assert type(density) is unyt_array
-    assert density.units == arr.units ** -1
+    assert density.units == arr.units**-1
     assert bins.units == arr.units
     # also check case with weights
     w = rng.uniform(size=1000) * g
-    wcounts, wbins = np.histogram(
-        arr, bins=10, range=(arr.min(), arr.max()), weights=w
-    )
+    wcounts, wbins = np.histogram(arr, bins=10, range=(arr.min(), arr.max()), weights=w)
     assert type(wcounts) is unyt_array
     assert wcounts.units == w.units
     assert wbins.units == arr.units
@@ -761,7 +761,9 @@ def test_histogramdd_with_weights_density():
     assert ywbins.units == y.units
     assert zwbins.units == z.units
     # also check case with weights and density
-    wdensity, (xwdbins, ywdbins, zwdbins) = np.histogramdd((x, y, z), weights=w, density=True)
+    wdensity, (xwdbins, ywdbins, zwdbins) = np.histogramdd(
+        (x, y, z), weights=w, density=True
+    )
     assert wdensity.ndim == 3
     assert type(wdensity) is unyt_array
     assert wdensity.units == w.units / (x.units * y.units * z.units)

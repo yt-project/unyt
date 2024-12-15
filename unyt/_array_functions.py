@@ -202,7 +202,9 @@ def histogram2d(x, y, bins=10, range=None, density=None, weights=None, *args, **
 
 
 @implements(np.histogramdd)
-def histogramdd(sample, bins=10, range=None, density=None, weights=None, *args, **kwargs):
+def histogramdd(
+    sample, bins=10, range=None, density=None, weights=None, *args, **kwargs
+):
     units = [_.units for _ in sample]
     range = _sanitize_range(range, units=units)
     counts, bins = np.histogramdd._implementation(
