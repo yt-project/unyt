@@ -663,6 +663,31 @@ def test_histogram_implicit_units():
     assert bins.units == arr.units
 
 
+def test_histogram_with_weights_density():
+    # check case with density
+    rng = np.random.default_rng()
+    arr = rng.normal(size=1000) * cm
+    density, bins = np.histogram(arr, bins=10, range=(arr.min(), arr.max()), density=True)
+    assert type(density) is unyt_array
+    assert density.units == arr.units ** -1
+    assert bins.units == arr.units
+    # also check case with weights
+    w = rng.uniform(size=1000) * g
+    wcounts, wbins = np.histogram(
+        arr, bins=10, range=(arr.min(), arr.max()), weights=w
+    )
+    assert type(wcounts) is unyt_array
+    assert wcounts.units == w.units
+    assert wbins.units == arr.units
+    # also check case with weights and density
+    wdensity, wdbins = np.histogram(
+        arr, bins=10, range=(arr.min(), arr.max()), density=True, weights=w
+    )
+    assert type(wdensity) is unyt_array
+    assert wdensity.units == w.units / arr.units
+    assert wdbins.units == arr.units
+
+
 def test_histogram2d():
     rng = np.random.default_rng()
     x = rng.normal(size=100) * cm
@@ -671,6 +696,34 @@ def test_histogram2d():
     assert counts.ndim == 2
     assert xbins.units == x.units
     assert ybins.units == y.units
+
+
+def test_histogram2d_with_weights_density():
+    # check case with density
+    rng = np.random.default_rng()
+    x = rng.normal(size=100) * cm
+    y = rng.normal(loc=10, size=100) * s
+    density, xbins, ybins = np.histogram2d(x, y, density=True)
+    assert density.ndim == 2
+    assert type(density) is unyt_array
+    assert density.units == (x.units * y.units) ** -1
+    assert xbins.units == x.units
+    assert ybins.units == y.units
+    # also check case with weights
+    w = rng.uniform(size=100) * g
+    wcounts, xwbins, ywbins = np.histogram2d(x, y, weights=w)
+    assert wcounts.ndim == 2
+    assert type(wcounts) is unyt_array
+    assert wcounts.units == w.units
+    assert xwbins.units == x.units
+    assert ywbins.units == y.units
+    # also check case with weights and density
+    wdensity, xwdbins, ywdbins = np.histogram2d(x, y, weights=w, density=True)
+    assert wdensity.ndim == 2
+    assert type(wdensity) is unyt_array
+    assert wdensity.units == w.units / (x.units * y.units)
+    assert xwdbins.units == x.units
+    assert ywdbins.units == y.units
 
 
 def test_histogramdd():
@@ -683,6 +736,38 @@ def test_histogramdd():
     assert xbins.units == x.units
     assert ybins.units == y.units
     assert zbins.units == z.units
+
+
+def test_histogramdd_with_weights_density():
+    # check case with density
+    rng = np.random.default_rng()
+    x = rng.normal(size=100) * cm
+    y = rng.normal(loc=10, size=100) * s
+    z = rng.normal(size=100) * g
+    density, (xbins, ybins, zbins) = np.histogramdd((x, y, z), density=True)
+    assert density.ndim == 3
+    assert type(density) is unyt_array
+    assert density.units == (x.units * y.units * z.units) ** -1
+    assert xbins.units == x.units
+    assert ybins.units == y.units
+    assert zbins.units == z.units
+    # also check case with weights
+    w = rng.uniform(size=100) * K
+    wcounts, (xwbins, ywbins, zwbins) = np.histogramdd((x, y, z), weights=w)
+    assert wcounts.ndim == 3
+    assert type(wcounts) is unyt_array
+    assert wcounts.units == w.units
+    assert xwbins.units == x.units
+    assert ywbins.units == y.units
+    assert zwbins.units == z.units
+    # also check case with weights and density
+    wdensity, (xwdbins, ywdbins, zwdbins) = np.histogramdd((x, y, z), weights=w, density=True)
+    assert wdensity.ndim == 3
+    assert type(wdensity) is unyt_array
+    assert wdensity.units == w.units / (x.units * y.units * z.units)
+    assert xwdbins.units == x.units
+    assert ywdbins.units == y.units
+    assert zwdbins.units == z.units
 
 
 def test_histogram_bin_edges():
