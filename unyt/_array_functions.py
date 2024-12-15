@@ -163,6 +163,8 @@ def histogram(
     a,
     bins=10,
     range=None,
+    density=None,
+    weights=None,
     *args,
     **kwargs,
 ):
@@ -170,25 +172,51 @@ def histogram(
     counts, bins = np.histogram._implementation(
         np.asarray(a), bins, range, *args, **kwargs
     )
+    # a and/or weights could have units, only apply if present
+    # don't getattr(..., "units", NULL_UNIT) because e.g. we don't want
+    # a unyt_array if weights are not a unyt_array and not density
+    if density and hasattr(a, "units"):
+        counts /= a.units
+    if weights is not None and hasattr(weights, "units"):
+        counts *= weights.units
     return counts, bins * a.units
 
 
 @implements(np.histogram2d)
-def histogram2d(x, y, bins=10, range=None, *args, **kwargs):
+def histogram2d(x, y, bins=10, range=None, density=None, weights=None, *args, **kwargs):
     range = _sanitize_range(range, units=[x.units, y.units])
     counts, xbins, ybins = np.histogram2d._implementation(
         np.asarray(x), np.asarray(y), bins, range, *args, **kwargs
     )
+    # x, y and/or weights could have units, only apply if present
+    # don't getattr(..., "units", NULL_UNIT) because e.g. we don't want
+    # a unyt_array if weights are not a unyt_array and not density
+    if density:
+        if hasattr(x, "units"):
+            counts /= x.units
+        if hasattr(y, "units"):
+            counts /= y.units
+    if weights is not None and hasattr(weights, "units"):
+        counts *= weights.units
     return counts, xbins * x.units, ybins * y.units
 
 
 @implements(np.histogramdd)
-def histogramdd(sample, bins=10, range=None, *args, **kwargs):
+def histogramdd(sample, bins=10, range=None, density=None, weights=None, *args, **kwargs):
     units = [_.units for _ in sample]
     range = _sanitize_range(range, units=units)
     counts, bins = np.histogramdd._implementation(
         [np.asarray(_) for _ in sample], bins, range, *args, **kwargs
     )
+    # sample(s) and/or weights could have units, only apply if present
+    # don't getattr(..., "units", NULL_UNIT) because e.g. we don't want
+    # a unyt_array if weights are not a unyt_array and not density
+    if density:
+        for s in sample:
+            if hasattr(s, "units"):
+                counts /= s.units
+    if weights is not None and hasattr(weights, "units"):
+        counts *= weights.units
     return counts, tuple(_bin * u for _bin, u in zip(bins, units))
 
 
