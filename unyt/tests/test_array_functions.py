@@ -1299,7 +1299,7 @@ def test_prod_with_axis():
     ] * cm
     y = np.prod(x, axis=0)
     assert type(y) is unyt_array
-    assert y.units == cm ** 3
+    assert y.units == cm**3
 
 
 @pytest.mark.parametrize(
