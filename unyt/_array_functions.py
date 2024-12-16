@@ -535,7 +535,8 @@ def copyto(dst, src, *args, **kwargs):
 
 @implements(np.prod)
 def prod(a, *args, **kwargs):
-    return np.prod._implementation(np.asarray(a), *args, **kwargs) * a.units**a.size
+    res = np.prod._implementation(np.asarray(a), *args, **kwargs)
+    return res * a.units ** (a.size // res.size)
 
 
 @implements(np.var)

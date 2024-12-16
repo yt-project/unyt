@@ -1291,6 +1291,18 @@ def test_scalar_reducer(func, expected_units):
     assert y.units == expected_units
 
 
+@pytest.mark.parametrize("func", [np.prod, np.nanprod])
+def test_prod_with_axis(func):
+    x = [
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9],
+    ] * cm
+    y = func(x, axis=0)
+    assert type(y) is unyt_array
+    assert y.units == cm**3
+
+
 @pytest.mark.parametrize(
     "func",
     [
