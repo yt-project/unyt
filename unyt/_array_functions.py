@@ -160,7 +160,7 @@ def _sanitize_range(_range, units):
 
 def _histogram(a, bins=10, range=None, density=None, weights=None, normed=None):
     range = _sanitize_range(range, units=[a.units])
-    if NUMPY_VERSION > Version("1.23"):
+    if NUMPY_VERSION >= Version("1.24"):
         counts, bins = np.histogram._implementation(
             np.asarray(a),
             bins=bins,
@@ -187,7 +187,7 @@ def _histogram(a, bins=10, range=None, density=None, weights=None, normed=None):
     return counts, bins * a.units
 
 
-if NUMPY_VERSION > Version("1.23"):
+if NUMPY_VERSION >= Version("1.24"):
 
     @implements(np.histogram)
     def histogram(a, bins=10, range=None, density=None, weights=None):
@@ -204,7 +204,7 @@ else:
 
 def _histogram2d(x, y, bins=10, range=None, density=None, weights=None, normed=None):
     range = _sanitize_range(range, units=[x.units, y.units])
-    if NUMPY_VERSION > Version("1.23"):
+    if NUMPY_VERSION >= Version("1.24"):
         counts, xbins, ybins = np.histogram2d._implementation(
             np.asarray(x),
             np.asarray(y),
@@ -236,7 +236,7 @@ def _histogram2d(x, y, bins=10, range=None, density=None, weights=None, normed=N
     return counts, xbins * x.units, ybins * y.units
 
 
-if NUMPY_VERSION > Version("1.23"):
+if NUMPY_VERSION >= Version("1.24"):
 
     @implements(np.histogram2d)
     def histogram2d(x, y, bins=10, range=None, density=None, weights=None):
@@ -262,7 +262,7 @@ else:
 def _histogramdd(sample, bins=10, range=None, density=None, weights=None, normed=None):
     units = [getattr(_, "units", NULL_UNIT) for _ in sample]
     range = _sanitize_range(range, units=units)
-    if NUMPY_VERSION > Version("1.23"):
+    if NUMPY_VERSION >= Version("1.24"):
         counts, bins = np.histogramdd._implementation(
             [np.asarray(_) for _ in sample],
             bins=bins,
@@ -291,7 +291,7 @@ def _histogramdd(sample, bins=10, range=None, density=None, weights=None, normed
     return counts, tuple(_bin * u for _bin, u in zip(bins, units))
 
 
-if NUMPY_VERSION > Version("1.23"):
+if NUMPY_VERSION >= Version("1.24"):
 
     @implements(np.histogramdd)
     def histogramdd(sample, bins=10, range=None, density=None, weights=None):
