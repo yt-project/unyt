@@ -158,7 +158,7 @@ def _sanitize_range(_range, units):
     return new_range.squeeze()
 
 
-def _histogram(a, bins=10, range=None, density=None, weights=None, normed=None):
+def _histogram(a, *, bins=10, range=None, density=None, weights=None, normed=None):
     range = _sanitize_range(range, units=[getattr(a, "units", None)])
     if NUMPY_VERSION >= Version("1.24"):
         counts, bins = np.histogram._implementation(
@@ -202,7 +202,7 @@ else:
         )
 
 
-def _histogram2d(x, y, bins=10, range=None, density=None, weights=None, normed=None):
+def _histogram2d(x, y, *, bins=10, range=None, density=None, weights=None, normed=None):
     range = _sanitize_range(
         range, units=[getattr(x, "units", None), getattr(y, "units", None)]
     )
@@ -261,7 +261,9 @@ else:
         )
 
 
-def _histogramdd(sample, bins=10, range=None, density=None, weights=None, normed=None):
+def _histogramdd(
+    sample, *, bins=10, range=None, density=None, weights=None, normed=None
+):
     range = _sanitize_range(range, units=[getattr(_, "units", None) for _ in sample])
     if NUMPY_VERSION >= Version("1.24"):
         counts, bins = np.histogramdd._implementation(
@@ -692,9 +694,8 @@ def nanquantile(a, *args, **kwargs):
 
 @implements(np.linalg.det)
 def linalg_det(a, *args, **kwargs):
-    return (
-        np.linalg.det._implementation(np.asarray(a), *args, **kwargs)
-        * a.units ** (a.shape[0])
+    return np.linalg.det._implementation(np.asarray(a), *args, **kwargs) * a.units ** (
+        a.shape[0]
     )
 
 
