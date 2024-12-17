@@ -159,7 +159,7 @@ def _sanitize_range(_range, units):
 
 
 def _histogram(a, bins=10, range=None, density=None, weights=None, normed=None):
-    range = _sanitize_range(range, units=[a.units])
+    range = _sanitize_range(range, units=[getattr(a, "units", None)])
     if NUMPY_VERSION >= Version("1.24"):
         counts, bins = np.histogram._implementation(
             np.asarray(a),
@@ -184,7 +184,7 @@ def _histogram(a, bins=10, range=None, density=None, weights=None, normed=None):
         counts /= a.units
     if weights is not None and hasattr(weights, "units"):
         counts *= weights.units
-    return counts, bins * a.units
+    return counts, bins * getattr(a, "units", 1)
 
 
 if NUMPY_VERSION >= Version("1.24"):
@@ -203,7 +203,9 @@ else:
 
 
 def _histogram2d(x, y, bins=10, range=None, density=None, weights=None, normed=None):
-    range = _sanitize_range(range, units=[x.units, y.units])
+    range = _sanitize_range(
+        range, units=[getattr(x, "units", None), getattr(y, "units", None)]
+    )
     if NUMPY_VERSION >= Version("1.24"):
         counts, xbins, ybins = np.histogram2d._implementation(
             np.asarray(x),
@@ -233,7 +235,7 @@ def _histogram2d(x, y, bins=10, range=None, density=None, weights=None, normed=N
             counts /= y.units
     if weights is not None and hasattr(weights, "units"):
         counts *= weights.units
-    return counts, xbins * x.units, ybins * y.units
+    return counts, xbins * getattr(x, "units", 1), ybins * getattr(y, "units", 1)
 
 
 if NUMPY_VERSION >= Version("1.24"):
@@ -260,8 +262,7 @@ else:
 
 
 def _histogramdd(sample, bins=10, range=None, density=None, weights=None, normed=None):
-    units = [getattr(_, "units", NULL_UNIT) for _ in sample]
-    range = _sanitize_range(range, units=units)
+    range = _sanitize_range(range, units=[getattr(_, "units", None) for _ in sample])
     if NUMPY_VERSION >= Version("1.24"):
         counts, bins = np.histogramdd._implementation(
             [np.asarray(_) for _ in sample],
@@ -284,11 +285,9 @@ def _histogramdd(sample, bins=10, range=None, density=None, weights=None, normed
     # a unyt_array if weights are not a unyt_array and not density
     if density:
         for s in sample:
-            if hasattr(s, "units"):
-                counts /= s.units
-    if weights is not None and hasattr(weights, "units"):
-        counts *= weights.units
-    return counts, tuple(_bin * u for _bin, u in zip(bins, units))
+            counts /= getattr(s, "units", 1)
+    counts *= getattr(weights, "units", 1)
+    return counts, tuple(_bin * getattr(s, "units", 1) for _bin, s in zip(bins, sample))
 
 
 if NUMPY_VERSION >= Version("1.24"):
@@ -693,9 +692,8 @@ def nanquantile(a, *args, **kwargs):
 
 @implements(np.linalg.det)
 def linalg_det(a, *args, **kwargs):
-    return (
-        np.linalg.det._implementation(np.asarray(a), *args, **kwargs)
-        * a.units ** (a.shape[0])
+    return np.linalg.det._implementation(np.asarray(a), *args, **kwargs) * a.units ** (
+        a.shape[0]
     )
 
 
