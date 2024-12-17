@@ -692,8 +692,9 @@ def nanquantile(a, *args, **kwargs):
 
 @implements(np.linalg.det)
 def linalg_det(a, *args, **kwargs):
-    return np.linalg.det._implementation(np.asarray(a), *args, **kwargs) * a.units ** (
-        a.shape[0]
+    return (
+        np.linalg.det._implementation(np.asarray(a), *args, **kwargs)
+        * a.units ** (a.shape[0])
     )
 
 
