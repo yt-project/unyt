@@ -831,6 +831,12 @@ class TestHistograms:
         assert not hasattr(ywbins2, "units")
         assert not hasattr(zwbins2, "units")
 
+    @pytest.mark.parametrize("weights", [None, [0, 1, 2], [0, 1, 2] * cm])
+    def test_histogramdd_recursion(self, weights):
+        # regression test for https://github.com/yt-project/unyt/issues/540
+        sample = [unyt_array(np.arange(3), Msun)]
+        np.histogramdd(sample, density=True, weights=weights)
+
     def test_histogram_bin_edges(self):
         rng = np.random.default_rng()
         arr = rng.normal(size=1000) * cm
