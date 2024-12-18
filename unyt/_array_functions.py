@@ -614,26 +614,60 @@ def array_equiv(a1, a2, *args, **kwargs) -> bool:
     )
 
 
-@implements(np.linspace)
-def linspace(start, stop, *args, **kwargs):
+def _linspace(
+    start,
+    stop,
+    num=50,
+    endpoint=True,
+    retstep=False,
+    dtype=None,
+    axis=0,
+    *,
+    device=None,
+):
     _validate_units_consistency((start, stop))
-    return (
-        np.linspace._implementation(
-            np.asarray(start), np.asarray(stop), *args, **kwargs
-        )
-        * start.units
+    result = np.linspace._implementation(
+        np.asarray(start),
+        np.asarray(stop),
+        num=num,
+        endpoint=endpoint,
+        retstep=retstep,
+        dtype=dtype,
+        axis=axis,
+        device=device,
     )
+    if retstep:
+        return result[0] * start.units, result[1] * start.units
+    else:
+        return result * start.units
+
+
+# Because signature changed (new kwarg `device`) in 2.0.0:
+@implements(np.linspace)
+def linspace(*args, **kwargs):
+    return _linspace(*args, **kwargs)
 
 
 @implements(np.logspace)
-def logspace(start, stop, *args, **kwargs):
-    _validate_units_consistency((start, stop))
-    return (
-        np.logspace._implementation(
-            np.asarray(start), np.asarray(stop), *args, **kwargs
+def logspace(start, stop, num=50, endpoint=True, base=10, dtype=None, axis=0):
+    if (startu := getattr(start, "units", NULL_UNIT)) != NULL_UNIT:
+        raise TypeError(
+            f"The first argument to numpy.logspace must be dimensionless, got units={startu}"
         )
-        * start.units
+    if (stopu := getattr(stop, "units", NULL_UNIT)) != NULL_UNIT:
+        raise TypeError(
+            f"The second argument to numpy.logspace must be dimensionless, got units={stopu}"
+        )
+    result = np.logspace._implementation(
+        np.asarray(start),
+        np.asarray(stop),
+        num=num,
+        endpoint=endpoint,
+        base=np.asarray(base),
+        dtype=dtype,
+        axis=axis,
     )
+    return result * getattr(base, "units", NULL_UNIT)
 
 
 @implements(np.geomspace)
@@ -695,9 +729,8 @@ def nanquantile(a, *args, **kwargs):
 
 @implements(np.linalg.det)
 def linalg_det(a, *args, **kwargs):
-    return (
-        np.linalg.det._implementation(np.asarray(a), *args, **kwargs)
-        * a.units ** (a.shape[0])
+    return np.linalg.det._implementation(np.asarray(a), *args, **kwargs) * a.units ** (
+        a.shape[0]
     )
 
 
