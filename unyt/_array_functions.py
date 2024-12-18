@@ -286,9 +286,16 @@ def _histogramdd(
     # don't getattr(..., "units", NULL_UNIT) because e.g. we don't want
     # a unyt_array if weights are not a unyt_array and not density
     if density:
+        divider_units = 1 * NULL_UNIT
         for s in sample:
-            counts /= getattr(s, "units", 1)
-    counts *= getattr(weights, "units", 1)
+            if not hasattr(s, "units"):
+                continue
+            divider_units *= s.units
+        if divider_units != NULL_UNIT:
+            counts /= divider_units
+
+    if weights is not None and hasattr(weights, "units"):
+        counts *= weights.units
     return counts, tuple(_bin * getattr(s, "units", 1) for _bin, s in zip(bins, sample))
 
 
