@@ -9,7 +9,7 @@ import pytest
 from numpy.testing import assert_allclose
 from packaging.version import Version
 
-from unyt import A, K, cm, degC, delta_degC, g, km, rad, s
+from unyt import A, K, Msun, cm, degC, delta_degC, g, km, rad, s
 from unyt._array_functions import (
     _HANDLED_FUNCTIONS as HANDLED_FUNCTIONS,
     _UNSUPPORTED_FUNCTIONS as UNSUPPORTED_FUNCTIONS,
@@ -830,6 +830,12 @@ class TestHistograms:
         assert not hasattr(xwbins2, "units")
         assert not hasattr(ywbins2, "units")
         assert not hasattr(zwbins2, "units")
+
+    @pytest.mark.parametrize("weights", [None, [0, 1, 2], [0, 1, 2] * cm])
+    def test_histogramdd_recursion(self, weights):
+        # regression test for https://github.com/yt-project/unyt/issues/540
+        sample = [unyt_array(np.arange(3), Msun)]
+        np.histogramdd(sample, density=True, weights=weights)
 
     def test_histogram_bin_edges(self):
         rng = np.random.default_rng()
