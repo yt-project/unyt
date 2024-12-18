@@ -626,16 +626,16 @@ def _linspace(
     device=None,
 ):
     _validate_units_consistency((start, stop))
-    result = np.linspace._implementation(
-        np.asarray(start),
-        np.asarray(stop),
+    kwargs = dict(
         num=num,
         endpoint=endpoint,
         retstep=retstep,
         dtype=dtype,
         axis=axis,
-        device=device,
     )
+    if NUMPY_VERSION >= Version("2.1.0.dev0"):
+        kwargs["device"] = device
+    result = np.linspace._implementation(np.asarray(start), np.asarray(stop), **kwargs)
     if retstep:
         return result[0] * start.units, result[1] * start.units
     else:
