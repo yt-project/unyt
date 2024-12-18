@@ -649,10 +649,44 @@ def _linspace(
         return result * start.units
 
 
-# Because signature changed (new kwarg `device`) in 2.0.0:
-@implements(np.linspace)
-def linspace(*args, **kwargs):
-    return _linspace(*args, **kwargs)
+if NUMPY_VERSION >= Version("2.1.0.dev0"):
+
+    @implements(np.linspace)
+    def linspace(
+        start,
+        stop,
+        num=50,
+        endpoint=True,
+        retstep=False,
+        dtype=None,
+        axis=0,
+        *,
+        device=None,
+    ):
+        return _linspace(
+            start,
+            stop,
+            num=50,
+            endpoint=endpoint,
+            retstep=retstep,
+            dtype=dtype,
+            axis=axis,
+            device=device,
+        )
+
+else:
+
+    @implements(np.linspace)
+    def linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None, axis=0):
+        return _linspace(
+            start,
+            stop,
+            num=50,
+            endpoint=endpoint,
+            retstep=retstep,
+            dtype=dtype,
+            axis=axis,
+        )
 
 
 @implements(np.logspace)
@@ -736,9 +770,8 @@ def nanquantile(a, *args, **kwargs):
 
 @implements(np.linalg.det)
 def linalg_det(a, *args, **kwargs):
-    return (
-        np.linalg.det._implementation(np.asarray(a), *args, **kwargs)
-        * a.units ** (a.shape[0])
+    return np.linalg.det._implementation(np.asarray(a), *args, **kwargs) * a.units ** (
+        a.shape[0]
     )
 
 
