@@ -649,7 +649,7 @@ def _linspace(
         return result * start.units
 
 
-if NUMPY_VERSION >= Version("2.1.0.dev0"):
+if NUMPY_VERSION >= Version("2.0.0.dev0"):
 
     @implements(np.linspace)
     def linspace(
@@ -691,9 +691,9 @@ else:
 
 @implements(np.logspace)
 def logspace(start, stop, num=50, endpoint=True, base=10, dtype=None, axis=0):
-    if (startu := getattr(start, "units", NULL_UNIT)) != NULL_UNIT or (
-        stopu := getattr(stop, "units", NULL_UNIT)
-    ) != NULL_UNIT:
+    startu = getattr(start, "units", NULL_UNIT)
+    stopu = getattr(stop, "units", NULL_UNIT)
+    if startu != NULL_UNIT or stopu != NULL_UNIT:
         raise TypeError(
             "The first two arguments to numpy.logspace must be dimensionless, "
             f"got units={startu} (arg1) and units={stopu} (arg2). If output with"

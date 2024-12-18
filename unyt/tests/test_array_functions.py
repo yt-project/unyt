@@ -1233,8 +1233,8 @@ def test_isclose_error():
         np.isclose(x, y)
 
 
-def test_linspace(retstep):
-    res = np.linspace(1 * cm, 11 * cm, 10, retstep=retstep)
+def test_linspace():
+    res = np.linspace(1 * cm, 11 * cm, 10)
     assert type(res) is unyt_array
     assert res.units == cm
 
