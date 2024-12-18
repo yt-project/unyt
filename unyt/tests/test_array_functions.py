@@ -9,7 +9,7 @@ import pytest
 from numpy.testing import assert_allclose
 from packaging.version import Version
 
-from unyt import A, K, cm, degC, delta_degC, g, km, rad, s, dimensionless
+from unyt import A, K, cm, degC, delta_degC, dimensionless, g, km, rad, s
 from unyt._array_functions import (
     _HANDLED_FUNCTIONS as HANDLED_FUNCTIONS,
     _UNSUPPORTED_FUNCTIONS as UNSUPPORTED_FUNCTIONS,
