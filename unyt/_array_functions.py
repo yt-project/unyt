@@ -158,38 +158,162 @@ def _sanitize_range(_range, units):
     return new_range.squeeze()
 
 
-@implements(np.histogram)
-def histogram(
-    a,
-    bins=10,
-    range=None,
-    *args,
-    **kwargs,
+def _histogram(a, *, bins=10, range=None, density=None, weights=None, normed=None):
+    range = _sanitize_range(range, units=[getattr(a, "units", None)])
+    if NUMPY_VERSION >= Version("1.24"):
+        counts, bins = np.histogram._implementation(
+            np.asarray(a),
+            bins=bins,
+            range=range,
+            density=density,
+            weights=np.asarray(weights) if weights is not None else None,
+        )
+    else:
+        counts, bins = np.histogram._implementation(
+            np.asarray(a),
+            bins=bins,
+            range=range,
+            normed=normed,
+            weights=np.asarray(weights) if weights is not None else None,
+            density=density,
+        )
+    # a and/or weights could have units, only apply if present
+    # don't getattr(..., "units", NULL_UNIT) because e.g. we don't want
+    # a unyt_array if weights are not a unyt_array and not density
+    if density and hasattr(a, "units"):
+        counts /= a.units
+    if weights is not None and hasattr(weights, "units"):
+        counts *= weights.units
+    return counts, bins * getattr(a, "units", 1)
+
+
+if NUMPY_VERSION >= Version("1.24"):
+
+    @implements(np.histogram)
+    def histogram(a, bins=10, range=None, density=None, weights=None):
+        return _histogram(a, bins=bins, range=range, density=density, weights=weights)
+
+else:
+
+    @implements(np.histogram)
+    def histogram(a, bins=10, range=None, normed=None, weights=None, density=None):
+        return _histogram(
+            a, bins=bins, range=range, normed=normed, weights=weights, density=density
+        )
+
+
+def _histogram2d(x, y, *, bins=10, range=None, density=None, weights=None, normed=None):
+    range = _sanitize_range(
+        range, units=[getattr(x, "units", None), getattr(y, "units", None)]
+    )
+    if NUMPY_VERSION >= Version("1.24"):
+        counts, xbins, ybins = np.histogram2d._implementation(
+            np.asarray(x),
+            np.asarray(y),
+            bins=bins,
+            range=range,
+            density=density,
+            weights=np.asarray(weights) if weights is not None else None,
+        )
+    else:
+        counts, xbins, ybins = np.histogram2d._implementation(
+            np.asarray(x),
+            np.asarray(y),
+            bins=bins,
+            range=range,
+            normed=normed,
+            weights=np.asarray(weights) if weights is not None else None,
+            density=density,
+        )
+    # x, y and/or weights could have units, only apply if present
+    # don't getattr(..., "units", NULL_UNIT) because e.g. we don't want
+    # a unyt_array if weights are not a unyt_array and not density
+    if density:
+        if hasattr(x, "units"):
+            counts /= x.units
+        if hasattr(y, "units"):
+            counts /= y.units
+    if weights is not None and hasattr(weights, "units"):
+        counts *= weights.units
+    return counts, xbins * getattr(x, "units", 1), ybins * getattr(y, "units", 1)
+
+
+if NUMPY_VERSION >= Version("1.24"):
+
+    @implements(np.histogram2d)
+    def histogram2d(x, y, bins=10, range=None, density=None, weights=None):
+        return _histogram2d(
+            x, y, bins=bins, range=range, density=density, weights=weights
+        )
+
+else:
+
+    @implements(np.histogram2d)
+    def histogram2d(x, y, bins=10, range=None, normed=None, weights=None, density=None):
+        return _histogram2d(
+            x,
+            y,
+            bins=bins,
+            range=range,
+            normed=normed,
+            weights=weights,
+            density=density,
+        )
+
+
+def _histogramdd(
+    sample, *, bins=10, range=None, density=None, weights=None, normed=None
 ):
-    range = _sanitize_range(range, units=[a.units])
-    counts, bins = np.histogram._implementation(
-        np.asarray(a), bins, range, *args, **kwargs
-    )
-    return counts, bins * a.units
+    range = _sanitize_range(range, units=[getattr(_, "units", None) for _ in sample])
+    if NUMPY_VERSION >= Version("1.24"):
+        counts, bins = np.histogramdd._implementation(
+            [np.asarray(_) for _ in sample],
+            bins=bins,
+            range=range,
+            density=density,
+            weights=np.asarray(weights) if weights is not None else None,
+        )
+    else:
+        counts, bins = np.histogramdd._implementation(
+            [np.asarray(_) for _ in sample],
+            bins=bins,
+            range=range,
+            normed=normed,
+            weights=np.asarray(weights) if weights is not None else None,
+            density=density,
+        )
+    # sample(s) and/or weights could have units, only apply if present
+    # don't getattr(..., "units", NULL_UNIT) because e.g. we don't want
+    # a unyt_array if weights are not a unyt_array and not density
+    if density:
+        for s in sample:
+            counts /= getattr(s, "units", 1)
+    counts *= getattr(weights, "units", 1)
+    return counts, tuple(_bin * getattr(s, "units", 1) for _bin, s in zip(bins, sample))
 
 
-@implements(np.histogram2d)
-def histogram2d(x, y, bins=10, range=None, *args, **kwargs):
-    range = _sanitize_range(range, units=[x.units, y.units])
-    counts, xbins, ybins = np.histogram2d._implementation(
-        np.asarray(x), np.asarray(y), bins, range, *args, **kwargs
-    )
-    return counts, xbins * x.units, ybins * y.units
+if NUMPY_VERSION >= Version("1.24"):
 
+    @implements(np.histogramdd)
+    def histogramdd(sample, bins=10, range=None, density=None, weights=None):
+        return _histogramdd(
+            sample, bins=bins, range=range, density=density, weights=weights
+        )
 
-@implements(np.histogramdd)
-def histogramdd(sample, bins=10, range=None, *args, **kwargs):
-    units = [_.units for _ in sample]
-    range = _sanitize_range(range, units=units)
-    counts, bins = np.histogramdd._implementation(
-        [np.asarray(_) for _ in sample], bins, range, *args, **kwargs
-    )
-    return counts, tuple(_bin * u for _bin, u in zip(bins, units))
+else:
+
+    @implements(np.histogramdd)
+    def histogramdd(
+        sample, bins=10, range=None, normed=None, weights=None, density=None
+    ):
+        return _histogramdd(
+            sample,
+            bins=bins,
+            range=range,
+            normed=normed,
+            weights=weights,
+            density=density,
+        )
 
 
 @implements(np.histogram_bin_edges)

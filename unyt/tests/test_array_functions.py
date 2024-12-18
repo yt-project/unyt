@@ -646,51 +646,197 @@ def test_linalg_tensordot():
     assert_array_equal_units(res, ref)
 
 
-def test_histogram():
-    rng = np.random.default_rng()
-    arr = rng.normal(size=1000) * cm
-    counts, bins = np.histogram(arr, bins=10, range=(arr.min(), arr.max()))
-    assert type(counts) is np.ndarray
-    assert bins.units == arr.units
+class TestHistograms:
+    def test_histogram(self):
+        rng = np.random.default_rng()
+        arr = rng.normal(size=1000) * cm
+        counts, bins = np.histogram(arr, bins=10, range=(arr.min(), arr.max()))
+        assert type(counts) is np.ndarray
+        assert bins.units == arr.units
 
+    def test_histogram_implicit_units(self):
+        # see https://github.com/yt-project/unyt/issues/465
+        rng = np.random.default_rng()
+        arr = rng.normal(size=1000) * cm
+        counts, bins = np.histogram(
+            arr, bins=10, range=(arr.min().value, arr.max().value)
+        )
+        assert type(counts) is np.ndarray
+        assert bins.units == arr.units
 
-def test_histogram_implicit_units():
-    # see https://github.com/yt-project/unyt/issues/465
-    rng = np.random.default_rng()
-    arr = rng.normal(size=1000) * cm
-    counts, bins = np.histogram(arr, bins=10, range=(arr.min().value, arr.max().value))
-    assert type(counts) is np.ndarray
-    assert bins.units == arr.units
+    def test_histogram_with_density(self):
+        rng = np.random.default_rng()
+        arr = rng.normal(size=1000) * cm
+        density, bins = np.histogram(
+            arr, bins=10, range=(arr.min(), arr.max()), density=True
+        )
+        assert type(density) is unyt_array
+        assert density.units == arr.units**-1
+        assert bins.units == arr.units
 
+    def test_histogram_with_weights(self):
+        rng = np.random.default_rng()
+        arr = rng.normal(size=1000) * cm
+        w = rng.uniform(size=1000) * g
+        wcounts, wbins = np.histogram(
+            arr, bins=10, range=(arr.min(), arr.max()), weights=w
+        )
+        assert type(wcounts) is unyt_array
+        assert wcounts.units == w.units
+        assert wbins.units == arr.units
 
-def test_histogram2d():
-    rng = np.random.default_rng()
-    x = rng.normal(size=100) * cm
-    y = rng.normal(loc=10, size=100) * s
-    counts, xbins, ybins = np.histogram2d(x, y)
-    assert counts.ndim == 2
-    assert xbins.units == x.units
-    assert ybins.units == y.units
+    def test_histogram_with_weights_and_density(self):
+        rng = np.random.default_rng()
+        arr = rng.normal(size=1000) * cm
+        w = rng.uniform(size=1000) * g
+        wdensity, wdbins = np.histogram(
+            arr, bins=10, range=(arr.min(), arr.max()), density=True, weights=w
+        )
+        assert type(wdensity) is unyt_array
+        assert wdensity.units == w.units / arr.units
+        assert wdbins.units == arr.units
 
+    def test_histogram_with_weights_and_dimless_arr(self):
+        rng = np.random.default_rng()
+        arr = rng.normal(size=1000) * cm
+        w = rng.uniform(size=1000) * g
+        wcounts2, wbins2 = np.histogram(arr.to_value(arr.units), weights=w)
+        assert type(wcounts2) is unyt_array
+        assert wcounts2.units == w.units
+        assert not hasattr(wbins2, "units")
 
-def test_histogramdd():
-    rng = np.random.default_rng()
-    x = rng.normal(size=100) * cm
-    y = rng.normal(size=100) * s
-    z = rng.normal(size=100) * g
-    counts, (xbins, ybins, zbins) = np.histogramdd((x, y, z))
-    assert counts.ndim == 3
-    assert xbins.units == x.units
-    assert ybins.units == y.units
-    assert zbins.units == z.units
+    def test_histogram2d(self):
+        rng = np.random.default_rng()
+        x = rng.normal(size=100) * cm
+        y = rng.normal(loc=10, size=100) * s
+        counts, xbins, ybins = np.histogram2d(x, y)
+        assert counts.ndim == 2
+        assert xbins.units == x.units
+        assert ybins.units == y.units
 
+    def test_histogram2d_with_density(self):
+        rng = np.random.default_rng()
+        x = rng.normal(size=100) * cm
+        y = rng.normal(loc=10, size=100) * s
+        density, xbins, ybins = np.histogram2d(x, y, density=True)
+        assert density.ndim == 2
+        assert type(density) is unyt_array
+        assert density.units == (x.units * y.units) ** -1
+        assert xbins.units == x.units
+        assert ybins.units == y.units
 
-def test_histogram_bin_edges():
-    rng = np.random.default_rng()
-    arr = rng.normal(size=1000) * cm
-    bins = np.histogram_bin_edges(arr)
-    assert type(bins) is unyt_array
-    assert bins.units == arr.units
+    def test_histogram2d_with_weights(self):
+        rng = np.random.default_rng()
+        x = rng.normal(size=100) * cm
+        y = rng.normal(loc=10, size=100) * s
+        w = rng.uniform(size=100) * g
+        wcounts, xwbins, ywbins = np.histogram2d(x, y, weights=w)
+        assert wcounts.ndim == 2
+        assert type(wcounts) is unyt_array
+        assert wcounts.units == w.units
+        assert xwbins.units == x.units
+        assert ywbins.units == y.units
+
+    def test_histogram2d_with_weights_and_density(self):
+        rng = np.random.default_rng()
+        x = rng.normal(size=100) * cm
+        y = rng.normal(loc=10, size=100) * s
+        w = rng.uniform(size=100) * g
+        wdensity, xwdbins, ywdbins = np.histogram2d(x, y, weights=w, density=True)
+        assert wdensity.ndim == 2
+        assert type(wdensity) is unyt_array
+        assert wdensity.units == w.units / (x.units * y.units)
+        assert xwdbins.units == x.units
+        assert ywdbins.units == y.units
+
+    def test_histogram2d_with_weights_and_dimless_arr(self):
+        rng = np.random.default_rng()
+        x = rng.normal(size=100) * cm
+        y = rng.normal(loc=10, size=100) * s
+        w = rng.uniform(size=100) * g
+        wcounts2, xwbins2, ywbins2 = np.histogram2d(
+            x.to_value(x.units), y.to_value(y.units), weights=w
+        )
+        assert type(wcounts2) is unyt_array
+        assert wcounts2.units == w.units
+        assert not hasattr(xwbins2, "units")
+        assert not hasattr(ywbins2, "units")
+
+    def test_histogramdd(self):
+        rng = np.random.default_rng()
+        x = rng.normal(size=100) * cm
+        y = rng.normal(size=100) * s
+        z = rng.normal(size=100) * g
+        counts, (xbins, ybins, zbins) = np.histogramdd((x, y, z))
+        assert counts.ndim == 3
+        assert xbins.units == x.units
+        assert ybins.units == y.units
+        assert zbins.units == z.units
+
+    def test_histogramdd_with_density(self):
+        rng = np.random.default_rng()
+        x = rng.normal(size=100) * cm
+        y = rng.normal(loc=10, size=100) * s
+        z = rng.normal(size=100) * g
+        density, (xbins, ybins, zbins) = np.histogramdd((x, y, z), density=True)
+        assert density.ndim == 3
+        assert type(density) is unyt_array
+        assert density.units == (x.units * y.units * z.units) ** -1
+        assert xbins.units == x.units
+        assert ybins.units == y.units
+        assert zbins.units == z.units
+
+    def test_histogramdd_with_weights(self):
+        rng = np.random.default_rng()
+        x = rng.normal(size=100) * cm
+        y = rng.normal(loc=10, size=100) * s
+        z = rng.normal(size=100) * g
+        w = rng.uniform(size=100) * K
+        wcounts, (xwbins, ywbins, zwbins) = np.histogramdd((x, y, z), weights=w)
+        assert wcounts.ndim == 3
+        assert type(wcounts) is unyt_array
+        assert wcounts.units == w.units
+        assert xwbins.units == x.units
+        assert ywbins.units == y.units
+        assert zwbins.units == z.units
+
+    def test_histogramdd_with_weights_and_density(self):
+        rng = np.random.default_rng()
+        x = rng.normal(size=100) * cm
+        y = rng.normal(loc=10, size=100) * s
+        z = rng.normal(size=100) * g
+        w = rng.uniform(size=100) * K
+        wdensity, (xwdbins, ywdbins, zwdbins) = np.histogramdd(
+            (x, y, z), weights=w, density=True
+        )
+        assert wdensity.ndim == 3
+        assert type(wdensity) is unyt_array
+        assert wdensity.units == w.units / (x.units * y.units * z.units)
+        assert xwdbins.units == x.units
+        assert ywdbins.units == y.units
+        assert zwdbins.units == z.units
+
+    def test_histogramdd_with_weights_and_dimless_arr(self):
+        rng = np.random.default_rng()
+        x = rng.normal(size=100) * cm
+        y = rng.normal(loc=10, size=100) * s
+        z = rng.normal(size=100) * g
+        w = rng.uniform(size=100) * K
+        wcounts2, (xwbins2, ywbins2, zwbins2) = np.histogramdd(
+            (x.to_value(x.units), y.to_value(y.units), z.to_value(z.units)), weights=w
+        )
+        assert type(wcounts2) is unyt_array
+        assert wcounts2.units == w.units
+        assert not hasattr(xwbins2, "units")
+        assert not hasattr(ywbins2, "units")
+        assert not hasattr(zwbins2, "units")
+
+    def test_histogram_bin_edges(self):
+        rng = np.random.default_rng()
+        arr = rng.normal(size=1000) * cm
+        bins = np.histogram_bin_edges(arr)
+        assert type(bins) is unyt_array
+        assert bins.units == arr.units
 
 
 def test_concatenate():
