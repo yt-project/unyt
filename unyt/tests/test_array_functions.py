@@ -9,7 +9,7 @@ import pytest
 from numpy.testing import assert_allclose
 from packaging.version import Version
 
-from unyt import A, K, Msun, cm, degC, delta_degC, g, km, rad, s
+from unyt import A, K, Msun, cm, degC, delta_degC, dimensionless, g, km, rad, s
 from unyt._array_functions import (
     _HANDLED_FUNCTIONS as HANDLED_FUNCTIONS,
     _UNSUPPORTED_FUNCTIONS as UNSUPPORTED_FUNCTIONS,
@@ -1233,16 +1233,42 @@ def test_isclose_error():
         np.isclose(x, y)
 
 
-@pytest.mark.parametrize(
-    "func",
-    [
-        np.linspace,
-        np.logspace,
-        np.geomspace,
-    ],
-)
-def test_xspace(func):
-    res = func(1 * cm, 11 * cm, 10)
+def test_linspace():
+    res = np.linspace(1 * cm, 11 * cm, 10)
+    assert type(res) is unyt_array
+    assert res.units == cm
+
+
+def test_linspace_with_retstep():
+    res, step = np.linspace(1 * cm, 11 * cm, 10, retstep=True)
+    assert type(res) is unyt_array
+    assert res.units == cm
+    assert type(step) is unyt_quantity
+    assert step.units == cm
+
+
+def test_logspace_with_units_raises():
+    with pytest.raises(
+        TypeError,
+        match="The first two arguments to numpy.logspace must be dimensionless",
+    ):
+        np.logspace(1 * cm, 2 * cm)
+
+
+def test_logspace_with_base():
+    res = np.logspace(1, 2, base=10 * cm)
+    assert type(res) is unyt_array
+    assert res.units == cm
+
+
+def test_logspace_with_dimless_input():
+    res = np.logspace(1 * dimensionless, 2 * dimensionless)
+    assert type(res) is unyt_array
+    assert res.units == dimensionless
+
+
+def test_geomspace():
+    res = np.geomspace(1 * cm, 11 * cm, 10)
     assert type(res) is unyt_array
     assert res.units == cm
 

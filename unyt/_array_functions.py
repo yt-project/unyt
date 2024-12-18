@@ -621,26 +621,94 @@ def array_equiv(a1, a2, *args, **kwargs) -> bool:
     )
 
 
-@implements(np.linspace)
-def linspace(start, stop, *args, **kwargs):
+def _linspace(
+    start,
+    stop,
+    num=50,
+    endpoint=True,
+    retstep=False,
+    dtype=None,
+    axis=0,
+    *,
+    device=None,
+):
     _validate_units_consistency((start, stop))
-    return (
-        np.linspace._implementation(
-            np.asarray(start), np.asarray(stop), *args, **kwargs
+    kwargs = {
+        "num": num,
+        "endpoint": endpoint,
+        "retstep": retstep,
+        "dtype": dtype,
+        "axis": axis,
+    }
+    if NUMPY_VERSION >= Version("2.1.0.dev0"):
+        kwargs["device"] = device
+    result = np.linspace._implementation(np.asarray(start), np.asarray(stop), **kwargs)
+    if retstep:
+        return result[0] * start.units, result[1] * start.units
+    else:
+        return result * start.units
+
+
+if NUMPY_VERSION >= Version("2.0.0.dev0"):
+
+    @implements(np.linspace)
+    def linspace(
+        start,
+        stop,
+        num=50,
+        endpoint=True,
+        retstep=False,
+        dtype=None,
+        axis=0,
+        *,
+        device=None,
+    ):
+        return _linspace(
+            start,
+            stop,
+            num=50,
+            endpoint=endpoint,
+            retstep=retstep,
+            dtype=dtype,
+            axis=axis,
+            device=device,
         )
-        * start.units
-    )
+
+else:
+
+    @implements(np.linspace)
+    def linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None, axis=0):
+        return _linspace(
+            start,
+            stop,
+            num=50,
+            endpoint=endpoint,
+            retstep=retstep,
+            dtype=dtype,
+            axis=axis,
+        )
 
 
 @implements(np.logspace)
-def logspace(start, stop, *args, **kwargs):
-    _validate_units_consistency((start, stop))
-    return (
-        np.logspace._implementation(
-            np.asarray(start), np.asarray(stop), *args, **kwargs
+def logspace(start, stop, num=50, endpoint=True, base=10, dtype=None, axis=0):
+    startu = getattr(start, "units", NULL_UNIT)
+    stopu = getattr(stop, "units", NULL_UNIT)
+    if startu != NULL_UNIT or stopu != NULL_UNIT:
+        raise TypeError(
+            "The first two arguments to numpy.logspace must be dimensionless, "
+            f"got units={startu} (arg1) and units={stopu} (arg2). If output with"
+            " units is desired, apply the units to the `base` kwarg."
         )
-        * start.units
+    result = np.logspace._implementation(
+        np.asarray(start),
+        np.asarray(stop),
+        num=num,
+        endpoint=endpoint,
+        base=np.asarray(base),
+        dtype=dtype,
+        axis=axis,
     )
+    return result * getattr(base, "units", NULL_UNIT)
 
 
 @implements(np.geomspace)
