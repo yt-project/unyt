@@ -691,13 +691,13 @@ else:
 
 @implements(np.logspace)
 def logspace(start, stop, num=50, endpoint=True, base=10, dtype=None, axis=0):
-    if (startu := getattr(start, "units", NULL_UNIT)) != NULL_UNIT:
+    if (startu := getattr(start, "units", NULL_UNIT)) != NULL_UNIT or (
+        stopu := getattr(stop, "units", NULL_UNIT)
+    ) != NULL_UNIT:
         raise TypeError(
-            f"The first argument to numpy.logspace must be dimensionless, got units={startu}"
-        )
-    if (stopu := getattr(stop, "units", NULL_UNIT)) != NULL_UNIT:
-        raise TypeError(
-            f"The second argument to numpy.logspace must be dimensionless, got units={stopu}"
+            "The first two arguments to numpy.logspace must be dimensionless, "
+            f"got units={startu} (arg1) and units={stopu} (arg2). If output with"
+            " units is desired, apply the units to the `base` kwarg."
         )
     result = np.logspace._implementation(
         np.asarray(start),

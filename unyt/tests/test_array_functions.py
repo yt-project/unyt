@@ -1250,7 +1250,7 @@ def test_linspace_with_retstep():
 def test_logspace_with_units_raises():
     with pytest.raises(
         TypeError,
-        match="The first argument to numpy.logspace must be dimensionless, got units=",
+        match="The first two arguments to numpy.logspace must be dimensionless",
     ):
         np.logspace(1 * cm, 2 * cm)
 
