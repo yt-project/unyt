@@ -626,13 +626,13 @@ def _linspace(
     device=None,
 ):
     _validate_units_consistency((start, stop))
-    kwargs = dict(
-        num=num,
-        endpoint=endpoint,
-        retstep=retstep,
-        dtype=dtype,
-        axis=axis,
-    )
+    kwargs = {
+        "num": num,
+        "endpoint": endpoint,
+        "retstep": retstep,
+        "dtype": dtype,
+        "axis": axis,
+    }
     if NUMPY_VERSION >= Version("2.1.0.dev0"):
         kwargs["device"] = device
     result = np.linspace._implementation(np.asarray(start), np.asarray(stop), **kwargs)
@@ -729,9 +729,8 @@ def nanquantile(a, *args, **kwargs):
 
 @implements(np.linalg.det)
 def linalg_det(a, *args, **kwargs):
-    return (
-        np.linalg.det._implementation(np.asarray(a), *args, **kwargs)
-        * a.units ** (a.shape[0])
+    return np.linalg.det._implementation(np.asarray(a), *args, **kwargs) * a.units ** (
+        a.shape[0]
     )
 
 
