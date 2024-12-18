@@ -1233,16 +1233,18 @@ def test_isclose_error():
         np.isclose(x, y)
 
 
-@pytest.mark.parametrize("retstep", (True, False))
 def test_linspace(retstep):
     res = np.linspace(1 * cm, 11 * cm, 10, retstep=retstep)
-    if retstep:
-        res, step = res
     assert type(res) is unyt_array
     assert res.units == cm
-    if retstep:
-        assert type(step) is unyt_quantity
-        assert step.units == cm
+
+
+def test_linspace_with_retstep():
+    res, step = np.linspace(1 * cm, 11 * cm, 10, retstep=True)
+    assert type(res) is unyt_array
+    assert res.units == cm
+    assert type(step) is unyt_quantity
+    assert step.units == cm
 
 
 def test_logspace_with_units_raises():
