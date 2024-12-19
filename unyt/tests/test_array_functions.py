@@ -1655,10 +1655,14 @@ def test_apply_along_axis():
 
 
 def test_apply_over_axes():
+    # the user-supplied function must be trusted to treat units
+    # sensibly (mainly that it doesn't give a mix of units across
+    # the resulting array), but we can check that units are
+    # propagated correctly for well-behaved functions.
     a = np.eye(3) * cm
-    ret = np.apply_over_axes(lambda x, axis: x * cm, a, (0, 1))
+    ret = np.apply_over_axes(lambda x, axis: x ** 2, a, (0, 1))
     assert type(ret) is unyt_array
-    assert ret.units == cm**3
+    assert ret.units == cm**4
 
 
 def test_array_equal():
