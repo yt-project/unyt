@@ -850,7 +850,7 @@ def savetxt(fname, X, *args, **kwargs):
 
 @implements(np.apply_over_axes)
 def apply_over_axes(func, a, axes):
-    res = func(np.asarray(a), axes[0]) * a.units
+    res = func(a, axes[0])
     if len(axes) > 1:
         # this function is recursive by nature,
         # here we intentionally do not call the base _implementation
