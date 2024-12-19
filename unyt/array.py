@@ -1997,7 +1997,7 @@ class unyt_array(np.ndarray):
         elif out_arr.size == 1:
             out_arr = unyt_array(np.asarray(out_arr), unit)
         else:
-            if ret_class is unyt_quantity:
+            if issubclass(ret_class, unyt_quantity):
                 # This happens if you do ndarray * unyt_quantity.
                 # Explicitly casting to unyt_array avoids creating a
                 # unyt_quantity with size > 1
