@@ -1662,7 +1662,7 @@ def test_apply_over_axes(axes, expected_units):
     # propagated correctly for well-behaved functions.
     a = np.eye(3) * cm
     ret = np.apply_over_axes(lambda x, axis: x[axis] ** 2, a, axes)
-    assert isinstance(ret, unyt_array)  # could be subclass unyt_quantity
+    assert isinstance(ret, unyt_array)  # could be unyt_quantity
     assert ret.units == expected_units
 
 
