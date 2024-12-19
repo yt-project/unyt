@@ -1657,9 +1657,9 @@ def test_apply_along_axis():
 @pytest.mark.parametrize(
     "axes_expectunits",
     (
-        ((0, 1), cm ** 4),
-        ((0, ), cm ** 2),
-    )
+        ((0, 1), cm**4),
+        ((0,), cm**2),
+    ),
 )
 def test_apply_over_axes(axes_expectunits):
     axes, expectunits = axes_expectunits
