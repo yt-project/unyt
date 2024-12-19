@@ -1654,15 +1654,23 @@ def test_apply_along_axis():
     assert ret.units == cm**2
 
 
-def test_apply_over_axes():
+@pytest.mark.parametrize(
+    "axes_expectunits",
+    (
+        ((0, 1), cm ** 4),
+        ((0, ), cm ** 2),
+    )
+)
+def test_apply_over_axes(axes_expectunits):
+    axes, expectunits = axes_expectunits
     # the user-supplied function must be trusted to treat units
     # sensibly (mainly that it doesn't give a mix of units across
     # the resulting array), but we can check that units are
     # propagated correctly for well-behaved functions.
     a = np.eye(3) * cm
-    ret = np.apply_over_axes(lambda x, axis: x ** 2, a, (0, 1))
-    assert type(ret) is unyt_array
-    assert ret.units == cm**4
+    ret = np.apply_over_axes(lambda x, axis: x[axis] ** 2, a, axes)
+    assert isinstance(ret, unyt_array)  # could be subclass unyt_quantity
+    assert ret.units == expectunits
 
 
 def test_array_equal():
