@@ -1220,3 +1220,25 @@ if hasattr(np, "in1d"):
         return np.isin._implementation(
             np.asarray(ar1), np.asarray(ar2), *args, **kwargs
         )
+
+
+@implements(np.take)
+def take(a, *args, out=None, **kwargs):
+    retu = get_units((a, ))
+    if out is None:
+        return (
+            np.take._implementation(
+                a, *args, **kwargs
+            )
+            * retu
+        )
+
+    res = np.take._implementation(
+        np.asarray(a),
+        *args,
+        out=np.asarray(out),
+        **kwargs,
+    )
+    if getattr(out, "units", None) is not None:
+        out.units = retu
+    return unyt_array(res, retu, bypass_validation=True)

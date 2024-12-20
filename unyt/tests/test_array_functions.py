@@ -143,7 +143,6 @@ NOOP_FUNCTIONS = {
     np.nancumprod,  # we get it for free with np.cumprod (tested)
     np.bincount,  # works out of the box (tested)
     np.unique,  # works out of the box (tested)
-    np.take,  # works out of the box (tested)
     np.min_scalar_type,  # returns dtypes
     np.extract,  # works out of the box (tested)
     np.setxor1d,  # we get it for free with previously implemented functions (tested)
