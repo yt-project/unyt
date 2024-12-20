@@ -1228,7 +1228,7 @@ def take(a, indices, axis=None, out=None, *args, **kwargs):
     if out is None:
         return (
             np.take._implementation(
-                a, indices, axis=axis, out=out, *args, **kwargs
+                np.asarray(a), indices, axis=axis, out=out, *args, **kwargs
             )
             * retu
         )
