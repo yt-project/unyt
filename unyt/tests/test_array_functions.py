@@ -1857,6 +1857,16 @@ def test_take(indices):
     assert res.units == cm
 
 
+@pytest.mark.parametrize("indices", [[0, 1], 0])
+def test_ndarray_take(indices):
+    a = [1, 2, 3] * cm
+    res = a.take(indices)
+    assert isinstance(res, unyt_array)  # can be subclass
+    if res.ndim == 0:
+        assert isinstance(res, unyt_quantity)
+    assert res.units == cm
+
+
 def test_pad():
     a = [1, 2, 3] * cm
     res = np.pad(a, [0, 1])
