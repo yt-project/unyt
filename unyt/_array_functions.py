@@ -1224,23 +1224,18 @@ if hasattr(np, "in1d"):
 
 @implements(np.take)
 def take(a, indices, axis=None, out=None, *args, **kwargs):
-    retu = get_units((a, ))
-    if out is None:
-        return (
-            np.take._implementation(
-                np.asarray(a), indices, axis=axis, out=out, *args, **kwargs
-            )
-            * retu
-        )
+    ret_units = get_units((a, ))[0]
+
+    if out is not None:
+        out_view = np.asarray(out)
+    else:
+        out_view = out
 
     res = np.take._implementation(
-        np.asarray(a),
-        indices,
-        axis=axis,
-        out=np.asarray(out),
-        *args,
-        **kwargs,
+        np.asarray(a), indices, axis=axis, out=out_view, *args, **kwargs
     )
+
     if getattr(out, "units", None) is not None:
-        out.units = retu
-    return unyt_array(res, retu, bypass_validation=True)
+        out.units = ret_units
+
+    return unyt_array(res, ret_units, bypass_validation=True)
