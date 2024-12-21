@@ -1229,7 +1229,7 @@ def take(a, indices, axis=None, out=None, *args, **kwargs):
     if out is not None:
         out_view = np.asarray(out)
     else:
-        out_view = out
+        out_view = None
 
     res = np.take._implementation(
         np.asarray(a), indices, axis=axis, out=out_view, *args, **kwargs
@@ -1238,4 +1238,7 @@ def take(a, indices, axis=None, out=None, *args, **kwargs):
     if getattr(out, "units", None) is not None:
         out.units = ret_units
 
-    return unyt_array(res, ret_units, bypass_validation=True)
+    if res.ndim > 0:
+        return unyt_array(res, ret_units, bypass_validation=True)
+    else:
+        return unyt_quantity(res, ret_units, bypass_validation=True)

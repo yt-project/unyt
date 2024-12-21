@@ -1847,10 +1847,13 @@ def test_unique_values():
     assert_array_equal_units(res, values)
 
 
-def test_take():
+@pytest.mark.parametrize("indices", [[0, 1], 0])
+def test_take(indices):
     a = [1, 2, 3] * cm
-    res = np.take(a, [0, 1])
-    assert type(res) is unyt_array
+    res = np.take(a, indices)
+    assert isinstance(res, unyt_array)  # can be subclass
+    if res.ndim == 0:
+        assert isinstance(res, unyt_quantity)
     assert res.units == cm
 
 
