@@ -1224,7 +1224,7 @@ if hasattr(np, "in1d"):
 
 @implements(np.take)
 def take(a, indices, axis=None, out=None, *args, **kwargs):
-    ret_units = get_units((a, ))[0]
+    ret_units = get_units((a,))[0]
 
     if out is not None:
         out_view = np.asarray(out)
