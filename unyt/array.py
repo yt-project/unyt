@@ -2126,6 +2126,16 @@ class unyt_array(np.ndarray):
         return ret
 
     def take(self, *args, **kwargs):
+        """method
+
+        Return an array formed from the elements of `a` at the given indices.
+
+        Refer to :func:`numpy.take` for full documentation.
+
+        See also
+        --------
+        numpy.take : equivalent function
+        """
         from ._array_functions import take
 
         return take(self, *args, **kwargs)

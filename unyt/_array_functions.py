@@ -1223,7 +1223,7 @@ if hasattr(np, "in1d"):
 
 
 @implements(np.take)
-def take(a, indices, axis=None, out=None, *args, **kwargs):
+def take(a, indices, axis=None, out=None, mode="raise"):
     ret_units = getattr(a, "units", NULL_UNIT)
 
     if out is not None:
@@ -1232,7 +1232,7 @@ def take(a, indices, axis=None, out=None, *args, **kwargs):
         out_view = None
 
     res = np.take._implementation(
-        np.asarray(a), indices, axis=axis, out=out_view, *args, **kwargs
+        np.asarray(a), indices, axis=axis, out=out_view, mode=mode
     )
 
     if getattr(out, "units", None) is not None:
