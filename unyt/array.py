@@ -2126,9 +2126,9 @@ class unyt_array(np.ndarray):
         return ret
 
     def take(self, *args, **kwargs):
-        from ._array_functions import take as unyt_take
+        from ._array_functions import take
 
-        return unyt_take(self, *args, **kwargs)
+        return take(self, *args, **kwargs)
 
     def __reduce__(self):
         """Pickle reduction method

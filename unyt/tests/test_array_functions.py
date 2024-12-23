@@ -1851,9 +1851,10 @@ def test_unique_values():
 def test_take(indices):
     a = [1, 2, 3] * cm
     res = np.take(a, indices)
-    assert isinstance(res, unyt_array)  # can be subclass
     if res.ndim == 0:
-        assert isinstance(res, unyt_quantity)
+        assert type(res) is unyt_quantity
+    else:
+        assert type(res) is unyt_array
     assert res.units == cm
 
 
@@ -1861,9 +1862,10 @@ def test_take(indices):
 def test_ndarray_take(indices):
     a = [1, 2, 3] * cm
     res = a.take(indices)
-    assert isinstance(res, unyt_array)  # can be subclass
     if res.ndim == 0:
-        assert isinstance(res, unyt_quantity)
+        assert type(res) is unyt_quantity
+    else:
+        assert type(res) is unyt_array
     assert res.units == cm
 
 
