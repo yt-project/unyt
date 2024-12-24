@@ -2125,7 +2125,7 @@ class unyt_array(np.ndarray):
             out.units = res_units
         return ret
 
-    def take(self, *args, **kwargs):
+    def take(self, indices, axis=None, out=None, mode="raise"):
         """method
 
         Return an array formed from the elements of `a` at the given indices.
