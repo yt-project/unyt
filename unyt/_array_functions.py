@@ -666,7 +666,7 @@ if NUMPY_VERSION >= Version("2.0.0.dev0"):
         return _linspace(
             start,
             stop,
-            num=50,
+            num=num,
             endpoint=endpoint,
             retstep=retstep,
             dtype=dtype,
@@ -681,7 +681,7 @@ else:
         return _linspace(
             start,
             stop,
-            num=50,
+            num=num,
             endpoint=endpoint,
             retstep=retstep,
             dtype=dtype,
