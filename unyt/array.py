@@ -2125,6 +2125,21 @@ class unyt_array(np.ndarray):
             out.units = res_units
         return ret
 
+    def take(self, indices, axis=None, out=None, mode="raise"):
+        """method
+
+        Return an array formed from the elements of `a` at the given indices.
+
+        Refer to :func:`numpy.take` for full documentation.
+
+        See also
+        --------
+        numpy.take : equivalent function
+        """
+        from ._array_functions import take
+
+        return take(self, indices, axis=axis, out=out, mode=mode)
+
     def __reduce__(self):
         """Pickle reduction method
 

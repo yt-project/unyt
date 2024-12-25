@@ -1220,3 +1220,23 @@ if hasattr(np, "in1d"):
         return np.isin._implementation(
             np.asarray(ar1), np.asarray(ar2), *args, **kwargs
         )
+
+
+@implements(np.take)
+def take(a, indices, axis=None, out=None, mode="raise"):
+    ret_units = getattr(a, "units", NULL_UNIT)
+
+    if out is not None:
+        out_view = np.asarray(out)
+    else:
+        out_view = None
+
+    res = np.take._implementation(
+        np.asarray(a), indices, axis=axis, out=out_view, mode=mode
+    )
+
+    if getattr(out, "units", None) is not None:
+        out.units = ret_units
+
+    ret_cls = unyt_quantity if res.ndim == 0 else unyt_array
+    return ret_cls(res, ret_units, bypass_validation=True)

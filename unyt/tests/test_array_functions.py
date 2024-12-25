@@ -143,7 +143,6 @@ NOOP_FUNCTIONS = {
     np.nancumprod,  # we get it for free with np.cumprod (tested)
     np.bincount,  # works out of the box (tested)
     np.unique,  # works out of the box (tested)
-    np.take,  # works out of the box (tested)
     np.min_scalar_type,  # returns dtypes
     np.extract,  # works out of the box (tested)
     np.setxor1d,  # we get it for free with previously implemented functions (tested)
@@ -1848,10 +1847,25 @@ def test_unique_values():
     assert_array_equal_units(res, values)
 
 
-def test_take():
+@pytest.mark.parametrize("indices", [[0, 1], 0])
+def test_take(indices):
     a = [1, 2, 3] * cm
-    res = np.take(a, [0, 1])
-    assert type(res) is unyt_array
+    res = np.take(a, indices)
+    if res.ndim == 0:
+        assert type(res) is unyt_quantity
+    else:
+        assert type(res) is unyt_array
+    assert res.units == cm
+
+
+@pytest.mark.parametrize("indices", [[0, 1], 0])
+def test_ndarray_take(indices):
+    a = [1, 2, 3] * cm
+    res = a.take(indices)
+    if res.ndim == 0:
+        assert type(res) is unyt_quantity
+    else:
+        assert type(res) is unyt_array
     assert res.units == cm
 
 
