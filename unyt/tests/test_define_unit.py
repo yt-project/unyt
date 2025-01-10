@@ -23,14 +23,20 @@ def test_define_unit():
     second = unyt_quantity(1.0, "s")
     assert g == volt / second ** (0.5)
 
+    ## allow_override test
+    define_unit("Foo", (1.0, "V/s"), allow_override=True)
+    h = unyt_quantity(1.0, "Foo")
+    assert h != g
+    assert h == volt / second
+
     # Test custom registry
     reg = UnitRegistry()
     define_unit("Foo", (1, "m"), registry=reg)
     define_unit("Baz", (1, "Foo**2"), registry=reg)
-    h = unyt_quantity(1, "Baz", registry=reg)
-    i = unyt_quantity(1, "m**2", registry=reg)
-    assert h == i
-
+    i = unyt_quantity(1, "Baz", registry=reg)
+    j = unyt_quantity(1, "m**2", registry=reg)
+    assert i == j
+    print("done!")
 
 def test_define_unit_error():
     from unyt import define_unit
@@ -41,3 +47,7 @@ def test_define_unit_error():
         define_unit("foobar", 12)
     with pytest.raises(RuntimeError):
         define_unit("C", (1.0, "A*s"))
+
+if __name__ == "__main__":
+    test_define_unit()
+    test_define_unit_error()
