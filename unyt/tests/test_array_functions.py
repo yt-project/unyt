@@ -181,7 +181,6 @@ if NUMPY_VERSION >= Version("2.0.0dev0"):
         np.unique_counts,
         np.unique_inverse,
         np.unique_values,
-        np.vecdot,
     }
 
 if NUMPY_VERSION >= Version("2.1.0dev0"):
