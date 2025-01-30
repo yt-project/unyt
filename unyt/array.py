@@ -1997,7 +1997,7 @@ class unyt_array(np.ndarray):
         elif out_arr.size == 1:
             out_arr = unyt_array(np.asarray(out_arr), unit)
         else:
-            if ret_class is unyt_quantity:
+            if issubclass(ret_class, unyt_quantity):
                 # This happens if you do ndarray * unyt_quantity.
                 # Explicitly casting to unyt_array avoids creating a
                 # unyt_quantity with size > 1
@@ -2124,6 +2124,21 @@ class unyt_array(np.ndarray):
         if out is not None:
             out.units = res_units
         return ret
+
+    def take(self, indices, axis=None, out=None, mode="raise"):
+        """method
+
+        Return an array formed from the elements of `a` at the given indices.
+
+        Refer to :func:`numpy.take` for full documentation.
+
+        See also
+        --------
+        numpy.take : equivalent function
+        """
+        from ._array_functions import take
+
+        return take(self, indices, axis=axis, out=out, mode=mode)
 
     def __reduce__(self):
         """Pickle reduction method
