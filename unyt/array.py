@@ -428,6 +428,8 @@ binary_operators = (
     divmod_,
     heaviside,
 )
+if NUMPY_VERSION >= Version("2.0.0.dev0"):
+    binary_operators += (vecdot,)
 
 trigonometric_operators = (sin, cos, tan)
 
