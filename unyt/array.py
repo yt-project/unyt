@@ -132,6 +132,10 @@ from unyt.unit_symbols import delta_degC, delta_degF
 
 from ._deprecation import warn_deprecated
 
+NUMPY_VERSION = Version(version("numpy"))
+if NUMPY_VERSION >= Version("2.0.0.dev0"):
+    from numpy import vecdot
+
 NULL_UNIT = Unit()
 POWER_MAPPING = {multiply: lambda x: x, divide: lambda x: 2 - x}
 DISALLOWED_DTYPES = (
@@ -424,6 +428,8 @@ binary_operators = (
     divmod_,
     heaviside,
 )
+if NUMPY_VERSION >= Version("2.0.0.dev0"):
+    binary_operators += (vecdot,)
 
 trigonometric_operators = (sin, cos, tan)
 
@@ -576,6 +582,8 @@ class unyt_array(np.ndarray):
         matmul: _multiply_units,
         clip: _passthrough_unit,
     }
+    if NUMPY_VERSION >= Version("2.0.0.dev0"):
+        _ufunc_registry[vecdot] = _multiply_units
 
     __array_priority__ = 2.0
 

@@ -180,7 +180,6 @@ if NUMPY_VERSION >= Version("2.0.0dev0"):
         np.unique_counts,
         np.unique_inverse,
         np.unique_values,
-        np.vecdot,
     }
 
 if NUMPY_VERSION >= Version("2.1.0dev0"):
@@ -588,16 +587,11 @@ def test_matrix_transpose(namespace):
 
 
 @pytest.mark.skipif(
-    NUMPY_VERSION < Version("2.0.0dev0"), reason="vecdot is new in numpy 2.0"
+    NUMPY_VERSION < Version("2.0.0dev0"), reason="linalg.vecdot is new in numpy 2.0"
 )
-@pytest.mark.parametrize("namespace", [None, "linalg"])
-def test_vecdot(namespace):
-    if namespace is None:
-        func = np.vecdot
-    else:
-        func = getattr(np, namespace).vecdot
+def test_linalg_vecdot():
     a = np.arange(0, 9)
-    assert_array_equal_units(func(a, a), np.vdot(a, a))
+    assert_array_equal_units(np.linalg.vecdot(a, a), np.vdot(a, a))
 
 
 @pytest.mark.skipif(
