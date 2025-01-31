@@ -589,7 +589,7 @@ def test_matrix_transpose(namespace):
 @pytest.mark.skipif(
     NUMPY_VERSION < Version("2.0.0dev0"), reason="vecdot is new in numpy 2.0"
 )
-def test_vecdot(namespace):
+def test_vecdot():
     a = np.arange(0, 9)
     assert_array_equal_units(np.linalg.vecdot(a, a), np.vdot(a, a))
 
