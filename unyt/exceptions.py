@@ -251,8 +251,7 @@ class InvalidUnitEquivalence(UnytError):
 
         if isinstance(self.unit2, Unit):
             msg = (
-                "The unit equivalence '%s' does not exist for the units "
-                "'%s' and '%s'."
+                "The unit equivalence '%s' does not exist for the units '%s' and '%s'."
             )
         else:
             msg = (

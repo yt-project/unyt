@@ -442,8 +442,7 @@ class Unit:
                 base_offset = self.base_offset
             else:
                 raise InvalidUnitOperation(
-                    "Quantities with units of Farhenheit "
-                    "and Celsius cannot be divided."
+                    "Quantities with units of Farhenheit and Celsius cannot be divided."
                 )
 
         return Unit(
@@ -1070,9 +1069,7 @@ def define_unit(
         if _iterable(value) and len(value) == 2:
             value = unyt_quantity(value[0], value[1], registry=registry)
         else:
-            raise RuntimeError(
-                '"value" needs to be a quantity or ' "(value, unit) tuple!"
-            )
+            raise RuntimeError('"value" needs to be a quantity or (value, unit) tuple!')
     base_value = float(value.in_base(unit_system="mks"))
     dimensions = value.units.dimensions
     registry.add(
