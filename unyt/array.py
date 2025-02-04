@@ -1772,8 +1772,8 @@ class unyt_array(np.ndarray):
         Power function
         """
         # see https://github.com/yt-project/unyt/issues/203
-        if p == 0.0:
-            ret = self.ua
+        if np.isscalar(p) and p == 0.0:
+            ret = self.unit_array
             ret.units = Unit("dimensionless")
             return ret
         else:
@@ -1862,17 +1862,32 @@ class unyt_array(np.ndarray):
                 u1 = Unit(registry=getattr(u0, "registry", None))
             elif ufunc is power:
                 u1 = inp1
-                if inp0.shape != () and inp1.shape != ():
-                    raise UnitOperationError(ufunc, u0, u1)
-                if isinstance(u1, unyt_array):
-                    if u1.units.is_dimensionless:
-                        pass
-                    else:
+                if inp0.shape == () or inp1.shape == ():
+                    if isinstance(u1, unyt_array) and not u1.units.is_dimensionless:
                         raise UnitOperationError(ufunc, u0, u1.units)
-                if u1.shape == ():
-                    u1 = float(u1)
+                    if u1.shape == ():
+                        u1 = float(u1)
+                    else:
+                        u1 = 1.0
+                elif inp0.shape == inp1.shape:
+                    if isinstance(u1, unyt_array) and not u1.units.is_dimensionless:
+                        raise UnitOperationError(ufunc, u0, getattr(u1, "units", None))
+
+                    if (
+                        (isinstance(u0, Unit) and not u0.is_dimensionless)
+                        or isinstance(u0, unyt_array)
+                        and not u0.units.is_dimensionless
+                    ):
+                        # u0 has units
+                        if np.ptp(u1) != 0:
+                            raise UnitOperationError(
+                                ufunc, u0, getattr(u1, "units", None)
+                            )
+
+                    first_element_slice = (0,) * u1.ndim
+                    u1 = float(u1[first_element_slice])
                 else:
-                    u1 = 1.0
+                    raise UnitOperationError(ufunc, u0, u1)
             unit_operator = self._ufunc_registry[ufunc]
 
             if (
