@@ -29,7 +29,7 @@ repos:
             additional_dependencies: [black==24.10.0]
 
     - repo: https://github.com/astral-sh/ruff-pre-commit
-      rev: v0.8.6
+      rev: v0.9.4
       hooks:
           - id: ruff-format
           - id: ruff
@@ -41,7 +41,7 @@ repos:
           - id: rst-backticks
 
     - repo: https://github.com/codespell-project/codespell
-      rev: v2.3.0
+      rev: v2.4.1
       hooks:
           - id: codespell
             args: [--skip="*.pdf", -L, 'smoot,copin,celcius,ue,bu,dne,ond']
