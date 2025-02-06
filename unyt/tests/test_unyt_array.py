@@ -1587,7 +1587,6 @@ def test_h5_io():
     shutil.rmtree(tmpdir)
 
 
-@pytest.mark.xfail(strict=True)
 def test_h5_quantity_roundtrip(tmp_path):
     # regression test for https://github.com/yt-project/unyt/issues/559
     pytest.importorskip("h5py")
