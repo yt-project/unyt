@@ -1562,7 +1562,7 @@ class unyt_array(np.ndarray):
         else:
             g = f
         dataset = g[dataset_name]
-        data = dataset[:]
+        data = dataset[...]
         units = dataset.attrs.get("units", "")
         unit_lut = default_unit_symbol_lut.copy()
         unit_lut_load = pickle.loads(dataset.attrs["unit_registry"].tobytes())
