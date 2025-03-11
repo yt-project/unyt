@@ -202,31 +202,26 @@ If doing a bugfix release, you may need to create a - or checkout an existing -
 backport branch named ``vX.Y.x`` where ``X`` and ``Y`` represent the relevant
 major and minor version numbers, and the lowercase ``x`` is literal. Otherwise
 you may just release from the development branch. Once you are ready, create
-a tag and push it to the upstream repository::
+a tag:
 
   $ git tag vX.Y.Z            # where X, Y and Z should be meaningful major, minor and micro version numbers
-  $ git push upstream --tag   # assuming the mother repo yt-project/unyt is set as a remote under the name "upstream"
 
-If the tests pass you can then subsequently manually upload to PyPI::
+If the tests pass you can then subsequently manually do a test publication::
 
   $ python -m pip install --upgrade pip
   $ python -m pip install --upgrade build twine
-  $ rm -r build dist
-  $ python -m build
-
-Do a test publication::
-
   $ twine check dist/*
   $ twine upload dist/* --repository-url https://test.pypi.org/legacy/
 
-Test the result (best using a fresh environment here)::
+Then, using a fresh environment here, and from outside the repository,
+test the result::
 
   $ python -m pip install pytest
-  $ python -m pip install --index-url https://test.pypi.org/simple/ unyt --extra-index-url https://pypi.org/simple --force
+  $ python -m pip install --index-url https://test.pypi.org/simple/ unyt --extra-index-url https://pypi.org/simple --force-reinstall
   $ python -c "import unyt; unyt.test()"
-  $ python -m pip install --index-url https://test.pypi.org/simple/ unyt --extra-index-url https://pypi.org/simple --no-binary unyt --force
+  $ python -m pip install --index-url https://test.pypi.org/simple/ unyt --extra-index-url https://pypi.org/simple --no-binary unyt --force-reinstall
   $ python -c "import unyt; unyt.test()"
 
-Finally, if everything works well, push the release to the normal PyPI index as::
+Finally, if everything works well, push the tag to the upstream repository::
 
-  $ twine upload dist/*
+  $ git push upstream --tag   # assuming the mother repo yt-project/unyt is set as a remote under the name "upstream"
