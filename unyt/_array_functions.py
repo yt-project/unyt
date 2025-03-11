@@ -488,72 +488,72 @@ def block(arrays):
 
 
 @implements(np.fft.fft)
-def ftt_fft(a, *args, **kwargs):
+def fft_fft(a, *args, **kwargs):
     return np.fft.fft._implementation(np.asarray(a), *args, **kwargs) * a.units
 
 
 @implements(np.fft.fft2)
-def ftt_fft2(a, *args, **kwargs):
+def fft_fft2(a, *args, **kwargs):
     return np.fft.fft2._implementation(np.asarray(a), *args, **kwargs) * a.units
 
 
 @implements(np.fft.fftn)
-def ftt_fftn(a, *args, **kwargs):
+def fft_fftn(a, *args, **kwargs):
     return np.fft.fftn._implementation(np.asarray(a), *args, **kwargs) * a.units
 
 
 @implements(np.fft.hfft)
-def ftt_hfft(a, *args, **kwargs):
+def fft_hfft(a, *args, **kwargs):
     return np.fft.hfft._implementation(np.asarray(a), *args, **kwargs) * a.units
 
 
 @implements(np.fft.rfft)
-def ftt_rfft(a, *args, **kwargs):
+def fft_rfft(a, *args, **kwargs):
     return np.fft.rfft._implementation(np.asarray(a), *args, **kwargs) * a.units
 
 
 @implements(np.fft.rfft2)
-def ftt_rfft2(a, *args, **kwargs):
+def fft_rfft2(a, *args, **kwargs):
     return np.fft.rfft2._implementation(np.asarray(a), *args, **kwargs) * a.units
 
 
 @implements(np.fft.rfftn)
-def ftt_rfftn(a, *args, **kwargs):
+def fft_rfftn(a, *args, **kwargs):
     return np.fft.rfftn._implementation(np.asarray(a), *args, **kwargs) * a.units
 
 
 @implements(np.fft.ifft)
-def ftt_ifft(a, *args, **kwargs):
+def fft_ifft(a, *args, **kwargs):
     return np.fft.ifft._implementation(np.asarray(a), *args, **kwargs) * a.units
 
 
 @implements(np.fft.ifft2)
-def ftt_ifft2(a, *args, **kwargs):
+def fft_ifft2(a, *args, **kwargs):
     return np.fft.ifft2._implementation(np.asarray(a), *args, **kwargs) * a.units
 
 
 @implements(np.fft.ifftn)
-def ftt_ifftn(a, *args, **kwargs):
+def fft_ifftn(a, *args, **kwargs):
     return np.fft.ifftn._implementation(np.asarray(a), *args, **kwargs) * a.units
 
 
 @implements(np.fft.ihfft)
-def ftt_ihfft(a, *args, **kwargs):
+def fft_ihfft(a, *args, **kwargs):
     return np.fft.ihfft._implementation(np.asarray(a), *args, **kwargs) * a.units
 
 
 @implements(np.fft.irfft)
-def ftt_irfft(a, *args, **kwargs):
+def fft_irfft(a, *args, **kwargs):
     return np.fft.irfft._implementation(np.asarray(a), *args, **kwargs) * a.units
 
 
 @implements(np.fft.irfft2)
-def ftt_irfft2(a, *args, **kwargs):
+def fft_irfft2(a, *args, **kwargs):
     return np.fft.irfft2._implementation(np.asarray(a), *args, **kwargs) * a.units
 
 
 @implements(np.fft.irfftn)
-def ftt_irfftn(a, *args, **kwargs):
+def fft_irfftn(a, *args, **kwargs):
     return np.fft.irfftn._implementation(np.asarray(a), *args, **kwargs) * a.units
 
 
