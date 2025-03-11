@@ -1625,6 +1625,25 @@ def test_h5_io():
     shutil.rmtree(tmpdir)
 
 
+def test_h5_quantity_roundtrip(tmp_path):
+    # regression test for https://github.com/yt-project/unyt/issues/559
+    pytest.importorskip("h5py")
+
+    q1 = 5 * cm
+    savefile = tmp_path / "savefile.hdf5"
+    q1.write_hdf5(
+        savefile,
+        dataset_name="test_ds",
+        group_name="test_group",
+    )
+    q2 = unyt_quantity.from_hdf5(
+        savefile,
+        dataset_name="test_ds",
+        group_name="test_group",
+    )
+    assert_array_equal_units(q2, q1)
+
+
 def test_equivalencies():
     import unyt as u
 
