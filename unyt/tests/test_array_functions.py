@@ -1838,6 +1838,11 @@ def test_unique_values():
     q = np.arange(9).reshape(3, 3) * cm
     values = np.unique(q, equal_nan=False)
     res = np.unique_values(q)
+
+    # np.unique_values' output is not guaranteed to be sorted,
+    # so exact results may differ.
+    # see https://github.com/numpy/numpy/issues/28493#issuecomment-2721303048
+    res.sort()
     assert_array_equal_units(res, values)
 
 
