@@ -36,6 +36,8 @@ Contributors
 * Ben Thompson
 * Matthew Turk <matthewturk@gmail.com>
 * Miguel de Val-Borro <miguel.deval@gmail.com>
+* Jeroen Van Goey
+* Mike Zingale
 * John ZuHone <jzuhone@gmail.com>
 
 This library was adapted from `dimensionful

@@ -18,7 +18,7 @@ Following is a list of all bug fixes and documentation fixes included in the rel
   for the contribution.
 
 * Fix stephan-boltzmann constant accuracy and add radiation constant (`PR #520
-  <https://github.com/yt-project/unyt/pull/520>`_). Thank you to Michael Zingale
+  <https://github.com/yt-project/unyt/pull/520>`_). Thank you to Mike Zingale
   (@zingale on GitHub) for the contribution.
 
 * Fix raising a unyt array to an array power in sensible cases (`PR #524
