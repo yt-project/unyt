@@ -1,5 +1,4 @@
 import warnings
-from typing import Optional
 
 
 def warn_deprecated(
@@ -7,7 +6,7 @@ def warn_deprecated(
     /,
     *,
     stacklevel: int = 3,
-    replacement: Optional[str] = None,
+    replacement: str | None = None,
     since_version: str,
 ) -> None:
     msg = (
