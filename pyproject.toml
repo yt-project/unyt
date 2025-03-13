@@ -23,10 +23,10 @@ classifiers = [
 keywords = [
     "unyt",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
-    "numpy>=1.19.3, <3.0",
-    "sympy>=1.7",
+    "numpy>=1.21.3, <3.0",
+    "sympy>=1.9.0",
     "packaging>=20.9",
 ]
 dynamic = [
@@ -98,6 +98,8 @@ exclude = [
 ignore = [
     "E501",
     "B904",
+    "UP038", # non-pep604-isinstance
+    "B905", # zip-without-explicit-strict
 ]
 select = [
     "E",
