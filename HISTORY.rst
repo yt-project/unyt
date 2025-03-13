@@ -2,6 +2,86 @@
 History
 =======
 
+3.0.4 (2025-03-13)
+------------------
+
+This new bugfix release of ``unyt`` fixes bugs discovered since the v3.0.3 release.
+It also adds support for foe and bethe units:
+
+* Add foe and bethe units (`PR #521 <https://github.com/yt-project/unyt/pull/521>`_).
+  Thank you to Michael Zingale (@zingale on GitHub) for the contribution.
+
+Following is a list of all bug fixes and documentation fixes included in the release.
+
+* Fix incompatibilities with numpy 2.1 (`PR #512 <https://github.com/yt-
+  project/unyt/pull/512>`_). Thank you to Clément Robert (@neutrinoceros on GitHub)
+  for the contribution.
+
+* Fix stephan-boltzmann constant accuracy and add radiation constant (`PR #520
+  <https://github.com/yt-project/unyt/pull/520>`_). Thank you to Michael Zingale
+  (@zingale on GitHub) for the contribution.
+
+* Fix raising a unyt array to an array power in sensible cases (`PR #524
+  <https://github.com/yt-project/unyt/pull/524>`_). Thank you to Clément Robert
+  (@neutrinoceros on GitHub) for the contribution.
+
+* Typo fixes and documentation fix (`PR #529 <https://github.com/yt-
+  project/unyt/pull/529>`_). Thank you to Jeroen Van Goey (@BioGeek on GitHub) for
+  the contribution.
+
+* Fix return units from numpy.ftt functions (`PR #531 <https://github.com/yt-
+  project/unyt/pull/531>`_). Thank you to Josh Borrow (@JBorrow on GitHub) for the
+  contribution.
+
+* Fix incorrect output unit for ``np.prod`` with an axis argument (`PR #537
+  <https://github.com/yt-project/unyt/pull/537>`_). Thank you to Kyle Oman (@kyleoman
+  on GitHub) for the contribution.
+
+* ``np.histogram*`` functions give correct units when weights and/or density are set
+  (`PR #539 <https://github.com/yt-project/unyt/pull/539>`_). Thank you to Kyle Oman
+  (@kyleoman on GitHub) for the contribution.
+
+* Fix an issue where ``np.histogramdd`` could create infinite recursion on some
+  inputs (`PR #541 <https://github.com/yt-project/unyt/pull/541>`_). Thank you to
+  Clément Robert (@neutrinoceros on GitHub) for the contribution.
+
+* ``linspace`` and ``logspace`` give incorrect results or crash with some inputs (`PR
+  #544 <https://github.com/yt-project/unyt/pull/544>`_). Thank you to Kyle Oman
+  (@kyleoman on GitHub) for the contribution.
+
+* Fix typo in array function implementations (ftt -> fft) (`PR #547
+  <https://github.com/yt-project/unyt/pull/547>`_). Thank you to Clément Robert
+  (@neutrinoceros on GitHub) for the contribution.
+
+* Apply_over_axes no longer assumes user-supplied function preserves units (`PR #548
+  <https://github.com/yt-project/unyt/pull/548>`_). Thank you to Kyle Oman (@kyleoman
+  on GitHub) for the contribution.
+
+* Allow subclassing in ``unyt_array.__array_func__`` (`PR #550
+  <https://github.com/yt-project/unyt/pull/550>`_). Thank you to Kyle Oman (@kyleoman
+  on GitHub) for the contribution.
+
+* Fix unit handling for ``np.take`` and ``unyt_array.take`` (`PR #551 <https://github
+  .com/yt-project/unyt/pull/551>`_). Thank you to Kyle Oman (@kyleoman on GitHub) for
+  the contribution.
+
+* Fix a regression where ``np.linspace`` 's num argument would be ignored for
+  ``unyt_array`` instances (`PR #553 <https://github.com/yt-project/unyt/pull/553>`_).
+  Thank you to Clément Robert (@neutrinoceros on GitHub) for the contribution.
+
+* Handle ``np.vecdot`` as a ufunc rather than an arrayfunc (`PR #557
+  <https://github.com/yt-project/unyt/pull/557>`_). Thank you to Kyle Oman (@kyleoman
+  on GitHub) for the contribution.
+
+* Fix an issue where hdf5 io wouldn't roundtrip properly for a ``unyt_quantity``
+  object (`PR #560 <https://github.com/yt-project/unyt/pull/560>`_). Thank you to
+  Clément Robert (@neutrinoceros on GitHub) for the contribution.
+
+* Make ``test_unique_values`` order-agnostic and fix testing against numpy 2.3 dev
+  (`PR #565 <https://github.com/yt-project/unyt/pull/565>`_). Thank you to Clément
+  Robert (@neutrinoceros on GitHub) for the contribution.
+
+
 3.0.3 (2024-07-02)
 ------------------
 
