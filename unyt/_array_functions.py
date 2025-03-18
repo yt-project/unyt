@@ -484,7 +484,8 @@ def around(a, decimals=0, out=None):
 @implements(np.block)
 def block(arrays):
     ret_units = _validate_units_consistency(arrays)
-    return np.block._implementation(arrays) * ret_units
+    res = np.block._implementation(arrays)
+    return unyt_array(res, ret_units, bypass_validation=True)
 
 
 @implements(np.fft.fft)
@@ -770,9 +771,8 @@ def nanquantile(a, *args, **kwargs):
 
 @implements(np.linalg.det)
 def linalg_det(a, *args, **kwargs):
-    return (
-        np.linalg.det._implementation(np.asarray(a), *args, **kwargs)
-        * a.units ** (a.shape[0])
+    return np.linalg.det._implementation(np.asarray(a), *args, **kwargs) * a.units ** (
+        a.shape[0]
     )
 
 
