@@ -376,6 +376,12 @@ class Unit:
     def __mul__(self, u):
         """Multiply Unit with u (Unit object)."""
         if not getattr(u, "is_Unit", False):
+            try:
+                external_result = u.__rmul__(self)
+            except (TypeError, AttributeError):
+                pass
+            else:
+                return external_result
             data = np.array(u, subok=True)
             unit = getattr(u, "units", None)
             if unit is not None:
