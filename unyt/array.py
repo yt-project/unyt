@@ -342,6 +342,19 @@ def _apply_power_mapping(ufunc, in_unit, in_size, in_shape, input_kwarg_dict):
 def _subclass_ufunc_helper(ufunc_handler):
 
     def wrapper(self, ufunc, method, *inputs, **kwargs):
+        if len(inputs) > 1:
+            ret_class = _get_binary_op_return_class(type(inputs[0]), type(inputs[1]))
+        else:
+            ret_class = type(inputs[0])
+        if (
+            issubclass(ret_class, unyt_array)
+            and ret_class is not unyt_array
+            and ret_class is not unyt_quantity
+            and hasattr(ret_class, "__unyt_ufunc_prepare__")
+        ):
+            ufunc, method, inputs, kwargs = ret_class.__unyt_ufunc_prepare__(
+                ufunc, method, *inputs, **kwargs
+            )
         result = ufunc_handler(self, ufunc, method, *inputs, **kwargs)
         if (
             isinstance(result, unyt_array)
