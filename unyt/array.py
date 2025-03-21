@@ -339,6 +339,23 @@ def _apply_power_mapping(ufunc, in_unit, in_size, in_shape, input_kwarg_dict):
     return mul, unit
 
 
+def _subclass_ufunc_helper(ufunc_handler):
+
+    def wrapper(self, ufunc, method, *inputs, **kwargs):
+        result = ufunc_handler(self, ufunc, method, *inputs, **kwargs)
+        if (
+            isinstance(result, unyt_array)
+            and type(result) is not unyt_array
+            and type(result) is not unyt_quantity
+            and hasattr(result, "__unyt_ufunc_finalize__")
+        ):
+            return result.__unyt_ufunc_finalize__(ufunc, method, *inputs, **kwargs)
+        else:
+            return result
+
+    return wrapper
+
+
 unary_operators = (
     negative,
     absolute,
@@ -1795,6 +1812,7 @@ class unyt_array(np.ndarray):
     # Start operation methods
     #
 
+    @_subclass_ufunc_helper
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
         func = getattr(ufunc, method)
         if "out" not in kwargs:
@@ -2027,6 +2045,7 @@ class unyt_array(np.ndarray):
                 out_arr = unyt_array(out_arr, unit)
             else:
                 out_arr = ret_class(out_arr, unit, bypass_validation=True)
+
         if out is not None:
             if mul != 1:
                 multiply(out, mul, out=out)
