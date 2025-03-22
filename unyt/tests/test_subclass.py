@@ -214,7 +214,7 @@ class TestNumpyFunctions:
         that we expect to be able to take subclass input. We then use our helpers defined
         above to convert the inputs to unyt equivalents and call the numpy function on
         both subclass and unyt input. Then we use our helpers to check the results for
-        consistency. For instnace, if with unyt input we got back a unyt_array, we
+        consistency. For instance, if with unyt input we got back a unyt_array, we
         should expect a subclass_uarray.
 
         We are not currently explicitly testing that the results of any specific function

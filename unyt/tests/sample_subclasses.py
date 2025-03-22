@@ -152,7 +152,7 @@ def _propagate_extra_attr_to_result(func: Callable) -> Callable:
     output.
 
     Many functions take one input (or have a first input that has a close
-    correspondance to the output) and one output. This helper copies the
+    correspondence to the output) and one output. This helper copies the
     ``extra_attr`` attribute from the first input argument to the output. Can
     be used as a decorator on functions (the first argument is then the first
     argument of the function) or methods (the first argument is then ``self``).
