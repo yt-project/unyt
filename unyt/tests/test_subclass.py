@@ -1,10 +1,13 @@
-import pytest
 import os
 import warnings
-import numpy as np
-import unyt as u
 from copy import copy, deepcopy
-from .sample_subclasses import subclass_uarray, subclass_uquantity, ExtraAttributeError
+
+import numpy as np
+import pytest
+
+import unyt as u
+
+from .sample_subclasses import ExtraAttributeError, subclass_uarray, subclass_uquantity
 
 savetxt_file = "saved_array.txt"
 
