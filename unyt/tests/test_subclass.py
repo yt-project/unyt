@@ -800,7 +800,7 @@ class TestNumpyFunctions:
         """
         Make sure that we convert to a subclass_uquantity when we reshape to a scalar.
         """
-        assert isinstance(sub_arr(np.ones(1)).reshape(tuple()), subclass_uquantity)
+        assert isinstance(sub_arr(np.ones(1)).reshape(()), subclass_uquantity)
 
     def test_iter(self):
         """
@@ -829,15 +829,15 @@ class TestSubclassQuantity:
         [
             ("astype", (float,)),
             ("in_units", (u.m,)),
-            ("byteswap", tuple()),
+            ("byteswap", ()),
             ("compress", ([True],)),
-            ("flatten", tuple()),
-            ("ravel", tuple()),
+            ("flatten", ()),
+            ("ravel", ()),
             ("repeat", (1,)),
             ("reshape", (1,)),
             ("take", ([0],)),
-            ("transpose", tuple()),
-            ("view", tuple()),
+            ("transpose", ()),
+            ("view", ()),
         ],
     )
     def test_propagation_func(self, func, args):

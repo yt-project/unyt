@@ -12,7 +12,7 @@ from unyt import unyt_array, unyt_quantity
 from unyt.array import multiple_output_operators, _iterable
 
 from numbers import Number as numeric_type
-from typing import Iterable, Union, Tuple, Callable, Optional
+from typing import Iterable, Union, Callable, Optional
 
 from unyt._array_functions import (
     dot as unyt_dot,
@@ -183,23 +183,18 @@ def _prepare_array_func_args(*args, _default_cm: bool = True, **kwargs) -> dict:
         ea[1] for ea in kwarg_extra_attrs.values() if ea[0]
     ]
     # here we check that all of the extra_attr match (could be True, False or None):
-    if not all(
-        [
-            ea == extra_attr_values_where_present[0]
-            for ea in extra_attr_values_where_present
-        ]
-    ):
+    if not len(set(extra_attr_values_where_present)) == 1:
         raise ExtraAttributeError
     # we could modify the args and kwargs before returning them here to "prepare" them
-    return dict(
-        args=args,
-        kwargs=kwargs,
-        extra_attr=(
+    return {
+        "args": args,
+        "kwargs": kwargs,
+        "extra_attr": (
             extra_attr_values_where_present[0]
             if len(extra_attr_values_where_present) > 0
             else None
         ),
-    )
+    }
 
 
 def _return_helper(
@@ -610,7 +605,7 @@ def _prepare_array_block_args(lst, recursing=False):
     """
     Block accepts only a nested list of array "blocks". We need to recurse on this.
     """
-    helper_results = list()
+    helper_results = []
     if isinstance(lst, list):
         for item in lst:
             if isinstance(item, list):
@@ -620,21 +615,21 @@ def _prepare_array_block_args(lst, recursing=False):
     if recursing:
         return helper_results
     eas = [hr["extra_attr"] for hr in helper_results]
-    if all(eas):
+    if set(eas) == {True}:
         ret_ea = True
-    elif all([ea is None for ea in eas]):
+    elif set(eas) == {None}:
         ret_ea = None
-    elif all([ea is False for ea in eas]):
+    elif set(eas) == {False}:
         ret_ea = False
     else:
         # mixed values
         raise ExtraAttributeError
     ret_lst = lst
-    return dict(
-        args=ret_lst,
-        kwargs=dict(),
-        extra_attr=ret_ea,
-    )
+    return {
+        "args": ret_lst,
+        "kwargs": {},
+        "extra_attr": ret_ea,
+    }
 
 
 @implements(np.block)
@@ -1209,20 +1204,20 @@ class subclass_uarray(unyt_array):
         Here we add an extra element at the start of the state tuple to store
         the extra_attr.
         """
-        np_ret = super(subclass_uarray, self).__reduce__()
+        np_ret = super().__reduce__()
         obj_state = np_ret[2]
         sub_state = (((self.extra_attr,),) + obj_state[:],)
         new_ret = np_ret[:2] + sub_state + np_ret[3:]
         return new_ret
 
-    def __setstate__(self, state: Tuple) -> None:
+    def __setstate__(self, state: tuple) -> None:
         """
         Pickle setstate method.
 
         Here we extract the extra info we added to the object
         state and pass the rest to :meth:`unyt.array.unyt_array.__setstate__`.
         """
-        super(subclass_uarray, self).__setstate__(state[1:])
+        super().__setstate__(state[1:])
         (self.extra_attr,) = state[0]
 
     # Wrap functions that return copies of subclass_uarrays so that our
