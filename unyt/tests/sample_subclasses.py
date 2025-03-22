@@ -181,7 +181,7 @@ def _prepare_array_func_args(*args, _default_cm: bool = True, **kwargs) -> dict:
         ea[1] for ea in kwarg_extra_attrs.values() if ea[0]
     ]
     # here we check that all of the extra_attr match (could be True, False or None):
-    if not len(set(extra_attr_values_where_present)) == 1:
+    if not len(set(extra_attr_values_where_present)) <= 1:
         raise ExtraAttributeError
     # we could modify the args and kwargs before returning them here to "prepare" them
     return {
