@@ -566,10 +566,10 @@ class TestNumpyFunctions:
             "cumulative_prod": (sub_arr(np.arange(3)),),
             "unstack": (sub_arr(np.arange(3)),),
         }
-        functions_checked = list()
-        bad_funcs = dict()
+        functions_checked = []
+        bad_funcs = {}
         for fname, args in functions_to_check.items():
-            ua_args = list()
+            ua_args = []
             for arg in args:
                 ua_args.append(arg_to_ua(arg))
             func = getfunc(fname)

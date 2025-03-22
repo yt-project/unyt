@@ -534,12 +534,10 @@ def histogramdd(sample, bins=10, range=None, density=None, weights=None):
     ]
     if not density:
         helper_result_w = _prepare_array_func_args(weights=weights)
-        if all(
-            [
-                helper_result["kwargs"]["range"] is None
-                for helper_result in helper_results
-            ]
-        ):
+        all_ranges = [
+            helper_result["kwargs"]["range"] for helper_result in helper_results
+        ]
+        if set(all_ranges) == {None}:
             safe_range = None
         else:
             safe_range = [
