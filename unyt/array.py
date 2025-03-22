@@ -351,12 +351,7 @@ def _subclass_ufunc_helper(ufunc_handler):
                 return ufunc_handler(self, ufunc, method, *inputs, **kwargs)
         else:
             ret_class = type(inputs[0])
-        if (
-            issubclass(ret_class, unyt_array)
-            and ret_class is not unyt_array
-            and ret_class is not unyt_quantity
-            and hasattr(ret_class, "__unyt_ufunc_prepare__")
-        ):
+        if hasattr(ret_class, "__unyt_ufunc_prepare__"):
             prepared_ufunc, prepared_method, prepared_inputs, prepared_kwargs = (
                 ret_class.__unyt_ufunc_prepare__(ufunc, method, *inputs, **kwargs)
             )
@@ -368,15 +363,16 @@ def _subclass_ufunc_helper(ufunc_handler):
                 kwargs,
             )
         result = ufunc_handler(
-            self, prepared_ufunc, prepared_method, *prepared_inputs, **prepared_kwargs
+            self,
+            prepared_ufunc,
+            prepared_method,
+            *prepared_inputs,
+            **prepared_kwargs,
         )
-        if (
-            isinstance(result, unyt_array)
-            and type(result) is not unyt_array
-            and type(result) is not unyt_quantity
-            and hasattr(result, "__unyt_ufunc_finalize__")
-        ):
-            return result.__unyt_ufunc_finalize__(ufunc, method, *inputs, **kwargs)
+        if hasattr(ret_class, "__unyt_ufunc_finalize__"):
+            return ret_class.__unyt_ufunc_finalize__(
+                result, ufunc, method, *inputs, **kwargs
+            )
         else:
             return result
 
