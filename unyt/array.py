@@ -2261,10 +2261,12 @@ class unyt_array(np.ndarray):
         """
         ret = super().__deepcopy__(memodict)
         try:
-            return type(self)(ret, copy.deepcopy(self.units), name=self.name)
+            return type(self)(
+                ret, copy.deepcopy(self.units), name=self.name, bypass_validation=True
+            )
         except TypeError:
             # subclasses might not take name as a kwarg
-            return type(self)(ret, copy.deepcopy(self.units))
+            return type(self)(ret, copy.deepcopy(self.units), bypass_validation=True)
 
 
 class unyt_quantity(unyt_array):
