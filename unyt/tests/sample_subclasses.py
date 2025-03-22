@@ -3,117 +3,115 @@ Tests for support of subclasses of unyt_array and unyt_quantity.
 """
 
 import warnings
-from collections.abc import Collection
+from collections.abc import Collection, Iterable
+from numbers import Number as numeric_type
+from typing import Callable, Optional, Tuple, Union
 
 import numpy as np
 
 import unyt
 from unyt import unyt_array, unyt_quantity
-from unyt.array import multiple_output_operators, _iterable
-
-from numbers import Number as numeric_type
-from typing import Iterable, Union, Tuple, Callable, Optional
-
 from unyt._array_functions import (
-    dot as unyt_dot,
-    vdot as unyt_vdot,
-    inner as unyt_inner,
-    outer as unyt_outer,
-    kron as unyt_kron,
-    histogram_bin_edges as unyt_histogram_bin_edges,
-    linalg_inv as unyt_linalg_inv,
-    linalg_tensorinv as unyt_linalg_tensorinv,
-    linalg_pinv as unyt_linalg_pinv,
-    linalg_svd as unyt_linalg_svd,
-    histogram as unyt_histogram,
-    histogram2d as unyt_histogram2d,
-    histogramdd as unyt_histogramdd,
-    concatenate as unyt_concatenate,
-    intersect1d as unyt_intersect1d,
-    union1d as unyt_union1d,
-    norm as unyt_linalg_norm,  # not linalg_norm, doesn't follow usual pattern
-    vstack as unyt_vstack,
-    hstack as unyt_hstack,
-    dstack as unyt_dstack,
-    column_stack as unyt_column_stack,
-    stack as unyt_stack,
+    allclose as unyt_allclose,
     around as unyt_around,
+    array2string as unyt_array2string,
+    array_equal as unyt_array_equal,
+    array_equiv as unyt_array_equiv,
+    array_repr as unyt_array_repr,
     block as unyt_block,
+    choose as unyt_choose,
+    clip as unyt_clip,
+    column_stack as unyt_column_stack,
+    concatenate as unyt_concatenate,
+    convolve as unyt_convolve,
+    copyto as unyt_copyto,
+    correlate as unyt_correlate,
+    cross as unyt_cross,
+    diff as unyt_diff,
+    dot as unyt_dot,
+    dstack as unyt_dstack,
+    ediff1d as unyt_ediff1d,
+    einsum as unyt_einsum,
     fft_fft as unyt_fft_fft,
     fft_fft2 as unyt_fft_fft2,
     fft_fftn as unyt_fft_fftn,
+    fft_fftshift as unyt_fft_fftshift,
     fft_hfft as unyt_fft_hfft,
-    fft_rfft as unyt_fft_rfft,
-    fft_rfft2 as unyt_fft_rfft2,
-    fft_rfftn as unyt_fft_rfftn,
     fft_ifft as unyt_fft_ifft,
     fft_ifft2 as unyt_fft_ifft2,
     fft_ifftn as unyt_fft_ifftn,
+    fft_ifftshift as unyt_fft_ifftshift,
     fft_ihfft as unyt_fft_ihfft,
     fft_irfft as unyt_fft_irfft,
     fft_irfft2 as unyt_fft_irfft2,
     fft_irfftn as unyt_fft_irfftn,
-    fft_fftshift as unyt_fft_fftshift,
-    fft_ifftshift as unyt_fft_ifftshift,
-    sort_complex as unyt_sort_complex,
-    isclose as unyt_isclose,
-    allclose as unyt_allclose,
-    array2string as unyt_array2string,
-    cross as unyt_cross,
-    array_equal as unyt_array_equal,
-    array_equiv as unyt_array_equiv,
-    linspace as unyt_linspace,
-    logspace as unyt_logspace,
+    fft_rfft as unyt_fft_rfft,
+    fft_rfft2 as unyt_fft_rfft2,
+    fft_rfftn as unyt_fft_rfftn,
+    fill_diagonal as unyt_fill_diagonal,
     geomspace as unyt_geomspace,
-    copyto as unyt_copyto,
-    prod as unyt_prod,
-    var as unyt_var,
-    trace as unyt_trace,
-    percentile as unyt_percentile,
-    quantile as unyt_quantile,
-    nanpercentile as unyt_nanpercentile,
-    nanquantile as unyt_nanquantile,
-    linalg_det as unyt_linalg_det,
-    diff as unyt_diff,
-    ediff1d as unyt_ediff1d,
-    ptp as unyt_ptp,
-    pad as unyt_pad,
-    choose as unyt_choose,
+    histogram as unyt_histogram,
+    histogram2d as unyt_histogram2d,
+    histogram_bin_edges as unyt_histogram_bin_edges,
+    histogramdd as unyt_histogramdd,
+    hstack as unyt_hstack,
+    inner as unyt_inner,
     insert as unyt_insert,
-    linalg_lstsq as unyt_linalg_lstsq,
-    linalg_solve as unyt_linalg_solve,
-    linalg_tensorsolve as unyt_linalg_tensorsolve,
+    interp as unyt_interp,
+    intersect1d as unyt_intersect1d,
+    isclose as unyt_isclose,
+    isin as unyt_in1d,
+    isin as unyt_isin,
+    kron as unyt_kron,
+    linalg_det as unyt_linalg_det,
     linalg_eig as unyt_linalg_eig,
     linalg_eigh as unyt_linalg_eigh,
     linalg_eigvals as unyt_linalg_eigvals,
     linalg_eigvalsh as unyt_linalg_eigvalsh,
-    savetxt as unyt_savetxt,
-    fill_diagonal as unyt_fill_diagonal,
-    isin as unyt_isin,
+    linalg_inv as unyt_linalg_inv,
+    linalg_lstsq as unyt_linalg_lstsq,
+    linalg_outer as unyt_linalg_outer,
+    linalg_pinv as unyt_linalg_pinv,
+    linalg_solve as unyt_linalg_solve,
+    linalg_svd as unyt_linalg_svd,
+    linalg_tensorinv as unyt_linalg_tensorinv,
+    linalg_tensorsolve as unyt_linalg_tensorsolve,
+    linspace as unyt_linspace,
+    logspace as unyt_logspace,
+    nanpercentile as unyt_nanpercentile,
+    nanquantile as unyt_nanquantile,
+    norm as unyt_linalg_norm,  # not linalg_norm, doesn't follow usual pattern
+    outer as unyt_outer,
+    pad as unyt_pad,
+    percentile as unyt_percentile,
     place as unyt_place,
+    prod as unyt_prod,
+    ptp as unyt_ptp,
     put as unyt_put,
     put_along_axis as unyt_put_along_axis,
     putmask as unyt_putmask,
+    quantile as unyt_quantile,
+    savetxt as unyt_savetxt,
     searchsorted as unyt_searchsorted,
     select as unyt_select,
     setdiff1d as unyt_setdiff1d,
     sinc as unyt_sinc,
-    clip as unyt_clip,
-    where as unyt_where,
-    triu as unyt_triu,
-    tril as unyt_tril,
-    einsum as unyt_einsum,
-    convolve as unyt_convolve,
-    correlate as unyt_correlate,
-    tensordot as unyt_tensordot,
-    unwrap as unyt_unwrap,
-    interp as unyt_interp,
-    array_repr as unyt_array_repr,
-    linalg_outer as unyt_linalg_outer,
-    trapezoid as unyt_trapezoid,
-    isin as unyt_in1d,
+    sort_complex as unyt_sort_complex,
+    stack as unyt_stack,
     take as unyt_take,
+    tensordot as unyt_tensordot,
+    trace as unyt_trace,
+    trapezoid as unyt_trapezoid,
+    tril as unyt_tril,
+    triu as unyt_triu,
+    union1d as unyt_union1d,
+    unwrap as unyt_unwrap,
+    var as unyt_var,
+    vdot as unyt_vdot,
+    vstack as unyt_vstack,
+    where as unyt_where,
 )
+from unyt.array import _iterable, multiple_output_operators
 
 _HANDLED_FUNCTIONS = {}
 
@@ -383,7 +381,6 @@ def array2string(
     *,
     legacy=None,
 ):
-
     res = unyt_array2string(
         a,
         max_line_width=max_line_width,
@@ -412,7 +409,6 @@ implements(np.kron)(_default_binary_wrapper(unyt_kron))
 
 @implements(np.histogram_bin_edges)
 def histogram_bin_edges(a, bins=10, range=None, weights=None):
-
     helper_result = _prepare_array_func_args(a, bins=bins, range=range, weights=weights)
     if not isinstance(bins, str) and np.ndim(bins) == 1:
         # we got bin edges as input
@@ -433,7 +429,6 @@ implements(np.linalg.svd)(_default_unary_wrapper(unyt_linalg_svd))
 
 @implements(np.histogram)
 def histogram(a, bins=10, range=None, density=None, weights=None):
-
     helper_result = _prepare_array_func_args(
         a, bins=bins, range=range, density=density, weights=weights
     )
@@ -446,7 +441,6 @@ def histogram(a, bins=10, range=None, density=None, weights=None):
 
 @implements(np.histogram2d)
 def histogram2d(x, y, bins=10, range=None, density=None, weights=None):
-
     if range is not None:
         xrange, yrange = range
     else:
@@ -528,7 +522,6 @@ def histogram2d(x, y, bins=10, range=None, density=None, weights=None):
 
 @implements(np.histogramdd)
 def histogramdd(sample, bins=10, range=None, density=None, weights=None):
-
     D = len(sample)
     if range is not None:
         ranges = range
@@ -682,7 +675,6 @@ def linspace(
     *,
     device=None,
 ):
-
     helper_result = _prepare_array_func_args(
         start,
         stop,
@@ -702,7 +694,6 @@ def linspace(
 
 @implements(np.logspace)
 def logspace(start, stop, num=50, endpoint=True, base=10.0, dtype=None, axis=0):
-
     helper_result = _prepare_array_func_args(
         start, stop, num=num, endpoint=endpoint, base=base, dtype=dtype, axis=axis
     )
@@ -715,7 +706,6 @@ implements(np.geomspace)(_default_binary_wrapper(unyt_geomspace))
 
 @implements(np.copyto)
 def copyto(dst, src, casting="same_kind", where=True):
-
     helper_result = _prepare_array_func_args(dst, src, casting=casting, where=where)
     # must pass dst directly here because it's modified in-place
     unyt_copyto(dst, src, **helper_result["kwargs"])
@@ -731,7 +721,6 @@ def prod(
     initial=np._NoValue,
     where=np._NoValue,
 ):
-
     helper_result = _prepare_array_func_args(
         a,
         axis=axis,
@@ -755,7 +744,6 @@ implements(np.nanquantile)(_default_unary_wrapper(unyt_nanquantile))
 
 @implements(np.linalg.det)
 def linalg_det(a):
-
     helper_result = _prepare_array_func_args(a)
     res = unyt_linalg_det(*helper_result["args"], **helper_result["kwargs"])
     return _return_helper(res, helper_result)
@@ -769,7 +757,6 @@ implements(np.ptp)(_default_unary_wrapper(unyt_ptp))
 
 @implements(np.pad)
 def pad(array, pad_width, mode="constant", **kwargs):
-
     helper_result = _prepare_array_func_args(array, pad_width, mode=mode, **kwargs)
     # the number of options is huge, including user defined functions to handle data
     # this will require some trust of the user...
@@ -779,7 +766,6 @@ def pad(array, pad_width, mode="constant", **kwargs):
 
 @implements(np.choose)
 def choose(a, choices, out=None, mode="raise"):
-
     helper_result = _prepare_array_func_args(a, choices, out=out, mode=mode)
     res = unyt_choose(*helper_result["args"], **helper_result["kwargs"])
     return _return_helper(res, helper_result, out=out)
@@ -787,7 +773,6 @@ def choose(a, choices, out=None, mode="raise"):
 
 @implements(np.insert)
 def insert(arr, obj, values, axis=None):
-
     helper_result = _prepare_array_func_args(arr, obj, values, axis=axis)
     res = unyt_insert(*helper_result["args"], **helper_result["kwargs"])
     return _return_helper(res, helper_result)
@@ -795,7 +780,6 @@ def insert(arr, obj, values, axis=None):
 
 @implements(np.linalg.lstsq)
 def linalg_lstsq(a, b, rcond=None):
-
     helper_result = _prepare_array_func_args(a, b, rcond=rcond)
     ress = unyt_linalg_lstsq(*helper_result["args"], **helper_result["kwargs"])
     return (
@@ -808,7 +792,6 @@ def linalg_lstsq(a, b, rcond=None):
 
 @implements(np.linalg.solve)
 def linalg_solve(a, b):
-
     helper_result = _prepare_array_func_args(a, b)
     res = unyt_linalg_solve(*helper_result["args"], **helper_result["kwargs"])
     return _return_helper(res, helper_result)
@@ -816,7 +799,6 @@ def linalg_solve(a, b):
 
 @implements(np.linalg.tensorsolve)
 def linalg_tensorsolve(a, b, axes=None):
-
     helper_result = _prepare_array_func_args(a, b, axes=axes)
     res = unyt_linalg_tensorsolve(*helper_result["args"], **helper_result["kwargs"])
     return _return_helper(res, helper_result)
@@ -824,7 +806,6 @@ def linalg_tensorsolve(a, b, axes=None):
 
 @implements(np.linalg.eig)
 def linalg_eig(a):
-
     helper_result = _prepare_array_func_args(a)
     ress = unyt_linalg_eig(*helper_result["args"], **helper_result["kwargs"])
     return (_return_helper(ress[0], helper_result), ress[1])
@@ -832,7 +813,6 @@ def linalg_eig(a):
 
 @implements(np.linalg.eigh)
 def linalg_eigh(a, UPLO="L"):
-
     helper_result = _prepare_array_func_args(a, UPLO=UPLO)
     ress = unyt_linalg_eigh(*helper_result["args"], **helper_result["kwargs"])
     return (_return_helper(ress[0], helper_result), ress[1])
@@ -854,7 +834,6 @@ def savetxt(
     comments="# ",
     encoding=None,
 ):
-
     warnings.warn(
         "numpy.savetxt does not preserve units or extra_attr information, "
         "and will only save the raw numerical data from the subclass_uarray object.\n"
@@ -896,7 +875,6 @@ def apply_over_axes(func, a, axes):
 
 @implements(np.fill_diagonal)
 def fill_diagonal(a, val, wrap=False):
-
     helper_result = _prepare_array_func_args(a, val, wrap=wrap)
     # must pass a directly here because it's modified in-place
     unyt_fill_diagonal(a, val, **helper_result["kwargs"])
@@ -907,7 +885,6 @@ implements(np.isin)(_default_comparison_wrapper(unyt_isin))
 
 @implements(np.place)
 def place(arr, mask, vals):
-
     _prepare_array_func_args(arr, mask, vals)
     # must pass arr directly here because it's modified in-place
     unyt_place(arr, mask, vals)
@@ -915,21 +892,18 @@ def place(arr, mask, vals):
 
 @implements(np.put)
 def put(a, ind, v, mode="raise"):
-
     helper_result = _prepare_array_func_args(a, ind, v, mode=mode)
     unyt_put(a, ind, v, **helper_result["kwargs"])
 
 
 @implements(np.put_along_axis)
 def put_along_axis(arr, indices, values, axis):
-
     _prepare_array_func_args(arr, indices, values, axis)
     unyt_put_along_axis(arr, indices, values, axis)
 
 
 @implements(np.putmask)
 def putmask(a, mask, values):
-
     _prepare_array_func_args(a, mask, values)
     unyt_putmask(a, mask, values)
 
@@ -939,7 +913,6 @@ implements(np.searchsorted)(_default_binary_wrapper(unyt_searchsorted))
 
 @implements(np.select)
 def select(condlist, choicelist, default=0):
-
     helper_result = _prepare_array_func_args(condlist, choicelist, default=default)
     helper_result_choicelist = _prepare_array_func_args(*choicelist)
     res = unyt_select(
@@ -955,7 +928,6 @@ implements(np.setdiff1d)(_default_binary_wrapper(unyt_setdiff1d))
 
 @implements(np.sinc)
 def sinc(x):
-
     # unyt just casts to array and calls the numpy implementation
     # so let's just hand off to them
     return unyt_sinc(x)
@@ -972,7 +944,6 @@ def clip(
     max=np._NoValue,
     **kwargs,
 ):
-
     # can't work out how to properly handle min and max,
     # just leave them in kwargs I guess (might be a numpy version conflict?)
     helper_result = _prepare_array_func_args(
@@ -990,7 +961,6 @@ def clip(
 
 @implements(np.where)
 def where(condition, *args):
-
     helper_result = _prepare_array_func_args(condition, *args)
     if len(args) == 0:  # just condition
         res = unyt_where(*helper_result["args"], **helper_result["kwargs"])
@@ -1015,7 +985,6 @@ def einsum(
     casting="safe",
     optimize=False,
 ):
-
     helper_result = _prepare_array_func_args(
         subscripts,
         operands,
@@ -1041,7 +1010,6 @@ implements(np.tensordot)(_default_binary_wrapper(unyt_tensordot))
 
 @implements(np.unwrap)
 def unwrap(p, discont=None, axis=-1, *, period=6.283_185_307_179_586):
-
     helper_result = _prepare_array_func_args(
         p, discont=discont, axis=axis, period=period
     )
@@ -1051,7 +1019,6 @@ def unwrap(p, discont=None, axis=-1, *, period=6.283_185_307_179_586):
 
 @implements(np.interp)
 def interp(x, xp, fp, left=None, right=None, period=None):
-
     helper_result = _prepare_array_func_args(
         x, xp, fp, left=left, right=right, period=period
     )
@@ -1061,7 +1028,6 @@ def interp(x, xp, fp, left=None, right=None, period=None):
 
 @implements(np.array_repr)
 def array_repr(arr, max_line_width=None, precision=None, suppress_small=None):
-
     helper_result = _prepare_array_func_args(
         arr,
         max_line_width=max_line_width,
@@ -1080,13 +1046,12 @@ implements(np.linalg.outer)(_default_binary_wrapper(unyt_linalg_outer))
 
 @implements(np.trapezoid)
 def trapezoid(y, x=None, dx=1.0, axis=-1):
-
     helper_result = _prepare_array_func_args(y, x=x, dx=dx, axis=axis)
     res = unyt_trapezoid(*helper_result["args"], **helper_result["kwargs"])
     return _return_helper(res, helper_result)
 
 
-implements(np.in1d)(_default_comparison_wrapper(unyt_in1d))
+implements(np.isin)(_default_comparison_wrapper(unyt_in1d))
 implements(np.take)(_default_unary_wrapper(unyt_take))
 
 # Now we wrap functions that unyt does not handle explicitly:
@@ -1133,7 +1098,6 @@ class subclass_uarray(unyt_array):
         """
 
         if bypass_validation is True:
-
             obj = super().__new__(
                 cls,
                 input_array,
@@ -1157,7 +1121,6 @@ class subclass_uarray(unyt_array):
             return obj
 
         elif isinstance(input_array, np.ndarray) and input_array.dtype != object:
-
             # Guard np.ndarray so it doesn't get caught by _iterable in next
             # case. ndarray with object dtype goes to next case to properly
             # handle e.g. ndarrays containing subclass_uquantity's
