@@ -5,17 +5,12 @@ Tests for support of subclasses of unyt_array and unyt_quantity.
 import warnings
 from collections.abc import Collection, Iterable
 from numbers import Number as numeric_type
-from typing import Callable, Optional, Tuple, Union
+from typing import Callable, Optional, Union
 
 import numpy as np
 
 import unyt
 from unyt import unyt_array, unyt_quantity
-from unyt.array import multiple_output_operators, _iterable
-
-from numbers import Number as numeric_type
-from typing import Iterable, Union, Callable, Optional
-
 from unyt._array_functions import (
     allclose as unyt_allclose,
     around as unyt_around,
