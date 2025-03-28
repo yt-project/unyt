@@ -429,8 +429,8 @@ default_unit_symbol_lut = OrderedDict(
             "rev",
             (2.0 * np.pi, dimensions.angle, 0.0, r"\rm{rev}", False),
         ),
-        ("spat", (4.0 * np.pi, dimensions.solid_angle, 0.0, r"\rm{sp}", False),
-         ),
+        ("spat", (4.0 * np.pi, dimensions.solid_angle, 0.0, r"\rm{sp}", False)),
+        ("gradian", (np.pi / 200.0, dimensions.angle, 0.0, r"^\rm{g}", False)),
         # misc
         ("eV", (J_per_eV, dimensions.energy, 0.0, r"\rm{eV}", True)),
         # note: 1 foe = 1 Bethe
@@ -763,6 +763,7 @@ default_unit_name_alternatives = OrderedDict(
         ("lat", ("latitude", "degree_latitude")),
         ("lon", ("longitude", "degree_longitude")),
         ("rev", ("revolution", "turn", "pla",)),
+        ("gradian", ("gon",)),
         # misc
         ("eV", ("electronvolt",)),
         ("amu", ("atomic_mass_unit",)),
