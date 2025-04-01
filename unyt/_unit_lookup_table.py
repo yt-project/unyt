@@ -762,7 +762,7 @@ default_unit_name_alternatives = OrderedDict(
         ("sr", ("steradian",)),
         ("lat", ("latitude", "degree_latitude")),
         ("lon", ("longitude", "degree_longitude")),
-        ("rev", ("revolution", "turn", "pla",)),
+        ("rev", ("revolution", "turn", "pla")),
         ("gradian", ("gon",)),
         # misc
         ("eV", ("electronvolt",)),
