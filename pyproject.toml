@@ -71,8 +71,7 @@ integration = [
     # this is redundant with runtime requirements, but needed for tox + tox-uv with
     # UV_RESOLUTION=lowest-direct
     # because tox installs dependency groups *before* installing the package itself
-    "numpy>=1.19.3, <3.0",
-    "numpy>=1.21.3, <3.0 ; platform_machine=='arm64' and platform_system=='Darwin'",
+    "numpy>=1.21.3, <3.0",
 ]
 
 [tool.setuptools]
