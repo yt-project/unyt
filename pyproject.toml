@@ -121,7 +121,7 @@ write_to = "unyt/_version.py"
 version_scheme = "post-release"
 
 [tool.pytest.ini_options]
-addopts = "--ignore=benchmarks --ignore=paper --ignore=unyt/_mpl_array_converter --color=yes"
+addopts = "-ra --ignore=benchmarks --ignore=paper --ignore=unyt/_mpl_array_converter --color=yes"
 filterwarnings = [
     "error",
     "ignore:Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.:UserWarning",
@@ -129,6 +129,7 @@ filterwarnings = [
     "ignore:distutils Version classes are deprecated. Use packaging.version instead.:DeprecationWarning",
     'ignore:datetime\.datetime\.utcfromtimestamp\(\) is deprecated:DeprecationWarning', # https://github.com/dateutil/dateutil/pull/1285
     'ignore:mpnumeric is deprecated:DeprecationWarning', # sympy 1.12 VS mpmath 1.4, solution: https://github.com/sympy/sympy/pull/25290
+    'ignore:`np.compat`, which was used during the Python 2 to 3 transition, is deprecated since 1.26.0, and will be removed:DeprecationWarning' # from dask 2021.x
 ]
 
 [tool.coverage.run]
