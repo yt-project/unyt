@@ -45,6 +45,35 @@ Homepage = "https://github.com/yt-project/unyt"
 Documentation = "https://unyt.readthedocs.io/en/stable/index.html"
 Changelog = "https://unyt.readthedocs.io/en/stable/history.html"
 
+[dependency-groups]
+test = [
+    "pytest-doctestplus>=1.2.1",
+    "pytest>=7.2.1",
+]
+covcheck = [
+    "coverage[toml]>=5.0.0",
+]
+doc = [
+    "docutils>=0.21.2",
+    "sphinx>=7.4.7",
+]
+integration = [
+    "astropy>=4.0.4",
+    "astropy>=5.0.0 ; platform_machine=='arm64' and platform_system=='Darwin'",
+    "dask[array,diagnostics]>=2021.4.1",
+    "dask[array,diagnostics]>=2021.5.1 ; platform_machine=='arm64' and platform_system=='Darwin'",
+    "h5py>=3.0.0",
+    "h5py>=3.7.0 ; platform_machine=='arm64' and platform_system=='Darwin'",
+    "matplotlib>=3.3.3,!=3.5.0",
+    "matplotlib>=3.5.1 ; platform_machine=='arm64' and platform_system=='Darwin'",
+    "pint>=0.9",
+
+    # this is redundant with runtime requirements, but needed for tox + tox-uv with
+    # UV_RESOLUTION=lowest-direct
+    # because tox installs dependency groups *before* installing the package itself
+    "numpy>=1.21.3, <3.0",
+]
+
 [tool.setuptools]
 include-package-data = true
 zip-safe = false
@@ -121,7 +150,7 @@ write_to = "unyt/_version.py"
 version_scheme = "post-release"
 
 [tool.pytest.ini_options]
-addopts = "--ignore=benchmarks --ignore=paper --ignore=unyt/_mpl_array_converter --color=yes"
+addopts = "-ra --ignore=benchmarks --ignore=paper --ignore=unyt/_mpl_array_converter --color=yes"
 filterwarnings = [
     "error",
     "ignore:Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.:UserWarning",
@@ -129,6 +158,7 @@ filterwarnings = [
     "ignore:distutils Version classes are deprecated. Use packaging.version instead.:DeprecationWarning",
     'ignore:datetime\.datetime\.utcfromtimestamp\(\) is deprecated:DeprecationWarning', # https://github.com/dateutil/dateutil/pull/1285
     'ignore:mpnumeric is deprecated:DeprecationWarning', # sympy 1.12 VS mpmath 1.4, solution: https://github.com/sympy/sympy/pull/25290
+    'ignore:`np.compat`, which was used during the Python 2 to 3 transition, is deprecated since 1.26.0, and will be removed:DeprecationWarning' # from dask 2021.x
 ]
 
 [tool.coverage.run]
