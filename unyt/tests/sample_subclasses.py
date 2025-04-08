@@ -3,9 +3,8 @@ Tests for support of subclasses of unyt_array and unyt_quantity.
 """
 
 import warnings
-from collections.abc import Collection, Iterable
+from collections.abc import Callable, Collection, Iterable
 from numbers import Number as numeric_type
-from typing import Callable, Optional, Union
 
 import numpy as np
 
@@ -198,7 +197,7 @@ def _prepare_array_func_args(*args, _default_cm: bool = True, **kwargs) -> dict:
 def _return_helper(
     res: np.ndarray,
     helper_result: dict,
-    out: Optional[np.ndarray] = None,
+    out: np.ndarray | None = None,
 ) -> "subclass_uarray":
     """
     Helper function to attach our extra_attr to return values of wrapped
@@ -1078,10 +1077,10 @@ class subclass_uarray(unyt_array):
     def __new__(
         cls,
         input_array: Iterable,
-        units: Union[str, unyt.unit_object.Unit] = None,
+        units: str | unyt.unit_object.Unit = None,
         *,
         registry: unyt.unit_registry.UnitRegistry = None,
-        dtype: Union[np.dtype, str] = None,
+        dtype: np.dtype | str = None,
         bypass_validation: bool = False,
         name: str = None,
         extra_attr: bool = None,
@@ -1370,7 +1369,7 @@ class subclass_uarray(unyt_array):
         return function_to_invoke(*args, **kwargs)
 
     def __mul__(
-        self, b: Union[int, float, np.ndarray, unyt.unit_object.Unit]
+        self, b: int | float | np.ndarray | unyt.unit_object.Unit
     ) -> "subclass_uarray":
         """
         Multiply this ``subclass_uarray``.
@@ -1391,7 +1390,7 @@ class subclass_uarray(unyt_array):
             return super().__mul__(b)
 
     def __rmul__(
-        self, b: Union[int, float, np.ndarray, unyt.unit_object.Unit]
+        self, b: int | float | np.ndarray | unyt.unit_object.Unit
     ) -> "subclass_uarray":
         """
         Multiply this ``subclass_uarray`` (as the right argument).
@@ -1413,13 +1412,13 @@ class subclass_uquantity(subclass_uarray, unyt_quantity):
     def __new__(
         cls,
         input_scalar: numeric_type,
-        units: Optional[Union[str, unyt.unit_object.Unit]] = None,
+        units: str | unyt.unit_object.Unit | None = None,
         *,
-        registry: Optional[unyt.unit_registry.UnitRegistry] = None,
-        dtype: Optional[Union[np.dtype, str]] = None,
+        registry: unyt.unit_registry.UnitRegistry | None = None,
+        dtype: np.dtype | str | None = None,
         bypass_validation: bool = False,
-        name: Optional[str] = None,
-        extra_attr: Optional[bool] = None,
+        name: str | None = None,
+        extra_attr: bool | None = None,
     ) -> "subclass_uquantity":
         """
         Closely inspired by the ``unyt_quantity.__new__`` constructor.
