@@ -108,6 +108,7 @@ from unyt._array_functions import (
     vdot as unyt_vdot,
     vstack as unyt_vstack,
     where as unyt_where,
+    _trapezoid_func,
 )
 from unyt.array import _iterable, multiple_output_operators
 from packaging.version import Version
@@ -1042,7 +1043,7 @@ if NUMPY_VERSION >= Version("2.0.0dev0"):
     implements(np.linalg.outer)(_default_binary_wrapper(unyt_linalg_outer))
 
 
-@implements(np.trapezoid)
+@implements(_trapezoid_func)
 def trapezoid(y, x=None, dx=1.0, axis=-1):
     helper_result = _prepare_array_func_args(y, x=x, dx=dx, axis=axis)
     res = unyt_trapezoid(*helper_result["args"], **helper_result["kwargs"])
