@@ -365,10 +365,16 @@ def _subclass_ufunc_prepare_and_finalize(ufunc_handler):
     def wrapper(self, ufunc, method, *inputs, **kwargs):
         if len(inputs) > 1:
             try:
+                # check if we're dealing with types that we understand and get
+                # the return type, otherwise _get_binary_op_return_class will
+                # raise RuntimeError.
                 ret_class = _get_binary_op_return_class(
                     type(inputs[0]), type(inputs[1])
                 )
             except RuntimeError:
+                # we're sure none of the arguments want to modify the input
+                # or output, so bypass __unyt_ufunc_prepare__ and
+                # __unyt_ufunc_finalize__.
                 return ufunc_handler(self, ufunc, method, *inputs, **kwargs)
         else:
             ret_class = type(inputs[0])
