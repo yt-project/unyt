@@ -117,6 +117,8 @@ from importlib.metadata import version
 NUMPY_VERSION = Version(version("numpy"))
 if NUMPY_VERSION >= Version("2.0.0dev0"):
     from unyt._array_functions import linalg_outer as unyt_linalg_outer
+if NUMPY_VERSION < Version("2.0.0dev0"):
+    from unyt._array_functions import asfarray as unyt_asfarray
 
 _HANDLED_FUNCTIONS = {}
 
@@ -364,39 +366,8 @@ def implements(numpy_function: Callable) -> Callable:
 
 
 @implements(np.array2string)
-def array2string(
-    a,
-    max_line_width=None,
-    precision=None,
-    suppress_small=None,
-    separator=" ",
-    prefix="",
-    style=np._NoValue,
-    formatter=None,
-    threshold=None,
-    edgeitems=None,
-    sign=None,
-    floatmode=None,
-    suffix="",
-    *,
-    legacy=None,
-):
-    res = unyt_array2string(
-        a,
-        max_line_width=max_line_width,
-        precision=precision,
-        suppress_small=suppress_small,
-        separator=separator,
-        prefix=prefix,
-        style=style,
-        formatter=formatter,
-        threshold=threshold,
-        edgeitems=edgeitems,
-        sign=sign,
-        floatmode=floatmode,
-        suffix=suffix,
-        legacy=legacy,
-    )
+def array2string(a, *args, **kwargs):
+    res = unyt_array2string(a, *args, **kwargs)
     return res + f" extra_attr={a.extra_attr}"
 
 
@@ -427,20 +398,39 @@ implements(np.linalg.pinv)(_default_unary_wrapper(unyt_linalg_pinv))
 implements(np.linalg.svd)(_default_unary_wrapper(unyt_linalg_svd))
 
 
-@implements(np.histogram)
-def histogram(a, bins=10, range=None, density=None, weights=None):
+def _histogram(a, bins=10, range=None, density=None, weights=None, normed=None):
     helper_result = _prepare_array_func_args(
-        a, bins=bins, range=range, density=density, weights=weights
+        a, bins=bins, range=range, density=density, weights=weights, normed=normed
     )
-    counts, bins = unyt_histogram(*helper_result["args"], **helper_result["kwargs"])
+    kwargs = {
+        "bins": helper_result["kwargs"]["bins"],
+        "range": helper_result["kwargs"]["range"],
+        "density": helper_result["kwargs"]["density"],
+        "weights": helper_result["kwargs"]["weights"],
+    }
+    if NUMPY_VERSION < Version("1.24"):
+        kwargs["normed"] = helper_result["kwargs"]["normed"]
+    counts, bins = unyt_histogram(*helper_result["args"], **kwargs)
     counts = _promote_unyt_to_subclass(counts)
     if isinstance(counts, subclass_uarray):  # also recognizes subclass_uquantity
         counts.extra_attr = helper_result["extra_attr"]
     return counts, _return_helper(bins, helper_result)
 
 
-@implements(np.histogram2d)
-def histogram2d(x, y, bins=10, range=None, density=None, weights=None):
+if NUMPY_VERSION >= Version("1.24"):
+
+    @implements(np.histogram)
+    def histogram(a, bins=10, range=None, density=None, weights=None):
+        return _histogram(a, bins=bins, range=range, density=density, weights=weights)
+
+else:
+
+    @implements(np.histogram)
+    def histogram(a, bins=10, range=None, normed=None, density=None, weights=None):
+        return _histogram(a, bins=bins, range=range, density=density, weights=weights)
+
+
+def _histogram2d(x, y, *, bins=10, range=None, density=None, weights=None, normed=None):
     if range is not None:
         xrange, yrange = range
     else:
@@ -467,13 +457,21 @@ def histogram2d(x, y, bins=10, range=None, density=None, weights=None):
                 helper_result_x["kwargs"]["range"],
                 helper_result_y["kwargs"]["range"],
             )
+        kwargs = {
+            "bins": (
+                helper_result_x["kwargs"]["bins"],
+                helper_result_y["kwargs"]["bins"],
+            ),
+            "range": safe_range,
+            "density": density,
+            "weights": helper_result_w["kwargs"]["weights"],
+        }
+        if NUMPY_VERSION < Version("1.24"):
+            kwargs["normed"] = helper_result_w["kwargs"]["normed"]
         counts, xbins, ybins = unyt_histogram2d(
             helper_result_x["args"][0],
             helper_result_y["args"][0],
-            bins=(helper_result_x["kwargs"]["bins"], helper_result_y["kwargs"]["bins"]),
-            range=safe_range,
-            density=density,
-            weights=helper_result_w["kwargs"]["weights"],
+            **kwargs,
         )
         if weights is not None:
             counts = _promote_unyt_to_subclass(counts)
@@ -502,13 +500,21 @@ def histogram2d(x, y, bins=10, range=None, density=None, weights=None):
                 helper_result["kwargs"]["xrange"],
                 helper_result["kwargs"]["yrange"],
             )
+        kwargs = {
+            "bins": (
+                helper_result["kwargs"]["xbins"],
+                helper_result["kwargs"]["ybins"],
+            ),
+            "range": safe_range,
+            "density": density,
+            "weights": helper_result["kwargs"]["weights"],
+        }
+        if NUMPY_VERSION < Version("1.24"):
+            kwargs["normed"] = helper_result_w["kwargs"]["normed"]
         counts, xbins, ybins = unyt_histogram2d(
             helper_result["args"][0],
             helper_result["args"][1],
-            bins=(helper_result["kwargs"]["xbins"], helper_result["kwargs"]["ybins"]),
-            range=safe_range,
-            density=density,
-            weights=helper_result["kwargs"]["weights"],
+            **kwargs
         )
         counts = _promote_unyt_to_subclass(counts)
         if isinstance(counts, subclass_uarray):  # also recognizes subclass_uquantity
@@ -520,8 +526,30 @@ def histogram2d(x, y, bins=10, range=None, density=None, weights=None):
     )
 
 
-@implements(np.histogramdd)
-def histogramdd(sample, bins=10, range=None, density=None, weights=None):
+if NUMPY_VERSION >= Version("1.24"):
+
+    @implements(np.histogram2d)
+    def histogram2d(x, y, bins=10, range=None, density=None, weights=None):
+        return _histogram2d(
+            x, y, bins=bins, range=range, density=density, weights=weights
+        )
+
+else:
+
+    @implements(np.histogram2d)
+    def histogram2d(x, y, bins=10, range=None, normed=None, weights=None, density=None):
+        return _histogram2d(
+            x,
+            y,
+            bins=bins,
+            range=range,
+            normed=normed,
+            weights=weights,
+            density=density,
+        )
+
+
+def _histogramdd(sample, bins=10, range=None, density=None, weights=None, normed=None):
     D = len(sample)
     if range is not None:
         ranges = range
@@ -548,12 +576,19 @@ def histogramdd(sample, bins=10, range=None, density=None, weights=None):
             safe_range = [
                 helper_result["kwargs"]["range"] for helper_result in helper_results
             ]
+        kwargs = {
+            "bins": [
+                helper_result["kwargs"]["bins"] for helper_result in helper_results
+            ],
+            "range": safe_range,
+            "density": density,
+            "weights": helper_result_w["kwargs"]["weights"],
+        }
+        if NUMPY_VERSION < Version("1.24"):
+            kwargs["normed"] = normed
         counts, bins = unyt_histogramdd(
             [helper_result["args"][0] for helper_result in helper_results],
-            bins=[helper_result["kwargs"]["bins"] for helper_result in helper_results],
-            range=safe_range,
-            density=density,
-            weights=helper_result_w["kwargs"]["weights"],
+            **kwargs,
         )
         if weights is not None:
             counts = _promote_unyt_to_subclass(counts)
@@ -565,12 +600,17 @@ def histogramdd(sample, bins=10, range=None, density=None, weights=None):
         helper_result = _prepare_array_func_args(
             *sample, bins=bins, range=range, weights=weights
         )
+        kwargs = {
+            "bins": helper_result["kwargs"]["bins"],
+            "range": helper_result["kwargs"]["range"],
+            "density": density,
+            "weights": helper_result["kwargs"]["weights"],
+        }
+        if NUMPY_VERSION < Version("1.24"):
+            kwargs["normed"] = normed
         counts, bins = unyt_histogramdd(
             helper_result["args"],
-            bins=helper_result["kwargs"]["bins"],
-            range=helper_result["kwargs"]["range"],
-            density=density,
-            weights=helper_result["kwargs"]["weights"],
+            **kwargs,
         )
         counts = _promote_unyt_to_subclass(counts)
         if isinstance(counts, subclass_uarray):  # also recognizes subclass_uquantity
@@ -583,6 +623,29 @@ def histogramdd(sample, bins=10, range=None, density=None, weights=None):
         ),
     )
 
+
+if NUMPY_VERSION >= Version("1.24"):
+
+    @implements(np.histogramdd)
+    def histogramdd(sample, bins=10, range=None, density=None, weights=None):
+        return _histogramdd(
+            sample, bins=bins, range=range, density=density, weights=weights
+        )
+
+else:
+
+    @implements(np.histogramdd)
+    def histogramdd(
+        sample, bins=10, range=None, normed=None, weights=None, density=None
+    ):
+        return _histogramdd(
+            sample,
+            bins=bins,
+            range=range,
+            normed=normed,
+            weights=weights,
+            density=density,
+        )
 
 implements(np.concatenate)(_default_oplist_wrapper(unyt_concatenate))
 implements(np.cross)(_default_binary_wrapper(unyt_cross))
@@ -673,15 +736,19 @@ def linspace(
     *,
     device=None,
 ):
+    kwargs = {
+        "num": num,
+        "endpoint": endpoint,
+        "retstep": retstep,
+        "dtype": dtype,
+        "axis": axis,
+    }
+    if NUMPY_VERSION >= Version("2.1.0dev0"):
+        kwargs["device"] = device
     helper_result = _prepare_array_func_args(
         start,
         stop,
-        num=num,
-        endpoint=endpoint,
-        retstep=retstep,
-        dtype=dtype,
-        axis=axis,
-        device=device,
+        **kwargs
     )
     ress = unyt_linspace(*helper_result["args"], **helper_result["kwargs"])
     if retstep:
@@ -710,25 +777,10 @@ def copyto(dst, src, casting="same_kind", where=True):
 
 
 @implements(np.prod)
-def prod(
-    a,
-    axis=None,
-    dtype=None,
-    out=None,
-    keepdims=np._NoValue,
-    initial=np._NoValue,
-    where=np._NoValue,
-):
-    helper_result = _prepare_array_func_args(
-        a,
-        axis=axis,
-        dtype=dtype,
-        out=out,
-        keepdims=keepdims,
-        initial=initial,
-        where=where,
-    )
+def prod(a, *args, **kwargs):
+    helper_result = _prepare_array_func_args(a, *args, **kwargs)
     res = unyt_prod(*helper_result["args"], **helper_result["kwargs"])
+    out = helper_result["kwargs"].get("out", None)
     return _return_helper(res, helper_result, out=out)
 
 
@@ -751,6 +803,7 @@ implements(np.diff)(_default_unary_wrapper(unyt_diff))
 implements(np.ediff1d)(_default_unary_wrapper(unyt_ediff1d))
 implements(np.ptp)(_default_unary_wrapper(unyt_ptp))
 # implements(np.cumprod)(...) Omitted because unyt just raises if called.
+# implements(np.cumulative_prod)(...) Omitted because unyt just raises if called.
 
 
 @implements(np.pad)
@@ -931,30 +984,45 @@ def sinc(x):
     return unyt_sinc(x)
 
 
-@implements(np.clip)
-def clip(
-    a,
-    a_min=np._NoValue,
-    a_max=np._NoValue,
-    out=None,
-    *,
-    min=np._NoValue,
-    max=np._NoValue,
-    **kwargs,
-):
-    # can't work out how to properly handle min and max,
-    # just leave them in kwargs I guess (might be a numpy version conflict?)
-    helper_result = _prepare_array_func_args(
-        a, a_min=a_min, a_max=a_max, out=out, **kwargs
-    )
-    res = unyt_clip(
-        helper_result["args"][0],
-        helper_result["kwargs"]["a_min"],
-        helper_result["kwargs"]["a_max"],
-        out=helper_result["kwargs"]["out"],
+if NUMPY_VERSION >= Version("2.1.0.dev0"):
+    from numpy._globals import _NoValue
+
+    @implements(np.clip)
+    def clip(
+        a,
+        a_min=_NoValue,
+        a_max=_NoValue,
+        out=None,
+        *args,
         **kwargs,
-    )
-    return _return_helper(res, helper_result, out=out)
+    ):
+        helper_result = _prepare_array_func_args(
+            a, a_min=a_min, a_max=a_max, out=out, **kwargs
+        )
+        res = unyt_clip(
+            helper_result["args"][0],
+            helper_result["kwargs"]["a_min"],
+            helper_result["kwargs"]["a_max"],
+            out=helper_result["kwargs"]["out"],
+            **kwargs,
+        )
+        return _return_helper(res, helper_result, out=out)
+
+else:
+
+    @implements(np.clip)
+    def clip(a, a_min, a_max, out=None, *args, **kwargs):
+        helper_result = _prepare_array_func_args(
+            a, a_min, a_max, out=out, *args, **kwargs
+        )
+        res = unyt_clip(
+            helper_result["args"][0],
+            helper_result["args"][1],
+            helper_result["args"][2],
+            out=helper_result["kwargs"]["out"],
+            **kwargs,
+        )
+        return _return_helper(res, helper_result, out=out)
 
 
 @implements(np.where)
@@ -1039,6 +1107,8 @@ def array_repr(arr, max_line_width=None, precision=None, suppress_small=None):
     return rep
 
 
+if NUMPY_VERSION < Version("2.0.0dev0"):
+    implements(np.asfarray)(_default_unary_wrapper(unyt_asfarray))
 if NUMPY_VERSION >= Version("2.0.0dev0"):
     implements(np.linalg.outer)(_default_binary_wrapper(unyt_linalg_outer))
 
