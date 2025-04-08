@@ -69,7 +69,6 @@ from unyt._array_functions import (
     linalg_eigvalsh as unyt_linalg_eigvalsh,
     linalg_inv as unyt_linalg_inv,
     linalg_lstsq as unyt_linalg_lstsq,
-    linalg_outer as unyt_linalg_outer,
     linalg_pinv as unyt_linalg_pinv,
     linalg_solve as unyt_linalg_solve,
     linalg_svd as unyt_linalg_svd,
@@ -111,6 +110,12 @@ from unyt._array_functions import (
     where as unyt_where,
 )
 from unyt.array import _iterable, multiple_output_operators
+from packaging.version import Version
+from importlib.metadata import version
+
+NUMPY_VERSION = Version(version("numpy"))
+if NUMPY_VERSION >= Version("2.0.0dev0"):
+    from unyt._array_functions import linalg_outer as unyt_linalg_outer
 
 _HANDLED_FUNCTIONS = {}
 
@@ -1033,7 +1038,8 @@ def array_repr(arr, max_line_width=None, precision=None, suppress_small=None):
     return rep
 
 
-implements(np.linalg.outer)(_default_binary_wrapper(unyt_linalg_outer))
+if NUMPY_VERSION >= Version("2.0.0dev0"):
+    implements(np.linalg.outer)(_default_binary_wrapper(unyt_linalg_outer))
 
 
 @implements(np.trapezoid)

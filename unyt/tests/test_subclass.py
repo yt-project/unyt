@@ -2,12 +2,18 @@ import os
 import warnings
 from copy import copy, deepcopy
 
+
 import numpy as np
 import pytest
 
 import unyt as u
 
 from .sample_subclasses import ExtraAttributeError, subclass_uarray, subclass_uquantity
+
+from importlib.metadata import version
+from packaging.version import Version
+
+NUMPY_VERSION = Version(version("numpy"))
 
 savetxt_file = "saved_array.txt"
 
@@ -569,6 +575,10 @@ class TestNumpyFunctions:
         functions_checked = []
         bad_funcs = {}
         for fname, args in functions_to_check.items():
+            if NUMPY_VERSION < Version("2.0.0dev0"):
+                # functions added in numpy 2.0.0
+                if fname == "linalg.outer":
+                    continue
             ua_args = []
             for arg in args:
                 ua_args.append(arg_to_ua(arg))
