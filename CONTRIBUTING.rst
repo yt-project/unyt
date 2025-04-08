@@ -95,10 +95,10 @@ managing your python environment using your operating system's package manager o
     $ export PYENV_ROOT="$HOME/.pyenv"
     $ export PATH="$HOME/.pyenv/bin:$PATH
     $ eval "$(pyenv init -)"
-    $ pyenv install -s 3.9
     $ pyenv install -s 3.10
     $ pyenv install -s 3.11
     $ pyenv install -s 3.12
+    $ pyenv install -s 3.13
     $ pip install tox
 
 4. Install your local copy into a virtualenv or conda environment. You can also
@@ -120,7 +120,7 @@ managing your python environment using your operating system's package manager o
 
     $ pre-commit run --all-files
     $ pytest --doctest-modules --doctest-rst --doctest-plus
-    $ pyenv local 3.9 3.10 3.11 3.12
+    $ pyenv local 3.10 3.11 3.12 3.13
     $ tox
     $ pyenv local 3.10
 
@@ -162,7 +162,7 @@ execute ``tox`` in the root of the ``unyt`` repository. For example, using the
 ``pyenv`` environment we set up above::
 
    $ cd unyt
-   $ pyenv local 3.9 3.10 3.11 3.12
+   $ pyenv local 3.10 3.11 3.12 3.13
    $ tox
 
 The ``tox`` package itself can be installed using the ``pip`` associated with
