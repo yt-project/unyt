@@ -4,13 +4,16 @@ Tests for support of subclasses of unyt_array and unyt_quantity.
 
 import warnings
 from collections.abc import Callable, Collection, Iterable
+from importlib.metadata import version
 from numbers import Number as numeric_type
 
 import numpy as np
+from packaging.version import Version
 
 import unyt
 from unyt import unyt_array, unyt_quantity
 from unyt._array_functions import (
+    _trapezoid_func,
     allclose as unyt_allclose,
     around as unyt_around,
     array2string as unyt_array2string,
@@ -108,11 +111,8 @@ from unyt._array_functions import (
     vdot as unyt_vdot,
     vstack as unyt_vstack,
     where as unyt_where,
-    _trapezoid_func,
 )
 from unyt.array import _iterable, multiple_output_operators
-from packaging.version import Version
-from importlib.metadata import version
 
 NUMPY_VERSION = Version(version("numpy"))
 if NUMPY_VERSION >= Version("2.0.0dev0"):
@@ -498,9 +498,7 @@ def _histogram2d(x, y, *, bins=10, range=None, density=None, weights=None, norme
         if NUMPY_VERSION < Version("1.24"):
             kwargs["normed"] = helper_result["kwargs"]["normed"]
         counts, xbins, ybins = unyt_histogram2d(
-            helper_result["args"][0],
-            helper_result["args"][1],
-            **kwargs
+            helper_result["args"][0], helper_result["args"][1], **kwargs
         )
         counts = _promote_unyt_to_subclass(counts)
         if isinstance(counts, subclass_uarray):  # also recognizes subclass_uquantity
@@ -632,6 +630,7 @@ else:
             weights=weights,
             density=density,
         )
+
 
 implements(np.concatenate)(_default_oplist_wrapper(unyt_concatenate))
 implements(np.cross)(_default_binary_wrapper(unyt_cross))
@@ -924,7 +923,9 @@ implements(np.sort)(_propagate_extra_attr_to_result(np.sort._implementation))
 implements(np.sum)(_propagate_extra_attr_to_result(np.sum._implementation))
 implements(np.partition)(_propagate_extra_attr_to_result(np.partition._implementation))
 if NUMPY_VERSION >= Version("2.0.0dev0"):
-    implements(np.linalg.cross)(_default_binary_wrapper(np.linalg.cross._implementation))
+    implements(np.linalg.cross)(
+        _default_binary_wrapper(np.linalg.cross._implementation)
+    )
 
 
 @implements(np.meshgrid)

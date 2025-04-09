@@ -1,17 +1,15 @@
 import os
 import warnings
 from copy import copy, deepcopy
-
+from importlib.metadata import version
 
 import numpy as np
 import pytest
+from packaging.version import Version
 
 import unyt as u
 
 from .sample_subclasses import ExtraAttributeError, subclass_uarray, subclass_uquantity
-
-from importlib.metadata import version
-from packaging.version import Version
 
 NUMPY_VERSION = Version(version("numpy"))
 trapezoid_fname = "trapz" if NUMPY_VERSION < Version("2.0.0dev0") else "trapezoid"
@@ -547,11 +545,15 @@ class TestNumpyFunctions:
                 sub_arr(np.arange(3)),
             )
             functions_to_check["linalg.diagonal"] = (sub_arr(np.eye(3)),)
-            functions_to_check["linalg.matmul"] = (sub_arr(np.eye(3)), sub_arr(np.eye(3)))
+            functions_to_check["linalg.matmul"] = (
+                sub_arr(np.eye(3)),
+                sub_arr(np.eye(3)),
+            )
             functions_to_check["linalg.matrix_norm"] = (sub_arr(np.eye(3)),)
             functions_to_check["linalg.matrix_transpose"] = (sub_arr(np.eye(3)),)
             functions_to_check["linalg.tensordot"] = (
-                sub_arr(np.eye(3)), sub_arr(np.eye(3))
+                sub_arr(np.eye(3)),
+                sub_arr(np.eye(3)),
             )
             functions_to_check["linalg.outer"] = (
                 sub_arr(np.arange(3)),
