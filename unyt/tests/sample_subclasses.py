@@ -376,22 +376,7 @@ implements(np.vdot)(_default_binary_wrapper(unyt_vdot))
 implements(np.inner)(_default_binary_wrapper(unyt_inner))
 implements(np.outer)(_default_binary_wrapper(unyt_outer))
 implements(np.kron)(_default_binary_wrapper(unyt_kron))
-
-
-@implements(np.histogram_bin_edges)
-def histogram_bin_edges(a, bins=10, range=None, weights=None):
-    helper_result = _prepare_array_func_args(a, bins=bins, range=range, weights=weights)
-    if not isinstance(bins, str) and np.ndim(bins) == 1:
-        # we got bin edges as input
-        pass
-    else:
-        # bins based on values in a
-        res = unyt_histogram_bin_edges(
-            *helper_result["args"], **helper_result["kwargs"]
-        )
-    return _return_helper(res, helper_result)
-
-
+implements(np.histogram_bin_edges)(_default_unary_wrapper(unyt_histogram_bin_edges))
 implements(np.linalg.inv)(_default_unary_wrapper(unyt_linalg_inv))
 implements(np.linalg.tensorinv)(_default_unary_wrapper(unyt_linalg_tensorinv))
 implements(np.linalg.pinv)(_default_unary_wrapper(unyt_linalg_pinv))
@@ -716,117 +701,31 @@ implements(np.fft.irfft2)(_default_unary_wrapper(unyt_fft_irfft2))
 implements(np.fft.irfftn)(_default_unary_wrapper(unyt_fft_irfftn))
 implements(np.fft.fftshift)(_default_unary_wrapper(unyt_fft_fftshift))
 implements(np.fft.ifftshift)(_default_unary_wrapper(unyt_fft_ifftshift))
-
 implements(np.sort_complex)(_default_unary_wrapper(unyt_sort_complex))
 implements(np.isclose)(_default_comparison_wrapper(unyt_isclose))
 implements(np.allclose)(_default_comparison_wrapper(unyt_allclose))
 implements(np.array_equal)(_default_comparison_wrapper(unyt_array_equal))
 implements(np.array_equiv)(_default_comparison_wrapper(unyt_array_equiv))
-
-
-@implements(np.linspace)
-def linspace(
-    start,
-    stop,
-    num=50,
-    endpoint=True,
-    retstep=False,
-    dtype=None,
-    axis=0,
-    *,
-    device=None,
-):
-    kwargs = {
-        "num": num,
-        "endpoint": endpoint,
-        "retstep": retstep,
-        "dtype": dtype,
-        "axis": axis,
-    }
-    if NUMPY_VERSION >= Version("2.1.0dev0"):
-        kwargs["device"] = device
-    helper_result = _prepare_array_func_args(
-        start,
-        stop,
-        **kwargs
-    )
-    ress = unyt_linspace(*helper_result["args"], **helper_result["kwargs"])
-    if retstep:
-        return tuple(_return_helper(res, helper_result) for res in ress)
-    else:
-        return _return_helper(ress, helper_result)
-
-
-@implements(np.logspace)
-def logspace(start, stop, num=50, endpoint=True, base=10.0, dtype=None, axis=0):
-    helper_result = _prepare_array_func_args(
-        start, stop, num=num, endpoint=endpoint, base=base, dtype=dtype, axis=axis
-    )
-    res = unyt_logspace(*helper_result["args"], **helper_result["kwargs"])
-    return _return_helper(res, helper_result)
-
-
+implements(np.linspace)(_default_binary_wrapper(unyt_linspace))
+implements(np.logspace)(_default_binary_wrapper(unyt_logspace))
 implements(np.geomspace)(_default_binary_wrapper(unyt_geomspace))
-
-
-@implements(np.copyto)
-def copyto(dst, src, casting="same_kind", where=True):
-    helper_result = _prepare_array_func_args(dst, src, casting=casting, where=where)
-    # must pass dst directly here because it's modified in-place
-    unyt_copyto(dst, src, **helper_result["kwargs"])
-
-
-@implements(np.prod)
-def prod(a, *args, **kwargs):
-    helper_result = _prepare_array_func_args(a, *args, **kwargs)
-    res = unyt_prod(*helper_result["args"], **helper_result["kwargs"])
-    out = helper_result["kwargs"].get("out", None)
-    return _return_helper(res, helper_result, out=out)
-
-
+implements(np.copyto)(_default_binary_wrapper(unyt_copyto))
+implements(np.prod)(_default_unary_wrapper(unyt_prod))
 implements(np.var)(_default_unary_wrapper(unyt_var))
 implements(np.trace)(_default_unary_wrapper(unyt_trace))
 implements(np.percentile)(_default_unary_wrapper(unyt_percentile))
 implements(np.quantile)(_default_unary_wrapper(unyt_quantile))
 implements(np.nanpercentile)(_default_unary_wrapper(unyt_nanpercentile))
 implements(np.nanquantile)(_default_unary_wrapper(unyt_nanquantile))
-
-
-@implements(np.linalg.det)
-def linalg_det(a):
-    helper_result = _prepare_array_func_args(a)
-    res = unyt_linalg_det(*helper_result["args"], **helper_result["kwargs"])
-    return _return_helper(res, helper_result)
-
-
+implements(np.linalg.det)(_default_unary_wrapper(unyt_linalg_det))
 implements(np.diff)(_default_unary_wrapper(unyt_diff))
 implements(np.ediff1d)(_default_unary_wrapper(unyt_ediff1d))
 implements(np.ptp)(_default_unary_wrapper(unyt_ptp))
 # implements(np.cumprod)(...) Omitted because unyt just raises if called.
 # implements(np.cumulative_prod)(...) Omitted because unyt just raises if called.
-
-
-@implements(np.pad)
-def pad(array, pad_width, mode="constant", **kwargs):
-    helper_result = _prepare_array_func_args(array, pad_width, mode=mode, **kwargs)
-    # the number of options is huge, including user defined functions to handle data
-    # this will require some trust of the user...
-    res = unyt_pad(*helper_result["args"], **helper_result["kwargs"])
-    return _return_helper(res, helper_result)
-
-
-@implements(np.choose)
-def choose(a, choices, out=None, mode="raise"):
-    helper_result = _prepare_array_func_args(a, choices, out=out, mode=mode)
-    res = unyt_choose(*helper_result["args"], **helper_result["kwargs"])
-    return _return_helper(res, helper_result, out=out)
-
-
-@implements(np.insert)
-def insert(arr, obj, values, axis=None):
-    helper_result = _prepare_array_func_args(arr, obj, values, axis=axis)
-    res = unyt_insert(*helper_result["args"], **helper_result["kwargs"])
-    return _return_helper(res, helper_result)
+implements(np.pad)(_default_unary_wrapper(unyt_pad))
+implements(np.choose)(_default_binary_wrapper(unyt_choose))
+implements(np.insert)(_default_unary_wrapper(unyt_insert))
 
 
 @implements(np.linalg.lstsq)
@@ -841,18 +740,8 @@ def linalg_lstsq(a, b, rcond=None):
     )
 
 
-@implements(np.linalg.solve)
-def linalg_solve(a, b):
-    helper_result = _prepare_array_func_args(a, b)
-    res = unyt_linalg_solve(*helper_result["args"], **helper_result["kwargs"])
-    return _return_helper(res, helper_result)
-
-
-@implements(np.linalg.tensorsolve)
-def linalg_tensorsolve(a, b, axes=None):
-    helper_result = _prepare_array_func_args(a, b, axes=axes)
-    res = unyt_linalg_tensorsolve(*helper_result["args"], **helper_result["kwargs"])
-    return _return_helper(res, helper_result)
+implements(np.linalg.solve)(_default_binary_wrapper(unyt_linalg_solve))
+implements(np.linalg.tensorsolve)(_default_binary_wrapper(unyt_linalg_tensorsolve))
 
 
 @implements(np.linalg.eig)
@@ -924,41 +813,12 @@ def apply_over_axes(func, a, axes):
         return res
 
 
-@implements(np.fill_diagonal)
-def fill_diagonal(a, val, wrap=False):
-    helper_result = _prepare_array_func_args(a, val, wrap=wrap)
-    # must pass a directly here because it's modified in-place
-    unyt_fill_diagonal(a, val, **helper_result["kwargs"])
-
-
+implements(np.fill_diagonal)(_default_binary_wrapper(unyt_fill_diagonal))
 implements(np.isin)(_default_comparison_wrapper(unyt_isin))
-
-
-@implements(np.place)
-def place(arr, mask, vals):
-    _prepare_array_func_args(arr, mask, vals)
-    # must pass arr directly here because it's modified in-place
-    unyt_place(arr, mask, vals)
-
-
-@implements(np.put)
-def put(a, ind, v, mode="raise"):
-    helper_result = _prepare_array_func_args(a, ind, v, mode=mode)
-    unyt_put(a, ind, v, **helper_result["kwargs"])
-
-
-@implements(np.put_along_axis)
-def put_along_axis(arr, indices, values, axis):
-    _prepare_array_func_args(arr, indices, values, axis)
-    unyt_put_along_axis(arr, indices, values, axis)
-
-
-@implements(np.putmask)
-def putmask(a, mask, values):
-    _prepare_array_func_args(a, mask, values)
-    unyt_putmask(a, mask, values)
-
-
+implements(np.place)(_default_unary_wrapper(unyt_place))
+implements(np.put)(_default_unary_wrapper(unyt_put))
+implements(np.put_along_axis)(_default_unary_wrapper(unyt_put_along_axis))
+implements(np.putmask)(_default_unary_wrapper(unyt_putmask))
 implements(np.searchsorted)(_default_binary_wrapper(unyt_searchsorted))
 
 
@@ -975,54 +835,8 @@ def select(condlist, choicelist, default=0):
 
 
 implements(np.setdiff1d)(_default_binary_wrapper(unyt_setdiff1d))
-
-
-@implements(np.sinc)
-def sinc(x):
-    # unyt just casts to array and calls the numpy implementation
-    # so let's just hand off to them
-    return unyt_sinc(x)
-
-
-if NUMPY_VERSION >= Version("2.1.0.dev0"):
-    from numpy._globals import _NoValue
-
-    @implements(np.clip)
-    def clip(
-        a,
-        a_min=_NoValue,
-        a_max=_NoValue,
-        out=None,
-        *args,
-        **kwargs,
-    ):
-        helper_result = _prepare_array_func_args(
-            a, a_min=a_min, a_max=a_max, out=out, **kwargs
-        )
-        res = unyt_clip(
-            helper_result["args"][0],
-            helper_result["kwargs"]["a_min"],
-            helper_result["kwargs"]["a_max"],
-            out=helper_result["kwargs"]["out"],
-            **kwargs,
-        )
-        return _return_helper(res, helper_result, out=out)
-
-else:
-
-    @implements(np.clip)
-    def clip(a, a_min, a_max, out=None, *args, **kwargs):
-        helper_result = _prepare_array_func_args(
-            a, a_min, a_max, out=out, *args, **kwargs
-        )
-        res = unyt_clip(
-            helper_result["args"][0],
-            helper_result["args"][1],
-            helper_result["args"][2],
-            out=helper_result["kwargs"]["out"],
-            **kwargs,
-        )
-        return _return_helper(res, helper_result, out=out)
+implements(np.sinc)(_default_unary_wrapper(unyt_sinc))
+implements(np.clip)(_default_unary_wrapper(unyt_clip))
 
 
 @implements(np.where)
@@ -1072,24 +886,8 @@ def einsum(
 implements(np.convolve)(_default_binary_wrapper(unyt_convolve))
 implements(np.correlate)(_default_binary_wrapper(unyt_correlate))
 implements(np.tensordot)(_default_binary_wrapper(unyt_tensordot))
-
-
-@implements(np.unwrap)
-def unwrap(p, discont=None, axis=-1, *, period=6.283_185_307_179_586):
-    helper_result = _prepare_array_func_args(
-        p, discont=discont, axis=axis, period=period
-    )
-    res = unyt_unwrap(*helper_result["args"], **helper_result["kwargs"])
-    return _return_helper(res, helper_result)
-
-
-@implements(np.interp)
-def interp(x, xp, fp, left=None, right=None, period=None):
-    helper_result = _prepare_array_func_args(
-        x, xp, fp, left=left, right=right, period=period
-    )
-    res = unyt_interp(*helper_result["args"], **helper_result["kwargs"])
-    return _return_helper(res, helper_result)
+implements(np.unwrap)(_default_unary_wrapper(unyt_unwrap))
+implements(np.interp)(_default_unary_wrapper(unyt_interp))
 
 
 @implements(np.array_repr)
@@ -1111,20 +909,11 @@ if NUMPY_VERSION < Version("2.0.0dev0"):
     implements(np.asfarray)(_default_unary_wrapper(unyt_asfarray))
 if NUMPY_VERSION >= Version("2.0.0dev0"):
     implements(np.linalg.outer)(_default_binary_wrapper(unyt_linalg_outer))
-
-
-@implements(_trapezoid_func)
-def trapezoid(y, x=None, dx=1.0, axis=-1):
-    helper_result = _prepare_array_func_args(y, x=x, dx=dx, axis=axis)
-    res = unyt_trapezoid(*helper_result["args"], **helper_result["kwargs"])
-    return _return_helper(res, helper_result)
-
-
+implements(_trapezoid_func)(_default_binary_wrapper(unyt_trapezoid))
 implements(np.isin)(_default_comparison_wrapper(unyt_in1d))
 implements(np.take)(_default_unary_wrapper(unyt_take))
 
 # Now we wrap functions that unyt does not handle explicitly:
-
 implements(np.average)(_propagate_extra_attr_to_result(np.average._implementation))
 implements(np.max)(_propagate_extra_attr_to_result(np.max._implementation))
 implements(np.min)(_propagate_extra_attr_to_result(np.min._implementation))
