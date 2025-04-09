@@ -14,6 +14,7 @@ from importlib.metadata import version
 from packaging.version import Version
 
 NUMPY_VERSION = Version(version("numpy"))
+trapezoid_fname = "trapz" if NUMPY_VERSION < Version("2.0.0dev0") else "trapezoid"
 
 savetxt_file = "saved_array.txt"
 
@@ -384,7 +385,6 @@ class TestNumpyFunctions:
             "einsum": ("ii->i", sub_arr(np.eye(3))),
             "convolve": (sub_arr(np.arange(3)), sub_arr(np.arange(3))),
             "correlate": (sub_arr(np.arange(3)), sub_arr(np.arange(3))),
-            "tensordot": (sub_arr(np.eye(3)), sub_arr(np.eye(3))),
             "unwrap": (sub_arr(np.arange(3)),),
             "interp": (
                 sub_arr(np.arange(3)),
@@ -392,11 +392,7 @@ class TestNumpyFunctions:
                 sub_arr(np.arange(3)),
             ),
             "array_repr": (sub_arr(np.arange(3)),),
-            "linalg.outer": (
-                sub_arr(np.arange(3)),
-                sub_arr(np.arange(3)),
-            ),
-            "trapezoid": (sub_arr(np.arange(3)),),
+            trapezoid_fname: (sub_arr(np.arange(3)),),
             "in1d": (
                 sub_arr(np.arange(3)),
                 sub_arr(np.arange(3)),
@@ -514,6 +510,7 @@ class TestNumpyFunctions:
             "linalg.qr": (sub_arr(np.eye(3)),),
             "linalg.slogdet": (sub_arr(np.eye(3)),),
             "linalg.cond": (sub_arr(np.eye(3)),),
+            "tensordot": (sub_arr(np.eye(3)), sub_arr(np.eye(3))),
             "gradient": (sub_arr(np.arange(3)),),
             "cumsum": (sub_arr(np.arange(3)),),
             "nancumsum": (sub_arr(np.arange(3)),),
@@ -543,48 +540,54 @@ class TestNumpyFunctions:
                 np.ones(3, dtype=int),
                 0,
             ),
-            "linalg.cross": (
-                sub_arr(np.arange(3)),
-                sub_arr(np.arange(3)),
-            ),
-            "linalg.diagonal": (sub_arr(np.eye(3)),),
-            "linalg.matmul": (sub_arr(np.eye(3)), sub_arr(np.eye(3))),
-            "linalg.matrix_norm": (sub_arr(np.eye(3)),),
-            "linalg.matrix_transpose": (sub_arr(np.eye(3)),),
-            "linalg.svdvals": (sub_arr(np.eye(3)),),
-            "linalg.tensordot": (
-                sub_arr(np.eye(3)),
-                sub_arr(np.eye(3)),
-            ),
-            "linalg.trace": (sub_arr(np.eye(3)),),
-            "linalg.vecdot": (
-                sub_arr(np.arange(3)),
-                sub_arr(np.arange(3)),
-            ),
-            "linalg.vector_norm": (sub_arr(np.arange(3)),),
-            "astype": (sub_arr(np.arange(3)), float),
-            "matrix_transpose": (sub_arr(np.eye(3)),),
-            "unique_all": (sub_arr(np.arange(3)),),
-            "unique_counts": (sub_arr(np.arange(3)),),
-            "unique_inverse": (sub_arr(np.arange(3)),),
-            "unique_values": (sub_arr(np.arange(3)),),
-            "cumulative_sum": (sub_arr(np.arange(3)),),
-            "cumulative_prod": (sub_arr(np.arange(3)),),
-            "unstack": (sub_arr(np.arange(3)),),
         }
+        if NUMPY_VERSION >= Version("2.0.0dev0"):
+            functions_to_check["linalg.cross"] = (
+                sub_arr(np.arange(3)),
+                sub_arr(np.arange(3)),
+            )
+            functions_to_check["linalg.diagonal"] = (sub_arr(np.eye(3)),)
+            functions_to_check["linalg.matmul"] = (sub_arr(np.eye(3)), sub_arr(np.eye(3)))
+            functions_to_check["linalg.matrix_norm"] = (sub_arr(np.eye(3)),)
+            functions_to_check["linalg.matrix_transpose"] = (sub_arr(np.eye(3)),)
+            functions_to_check["linalg.tensordot"] = (
+                sub_arr(np.eye(3)), sub_arr(np.eye(3))
+            )
+            functions_to_check["linalg.outer"] = (
+                sub_arr(np.arange(3)),
+                sub_arr(np.arange(3)),
+            )
+            functions_to_check["linalg.svdvals"] = (sub_arr(np.eye(3)),)
+            functions_to_check["linalg.trace"] = (sub_arr(np.eye(3)),)
+            functions_to_check["linalg.vecdot"] = (
+                sub_arr(np.arange(3)),
+                sub_arr(np.arange(3)),
+            )
+            functions_to_check["linalg.vector_norm"] = (sub_arr(np.arange(3)),)
+            functions_to_check["astype"] = (sub_arr(np.arange(3)), float)
+            functions_to_check["matrix_transpose"] = (sub_arr(np.eye(3)),)
+            functions_to_check["unique_all"] = (sub_arr(np.arange(3)),)
+            functions_to_check["unique_counts"] = (sub_arr(np.arange(3)),)
+            functions_to_check["unique_inverse"] = (sub_arr(np.arange(3)),)
+            functions_to_check["unique_values"] = (sub_arr(np.arange(3)),)
+            functions_to_check["cumulative_sum"] = (sub_arr(np.arange(3)),)
+            functions_to_check["cumulative_prod"] = (sub_arr(np.arange(3)),)
+            functions_to_check["unstack"] = (sub_arr(np.arange(3)),)
+        else:
+            functions_to_check["asfarray"] = (sub_arr(np.arange(3)),)
         functions_checked = []
         bad_funcs = {}
         for fname, args in functions_to_check.items():
-            if NUMPY_VERSION < Version("2.0.0dev0"):
-                # functions added in numpy 2.0.0
-                if fname == "linalg.outer":
-                    continue
             ua_args = []
             for arg in args:
                 ua_args.append(arg_to_ua(arg))
             func = getfunc(fname)
             try:
                 with warnings.catch_warnings():
+                    warnings.filterwarnings(
+                        action="ignore",
+                        category=FutureWarning,
+                    )
                     if "savetxt" in fname:
                         warnings.filterwarnings(
                             action="ignore",
@@ -608,6 +611,10 @@ class TestNumpyFunctions:
                     result = func(*args)
                 continue
             with warnings.catch_warnings():
+                warnings.filterwarnings(
+                    action="ignore",
+                    category=FutureWarning,
+                )
                 if "savetxt" in fname:
                     warnings.filterwarnings(
                         action="ignore",

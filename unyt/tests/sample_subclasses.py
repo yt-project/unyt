@@ -432,7 +432,7 @@ def _histogram2d(x, y, *, bins=10, range=None, density=None, weights=None, norme
     helper_result_x = _prepare_array_func_args(x, bins=xbins, range=xrange)
     helper_result_y = _prepare_array_func_args(y, bins=ybins, range=yrange)
     if not density:
-        helper_result_w = _prepare_array_func_args(weights=weights)
+        helper_result_w = _prepare_array_func_args(weights=weights, normed=normed)
         if (helper_result_x["kwargs"]["range"] is None) and (
             helper_result_y["kwargs"]["range"] is None
         ):
@@ -475,6 +475,7 @@ def _histogram2d(x, y, *, bins=10, range=None, density=None, weights=None, norme
             xrange=xrange,
             yrange=yrange,
             weights=weights,
+            normed=normed,
         )
         if (helper_result["kwargs"]["xrange"] is None) and (
             helper_result["kwargs"]["yrange"] is None
@@ -495,7 +496,7 @@ def _histogram2d(x, y, *, bins=10, range=None, density=None, weights=None, norme
             "weights": helper_result["kwargs"]["weights"],
         }
         if NUMPY_VERSION < Version("1.24"):
-            kwargs["normed"] = helper_result_w["kwargs"]["normed"]
+            kwargs["normed"] = helper_result["kwargs"]["normed"]
         counts, xbins, ybins = unyt_histogram2d(
             helper_result["args"][0],
             helper_result["args"][1],
@@ -922,6 +923,8 @@ implements(np.median)(_propagate_extra_attr_to_result(np.median._implementation)
 implements(np.sort)(_propagate_extra_attr_to_result(np.sort._implementation))
 implements(np.sum)(_propagate_extra_attr_to_result(np.sum._implementation))
 implements(np.partition)(_propagate_extra_attr_to_result(np.partition._implementation))
+if NUMPY_VERSION >= Version("2.0.0dev0"):
+    implements(np.linalg.cross)(_default_binary_wrapper(np.linalg.cross._implementation))
 
 
 @implements(np.meshgrid)
@@ -932,7 +935,8 @@ def meshgrid(*xi, **kwargs):
     # However we can't just use _propagate_extra_attr_to_result because we
     # need to iterate over arguments.
     res = np.meshgrid._implementation(*xi, **kwargs)
-    return tuple(_copy_extra_attr_if_present(x, r) for (x, r) in zip(xi, res))
+    ret_type = tuple if NUMPY_VERSION >= Version("2.0.0dev0") else list
+    return ret_type(_copy_extra_attr_if_present(x, r) for (x, r) in zip(xi, res))
 
 
 class subclass_uarray(unyt_array):
