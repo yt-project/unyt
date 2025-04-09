@@ -907,7 +907,7 @@ def array_repr(arr, max_line_width=None, precision=None, suppress_small=None):
 
 
 if NUMPY_VERSION < Version("2.0.0dev0"):
-    implements(np.asfarray)(_default_unary_wrapper(unyt_asfarray))
+    implements(np.asfarray)(_default_unary_wrapper(unyt_asfarray))  # NOQA: NPY201
 if NUMPY_VERSION >= Version("2.0.0dev0"):
     implements(np.linalg.outer)(_default_binary_wrapper(unyt_linalg_outer))
 implements(_trapezoid_func)(_default_binary_wrapper(unyt_trapezoid))
