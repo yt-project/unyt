@@ -29,10 +29,10 @@ repos:
             additional_dependencies: [black==24.10.0]
 
     - repo: https://github.com/astral-sh/ruff-pre-commit
-      rev: v0.11.12
+      rev: v0.12.2
       hooks:
           - id: ruff-format
-          - id: ruff
+          - id: ruff-check
             args: [--fix, --show-fixes]
 
     - repo: https://github.com/pre-commit/pygrep-hooks
