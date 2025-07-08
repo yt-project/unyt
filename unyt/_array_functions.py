@@ -650,7 +650,7 @@ def _linspace(
         return result * start.units
 
 
-if NUMPY_VERSION >= Version("2.0.0.dev0"):
+if NUMPY_VERSION >= Version("2.0.0dev0"):
 
     @implements(np.linspace)
     def linspace(
