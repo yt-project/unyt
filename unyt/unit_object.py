@@ -371,12 +371,27 @@ class Unit:
         )
 
     def __rmul__(self, u):
+        if not getattr(u, "is_Unit", False):
+            data = np.array(u, subok=True)
+            data_type = type(data)
+            if (
+                issubclass(data_type, _import_cache_singleton.ua)
+                and data_type is not _import_cache_singleton.ua
+                and data_type is not _import_cache_singleton.uq
+            ):
+                return data.__mul__(self)
         return self.__mul__(u)
 
     def __mul__(self, u):
         """Multiply Unit with u (Unit object)."""
         if not getattr(u, "is_Unit", False):
             data = np.array(u, subok=True)
+            if (
+                issubclass(data.__class__, _import_cache_singleton.ua)
+                and type(data) is not _import_cache_singleton.ua
+                and type(data) is not _import_cache_singleton.uq
+            ):
+                return data.__rmul__(self)
             unit = getattr(u, "units", None)
             if unit is not None:
                 if self.dimensions is logarithmic:
