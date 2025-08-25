@@ -1263,7 +1263,7 @@ class unyt_array(np.ndarray):
         >>> from unyt import km
         >>> data = [3, 8, 7]*km
         >>> print(np.argsort(data))
-        [0 2 1] km
+        [0 2 1]
         >>> print(data.argsort())
         [0 2 1]
         """
