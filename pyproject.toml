@@ -26,6 +26,9 @@ keywords = [
 requires-python = ">=3.10"
 dependencies = [
     "numpy>=1.21.3, <3.0",
+    "numpy>=1.23.2 ; python_version>='3.11'",
+    "numpy>=1.26.0 ; python_version>='3.12'",
+    "numpy>=2.1.0 ; python_version>='3.13'",
     "sympy>=1.9.0",
     "packaging>=20.9",
 ]
@@ -48,7 +51,7 @@ Changelog = "https://unyt.readthedocs.io/en/stable/history.html"
 [dependency-groups]
 test = [
     "pytest-doctestplus>=1.2.1",
-    "pytest>=7.2.1",
+    "pytest>=8.0.0",
 ]
 covcheck = [
     "coverage[toml]>=5.0.0",
@@ -60,12 +63,22 @@ doc = [
 integration = [
     "astropy>=4.0.4",
     "astropy>=5.0.0 ; platform_machine=='arm64' and platform_system=='Darwin'",
+    "astropy>=5.0.5 ; python_version>='3.11'",
+    "astropy>=5.3.4 ; python_version>='3.12'",
+    "astropy>=6.1.3 ; python_version>='3.13'",
     "dask[array,diagnostics]>=2021.4.1",
     "dask[array,diagnostics]>=2021.5.1 ; platform_machine=='arm64' and platform_system=='Darwin'",
+    "dask[array,diagnostics]>=2022.1.0 ; python_version>='3.13'",
     "h5py>=3.0.0",
     "h5py>=3.7.0 ; platform_machine=='arm64' and platform_system=='Darwin'",
+    "h5py>=3.8.0 ; python_version>='3.11'",
+    "h5py>=3.10.0 ; python_version>='3.12'",
+    "h5py>=3.12.0 ; python_version>='3.13'",
     "matplotlib>=3.3.3,!=3.5.0",
     "matplotlib>=3.5.1 ; platform_machine=='arm64' and platform_system=='Darwin'",
+    "matplotlib>=3.6.0 ; python_version>='3.11'",
+    "matplotlib>=3.7.3 ; python_version>='3.12'",
+    "matplotlib>=3.9.2 ; python_version>='3.13'",
     "pint>=0.9",
 ]
 
@@ -89,7 +102,6 @@ namespaces = false
 unyt = [
     "tests/data/old_json_registry.txt",
 ]
-
 
 [tool.black]
 exclude = '''
@@ -118,6 +130,7 @@ exclude = [
     "*/_version.py",
     "*/__init__.py",
 ]
+
 [tool.ruff.lint]
 ignore = [
     "E501",
@@ -163,3 +176,6 @@ omit = [
     "unyt/_on_demand_imports.py",
     "unyt/tests/test_linters.py",
 ]
+
+[tool.uv]
+no-build-package = ["astropy", "h5py", "matplotlib", "numpy", "pandas"]
