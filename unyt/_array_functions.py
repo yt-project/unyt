@@ -296,7 +296,9 @@ def _histogramdd(
 
     if weights is not None and hasattr(weights, "units"):
         counts *= weights.units
-    return counts, tuple(_bin * getattr(s, "units", 1) for _bin, s in zip(bins, sample))
+    return counts, tuple(
+        _bin * getattr(s, "units", 1) for _bin, s in zip(bins, sample, strict=True)
+    )
 
 
 if NUMPY_VERSION >= Version("1.24"):
