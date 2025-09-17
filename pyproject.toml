@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-  "setuptools>=61.2",
+  "setuptools>=77.0.0",
   "setuptools_scm[toml]>=7.0.1",
 ]
 
@@ -12,10 +12,12 @@ description = "A package for handling numpy arrays with units"
 authors = [
     { name = "The yt project", email = "yt-dev@python.org" },
 ]
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: BSD License",
+    "Intended Audience :: Science/Research",
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: Implementation :: CPython",
@@ -36,9 +38,6 @@ dynamic = [
 [project.readme]
 file = "README.rst"
 content-type = "text/x-rst"
-
-[project.license]
-text = "BSD-3-Clause"
 
 [project.urls]
 Homepage = "https://github.com/yt-project/unyt"
@@ -72,9 +71,6 @@ integration = [
 [tool.setuptools]
 include-package-data = true
 zip-safe = false
-license-files = [
-    "LICENSE",
-]
 
 [tool.setuptools.packages.find]
 include = [
