@@ -2029,6 +2029,8 @@ class unyt_array(np.ndarray):
                 out_arr = ret_class(out_arr, unit, bypass_validation=True)
         if out is not None:
             if mul != 1:
+                if hasattr(out, "units") and Unit(mul * unit) == out.units:
+                    return out
                 multiply(out, mul, out=out)
                 if np.shares_memory(out_arr, out):
                     mul = 1
