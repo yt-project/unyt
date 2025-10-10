@@ -2825,14 +2825,6 @@ def test_setitem():
     assert a[1].units == cm
 
 
-def assert_obtained_expected(obtained, expected):
-    assert_allclose_units(obtained, expected)
-    if hasattr(expected, "units"):
-        assert obtained.units == expected.units
-    else:
-        assert not hasattr(obtained, "units")
-
-
 def test_division_by_float_recursion():
     # regression test for https://github.com/yt-project/unyt/issues/588
     # see also https://github.com/yt-project/unyt/issues/540
@@ -2840,13 +2832,13 @@ def test_division_by_float_recursion():
     # this case previously caused infinite recursion:
     out_in_place = unyt_array([2, 4, 6], 10 * m)
     result_in_place = np.true_divide(out_in_place, 2.0, out=out_in_place)
-    assert_obtained_expected(
+    assert_array_equal_units(
         out_in_place,
-        expected=unyt_array([1, 2, 3], 10 * m),
+        unyt_array([1, 2, 3], 10 * m),
     )
-    assert_obtained_expected(
+    assert_array_equal_units(
         result_in_place,
-        expected=unyt_array([1, 2, 3], 10 * m),
+        unyt_array([1, 2, 3], 10 * m),
     )
 
 
@@ -2857,13 +2849,13 @@ def test_division_by_ndarray_recursion():
 
     out_ndarray = np.zeros(3)
     result_ndarray = np.true_divide(a, 2.0, out=out_ndarray)
-    assert_obtained_expected(
+    assert_array_equal_units(
         out_ndarray,
-        expected=np.array([10, 20, 30]),
+        np.array([10, 20, 30]),
     )
-    assert_obtained_expected(
+    assert_array_equal_units(
         result_ndarray,
-        expected=unyt_array([10, 20, 30], m),
+        unyt_array([10, 20, 30], m),
     )
 
 
@@ -2874,13 +2866,13 @@ def test_division_with_unyt_array_out_recursion():
 
     out_unyt_array_m = unyt_array([0, 0, 0], m)
     result_unyt_array_m = np.true_divide(a, 2.0, out=out_unyt_array_m)
-    assert_obtained_expected(
+    assert_array_equal_units(
         out_unyt_array_m,
-        expected=unyt_array([10, 20, 30], m),
+        unyt_array([10, 20, 30], m),
     )
-    assert_obtained_expected(
+    assert_array_equal_units(
         result_unyt_array_m,
-        expected=unyt_array([10, 20, 30], m),
+        unyt_array([10, 20, 30], m),
     )
 
 
@@ -2892,15 +2884,13 @@ def test_division_with_unyt_array_quantity_units_out_recursion():
     # this case previously caused infinite recursion:
     out_unyt_array_10m = unyt_array([0, 0, 0], 10 * m)
     result_unyt_array_10m = np.true_divide(a, 2.0, out=out_unyt_array_10m)
-    assert_obtained_expected(
+    assert_array_equal_units(
         out_unyt_array_10m,
-        expected=unyt_array([1, 2, 3], 10 * m),
+        unyt_array([1, 2, 3], 10 * m),
     )
-    assert_obtained_expected(
+    assert_array_equal_units(
         result_unyt_array_10m,
-        expected=unyt_array(
-            [1, 2, 3], 10 * m
-        ),  # QUERY: should this be [10, 20, 30], m?
+        unyt_array([1, 2, 3], 10 * m),  # QUERY: should this be [10, 20, 30], m?
     )
 
 
@@ -2911,13 +2901,13 @@ def test_division_with_unyt_array_different_units_out_recursion():
 
     out_unyt_array_cm = unyt_array([0, 0, 0], cm)
     result_unyt_array_cm = np.true_divide(a, 2.0, out=out_unyt_array_cm)
-    assert_obtained_expected(
+    assert_array_equal_units(
         out_unyt_array_cm,
-        expected=unyt_array([10, 20, 30], m),
+        unyt_array([10, 20, 30], m),
     )
-    assert_obtained_expected(
+    assert_array_equal_units(
         result_unyt_array_cm,
-        expected=unyt_array([10, 20, 30], m),
+        unyt_array([10, 20, 30], m),
     )
 
 
@@ -2930,15 +2920,13 @@ def test_division_by_ndarray_with_inplace_out_recursion():
     result_div_ndarray = np.true_divide(
         out_div_ndarray, np.array([2, 2, 2]), out=out_div_ndarray
     )
-    assert_obtained_expected(
+    assert_array_equal_units(
         out_div_ndarray,
-        expected=unyt_array([1, 2, 3], 10 * m),
+        unyt_array([1, 2, 3], 10 * m),
     )
-    assert_obtained_expected(
+    assert_array_equal_units(
         result_div_ndarray,
-        expected=unyt_array(
-            [1, 2, 3], 10 * m
-        ),  # QUERY: should this be [10, 20, 30], m?
+        unyt_array([1, 2, 3], 10 * m),  # QUERY: should this be [10, 20, 30], m?
     )
 
 
@@ -2951,13 +2939,13 @@ def test_division_by_unyt_array_with_inplace_out_recursion():
     result_div_unyt_array = np.true_divide(
         out_div_unyt_array, unyt_array([2, 2, 2], 10 * m), out=out_div_unyt_array
     )
-    assert_obtained_expected(
+    assert_array_equal_units(
         out_div_unyt_array,
-        expected=unyt_array([1, 2, 3], "dimensionless"),
+        unyt_array([1, 2, 3], "dimensionless"),
     )
-    assert_obtained_expected(
+    assert_array_equal_units(
         result_div_unyt_array,
-        expected=unyt_array([1, 2, 3], "dimensionless"),
+        unyt_array([1, 2, 3], "dimensionless"),
     )
 
 
@@ -2970,13 +2958,13 @@ def test_division_by_unyt_array_unyt_quantity_units_with_inplace_out_recursion()
     result_div_unyt_quantity = np.true_divide(
         out_div_unyt_quantity, unyt_quantity(2, 10 * m), out=out_div_unyt_quantity
     )
-    assert_obtained_expected(
+    assert_array_equal_units(
         out_div_unyt_quantity,
-        expected=unyt_array([1, 2, 3], "dimensionless"),
+        unyt_array([1, 2, 3], "dimensionless"),
     )
-    assert_obtained_expected(
+    assert_array_equal_units(
         result_div_unyt_quantity,
-        expected=unyt_array([1, 2, 3], "dimensionless"),
+        unyt_array([1, 2, 3], "dimensionless"),
     )
 
 
@@ -2986,16 +2974,14 @@ def test_multiplication_by_one_recursion():
 
     out_mul_one = unyt_array([1, 2, 3], 10 * m)
     result_mul_one = np.multiply(out_mul_one, 1, out=out_mul_one)
-    assert_obtained_expected(
+    assert_array_equal_units(
         out_mul_one,
-        expected=unyt_array([1, 2, 3], 10 * m),
+        unyt_array([1, 2, 3], 10 * m),
     )
-    assert_obtained_expected(
+    assert_array_equal_units(
         result_mul_one,
-        expected=unyt_array([1, 2, 3], 10 * m),
+        unyt_array([1, 2, 3], 10 * m),
     )
-
-    # finally, check mean and std that previously caused infinite recursion
 
 
 def test_mean_recursion():
@@ -3003,18 +2989,20 @@ def test_mean_recursion():
     # see also https://github.com/yt-project/unyt/issues/540
     a = unyt_array([2, 4, 6], 10 * m)
 
-    assert_obtained_expected(
+    # previously caused infinite recursion:
+    assert_array_equal_units(
         a.mean(),
-        expected=unyt_quantity(4.0, 10 * m),
+        unyt_quantity(4.0, 10 * m),
     )
 
 
 def test_std_recursion():
     # regression test for https://github.com/yt-project/unyt/issues/588
     # see also https://github.com/yt-project/unyt/issues/540
-    a = unyt_array([2, 4, 6], 10 * m)
+    a = unyt_array([1, 1, 5, 5], 10 * m)
 
-    assert_obtained_expected(
+    # previously caused infinite recursion:
+    assert_array_equal_units(
         a.std(),
-        expected=unyt_quantity(16.32993162, m),
+        unyt_quantity(20.0, m),
     )
