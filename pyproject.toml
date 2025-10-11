@@ -119,7 +119,6 @@ ignore = [
     "E501",
     "B904",
     "UP038", # non-pep604-isinstance
-    "B905", # zip-without-explicit-strict
 ]
 select = [
     "E",
@@ -131,6 +130,7 @@ select = [
     "I",   # isort
     "UP",  # pyupgrade
     "NPY", # numpy specific rules
+    "RUF007", # zip-instead-of-pairwise
 ]
 
 [tool.ruff.lint.isort]
