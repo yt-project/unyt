@@ -1368,7 +1368,7 @@ class unyt_array(np.ndarray):
             u = arr
             _arr = 1.0 * u
         ap_units = []
-        for base, exponent in zip(u.bases, u.powers):
+        for base, exponent in zip(u.bases, u.powers, strict=True):
             unit_str = base.to_string()
             # we have to do this because AstroPy is silly and defines
             # hour as "h"
@@ -2114,7 +2114,7 @@ class unyt_array(np.ndarray):
                     # out_arr is an ndarray
                     out.units = Unit("", registry=self.units.registry)
             elif isinstance(out, tuple):
-                for o, oa in zip(out, out_arr):
+                for o, oa in zip(out, out_arr, strict=True):
                     if o is None:
                         continue
                     o.units = oa.units
@@ -2710,7 +2710,7 @@ def loadtxt(fname, dtype="float", delimiter="\t", usecols=None, comments="#"):
         arrays = [arrays]
     if usecols is not None:
         units = [units[col] for col in usecols]
-    ret = tuple(unyt_array(arr, unit) for arr, unit in zip(arrays, units))
+    ret = tuple(unyt_array(arr, unit) for arr, unit in zip(arrays, units, strict=True))
     if len(ret) == 1:
         return ret[0]
     return ret
