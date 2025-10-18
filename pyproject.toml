@@ -50,22 +50,41 @@ test = [
     "pytest>=7.2.1",
 ]
 covcheck = [
-    "coverage[toml]>=5.0.0",
+    {include-group = "test"},
+    "coverage[toml] ; python_version < '3.11'",
+    "coverage>=5.0.0",
 ]
 doc = [
+    {include-group = "integration"},
     "docutils>=0.21.2",
     "sphinx>=7.4.7",
 ]
 integration = [
     "astropy>=4.0.4",
-    "astropy>=5.0.0 ; platform_machine=='arm64' and platform_system=='Darwin'",
     "dask[array,diagnostics]>=2021.4.1",
-    "dask[array,diagnostics]>=2021.5.1 ; platform_machine=='arm64' and platform_system=='Darwin'",
     "h5py>=3.0.0",
-    "h5py>=3.7.0 ; platform_machine=='arm64' and platform_system=='Darwin'",
     "matplotlib>=3.3.3,!=3.5.0",
-    "matplotlib>=3.5.1 ; platform_machine=='arm64' and platform_system=='Darwin'",
     "pint>=0.9",
+]
+
+[tool.uv]
+# never build the following packages from source. Prefer more recent versions
+# with binary distributions even with --resolution=lowest[-direct]
+no-build-package = [
+    "astropy",
+    "bokeh",
+    "coverage",
+    "h5py",
+    "numpy",
+    "matplotlib",
+    "pandas",
+]
+
+# ensure that uv resolves envs that are compatible with macOS arm64,
+# even in drastic conditions like --resolution=lowest[-direct],
+# taking into account tool.uv.no-build-package
+required-environments = [
+    "sys_platform == 'darwin' and platform_machine == 'arm64'",
 ]
 
 [tool.setuptools]
@@ -152,9 +171,16 @@ filterwarnings = [
 ]
 
 [tool.coverage.run]
+source = [
+    "unyt",
+]
 omit = [
     "docs/*",
     "unyt/_version.py",
     "unyt/_on_demand_imports.py",
     "unyt/tests/test_linters.py",
 ]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
