@@ -391,10 +391,6 @@ class TestNumpyFunctions:
             ),
             "array_repr": (sub_arr(np.arange(3)),),
             trapezoid_fname: (sub_arr(np.arange(3)),),
-            "in1d": (
-                sub_arr(np.arange(3)),
-                sub_arr(np.arange(3)),
-            ),  # np deprecated
             "take": (sub_arr(np.arange(3)), np.arange(3)),
             # FUNCTIONS THAT UNYT DOESN'T HANDLE EXPLICITLY (THEY "JUST WORK"):
             "all": (sub_arr(np.arange(3)),),
@@ -577,6 +573,10 @@ class TestNumpyFunctions:
             functions_to_check["unstack"] = (sub_arr(np.arange(3)),)
         else:
             functions_to_check["asfarray"] = (sub_arr(np.arange(3)),)
+
+        if NUMPY_VERSION < Version("2.4.0.dev0"):
+            functions_to_check["in1d"] = (sub_arr(np.arange(3)), sub_arr(np.arange(3)))
+
         functions_checked = []
         bad_funcs = {}
         for fname, args in functions_to_check.items():
