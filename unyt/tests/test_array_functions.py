@@ -1941,6 +1941,9 @@ def test_isin():
     assert np.isin(1 * cm, a)
 
 
+@pytest.mark.skipif(
+    NUMPY_VERSION >= Version("2.4.0.dev0"), reason="in1d is removed in numpy 2.4"
+)
 @pytest.mark.filterwarnings("ignore:`in1d` is deprecated. Use `np.isin` instead.")
 def test_in1d_mixed_units():
     a = [1, 2, 3] * cm
@@ -1948,6 +1951,9 @@ def test_in1d_mixed_units():
         np.in1d([1, 2], a)  # noqa: NPY201
 
 
+@pytest.mark.skipif(
+    NUMPY_VERSION >= Version("2.4.0.dev0"), reason="in1d is removed in numpy 2.4"
+)
 @pytest.mark.filterwarnings("ignore:`in1d` is deprecated. Use `np.isin` instead.")
 def test_in1d():
     a = [1, 2, 3] * cm
