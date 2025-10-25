@@ -3017,7 +3017,7 @@ def test_custom_unit_multiplication_with_out_kwarg():
         dimensions=dimensions.length,
     )
     u = Unit("code_length", registry=reg)
-    data = 3 * u
+    data = 0 * u
     # previously crashed with:
     # UnitParseError: Could not find unit symbol 'code_length' in the provided symbols.
     np.multiply(data, data, out=data)
