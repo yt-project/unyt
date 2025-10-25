@@ -2098,9 +2098,9 @@ class unyt_array(np.ndarray):
 
         if out is not None:
             if (
-                hasattr(out, "units")
-                and unit is not None
-                and Unit(mul * unit) == out.units
+                unit is not None
+                and hasattr(out, "units")
+                and (mul, unit) == out.units.as_coeff_unit()
             ):
                 return out
             if mul != 1:
