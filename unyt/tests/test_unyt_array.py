@@ -3008,14 +3008,13 @@ def test_std_recursion():
     )
 
 
-def test_code_length_multiplication():
+def test_custom_unit_multiplication_with_out_kwarg():
     # regression test for https://github.com/yt-project/unyt/issues/599
     reg = UnitRegistry()
     reg.add(
         "code_length",
         base_value=10.0,
         dimensions=dimensions.length,
-        tex_repr=r"\rm{Code Length}",
     )
     u = Unit("code_length", registry=reg)
     data = 3 * u
