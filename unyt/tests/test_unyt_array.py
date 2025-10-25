@@ -3006,3 +3006,19 @@ def test_std_recursion():
         a.std(),
         unyt_quantity(20.0, m),
     )
+
+
+def test_code_length_multiplication():
+    # regression test for https://github.com/yt-project/unyt/issues/599
+    reg = UnitRegistry()
+    reg.add(
+        "code_length",
+        base_value=10.0,
+        dimensions=dimensions.length,
+        tex_repr=r"\rm{Code Length}",
+    )
+    u = Unit("code_length", registry=reg)
+    data = 3 * u
+    # previously crashed with:
+    # UnitParseError: Could not find unit symbol 'code_length' in the provided symbols.
+    np.multiply(data, data, out=data)
