@@ -1213,7 +1213,7 @@ def trapezoid(y, x=None, dx=1.0, *args, **kwargs):
     )
 
 
-if hasattr(np, "in1d"):
+if NUMPY_VERSION < Version("2.4.0.dev0"):
 
     @implements(np.in1d)  # noqa: NPY201
     def in1d(ar1, ar2, *args, **kwargs):

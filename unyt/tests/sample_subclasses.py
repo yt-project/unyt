@@ -62,7 +62,6 @@ from unyt._array_functions import (
     interp as unyt_interp,
     intersect1d as unyt_intersect1d,
     isclose as unyt_isclose,
-    isin as unyt_in1d,
     isin as unyt_isin,
     kron as unyt_kron,
     linalg_det as unyt_linalg_det,
@@ -910,7 +909,7 @@ if NUMPY_VERSION < Version("2.0.0dev0"):
 if NUMPY_VERSION >= Version("2.0.0dev0"):
     implements(np.linalg.outer)(_default_binary_wrapper(unyt_linalg_outer))
 implements(_trapezoid_func)(_default_binary_wrapper(unyt_trapezoid))
-implements(np.isin)(_default_comparison_wrapper(unyt_in1d))
+implements(np.isin)(_default_comparison_wrapper(unyt_isin))
 implements(np.take)(_default_unary_wrapper(unyt_take))
 
 # Now we wrap functions that unyt does not handle explicitly:
