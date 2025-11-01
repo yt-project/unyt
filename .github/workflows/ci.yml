@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - name: Setup Python
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v7.1.2
         with:
           python-version: '3.14'
           enable-cache: false
@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Setup Python
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v7.1.2
         with:
           python-version: '3.14'
           enable-cache: false
@@ -102,7 +102,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - name: Setup Python
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v7.1.2
         with:
           python-version: ${{ matrix.python-version }}
           enable-cache: false
@@ -118,7 +118,7 @@ jobs:
         # only using reports from ubuntu because
         # combining reports from multiple platforms is tricky
         if: startsWith( matrix.os , 'ubuntu' )
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: unyt_coverage_data-${{matrix.os}}-${{matrix.python-version}}-${{matrix.label}}
           path: .coverage.*
@@ -135,12 +135,12 @@ jobs:
       with:
         fetch-depth: 0
         persist-credentials: false
-    - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6.8.0
+    - uses: astral-sh/setup-uv@0d20755a2389f8ddbd3ad4f8a536309a4db22de9 # v6.8.0
       with:
         python-version: '3.14'
         enable-cache: false
 
-    - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+    - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
       with:
         pattern: unyt_coverage_data-*
         merge-multiple: true
@@ -154,7 +154,7 @@ jobs:
         coverage report --fail-under=99
 
     - name: Upload HTML report
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
       with:
         name: unyt_coverage_report
         path: htmlcov
@@ -168,7 +168,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - name: Setup Python
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v7.1.2
         with:
           python-version: '3.10'
           enable-cache: false
@@ -178,7 +178,7 @@ jobs:
           uv run --no-sync --directory=docs \
             python -m sphinx -M html "." "_build" -W
       - name: Upload build
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: unyt_docs
           path: docs/_build/html

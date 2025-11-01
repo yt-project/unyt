@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Setup Python
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v7.1.2
         with:
           python-version: '3.14'
           enable-cache: false
