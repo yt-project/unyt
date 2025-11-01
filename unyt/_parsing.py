@@ -5,6 +5,7 @@ parsing utilities
 
 """
 
+import itertools
 import token
 
 from sympy import Basic, Float, Integer, Rational, Symbol, sqrt
@@ -23,7 +24,7 @@ def _auto_positive_symbol(tokens, local_dict, global_dict):
     result = []
 
     tokens.append((None, None))  # so zip traverses all tokens
-    for tok, nextTok in zip(tokens, tokens[1:]):
+    for tok, nextTok in itertools.pairwise(tokens):
         tokNum, tokVal = tok
         nextTokNum, nextTokVal = nextTok
         if tokNum == token.NAME:
