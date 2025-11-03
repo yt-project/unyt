@@ -367,10 +367,8 @@ def test_dot_vectors():
     ],
 )
 def test_dot_matrices(out):
-    a = np.arange(9) * cm
-    a.shape = (3, 3)
-    b = np.arange(9) * s
-    b.shape = (3, 3)
+    a = np.reshape(np.arange(9), (3, 3)) * cm
+    b = np.reshape(np.arange(9), (3, 3)) * s
 
     res = np.dot(a, b, out=out)
 
@@ -422,10 +420,8 @@ def test_dot_mixed_ndarray_unyt_array():
 
 
 def test_invalid_dot_matrices():
-    a = np.arange(9) * cm
-    a.shape = (3, 3)
-    b = np.arange(9) * s
-    b.shape = (3, 3)
+    a = np.reshape(np.arange(9), (3, 3)) * cm
+    b = np.reshape(np.arange(9), (3, 3)) * s
 
     out = np.empty((3, 3), dtype=np.int_, order="C") * s**2
     res = np.dot(a, b, out=out)
@@ -473,8 +469,7 @@ def test_linalg_inv():
 
 
 def test_linalg_tensorinv():
-    a = np.eye(4 * 6) * cm
-    a.shape = (4, 6, 8, 3)
+    a = np.reshape(np.eye(4 * 6), (4, 6, 8, 3)) * cm
     ia = np.linalg.tensorinv(a)
     assert 1 * ia.units == 1 / cm
 
