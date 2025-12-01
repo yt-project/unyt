@@ -58,8 +58,6 @@ from unyt.unit_object import Unit, define_unit  # NOQA: F401
 from unyt.unit_registry import UnitRegistry  # NOQA: F401
 from unyt.unit_systems import UnitSystem  # NOQA: F401
 
-from ._version import __version__
-
 
 # function to only import quantities into this namespace
 # we go through the trouble of doing this instead of "import *"
@@ -95,3 +93,10 @@ def test():  # pragma: no cover
 from unyt.mpl_interface import matplotlib_support
 
 matplotlib_support = matplotlib_support()
+
+
+def __getattr__(item: str):
+    if item == "__version__":
+        from importlib.metadata import version
+        return version("unyt")
+    raise AttributeError(f"Module 'unyt' has no attribute {item!r}.")

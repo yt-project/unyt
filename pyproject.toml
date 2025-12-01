@@ -1,13 +1,10 @@
 [build-system]
-requires = [
-  "setuptools>=77.0.0",
-  "setuptools_scm[toml]>=7.0.1",
-]
-
-build-backend = "setuptools.build_meta"
+requires = ["flit_core >=3.11,<4"]
+build-backend = "flit_core.buildapi"
 
 [project]
 name = "unyt"
+version = "3.0.1dev0"
 description = "A package for handling numpy arrays with units"
 authors = [
     { name = "The yt project", email = "yt-dev@python.org" },
@@ -30,9 +27,6 @@ dependencies = [
     "numpy>=1.21.3, <3.0",
     "sympy>=1.9.0",
     "packaging>=20.9",
-]
-dynamic = [
-    "version",
 ]
 
 [project.readme]
@@ -87,24 +81,14 @@ required-environments = [
     "sys_platform == 'darwin' and platform_machine == 'arm64'",
 ]
 
-[tool.setuptools]
-include-package-data = true
-zip-safe = false
 
-[tool.setuptools.packages.find]
+[tool.flit.sdist]
 include = [
     "unyt",
     "unyt.tests",
     "unyt.tests.data",
     "unyt._mpl_array_converter",
 ]
-namespaces = false
-
-[tool.setuptools.package-data]
-unyt = [
-    "tests/data/old_json_registry.txt",
-]
-
 
 [tool.black]
 exclude = '''
@@ -153,10 +137,6 @@ select = [
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
-
-[tool.setuptools_scm]
-write_to = "unyt/_version.py"
-version_scheme = "post-release"
 
 [tool.pytest.ini_options]
 addopts = "-ra --ignore=benchmarks --ignore=paper --ignore=unyt/_mpl_array_converter --color=yes"
