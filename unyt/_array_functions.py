@@ -5,7 +5,7 @@ from numbers import Number
 import numpy as np
 from packaging.version import Version
 
-from unyt import delta_degC
+from unyt import delta_degC, dimensionless
 from unyt.array import NULL_UNIT, unyt_array, unyt_quantity
 from unyt.dimensions import temperature
 from unyt.exceptions import (
@@ -158,20 +158,38 @@ def _sanitize_range(_range, units):
     return new_range.squeeze()
 
 
+def _sanitize_bins(a, bins):
+    if np.isscalar(bins):
+        # integer giving number of bins
+        return bins
+    if hasattr(bins, "units"):
+        # if bins has units, must be convertible to a's units (assumed dimensionless if
+        # absent)
+        return bins.to_value(getattr(a, "units", dimensionless))
+    else:
+        if hasattr(a, "units"):
+            # bins doesn't have units but a does, only ok if a is dimensionless
+            return bins / a.units.get_conversion_factor(dimensionless)[0]
+        else:
+            # neither a nor bins have units (but maybe weights or density do)
+            return bins
+
+
 def _histogram(a, *, bins=10, range=None, density=None, weights=None, normed=None):
     range = _sanitize_range(range, units=[getattr(a, "units", None)])
+    _bins = _sanitize_bins(a, bins)
     if NUMPY_VERSION >= Version("1.24"):
-        counts, bins = np.histogram._implementation(
+        counts, _bins = np.histogram._implementation(
             np.asarray(a),
-            bins=bins,
+            bins=_bins,
             range=range,
             density=density,
             weights=np.asarray(weights) if weights is not None else None,
         )
     else:
-        counts, bins = np.histogram._implementation(
+        counts, _bins = np.histogram._implementation(
             np.asarray(a),
-            bins=bins,
+            bins=_bins,
             range=range,
             normed=normed,
             weights=np.asarray(weights) if weights is not None else None,
@@ -184,7 +202,7 @@ def _histogram(a, *, bins=10, range=None, density=None, weights=None, normed=Non
         counts /= a.units
     if weights is not None and hasattr(weights, "units"):
         counts *= weights.units
-    return counts, bins * getattr(a, "units", 1)
+    return counts, _bins * getattr(a, "units", 1) if np.isscalar(bins) else bins
 
 
 if NUMPY_VERSION >= Version("1.24"):
@@ -206,20 +224,25 @@ def _histogram2d(x, y, *, bins=10, range=None, density=None, weights=None, norme
     range = _sanitize_range(
         range, units=[getattr(x, "units", None), getattr(y, "units", None)]
     )
+    if np.isscalar(bins):
+        _xbins, _ybins = _sanitize_bins(x, bins), _sanitize_bins(y, bins)
+    else:
+        _xbins = _sanitize_bins(x, bins[0])
+        _ybins = _sanitize_bins(y, bins[1])
     if NUMPY_VERSION >= Version("1.24"):
-        counts, xbins, ybins = np.histogram2d._implementation(
+        counts, _xbins, _ybins = np.histogram2d._implementation(
             np.asarray(x),
             np.asarray(y),
-            bins=bins,
+            bins=(_xbins, _ybins),
             range=range,
             density=density,
             weights=np.asarray(weights) if weights is not None else None,
         )
     else:
-        counts, xbins, ybins = np.histogram2d._implementation(
+        counts, _xbins, _ybins = np.histogram2d._implementation(
             np.asarray(x),
             np.asarray(y),
-            bins=bins,
+            bins=(_xbins, _ybins),
             range=range,
             normed=normed,
             weights=np.asarray(weights) if weights is not None else None,
@@ -235,7 +258,13 @@ def _histogram2d(x, y, *, bins=10, range=None, density=None, weights=None, norme
             counts /= y.units
     if weights is not None and hasattr(weights, "units"):
         counts *= weights.units
-    return counts, xbins * getattr(x, "units", 1), ybins * getattr(y, "units", 1)
+    if np.isscalar(bins):
+        return counts, _xbins * getattr(x, "units", 1), _ybins * getattr(y, "units", 1)
+    return (
+        counts,
+        _xbins * getattr(x, "units", 1) if np.isscalar(bins[0]) else bins[0],
+        _ybins * getattr(y, "units", 1) if np.isscalar(bins[1]) else bins[1],
+    )
 
 
 if NUMPY_VERSION >= Version("1.24"):
@@ -265,18 +294,22 @@ def _histogramdd(
     sample, *, bins=10, range=None, density=None, weights=None, normed=None
 ):
     range = _sanitize_range(range, units=[getattr(_, "units", None) for _ in sample])
+    if np.isscalar(bins):
+        _bins = [_sanitize_bins(a, bins) for a in sample]
+    else:
+        _bins = [_sanitize_bins(a, b) for a, b in zip(sample, bins)]
     if NUMPY_VERSION >= Version("1.24"):
-        counts, bins = np.histogramdd._implementation(
+        counts, _bins = np.histogramdd._implementation(
             [np.asarray(_) for _ in sample],
-            bins=bins,
+            bins=_bins,
             range=range,
             density=density,
             weights=np.asarray(weights) if weights is not None else None,
         )
     else:
-        counts, bins = np.histogramdd._implementation(
+        counts, _bins = np.histogramdd._implementation(
             [np.asarray(_) for _ in sample],
-            bins=bins,
+            bins=_bins,
             range=range,
             normed=normed,
             weights=np.asarray(weights) if weights is not None else None,
@@ -296,7 +329,12 @@ def _histogramdd(
 
     if weights is not None and hasattr(weights, "units"):
         counts *= weights.units
-    return counts, tuple(_bin * getattr(s, "units", 1) for _bin, s in zip(bins, sample))
+    if np.isscalar(bins):
+        return counts, tuple(b * getattr(s, "units", 1) for b, s in zip(_bins, sample))
+    return counts, tuple(
+        _b * getattr(s, "units", 1) if np.isscalar(b) else _b
+        for b, _b, s in zip(bins, _bins, sample)
+    )
 
 
 if NUMPY_VERSION >= Version("1.24"):
@@ -771,9 +809,8 @@ def nanquantile(a, *args, **kwargs):
 
 @implements(np.linalg.det)
 def linalg_det(a, *args, **kwargs):
-    return (
-        np.linalg.det._implementation(np.asarray(a), *args, **kwargs)
-        * a.units ** (a.shape[0])
+    return np.linalg.det._implementation(np.asarray(a), *args, **kwargs) * a.units ** (
+        a.shape[0]
     )
 
 
