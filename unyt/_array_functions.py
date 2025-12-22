@@ -332,7 +332,7 @@ def _histogramdd(
     if np.isscalar(bins):
         return counts, tuple(b * getattr(s, "units", 1) for b, s in zip(_bins, sample))
     return counts, tuple(
-        _b * getattr(s, "units", 1) if np.isscalar(b) else _b
+        _b * getattr(s, "units", 1) if np.isscalar(b) else b
         for b, _b, s in zip(bins, _bins, sample)
     )
 

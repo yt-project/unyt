@@ -539,10 +539,7 @@ def _histogramdd(sample, bins=10, range=None, density=None, weights=None, normed
     else:
         ranges = D * [None]
 
-    try:
-        len(bins)
-    except TypeError:
-        # bins is an integer
+    if np.isscalar(bins):
         bins = D * [bins]
     helper_results = [
         _prepare_array_func_args(s, bins=b, range=r)
