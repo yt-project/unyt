@@ -54,7 +54,6 @@ NOOP_FUNCTIONS = {
     np.atleast_1d,  # works out of the box (tested)
     np.atleast_2d,  # works out of the box (tested)
     np.atleast_3d,  # works out of the box (tested)
-    np.average,  # works out of the box (tested)
     np.can_cast,  # works out of the box (tested)
     np.common_type,  # works out of the box (tested)
     np.result_type,  # works out of the box (tested)
