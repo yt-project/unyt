@@ -771,9 +771,8 @@ def nanquantile(a, *args, **kwargs):
 
 @implements(np.linalg.det)
 def linalg_det(a, *args, **kwargs):
-    return (
-        np.linalg.det._implementation(np.asarray(a), *args, **kwargs)
-        * a.units ** (a.shape[0])
+    return np.linalg.det._implementation(np.asarray(a), *args, **kwargs) * a.units ** (
+        a.shape[0]
     )
 
 
@@ -1241,3 +1240,33 @@ def take(a, indices, axis=None, out=None, mode="raise"):
 
     ret_cls = unyt_quantity if res.ndim == 0 else unyt_array
     return ret_cls(res, ret_units, bypass_validation=True)
+
+
+if NUMPY_VERSION <= Version("2.4.1"):
+    # will not be needed once https://github.com/numpy/numpy/pull/30522 is merged,
+    # probably in numpy 2.4.1, but this will still be needed until earlier versions
+    # are no longer supported
+    @implements(np.average)
+    def average(a, axis=None, weights=None, returned=False, *, keepdims=np._NoValue):
+        res = np.average._implementation(
+            np.asarray(a),
+            axis=axis,
+            weights=weights,
+            returned=returned,
+            keepdims=keepdims,
+        )
+        if returned:
+            avg, wsum = res
+        else:
+            avg = res
+        if returned and isinstance(weights, unyt_array):
+            wsum_cls = unyt_quantity if wsum.ndim == 0 else unyt_array
+            wsum_units = weights.units
+            wsum = wsum_cls(wsum, wsum_units, bypass_validation=True)
+        if isinstance(a, unyt_array):
+            avg_cls = unyt_quantity if avg.ndim == 0 else unyt_array
+            avg_units = a.units
+            avg = avg_cls(avg, avg_units, bypass_validation=True)
+        if returned:
+            return avg, wsum
+        return avg
