@@ -41,6 +41,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: [build]
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest]
         python-version:
@@ -85,7 +86,7 @@ jobs:
           # with lowest direct dependencies
           - os: ubuntu-22.04
             python-version: '3.10.0'
-            sync-args: --resolution=lowest-direct --group integration
+            sync-args: --resolution=lowest --group integration
             pytest-args: null
             label: oldestdeps
 
