@@ -2289,7 +2289,7 @@ class TestFunctionHelpersSignatureCompatibility:
                 if (kh := ph.kind) is not VAR_POSITIONAL:
                     assert nh == nt, f"argument {nt!r} isn't re-exposed as positional"
                     assert kh is kt, (
-                        f"helper is not re-exposing argument {nt!r} properly:"
+                        f"helper is not re-exposing argument {nt!r} properly: "
                         f"expected {kt}, got {kh}"
                     )
                     pos_helper += 1

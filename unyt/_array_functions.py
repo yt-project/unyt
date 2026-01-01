@@ -81,14 +81,14 @@ def dot(a, b, out=None):
 
 
 @implements(np.vdot)
-def vdot(a, b):
+def vdot(a, b, /):
     return np.vdot._implementation(np.asarray(a), np.asarray(b)) * (
         getattr(a, "units", NULL_UNIT) * getattr(b, "units", NULL_UNIT)
     )
 
 
 @implements(np.inner)
-def inner(a, b):
+def inner(a, b, /):
     return np.inner._implementation(np.asarray(a), np.asarray(b)) * (
         getattr(a, "units", NULL_UNIT) * getattr(b, "units", NULL_UNIT)
     )
@@ -375,8 +375,8 @@ def _validate_units_consistency_v2(ref_units, *args) -> None:
 
 
 @implements(np.concatenate)
-def concatenate(arrs, /, axis=0, out=None, *args, **kwargs):
-    ret_units = _validate_units_consistency(arrs)
+def concatenate(arrays, /, axis=0, out=None, *args, **kwargs):
+    ret_units = _validate_units_consistency(arrays)
 
     if out is not None:
         out_view = np.asarray(out)
@@ -384,7 +384,7 @@ def concatenate(arrs, /, axis=0, out=None, *args, **kwargs):
         out_view = out
 
     res = np.concatenate._implementation(
-        [np.asarray(_) for _ in arrs], axis, out_view, *args, **kwargs
+        [np.asarray(_) for _ in arrays], axis, out_view, *args, **kwargs
     )
 
     if getattr(out, "units", None) is not None:
@@ -984,7 +984,7 @@ def put_along_axis(arr, indices, values, axis, *args, **kwargs) -> None:
 
 
 @implements(np.putmask)
-def putmask(a, mask, values, *args, **kwargs) -> None:
+def putmask(a, /, mask, values, *args, **kwargs) -> None:
     _validate_units_consistency_v2(a.units, values)
     np.putmask._implementation(np.asarray(a), mask, np.asarray(values), *args, **kwargs)
 
@@ -1066,7 +1066,7 @@ else:
 
 
 @implements(np.where)
-def where(condition, *args, **kwargs):
+def where(condition, /, *args, **kwargs):
     if len(args) == 0:
         return np.where._implementation(np.asarray(condition), **kwargs)
 
