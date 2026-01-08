@@ -1243,19 +1243,24 @@ def take(a, indices, axis=None, out=None, mode="raise"):
     return ret_cls(res, ret_units, bypass_validation=True)
 
 
-if NUMPY_VERSION <= Version("2.4.1"):
-    # will not be needed once https://github.com/numpy/numpy/pull/30522 is merged,
-    # probably in numpy 2.4.1, but this will still be needed until earlier versions
-    # are no longer supported
-    @implements(np.average)
-    def average(a, axis=None, weights=None, returned=False, *, keepdims=np._NoValue):
-        res = np.average._implementation(
-            np.asarray(a),
-            axis=axis,
-            weights=weights,
-            returned=returned,
-            keepdims=keepdims,
-        )
+if NUMPY_VERSION < Version("2.4.1"):
+
+    def _average(a, axis=None, weights=None, returned=False, *, keepdims=np._NoValue):
+        if NUMPY_VERSION < Version("1.23"):
+            res = np.average._implementation(
+                np.asarray(a),
+                axis=axis,
+                weights=weights,
+                returned=returned,
+            )
+        else:
+            res = np.average._implementation(
+                np.asarray(a),
+                axis=axis,
+                weights=weights,
+                returned=returned,
+                keepdims=keepdims,
+            )
         if returned:
             avg, wsum = res
         else:
@@ -1271,3 +1276,20 @@ if NUMPY_VERSION <= Version("2.4.1"):
         if returned:
             return avg, wsum
         return avg
+
+
+if NUMPY_VERSION < Version("1.23.0"):
+
+    @implements(np.average)
+    def average(a, axis=None, weights=None, returned=False):
+        return _average(a, axis=axis, weights=weights, returned=returned)
+
+elif NUMPY_VERSION < Version("2.4.1"):
+    # will not be needed once https://github.com/numpy/numpy/pull/30522 is merged,
+    # probably in numpy 2.4.1, but this will still be needed until earlier versions
+    # are no longer supported
+    @implements(np.average)
+    def average(a, axis=None, weights=None, returned=False, *, keepdims=np._NoValue):
+        return _average(
+            a, axis=axis, weights=weights, returned=returned, keepdims=keepdims
+        )
