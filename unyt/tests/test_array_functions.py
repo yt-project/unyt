@@ -13,6 +13,8 @@ from unyt import A, K, Msun, cm, degC, delta_degC, dimensionless, g, km, rad, s
 from unyt._array_functions import (
     _HANDLED_FUNCTIONS as HANDLED_FUNCTIONS,
     _UNSUPPORTED_FUNCTIONS as UNSUPPORTED_FUNCTIONS,
+    _sanitize_range,
+    _sanitize_bins,
 )
 from unyt.array import unyt_array, unyt_quantity
 from unyt.exceptions import (
@@ -635,6 +637,46 @@ def test_linalg_tensordot():
 
 
 class TestHistograms:
+    def test_sanitize_range_on_None(self):
+        assert _sanitize_range(None, [cm]) is None
+
+    def test_sanitize_range_units_match(self):
+        input_range = (1 * cm, 2 * cm)
+        expected_range = (1 * cm, 2 * cm)
+        assert_array_equal_units(_sanitize_range(input_range, [cm]), expected_range)
+
+    def test_sanitize_range_units_mismatch(self):
+        input_range = (1 * cm, 2)
+        with pytest.raises(
+            TypeError, match="Elements of range must both have a 'units' attribute."
+        ):
+            _sanitize_range(input_range, [cm, g])
+
+    def test_sanitize_range_pure_scalars(self):
+        input_range = (1, 2)
+        expected_range = (1 * cm, 2 * cm)
+        assert_array_equal_units(_sanitize_range(input_range, [cm]), expected_range)
+
+    def test_sanitize_bins_integer(self):
+        a = np.arange(10) * cm
+        bins = 10
+        assert _sanitize_bins(a, bins) == bins
+
+    def test_sanitize_bins_convertible(self):
+        a = np.arange(10) * cm
+        bins = np.array([0, 1, 2]) * km
+        np.testing.assert_array_equal(_sanitize_bins(a, bins), bins.to_value(a.units))
+
+    def test_sanitize_bins_missing_units_but_dimensionless(self):
+        a = np.arange(10) * dimensionless
+        bins = np.array([0, 1, 2])
+        np.testing.assert_array_equal(_sanitize_bins(a, bins), bins)
+
+    def test_sanitize_bins_without_units(self):
+        a = np.arange(10)
+        bins = np.array([0, 1, 2])
+        np.testing.assert_array_equal(_sanitize_bins(a, bins), bins)
+
     def test_histogram(self):
         rng = np.random.default_rng()
         arr = rng.normal(size=1000) * cm
@@ -824,6 +866,14 @@ class TestHistograms:
         # regression test for https://github.com/yt-project/unyt/issues/540
         sample = [unyt_array(np.arange(3), Msun)]
         np.histogramdd(sample, density=True, weights=weights)
+
+    def test_histogramdd_with_density_and_non_unyt_samples(self):
+        rng = np.random.default_rng()
+        x = rng.normal(size=100) * cm
+        y = rng.normal(loc=10, size=100)
+        z = rng.normal(size=100) * g
+        counts, (xbins, ybins, zbins) = np.histogramdd((x, y, z), density=True)
+        assert counts.units == (x.units * z.units) ** -1
 
     def test_histogram_bin_edges(self):
         rng = np.random.default_rng()
