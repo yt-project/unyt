@@ -13,8 +13,8 @@ from unyt import A, K, Msun, cm, degC, delta_degC, dimensionless, g, km, rad, s
 from unyt._array_functions import (
     _HANDLED_FUNCTIONS as HANDLED_FUNCTIONS,
     _UNSUPPORTED_FUNCTIONS as UNSUPPORTED_FUNCTIONS,
-    _sanitize_range,
     _sanitize_bins,
+    _sanitize_range,
 )
 from unyt.array import unyt_array, unyt_quantity
 from unyt.exceptions import (
