@@ -3001,11 +3001,15 @@ def test_std_recursion():
     # see also https://github.com/yt-project/unyt/issues/540
     a = unyt_array([1, 1, 5, 5], 10 * m)
 
+    if NUMPY_VERSION >= Version("2.4.0"):
+        # https://github.com/yt-project/unyt/issues/603
+        # https://github.com/numpy/numpy/pull/29951
+        expected = unyt_quantity(2.0, 10 * m)
+    else:
+        expected = unyt_quantity(20.0, m)
+
     # previously caused infinite recursion:
-    assert_array_equal_units(
-        a.std(),
-        unyt_quantity(20.0, m),
-    )
+    assert_array_equal_units(a.std(), expected)
 
 
 def test_custom_unit_multiplication_with_out_kwarg():
