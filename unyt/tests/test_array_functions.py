@@ -187,6 +187,11 @@ if NUMPY_VERSION >= Version("2.1.0dev0"):
         np.cumulative_sum,
     }
 
+if NUMPY_VERSION >= Version("2.4.1"):
+    NOOP_FUNCTIONS |= {
+        np.average,
+    }
+
 # Functions for which behaviour is intentionally left to default
 IGNORED_FUNCTIONS = {
     np.i0,
