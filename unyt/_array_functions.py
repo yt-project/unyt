@@ -162,7 +162,10 @@ def _sanitize_bins(arr, bins):
     if np.isscalar(bins):
         # integer giving number of bins
         if hasattr(bins, "units"):
-            return bins.to_value(dimensionless)
+            if bins.to_value(dimensionless).is_integer():
+                return int(bins.to_value(dimensionless))
+            else:
+                raise ValueError("Bin count must be a dimensionless integer.")
         else:
             return bins
     if hasattr(bins, "units"):
