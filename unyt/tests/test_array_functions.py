@@ -298,9 +298,9 @@ def test_wrapping_completeness():
     """Ensure we wrap all numpy functions that support __array_function__"""
     handled_numpy_functions = set(HANDLED_FUNCTIONS.keys())
     # ensure no functions appear in both NOT_HANDLED_FUNCTIONS and HANDLED_FUNCTIONS
-    assert NOT_HANDLED_FUNCTIONS.isdisjoint(
-        handled_numpy_functions
-    ), NOT_HANDLED_FUNCTIONS.intersection(handled_numpy_functions)
+    assert NOT_HANDLED_FUNCTIONS.isdisjoint(handled_numpy_functions), (
+        NOT_HANDLED_FUNCTIONS.intersection(handled_numpy_functions)
+    )
     # get list of functions that support wrapping by introspection on numpy module
     wrappable_functions = get_wrapped_functions(np, np.fft, np.linalg)
     for function in HANDLED_FUNCTIONS:
@@ -2311,19 +2311,19 @@ class TestFunctionHelpersSignatureCompatibility:
                         f"expected {kt}, got {kh}"
                     )
                 elif kt is KEYWORD_ONLY:
-                    assert (
-                        have_kwargs_helper
-                    ), f"argument {nt!r} is not re-exposed as keyword"
+                    assert have_kwargs_helper, (
+                        f"argument {nt!r} is not re-exposed as keyword"
+                    )
                 elif kt is POSITIONAL_OR_KEYWORD:
-                    assert (
-                        have_args_helper and have_kwargs_helper
-                    ), f"argument {nt!r} is not re-exposed as positional-or-keyword"
+                    assert have_args_helper and have_kwargs_helper, (
+                        f"argument {nt!r} is not re-exposed as positional-or-keyword"
+                    )
             elif kt is VAR_POSITIONAL:
                 assert have_args_helper, "helper is missing a catch-all *args argument"
             elif kt is VAR_KEYWORD:
-                assert (
-                    have_kwargs_helper
-                ), "helper is missing a catch-all **kwargs argument"
+                assert have_kwargs_helper, (
+                    "helper is missing a catch-all **kwargs argument"
+                )
 
     def test_known_arguments(self, target, helper):
         # validate that all exposed arguments map to something in the target
