@@ -1969,7 +1969,7 @@ test = [
 [package.metadata]
 requires-dist = [
     { name = "numpy", specifier = ">=1.21.3,<3.0" },
-    { name = "packaging", specifier = ">=20.9" },
+    { name = "packaging", specifier = ">=22.0" },
     { name = "sympy", specifier = ">=1.9.0" },
 ]
 
