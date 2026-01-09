@@ -231,8 +231,9 @@ def _histogram2d(x, y, *, bins=10, range=None, density=None, weights=None, norme
         range, units=[getattr(x, "units", None), getattr(y, "units", None)]
     )
     if np.isscalar(bins):
-        sanitized_xbins, sanitized_ybins = _sanitize_bins(x, bins), _sanitize_bins(
-            y, bins
+        sanitized_xbins, sanitized_ybins = (
+            _sanitize_bins(x, bins),
+            _sanitize_bins(y, bins),
         )
     else:
         sanitized_xbins = _sanitize_bins(x, bins[0])
@@ -835,8 +836,9 @@ def nanquantile(a, *args, **kwargs):
 
 @implements(np.linalg.det)
 def linalg_det(a, *args, **kwargs):
-    return np.linalg.det._implementation(np.asarray(a), *args, **kwargs) * a.units ** (
-        a.shape[0]
+    return (
+        np.linalg.det._implementation(np.asarray(a), *args, **kwargs)
+        * a.units ** (a.shape[0])
     )
 
 
