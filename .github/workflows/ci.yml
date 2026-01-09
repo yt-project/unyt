@@ -14,12 +14,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           persist-credentials: false
       - name: Setup Python
-        uses: astral-sh/setup-uv@v7.1.2
+        uses: astral-sh/setup-uv@v7.1.6
         with:
           python-version: '3.14'
           enable-cache: false
@@ -29,9 +29,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Setup Python
-        uses: astral-sh/setup-uv@v7.1.2
+        uses: astral-sh/setup-uv@v7.1.6
         with:
           python-version: '3.14'
           enable-cache: false
@@ -41,6 +41,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: [build]
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest]
         python-version:
@@ -85,7 +86,7 @@ jobs:
           # with lowest direct dependencies
           - os: ubuntu-22.04
             python-version: '3.10.0'
-            sync-args: --resolution=lowest-direct --group integration
+            sync-args: --resolution=lowest --group integration
             pytest-args: null
             label: oldestdeps
 
@@ -97,12 +98,12 @@ jobs:
             label: doctests
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           persist-credentials: false
       - name: Setup Python
-        uses: astral-sh/setup-uv@v7.1.2
+        uses: astral-sh/setup-uv@v7.1.6
         with:
           python-version: ${{ matrix.python-version }}
           enable-cache: false
@@ -118,7 +119,7 @@ jobs:
         # only using reports from ubuntu because
         # combining reports from multiple platforms is tricky
         if: startsWith( matrix.os , 'ubuntu' )
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: unyt_coverage_data-${{matrix.os}}-${{matrix.python-version}}-${{matrix.label}}
           path: .coverage.*
@@ -131,16 +132,16 @@ jobs:
     needs: [test]
 
     steps:
-    - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+    - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
       with:
         fetch-depth: 0
         persist-credentials: false
-    - uses: astral-sh/setup-uv@0d20755a2389f8ddbd3ad4f8a536309a4db22de9 # v6.8.0
+    - uses: astral-sh/setup-uv@702b425af1c366e68b4a9449a8de6dd98b63e979 # v6.8.0
       with:
         python-version: '3.14'
         enable-cache: false
 
-    - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
+    - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
       with:
         pattern: unyt_coverage_data-*
         merge-multiple: true
@@ -154,7 +155,7 @@ jobs:
         coverage report --fail-under=99
 
     - name: Upload HTML report
-      uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       with:
         name: unyt_coverage_report
         path: htmlcov
@@ -163,12 +164,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           persist-credentials: false
       - name: Setup Python
-        uses: astral-sh/setup-uv@v7.1.2
+        uses: astral-sh/setup-uv@v7.1.6
         with:
           python-version: '3.10'
           enable-cache: false
@@ -178,7 +179,7 @@ jobs:
           uv run --no-sync --directory=docs \
             python -m sphinx -M html "." "_build" -W
       - name: Upload build
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: unyt_docs
           path: docs/_build/html

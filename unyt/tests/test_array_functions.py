@@ -13,6 +13,8 @@ from unyt import A, K, Msun, cm, degC, delta_degC, dimensionless, g, km, rad, s
 from unyt._array_functions import (
     _HANDLED_FUNCTIONS as HANDLED_FUNCTIONS,
     _UNSUPPORTED_FUNCTIONS as UNSUPPORTED_FUNCTIONS,
+    _sanitize_bins,
+    _sanitize_range,
 )
 from unyt.array import unyt_array, unyt_quantity
 from unyt.exceptions import (
@@ -367,10 +369,8 @@ def test_dot_vectors():
     ],
 )
 def test_dot_matrices(out):
-    a = np.arange(9) * cm
-    a.shape = (3, 3)
-    b = np.arange(9) * s
-    b.shape = (3, 3)
+    a = np.reshape(np.arange(9), (3, 3)) * cm
+    b = np.reshape(np.arange(9), (3, 3)) * s
 
     res = np.dot(a, b, out=out)
 
@@ -422,10 +422,8 @@ def test_dot_mixed_ndarray_unyt_array():
 
 
 def test_invalid_dot_matrices():
-    a = np.arange(9) * cm
-    a.shape = (3, 3)
-    b = np.arange(9) * s
-    b.shape = (3, 3)
+    a = np.reshape(np.arange(9), (3, 3)) * cm
+    b = np.reshape(np.arange(9), (3, 3)) * s
 
     out = np.empty((3, 3), dtype=np.int_, order="C") * s**2
     res = np.dot(a, b, out=out)
@@ -473,8 +471,7 @@ def test_linalg_inv():
 
 
 def test_linalg_tensorinv():
-    a = np.eye(4 * 6) * cm
-    a.shape = (4, 6, 8, 3)
+    a = np.reshape(np.eye(4 * 6), (4, 6, 8, 3)) * cm
     ia = np.linalg.tensorinv(a)
     assert 1 * ia.units == 1 / cm
 
@@ -640,6 +637,46 @@ def test_linalg_tensordot():
 
 
 class TestHistograms:
+    def test_sanitize_range_on_None(self):
+        assert _sanitize_range(None, [cm]) is None
+
+    def test_sanitize_range_units_match(self):
+        input_range = (1 * cm, 2 * cm)
+        expected_range = (1 * cm, 2 * cm)
+        assert_array_equal_units(_sanitize_range(input_range, [cm]), expected_range)
+
+    def test_sanitize_range_units_mismatch(self):
+        input_range = (1 * cm, 2)
+        with pytest.raises(
+            TypeError, match="Elements of range must both have a 'units' attribute."
+        ):
+            _sanitize_range(input_range, [cm, g])
+
+    def test_sanitize_range_pure_scalars(self):
+        input_range = (1, 2)
+        expected_range = (1 * cm, 2 * cm)
+        assert_array_equal_units(_sanitize_range(input_range, [cm]), expected_range)
+
+    def test_sanitize_bins_integer(self):
+        a = np.arange(10) * cm
+        bins = 10
+        assert _sanitize_bins(a, bins) == bins
+
+    def test_sanitize_bins_convertible(self):
+        a = np.arange(10) * cm
+        bins = np.array([0, 1, 2]) * km
+        np.testing.assert_array_equal(_sanitize_bins(a, bins), bins.to_value(a.units))
+
+    def test_sanitize_bins_missing_units_but_dimensionless(self):
+        a = np.arange(10) * dimensionless
+        bins = np.array([0, 1, 2])
+        np.testing.assert_array_equal(_sanitize_bins(a, bins), bins)
+
+    def test_sanitize_bins_without_units(self):
+        a = np.arange(10)
+        bins = np.array([0, 1, 2])
+        np.testing.assert_array_equal(_sanitize_bins(a, bins), bins)
+
     def test_histogram(self):
         rng = np.random.default_rng(0)
         arr = rng.normal(size=1000) * cm
@@ -829,6 +866,14 @@ class TestHistograms:
         # regression test for https://github.com/yt-project/unyt/issues/540
         sample = [unyt_array(np.arange(3), Msun)]
         np.histogramdd(sample, density=True, weights=weights)
+
+    def test_histogramdd_with_density_and_non_unyt_samples(self):
+        rng = np.random.default_rng()
+        x = rng.normal(size=100) * cm
+        y = rng.normal(loc=10, size=100)
+        z = rng.normal(size=100) * g
+        counts, (xbins, ybins, zbins) = np.histogramdd((x, y, z), density=True)
+        assert counts.units == (x.units * z.units) ** -1
 
     def test_histogram_bin_edges(self):
         rng = np.random.default_rng(0)
@@ -2305,7 +2350,7 @@ class TestFunctionHelpersSignatureCompatibility:
                 if (kh := ph.kind) is not VAR_POSITIONAL:
                     assert nh == nt, f"argument {nt!r} isn't re-exposed as positional"
                     assert kh is kt, (
-                        f"helper is not re-exposing argument {nt!r} properly:"
+                        f"helper is not re-exposing argument {nt!r} properly: "
                         f"expected {kt}, got {kh}"
                     )
                     pos_helper += 1
