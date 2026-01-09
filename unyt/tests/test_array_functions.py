@@ -294,9 +294,9 @@ def test_wrapping_completeness():
     """Ensure we wrap all numpy functions that support __array_function__"""
     handled_numpy_functions = set(HANDLED_FUNCTIONS.keys())
     # ensure no functions appear in both NOT_HANDLED_FUNCTIONS and HANDLED_FUNCTIONS
-    assert NOT_HANDLED_FUNCTIONS.isdisjoint(handled_numpy_functions), (
-        NOT_HANDLED_FUNCTIONS.intersection(handled_numpy_functions)
-    )
+    assert NOT_HANDLED_FUNCTIONS.isdisjoint(
+        handled_numpy_functions
+    ), NOT_HANDLED_FUNCTIONS.intersection(handled_numpy_functions)
     # get list of functions that support wrapping by introspection on numpy module
     wrappable_functions = get_wrapped_functions(np, np.fft, np.linalg)
     for function in HANDLED_FUNCTIONS:
@@ -466,7 +466,7 @@ def test_kron():
 
 
 def test_linalg_inv():
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(0)
     arr = rng.random((3, 3)) * cm
     iarr = np.linalg.inv(arr)
     assert 1 * iarr.units == 1 / cm
@@ -480,7 +480,7 @@ def test_linalg_tensorinv():
 
 
 def test_linalg_pinv():
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(0)
     a = rng.standard_normal(size=(9, 6)) * cm
     B = np.linalg.pinv(a)
     assert 1 * B.units == 1 / cm
@@ -604,7 +604,7 @@ def test_linalg_vector_norm():
 
 
 def test_linalg_svd():
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(0)
     a = (rng.standard_normal(size=(9, 6)) + 1j * rng.standard_normal(size=(9, 6))) * cm
     u, s, vh = np.linalg.svd(a)
     assert type(u) is np.ndarray
@@ -641,7 +641,7 @@ def test_linalg_tensordot():
 
 class TestHistograms:
     def test_histogram(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         arr = rng.normal(size=1000) * cm
         counts, bins = np.histogram(arr, bins=10, range=(arr.min(), arr.max()))
         assert type(counts) is np.ndarray
@@ -649,7 +649,7 @@ class TestHistograms:
 
     def test_histogram_implicit_units(self):
         # see https://github.com/yt-project/unyt/issues/465
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         arr = rng.normal(size=1000) * cm
         counts, bins = np.histogram(
             arr, bins=10, range=(arr.min().value, arr.max().value)
@@ -658,7 +658,7 @@ class TestHistograms:
         assert bins.units == arr.units
 
     def test_histogram_with_density(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         arr = rng.normal(size=1000) * cm
         density, bins = np.histogram(
             arr, bins=10, range=(arr.min(), arr.max()), density=True
@@ -668,7 +668,7 @@ class TestHistograms:
         assert bins.units == arr.units
 
     def test_histogram_with_weights(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         arr = rng.normal(size=1000) * cm
         w = rng.uniform(size=1000) * g
         wcounts, wbins = np.histogram(
@@ -679,7 +679,7 @@ class TestHistograms:
         assert wbins.units == arr.units
 
     def test_histogram_with_weights_and_density(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         arr = rng.normal(size=1000) * cm
         w = rng.uniform(size=1000) * g
         wdensity, wdbins = np.histogram(
@@ -690,7 +690,7 @@ class TestHistograms:
         assert wdbins.units == arr.units
 
     def test_histogram_with_weights_and_dimless_arr(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         arr = rng.normal(size=1000) * cm
         w = rng.uniform(size=1000) * g
         wcounts2, wbins2 = np.histogram(arr.to_value(arr.units), weights=w)
@@ -699,7 +699,7 @@ class TestHistograms:
         assert not hasattr(wbins2, "units")
 
     def test_histogram2d(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         counts, xbins, ybins = np.histogram2d(x, y)
@@ -708,7 +708,7 @@ class TestHistograms:
         assert ybins.units == y.units
 
     def test_histogram2d_with_density(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         density, xbins, ybins = np.histogram2d(x, y, density=True)
@@ -719,7 +719,7 @@ class TestHistograms:
         assert ybins.units == y.units
 
     def test_histogram2d_with_weights(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         w = rng.uniform(size=100) * g
@@ -731,7 +731,7 @@ class TestHistograms:
         assert ywbins.units == y.units
 
     def test_histogram2d_with_weights_and_density(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         w = rng.uniform(size=100) * g
@@ -743,7 +743,7 @@ class TestHistograms:
         assert ywdbins.units == y.units
 
     def test_histogram2d_with_weights_and_dimless_arr(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         w = rng.uniform(size=100) * g
@@ -756,7 +756,7 @@ class TestHistograms:
         assert not hasattr(ywbins2, "units")
 
     def test_histogramdd(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(size=100) * s
         z = rng.normal(size=100) * g
@@ -767,7 +767,7 @@ class TestHistograms:
         assert zbins.units == z.units
 
     def test_histogramdd_with_density(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         z = rng.normal(size=100) * g
@@ -780,7 +780,7 @@ class TestHistograms:
         assert zbins.units == z.units
 
     def test_histogramdd_with_weights(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         z = rng.normal(size=100) * g
@@ -794,7 +794,7 @@ class TestHistograms:
         assert zwbins.units == z.units
 
     def test_histogramdd_with_weights_and_density(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         z = rng.normal(size=100) * g
@@ -810,7 +810,7 @@ class TestHistograms:
         assert zwdbins.units == z.units
 
     def test_histogramdd_with_weights_and_dimless_arr(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         z = rng.normal(size=100) * g
@@ -831,7 +831,7 @@ class TestHistograms:
         np.histogramdd(sample, density=True, weights=weights)
 
     def test_histogram_bin_edges(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         arr = rng.normal(size=1000) * cm
         bins = np.histogram_bin_edges(arr)
         assert type(bins) is unyt_array
@@ -839,7 +839,7 @@ class TestHistograms:
 
     def test_histogram_input_and_bin_units_mismatch(self):
         # regression test for https://github.com/yt-project/unyt/issues/609
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         arr = rng.uniform(size=10) * cm
         bins = np.linspace(0, 1, 10) * km
         hist, resulting_bins = np.histogram(arr, bins=bins)
@@ -847,7 +847,7 @@ class TestHistograms:
 
     def test_histogram_input_and_bin_dimensions_mismatch(self):
         # regression test for https://github.com/yt-project/unyt/issues/609
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         arr = rng.uniform(size=10) * cm
         bins = np.linspace(0, 1, 10) * s
         with pytest.raises(UnitConversionError):
@@ -855,7 +855,7 @@ class TestHistograms:
 
 
 def test_concatenate():
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(0)
     x1 = rng.normal(size=100) * cm
     x2 = rng.normal(size=100) * cm
     res = np.concatenate((x1, x2))
@@ -864,7 +864,7 @@ def test_concatenate():
 
 
 def test_concatenate_different_units():
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(0)
     x1 = rng.normal(size=100) * cm
     x2 = rng.normal(size=100) * s
     with pytest.raises(
@@ -2319,19 +2319,19 @@ class TestFunctionHelpersSignatureCompatibility:
                         f"expected {kt}, got {kh}"
                     )
                 elif kt is KEYWORD_ONLY:
-                    assert have_kwargs_helper, (
-                        f"argument {nt!r} is not re-exposed as keyword"
-                    )
+                    assert (
+                        have_kwargs_helper
+                    ), f"argument {nt!r} is not re-exposed as keyword"
                 elif kt is POSITIONAL_OR_KEYWORD:
-                    assert have_args_helper and have_kwargs_helper, (
-                        f"argument {nt!r} is not re-exposed as positional-or-keyword"
-                    )
+                    assert (
+                        have_args_helper and have_kwargs_helper
+                    ), f"argument {nt!r} is not re-exposed as positional-or-keyword"
             elif kt is VAR_POSITIONAL:
                 assert have_args_helper, "helper is missing a catch-all *args argument"
             elif kt is VAR_KEYWORD:
-                assert have_kwargs_helper, (
-                    "helper is missing a catch-all **kwargs argument"
-                )
+                assert (
+                    have_kwargs_helper
+                ), "helper is missing a catch-all **kwargs argument"
 
     def test_known_arguments(self, target, helper):
         # validate that all exposed arguments map to something in the target

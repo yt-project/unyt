@@ -727,13 +727,7 @@ class TestNumpyFunctions:
             np.array([1, 2, 3]),
         ),
     )
-    @pytest.mark.parametrize(
-        "bins_type",
-        (
-            "int",
-            "sub_arr",
-        ),
-    )
+    @pytest.mark.parametrize("bins_type", ("int", "sub_arr"))
     @pytest.mark.parametrize("density", (None, True))
     def test_histograms(self, func_args, weights, bins_type, density):
         """
