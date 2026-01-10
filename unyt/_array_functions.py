@@ -169,13 +169,13 @@ def _sanitize_bins(arr, bins):
         else:
             return bins
     if hasattr(bins, "units"):
-        # if bins has units, must be convertible to a's units (assumed dimensionless if
+        # if bins has units, must be convertible to arr's units (assumed dimensionless if
         # absent)
         return bins.to_value(getattr(arr, "units", dimensionless))
     elif hasattr(arr, "units"):
-        # bins doesn't have units but a does, only ok if a is dimensionless
+        # bins doesn't have units but arr does, only ok if arr is dimensionless
         return bins / arr.units.get_conversion_factor(dimensionless)[0]
-    # neither a nor bins have units (but maybe weights or density do)
+    # neither arr nor bins have units (but maybe weights or density do)
     return bins
 
 
@@ -239,7 +239,7 @@ def _histogram2d(x, y, *, bins=10, range=None, density=None, weights=None, norme
         sanitized_xbins = _sanitize_bins(x, bins[0])
         sanitized_ybins = _sanitize_bins(y, bins[1])
     if NUMPY_VERSION >= Version("1.24"):
-        counts, sanitized_xbins, sanitized_ybins = np.histogram2d._implementation(
+        counts, obtained_xbins, obtained_ybins = np.histogram2d._implementation(
             np.asarray(x),
             np.asarray(y),
             bins=(sanitized_xbins, sanitized_ybins),
@@ -248,7 +248,7 @@ def _histogram2d(x, y, *, bins=10, range=None, density=None, weights=None, norme
             weights=np.asarray(weights) if weights is not None else None,
         )
     else:
-        counts, sanitized_xbins, sanitized_ybins = np.histogram2d._implementation(
+        counts, obtained_xbins, obtained_ybins = np.histogram2d._implementation(
             np.asarray(x),
             np.asarray(y),
             bins=(sanitized_xbins, sanitized_ybins),
@@ -267,26 +267,19 @@ def _histogram2d(x, y, *, bins=10, range=None, density=None, weights=None, norme
             counts /= y.units
     if weights is not None and hasattr(weights, "units"):
         counts *= weights.units
-    if np.isscalar(bins):
-        return (
-            counts,
-            sanitized_xbins * getattr(x, "units", 1),
-            sanitized_ybins * getattr(y, "units", 1),
-        )
-    else:
-        return (
-            counts,
-            (
-                sanitized_xbins * getattr(x, "units", 1)
-                if np.isscalar(bins[0])
-                else bins[0]
-            ),
-            (
-                sanitized_ybins * getattr(y, "units", 1)
-                if np.isscalar(bins[1])
-                else bins[1]
-            ),
-        )
+    return (
+        counts,
+        (
+            obtained_xbins * getattr(x, "units", 1)
+            if np.isscalar(sanitized_xbins)
+            else bins[0]
+        ),
+        (
+            obtained_ybins * getattr(y, "units", 1)
+            if np.isscalar(sanitized_ybins)
+            else bins[1]
+        ),
+    )
 
 
 if NUMPY_VERSION >= Version("1.24"):
@@ -323,7 +316,7 @@ def _histogramdd(
             _sanitize_bins(a, b) for a, b in zip(sample, bins, strict=True)
         ]
     if NUMPY_VERSION >= Version("1.24"):
-        counts, sanitized_bins = np.histogramdd._implementation(
+        counts, obtained_bins = np.histogramdd._implementation(
             [np.asarray(_) for _ in sample],
             bins=sanitized_bins,
             range=range,
@@ -331,7 +324,7 @@ def _histogramdd(
             weights=np.asarray(weights) if weights is not None else None,
         )
     else:
-        counts, sanitized_bins = np.histogramdd._implementation(
+        counts, obtained_bins = np.histogramdd._implementation(
             [np.asarray(_) for _ in sample],
             bins=sanitized_bins,
             range=range,
@@ -353,14 +346,11 @@ def _histogramdd(
 
     if weights is not None and hasattr(weights, "units"):
         counts *= weights.units
-    if np.isscalar(bins):
-        return counts, tuple(
-            b * getattr(s, "units", 1)
-            for b, s in zip(sanitized_bins, sample, strict=True)
-        )
     return counts, tuple(
-        _b * getattr(s, "units", 1) if np.isscalar(b) else b
-        for b, _b, s in zip(bins, sanitized_bins, sample, strict=True)
+        ob * getattr(s, "units", 1) if np.isscalar(sb) else bins[i]
+        for i, (ob, sb, s) in enumerate(
+            zip(obtained_bins, sanitized_bins, sample, strict=True)
+        )
     )
 
 
@@ -836,9 +826,8 @@ def nanquantile(a, *args, **kwargs):
 
 @implements(np.linalg.det)
 def linalg_det(a, *args, **kwargs):
-    return (
-        np.linalg.det._implementation(np.asarray(a), *args, **kwargs)
-        * a.units ** (a.shape[0])
+    return np.linalg.det._implementation(np.asarray(a), *args, **kwargs) * a.units ** (
+        a.shape[0]
     )
 
 
