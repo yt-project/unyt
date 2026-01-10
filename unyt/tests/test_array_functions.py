@@ -56,7 +56,6 @@ NOOP_FUNCTIONS = {
     np.atleast_1d,  # works out of the box (tested)
     np.atleast_2d,  # works out of the box (tested)
     np.atleast_3d,  # works out of the box (tested)
-    np.average,  # works out of the box (tested)
     np.can_cast,  # works out of the box (tested)
     np.common_type,  # works out of the box (tested)
     np.result_type,  # works out of the box (tested)
@@ -189,6 +188,9 @@ if NUMPY_VERSION >= Version("2.1.0dev0"):
         np.unstack,
         np.cumulative_sum,
     }
+
+if NUMPY_VERSION >= Version("2.4.1"):
+    NOOP_FUNCTIONS |= {np.average}
 
 # Functions for which behaviour is intentionally left to default
 IGNORED_FUNCTIONS = {
@@ -1027,6 +1029,15 @@ def test_average():
     res = np.average(x1)
     assert type(res) is unyt_quantity
     assert res == 1 * cm
+
+
+def test_average_with_returned():
+    # regression test for https://github.com/yt-project/unyt/issues/608
+    x = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]] * cm
+    w = [1.0, 2.0, 3.0] * g
+    avg, wsum = np.average(x, weights=w, axis=0, returned=True)
+    assert type(wsum) is unyt_array
+    assert wsum.units == g
 
 
 def test_trim_zeros():
