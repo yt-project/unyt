@@ -13,6 +13,8 @@ from unyt import A, K, Msun, cm, degC, delta_degC, dimensionless, g, km, rad, s
 from unyt._array_functions import (
     _HANDLED_FUNCTIONS as HANDLED_FUNCTIONS,
     _UNSUPPORTED_FUNCTIONS as UNSUPPORTED_FUNCTIONS,
+    _sanitize_bins,
+    _sanitize_range,
 )
 from unyt.array import unyt_array, unyt_quantity
 from unyt.exceptions import (
@@ -462,7 +464,7 @@ def test_kron():
 
 
 def test_linalg_inv():
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(0)
     arr = rng.random((3, 3)) * cm
     iarr = np.linalg.inv(arr)
     assert 1 * iarr.units == 1 / cm
@@ -475,7 +477,7 @@ def test_linalg_tensorinv():
 
 
 def test_linalg_pinv():
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(0)
     a = rng.standard_normal(size=(9, 6)) * cm
     B = np.linalg.pinv(a)
     assert 1 * B.units == 1 / cm
@@ -599,7 +601,7 @@ def test_linalg_vector_norm():
 
 
 def test_linalg_svd():
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(0)
     a = (rng.standard_normal(size=(9, 6)) + 1j * rng.standard_normal(size=(9, 6))) * cm
     u, s, vh = np.linalg.svd(a)
     assert type(u) is np.ndarray
@@ -635,8 +637,48 @@ def test_linalg_tensordot():
 
 
 class TestHistograms:
+    def test_sanitize_range_on_None(self):
+        assert _sanitize_range(None, [cm]) is None
+
+    def test_sanitize_range_units_match(self):
+        input_range = (1 * cm, 2 * cm)
+        expected_range = (1 * cm, 2 * cm)
+        assert_array_equal_units(_sanitize_range(input_range, [cm]), expected_range)
+
+    def test_sanitize_range_units_mismatch(self):
+        input_range = (1 * cm, 2)
+        with pytest.raises(
+            TypeError, match="Elements of range must both have a 'units' attribute."
+        ):
+            _sanitize_range(input_range, [cm, g])
+
+    def test_sanitize_range_pure_scalars(self):
+        input_range = (1, 2)
+        expected_range = (1 * cm, 2 * cm)
+        assert_array_equal_units(_sanitize_range(input_range, [cm]), expected_range)
+
+    def test_sanitize_bins_integer(self):
+        a = np.arange(10) * cm
+        bins = 10
+        assert _sanitize_bins(a, bins) == bins
+
+    def test_sanitize_bins_convertible(self):
+        a = np.arange(10) * cm
+        bins = np.array([0, 1, 2]) * km
+        np.testing.assert_array_equal(_sanitize_bins(a, bins), bins.to_value(a.units))
+
+    def test_sanitize_bins_missing_units_but_dimensionless(self):
+        a = np.arange(10) * dimensionless
+        bins = np.array([0, 1, 2])
+        np.testing.assert_array_equal(_sanitize_bins(a, bins), bins)
+
+    def test_sanitize_bins_without_units(self):
+        a = np.arange(10)
+        bins = np.array([0, 1, 2])
+        np.testing.assert_array_equal(_sanitize_bins(a, bins), bins)
+
     def test_histogram(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         arr = rng.normal(size=1000) * cm
         counts, bins = np.histogram(arr, bins=10, range=(arr.min(), arr.max()))
         assert type(counts) is np.ndarray
@@ -644,7 +686,7 @@ class TestHistograms:
 
     def test_histogram_implicit_units(self):
         # see https://github.com/yt-project/unyt/issues/465
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         arr = rng.normal(size=1000) * cm
         counts, bins = np.histogram(
             arr, bins=10, range=(arr.min().value, arr.max().value)
@@ -653,7 +695,7 @@ class TestHistograms:
         assert bins.units == arr.units
 
     def test_histogram_with_density(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         arr = rng.normal(size=1000) * cm
         density, bins = np.histogram(
             arr, bins=10, range=(arr.min(), arr.max()), density=True
@@ -663,7 +705,7 @@ class TestHistograms:
         assert bins.units == arr.units
 
     def test_histogram_with_weights(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         arr = rng.normal(size=1000) * cm
         w = rng.uniform(size=1000) * g
         wcounts, wbins = np.histogram(
@@ -674,7 +716,7 @@ class TestHistograms:
         assert wbins.units == arr.units
 
     def test_histogram_with_weights_and_density(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         arr = rng.normal(size=1000) * cm
         w = rng.uniform(size=1000) * g
         wdensity, wdbins = np.histogram(
@@ -685,7 +727,7 @@ class TestHistograms:
         assert wdbins.units == arr.units
 
     def test_histogram_with_weights_and_dimless_arr(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         arr = rng.normal(size=1000) * cm
         w = rng.uniform(size=1000) * g
         wcounts2, wbins2 = np.histogram(arr.to_value(arr.units), weights=w)
@@ -694,7 +736,7 @@ class TestHistograms:
         assert not hasattr(wbins2, "units")
 
     def test_histogram2d(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         counts, xbins, ybins = np.histogram2d(x, y)
@@ -703,7 +745,7 @@ class TestHistograms:
         assert ybins.units == y.units
 
     def test_histogram2d_with_density(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         density, xbins, ybins = np.histogram2d(x, y, density=True)
@@ -714,7 +756,7 @@ class TestHistograms:
         assert ybins.units == y.units
 
     def test_histogram2d_with_weights(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         w = rng.uniform(size=100) * g
@@ -726,7 +768,7 @@ class TestHistograms:
         assert ywbins.units == y.units
 
     def test_histogram2d_with_weights_and_density(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         w = rng.uniform(size=100) * g
@@ -738,7 +780,7 @@ class TestHistograms:
         assert ywdbins.units == y.units
 
     def test_histogram2d_with_weights_and_dimless_arr(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         w = rng.uniform(size=100) * g
@@ -751,7 +793,7 @@ class TestHistograms:
         assert not hasattr(ywbins2, "units")
 
     def test_histogramdd(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(size=100) * s
         z = rng.normal(size=100) * g
@@ -762,7 +804,7 @@ class TestHistograms:
         assert zbins.units == z.units
 
     def test_histogramdd_with_density(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         z = rng.normal(size=100) * g
@@ -775,7 +817,7 @@ class TestHistograms:
         assert zbins.units == z.units
 
     def test_histogramdd_with_weights(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         z = rng.normal(size=100) * g
@@ -789,7 +831,7 @@ class TestHistograms:
         assert zwbins.units == z.units
 
     def test_histogramdd_with_weights_and_density(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         z = rng.normal(size=100) * g
@@ -805,7 +847,7 @@ class TestHistograms:
         assert zwdbins.units == z.units
 
     def test_histogramdd_with_weights_and_dimless_arr(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         z = rng.normal(size=100) * g
@@ -825,16 +867,40 @@ class TestHistograms:
         sample = [unyt_array(np.arange(3), Msun)]
         np.histogramdd(sample, density=True, weights=weights)
 
+    def test_histogramdd_with_density_and_non_unyt_samples(self):
+        rng = np.random.default_rng(0)
+        x = rng.normal(size=100) * cm
+        y = rng.normal(loc=10, size=100)
+        z = rng.normal(size=100) * g
+        counts, (xbins, ybins, zbins) = np.histogramdd((x, y, z), density=True)
+        assert counts.units == (x.units * z.units) ** -1
+
     def test_histogram_bin_edges(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         arr = rng.normal(size=1000) * cm
         bins = np.histogram_bin_edges(arr)
         assert type(bins) is unyt_array
         assert bins.units == arr.units
 
+    def test_histogram_input_and_bin_units_mismatch(self):
+        # regression test for https://github.com/yt-project/unyt/issues/609
+        rng = np.random.default_rng(0)
+        arr = rng.uniform(size=10) * cm
+        bins = np.linspace(0, 1, 10) * km
+        hist, resulting_bins = np.histogram(arr, bins=bins)
+        assert np.all(bins == resulting_bins)
+
+    def test_histogram_input_and_bin_dimensions_mismatch(self):
+        # regression test for https://github.com/yt-project/unyt/issues/609
+        rng = np.random.default_rng(0)
+        arr = rng.uniform(size=10) * cm
+        bins = np.linspace(0, 1, 10) * s
+        with pytest.raises(UnitConversionError):
+            np.histogram(arr, bins=bins)
+
 
 def test_concatenate():
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(0)
     x1 = rng.normal(size=100) * cm
     x2 = rng.normal(size=100) * cm
     res = np.concatenate((x1, x2))
@@ -843,7 +909,7 @@ def test_concatenate():
 
 
 def test_concatenate_different_units():
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(0)
     x1 = rng.normal(size=100) * cm
     x2 = rng.normal(size=100) * s
     with pytest.raises(
