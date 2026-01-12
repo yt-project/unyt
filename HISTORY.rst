@@ -10,12 +10,12 @@ as including new features.
 
 * Fix the implementation of ``np.block`` so that multiplication is not used to
   attach units to the result (`PR #571 <https://github.com/yt-project/unyt/pull/571>`_).
-  Thank you to Kyle Oman (@kyleoman on GitHub) for the contribution.
+  Thank you to Kyle Oman (@kyleaoman on GitHub) for the contribution.
 
 * Increase the ability for subclasses of ``unyt_array`` to manipulate function
   calls, in particular so that the result of a binary operation of an ``unyt_array``
   with a subclass will return the subclass (`PR #572 <https://github.com/yt-project/unyt/pull/572>`_).
-  Thank you to Kyle Oman (@kyleoman on GitHub) for the contribution.
+  Thank you to Kyle Oman (@kyleaoman on GitHub) for the contribution.
 
 * Add the angular units "spat", "turn", "pla", "gradian", and "gon"
   (`PR #573 <https://github.com/yt-project/unyt/pull/573>`_). Thank you to John
@@ -26,12 +26,10 @@ as including new features.
   `PR #594 <https://github.com/yt-project/unyt/pull/594>`_).
   Thank you to Clément Robert (@neutrinoceros on GitHub) for the contributions.
 
-* Start testing against Python 3.14 in bleeding-edge CI
-  (`PR #581 <https://github.com/yt-project/unyt/pull/581>`_). Thank you to Clément
-  Robert (@neutrinoceros on GitHub) for the contribution.
-
-* Adjust license specification to PEP 639 (`PR #584 <https://github.com/yt-project/unyt/pull/584>`_).
-  Thank you to Clément Robert (@neutrinoceros on GitHub) for the contribution.
+* Start testing against Python 3.14 in CI
+  (`PR #581 <https://github.com/yt-project/unyt/pull/581>`_ and
+  `PR #594 <https://github.com/yt-project/unyt/pull/594>`_). Thank you to Clément
+  Robert (@neutrinoceros on GitHub) for the contributions.
 
 * Fix incompatibilities and deprecations with NumPy 2.4
   (`PR #595 <https://github.com/yt-project/unyt/pull/595>`_,
@@ -39,13 +37,17 @@ as including new features.
   `PR #607 <https://github.com/yt-project/unyt/pull/607>`_,
   `PR #614 <https://github.com/yt-project/unyt/pull/614>`_).
 
+* Simplify build-time requirements by replacing ``setuptools-scm``
+  with ``flit-core`` (`PR #601 <https://github.com/yt-project/unyt/pull/601>`_).
+  Thank you to Clément Robert (@neutrinoceros on GitHub) for the contribution.
+
 * Fix histograms with mismatched units of input and bins
   (`PR #610 <https://github.com/yt-project/unyt/pull/610>`_).
-  Thank you to Kyle Oman (@kyleoman on GitHub) for the contribution.
+  Thank you to Kyle Oman (@kyleaoman on GitHub) for the contribution.
 
 * Fix a bug where ``np.average`` would strip units on sum of weights when input
   and weights shapes differ (`PR #611 <https://github.com/yt-project/unyt/pull/611>`_).
-  Thank you to Kyle Oman (@kyleoman on GitHub) for the contribution.
+  Thank you to Kyle Oman (@kyleaoman on GitHub) for the contribution.
 
 
 3.0.4 (2025-03-13)
@@ -80,12 +82,12 @@ Following is a list of all bug fixes and documentation fixes included in the rel
   contribution.
 
 * Fix incorrect output unit for ``np.prod`` with an axis argument (`PR #537
-  <https://github.com/yt-project/unyt/pull/537>`_). Thank you to Kyle Oman (@kyleoman
+  <https://github.com/yt-project/unyt/pull/537>`_). Thank you to Kyle Oman (@kyleaoman
   on GitHub) for the contribution.
 
 * ``np.histogram*`` functions give correct units when weights and/or density are set
   (`PR #539 <https://github.com/yt-project/unyt/pull/539>`_). Thank you to Kyle Oman
-  (@kyleoman on GitHub) for the contribution.
+  (@kyleaoman on GitHub) for the contribution.
 
 * Fix an issue where ``np.histogramdd`` could create infinite recursion on some
   inputs (`PR #541 <https://github.com/yt-project/unyt/pull/541>`_). Thank you to
@@ -93,22 +95,22 @@ Following is a list of all bug fixes and documentation fixes included in the rel
 
 * ``linspace`` and ``logspace`` give incorrect results or crash with some inputs (`PR
   #544 <https://github.com/yt-project/unyt/pull/544>`_). Thank you to Kyle Oman
-  (@kyleoman on GitHub) for the contribution.
+  (@kyleaoman on GitHub) for the contribution.
 
 * Fix typo in array function implementations (ftt -> fft) (`PR #547
   <https://github.com/yt-project/unyt/pull/547>`_). Thank you to Clément Robert
   (@neutrinoceros on GitHub) for the contribution.
 
 * Apply_over_axes no longer assumes user-supplied function preserves units (`PR #548
-  <https://github.com/yt-project/unyt/pull/548>`_). Thank you to Kyle Oman (@kyleoman
+  <https://github.com/yt-project/unyt/pull/548>`_). Thank you to Kyle Oman (@kyleaoman
   on GitHub) for the contribution.
 
 * Allow subclassing in ``unyt_array.__array_func__`` (`PR #550
-  <https://github.com/yt-project/unyt/pull/550>`_). Thank you to Kyle Oman (@kyleoman
+  <https://github.com/yt-project/unyt/pull/550>`_). Thank you to Kyle Oman (@kyleaoman
   on GitHub) for the contribution.
 
 * Fix unit handling for ``np.take`` and ``unyt_array.take`` (`PR #551 <https://github
-  .com/yt-project/unyt/pull/551>`_). Thank you to Kyle Oman (@kyleoman on GitHub) for
+  .com/yt-project/unyt/pull/551>`_). Thank you to Kyle Oman (@kyleaoman on GitHub) for
   the contribution.
 
 * Fix a regression where ``np.linspace`` 's num argument would be ignored for
@@ -116,7 +118,7 @@ Following is a list of all bug fixes and documentation fixes included in the rel
   Thank you to Clément Robert (@neutrinoceros on GitHub) for the contribution.
 
 * Handle ``np.vecdot`` as a ufunc rather than an arrayfunc (`PR #557
-  <https://github.com/yt-project/unyt/pull/557>`_). Thank you to Kyle Oman (@kyleoman
+  <https://github.com/yt-project/unyt/pull/557>`_). Thank you to Kyle Oman (@kyleaoman
   on GitHub) for the contribution.
 
 * Fix an issue where hdf5 io wouldn't roundtrip properly for a ``unyt_quantity``
