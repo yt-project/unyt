@@ -33,7 +33,7 @@ as including new features.
 * Adjust license specification to PEP 639 (`PR #584 <https://github.com/yt-project/unyt/pull/584>`_).
   Thank you to Clément Robert (@neutrinoceros on GitHub) for the contribution.
 
-* Fix incoming incompatibilities and deprecations with NumPy 2.4
+* Fix incompatibilities and deprecations with NumPy 2.4
   (`PR #595 <https://github.com/yt-project/unyt/pull/595>`_,
   `PR #597 <https://github.com/yt-project/unyt/pull/597>`_,
   `PR #607 <https://github.com/yt-project/unyt/pull/607>`_,
