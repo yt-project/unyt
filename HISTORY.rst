@@ -37,8 +37,7 @@ as including new features.
   `PR #607 <https://github.com/yt-project/unyt/pull/607>`_,
   `PR #614 <https://github.com/yt-project/unyt/pull/614>`_).
 
-* Simplify build-time requirements by replacing ``setuptools-scm``
-  with ``flit-core`` (`PR #601 <https://github.com/yt-project/unyt/pull/601>`_).
+* Switch build-backend from ``setuptools`` to ``flit-core`` (`PR #601 <https://github.com/yt-project/unyt/pull/601>`_).
   Thank you to Clément Robert (@neutrinoceros on GitHub) for the contribution.
 
 * Fix histograms with mismatched units of input and bins
