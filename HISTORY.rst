@@ -2,6 +2,52 @@
 History
 =======
 
+3.1.0 (2026-01-12)
+------------------
+
+This new release of ``unyt`` fixes bugs discovered since the v3.0.4 release, as well
+as including new features.
+
+* Fix the implementation of ``np.block`` so that multiplication is not used to
+  attach units to the result (`PR #571 <https://github.com/yt-project/unyt/pull/571>`_).
+  Thank you to Kyle Oman (@kyleoman on GitHub) for the contribution.
+
+* Increase the ability for subclasses of ``unyt_array`` to manipulate function
+  calls, in particular so that the result of a binary operation of an ``unyt_array``
+  with a subclass will return the subclass (`PR #572 <https://github.com/yt-project/unyt/pull/572>`_).
+  Thank you to Kyle Oman (@kyleoman on GitHub) for the contribution.
+
+* Add the angular units "spat", "turn", "pla", "gradian", and "gon"
+  (`PR #573 <https://github.com/yt-project/unyt/pull/573>`_). Thank you to John
+  ZuHone (@jzuhone on GitHub) for the contribution.
+
+* Use ``uv`` to run the test suite instead of ``tox``
+  (`PR #574 <https://github.com/yt-project/unyt/pull/574>`_ and
+  `PR #594 <https://github.com/yt-project/unyt/pull/594>`_).
+  Thank you to Clément Robert (@neutrinoceros on GitHub) for the contributions.
+
+* Start testing against Python 3.14 in bleeding-edge CI
+  (`PR #581 <https://github.com/yt-project/unyt/pull/581>`_). Thank you to Clément
+  Robert (@neutrinoceros on GitHub) for the contribution.
+
+* Adjust license specification to PEP 639 (`PR #584 <https://github.com/yt-project/unyt/pull/584>`_).
+  Thank you to Clément Robert (@neutrinoceros on GitHub) for the contribution.
+
+* Fix incoming incompatibilities and deprecations with NumPy 2.4
+  (`PR #595 <https://github.com/yt-project/unyt/pull/595>`_,
+  `PR #597 <https://github.com/yt-project/unyt/pull/597>`_,
+  `PR #607 <https://github.com/yt-project/unyt/pull/607>`_,
+  `PR #614 <https://github.com/yt-project/unyt/pull/614>`_).
+
+* Fix histograms with mismatched units of input and bins
+  (`PR #610 <https://github.com/yt-project/unyt/pull/610>`_).
+  Thank you to Kyle Oman (@kyleoman on GitHub) for the contribution.
+
+* Fix a bug where ``np.average`` would strip units on sum of weights when input
+  and weights shapes differ (`PR #611 <https://github.com/yt-project/unyt/pull/611>`_).
+  Thank you to Kyle Oman (@kyleoman on GitHub) for the contribution.
+
+
 3.0.4 (2025-03-13)
 ------------------
 
