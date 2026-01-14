@@ -155,9 +155,9 @@ Before you submit a pull request, check that it meets these guidelines:
    please update the existing docstrings. If you modify private implementation
    details, please use your judgment on documenting it with comments or
    docstrings.
-3. The pull request should work for Python 3.8, 3.9 and 3.10. Check in the
-   GitHub interface for your pull request and make sure that the tests pass for
-   all supported Python versions.
+3. The pull request should work for Python 3.10, 3.11, 3.12, 3.13, and 3.14.
+   Check in the GitHub interface for your pull request and make sure that the
+   tests pass for all supported Python versions.
 
 Deploying
 ---------
@@ -165,6 +165,12 @@ Deploying
 A reminder for the maintainers on how to deploy.  Make sure all your changes are
 committed (including an entry in HISTORY.rst and adding any new contributors to
 AUTHORS.rst).
+
+The version number must also be updated manually, preferably in its own PR.
+The files that contain the version number that must be updated are:
+
+* ``pyproject.toml``: entry ``version`` under ``[project]``
+* ``__init__.py``: the ``__version__`` variable
 
 If doing a bugfix release, you may need to create a - or checkout an existing -
 backport branch named ``vX.Y.x`` where ``X`` and ``Y`` represent the relevant
@@ -174,10 +180,14 @@ a tag:
 
   $ git tag vX.Y.Z            # where X, Y and Z should be meaningful major, minor and micro version numbers
 
+In any case, take care that the version number for the tag matches what was
+chosen for the version number.
+
 If the tests pass you can then subsequently manually do a test publication::
 
   $ python -m pip install --upgrade pip
   $ python -m pip install --upgrade build twine
+  $ python -m build # builds a source distribution and a wheel under dist/
   $ twine check dist/*
   $ twine upload dist/* --repository-url https://test.pypi.org/legacy/
 
