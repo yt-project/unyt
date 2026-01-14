@@ -185,20 +185,18 @@ chosen for the version number.
 
 If the tests pass you can then subsequently manually do a test publication::
 
-  $ python -m pip install --upgrade pip
-  $ python -m pip install --upgrade build twine
-  $ python -m build # builds a source distribution and a wheel under dist/
-  $ twine check dist/*
-  $ twine upload dist/* --repository-url https://test.pypi.org/legacy/
+  $ uv build # builds a source distribution and a wheel under dist/
+  $ uvx twine check dist/*
+  $ uv publish --publish-url https://test.pypi.org/legacy/
 
 Then, using a fresh environment here, and from outside the repository,
 test the result::
 
-  $ python -m pip install pytest
-  $ python -m pip install --index-url https://test.pypi.org/simple/ unyt --extra-index-url https://pypi.org/simple --force-reinstall
-  $ python -c "import unyt; unyt.test()"
-  $ python -m pip install --index-url https://test.pypi.org/simple/ unyt --extra-index-url https://pypi.org/simple --no-binary unyt --force-reinstall
-  $ python -c "import unyt; unyt.test()"
+  $ uv sync --only-group test
+  $ uv pip install unyt --reinstall --only-binary --index-url https://test.pypi.org/simple/
+  $ uv run --no-sync python -c "import unyt; unyt.test()"
+  $ uv pip install unyt --reinstall --no-binary --index-url https://test.pypi.org/simple/
+  $ uv run --no-sync python -c "import unyt; unyt.test()"
 
 Finally, if everything works well, push the tag to the upstream repository::
 
