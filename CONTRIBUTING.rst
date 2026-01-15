@@ -166,11 +166,9 @@ A reminder for the maintainers on how to deploy.  Make sure all your changes are
 committed (including an entry in HISTORY.rst and adding any new contributors to
 AUTHORS.rst).
 
-The version number must also be updated manually, preferably in its own PR.
-The files that contain the version number that must be updated are:
+The version number must also be updated, preferably in its own PR.
+The preferred way to do it is through ``uv version --bump <major|minor|patch>``.
 
-* ``pyproject.toml``: entry ``version`` under ``[project]``
-* ``__init__.py``: the ``__version__`` variable
 
 If doing a bugfix release, you may need to create a - or checkout an existing -
 backport branch named ``vX.Y.x`` where ``X`` and ``Y`` represent the relevant
