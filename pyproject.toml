@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "unyt"
-version = "3.1.0"
+version = "3.1.0.dev0"
 description = "A package for handling numpy arrays with units"
 authors = [
     { name = "The yt project", email = "yt-dev@python.org" },
