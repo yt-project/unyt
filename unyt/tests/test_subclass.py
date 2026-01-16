@@ -81,8 +81,7 @@ def check_result(x_s, x_u, ignore_values=False):
         return
     if type(x_u) in (list, tuple):
         assert type(x_u) is type(x_s)
-        assert len(x_u) == len(x_s)
-        for x_c_i, x_u_i in zip(x_s, x_u):
+        for x_c_i, x_u_i in zip(x_s, x_u, strict=True):
             check_result(x_c_i, x_u_i)
             return
     # careful, unyt_quantity is a subclass of unyt_array:
@@ -788,8 +787,7 @@ class TestNumpyFunctions:
         )
         if isinstance(ua_result, tuple):
             assert isinstance(result, tuple)
-            assert len(result) == len(ua_result)
-            for r, ua_r in zip(result, ua_result):
+            for r, ua_r in zip(result, ua_result, strict=True):
                 check_result(r, ua_r)
         else:
             check_result(result, ua_result)
