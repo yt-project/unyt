@@ -5,17 +5,18 @@ import numpy as np
 #
 # Values for these constants, unless otherwise noted, are drawn from IAU,
 # IUPAC, NIST, and NASA data, whichever is newer.
-# http://maia.usno.navy.mil/NSFA/IAU2009_consts.html
+# ! Can no longer access: http://maia.usno.navy.mil/NSFA/IAU2009_consts.html
+# ! Instead, try https://iau-a3.gitlab.io/NSFA/IAU2009_consts.html
 # http://goldbook.iupac.org/list_goldbook_phys_constants_defs.html
 # http://physics.nist.gov/cuu/Constants/index.html
 # http://nssdc.gsfc.nasa.gov/planetary/factsheet/jupiterfact.html
 
 # Elementary masses
-mass_electron_kg = 9.10938291e-31
-amu_kg = 1.660538921e-27
+mass_electron_kg = 9.1093837139e-31  # CODATA 2022
+amu_kg = 1.66053906892e-27  # CODATA 2022
 amu_grams = amu_kg * 1.0e3
 mass_hydrogen_kg = 1.007947 * amu_kg
-mass_proton_kg = 1.672623110e-27
+mass_proton_kg = 1.67262192595e-27  # CODATA 2022
 
 # Solar values (see Mamajek 2012)
 # https://sites.google.com/site/mamajeksstarnotes/bc-scale
@@ -93,19 +94,19 @@ sec_per_min = 60.0
 day_per_year = 365.25
 
 # velocities, accelerations
-speed_of_light_m_per_s = 2.99792458e8
+speed_of_light_m_per_s = 2.99792458e8  # CODATA 2022
 speed_of_light_cm_per_s = speed_of_light_m_per_s * 100.0
-standard_gravity_m_per_s2 = 9.80665
+standard_gravity_m_per_s2 = 9.80665  # CODATA 2022
 
 # some constants
-newton_mks = 6.67408e-11
-planck_mks = 6.62606957e-34
-elementary_charge_C = 1.6021766208e-19
-# permeability of Free Space
-mu_0 = 4.0e-7 * np.pi
+newton_mks = 6.67430e-11  # CODATA 2022
+planck_mks = 6.62607015e-34  # CODATA 2022
+elementary_charge_C = 1.602176634e-19  # CODATA 2022
+# permeability of Free Space: Used to be exactly 4pi x 1e-7, but is experimentally defined since the 2019 SI changeup
+mu_0 = 1.25663706127e-6  # CODATA 2022: it is consistent with error to leave as 4pi
 # permittivity of Free Space
 eps_0 = 1.0 / (speed_of_light_m_per_s**2 * mu_0)
-avogadros_number = 6.022141410704091e23
+avogadros_number = 6.02214076e23  # CODATA 2022
 rydberg_constant_mks = (
     0.125
     * mass_electron_kg
@@ -114,8 +115,8 @@ rydberg_constant_mks = (
 )
 
 # temperature / energy
-boltzmann_constant_J_per_K = 1.3806488e-23
-erg_per_eV = 1.602176562e-12
+boltzmann_constant_J_per_K = 1.380649e-23  # CODATA 2022, we have lost a decimal place of precisions because the boltzmann constant has been set to exactly this.
+erg_per_eV = 1.602176634e-12  # CODATA 2022
 J_per_eV = erg_per_eV * 1.0e-7
 erg_per_keV = erg_per_eV * 1.0e3
 J_per_keV = J_per_eV * 1.0e3

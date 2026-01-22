@@ -60,6 +60,7 @@ from unyt.testing import (
     _process_warning,
     assert_allclose_units,
     assert_array_equal_units,
+    assert_lists_allclose
 )
 from unyt.unit_registry import UnitRegistry
 from unyt.unit_symbols import cm, degree, g, m
@@ -2086,8 +2087,11 @@ def test_electromagnetic():
         data.convert_to_units("C*T*V")
     assert_almost_equal(data.in_mks(), 6.67408e-18 * u.m**5 / u.s**4)
 
-    mu_0 = 4.0e-7 * math.pi * u.N / u.A**2
-    eps_0 = 8.85418781782e-12 * u.m**-3 / u.kg * u.s**4 * u.A**2
+    # CODATA 2022 values
+    mu_0 = 1.25663706127e-6 * u.N / u.A**2
+    # mu_0 = 4.0e-7 * math.pi * u.N / u.A**2
+    eps_0 = 8.8541878188e-12 * u.m**-3 / u.kg * u.s**4 * u.A**2
+    # eps_0 = 8.85418781782e-12 * u.m**-3 / u.kg * u.s**4 * u.A**2
     assert_almost_equal((1.0 / (u.clight**2 * mu_0)).in_units(eps_0.units), eps_0)
 
 
@@ -2625,13 +2629,13 @@ def test_complexvalued(tmp_path):
     assert_allclose_units(arr, unyt_array([1j * 10000, 1j * 100000], "erg"))
     arr.convert_to_equivalent("K", "thermal")
     assert_allclose_units(
-        arr, unyt_array([1j * 7.24297157e19, 1j * 7.24297157e20], "K")
+        arr, unyt_array([1j * 7.24297051603992e19, 1j * 7.24297051603992e20], "K")
     )
     arr = arr.to_equivalent("J", "thermal")
     assert_allclose_units(arr, unyt_array([1j * 0.001, 1j * 0.01], "J"))
     assert_allclose_units(arr.to_ndarray(), np.asarray([1j * 0.001, 1j * 0.01]))
     assert_allclose_units(arr.to_value(), np.asarray([1j * 0.001, 1j * 0.01]))
-    assert arr.tolist() == [1j * 0.001, 1j * 0.01]
+    assert_lists_allclose(arr.tolist(), [1j * 0.001, 1j * 0.01])
     assert_allclose_units(arr.in_units("mJ"), unyt_array([1j, 1j * 10], "mJ"))
     assert_allclose_units(arr.in_base(), unyt_array([1j * 0.001, 1j * 0.01], "J"))
     assert_allclose_units(arr.in_cgs(), unyt_array([1j * 10000, 1j * 100000], "erg"))
