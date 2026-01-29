@@ -2446,3 +2446,39 @@ class TestFunctionHelpersSignatureCompatibility:
                 f"Default value mismatch for argument {name!r}. "
                 f"Helper has {ph.default!r}, target has {pt.default!r}"
             )
+
+
+def test_squeeze_method_array():
+    """Check that squeeze returns the correct type for the shape of the result."""
+    arr = np.ones((3, 1)) * cm
+    arr_squeezed = arr.squeeze()
+    assert arr_squeezed.ndim > 0
+    assert isinstance(arr_squeezed, unyt_array) and not isinstance(
+        arr_squeezed, unyt_quantity
+    )
+
+
+def test_squeeze_method_scalar():
+    """Check that squeeze returns the correct type for the shape of the result."""
+    arr = np.ones(1) * cm
+    arr_squeezed = arr.squeeze()
+    assert arr_squeezed.ndim == 0
+    assert isinstance(arr_squeezed, unyt_quantity)
+
+
+def test_squeeze_array():
+    """Check that squeeze returns the correct type for the shape of the result."""
+    arr = np.ones((3, 1)) * cm
+    arr_squeezed = np.squeeze(arr)
+    assert arr_squeezed.ndim > 0
+    assert isinstance(arr_squeezed, unyt_array) and not isinstance(
+        arr_squeezed, unyt_quantity
+    )
+
+
+def test_squeeze_scalar():
+    """Check that squeeze returns the correct type for the shape of the result."""
+    arr = np.ones(1) * cm
+    arr_squeezed = np.squeeze(arr)
+    assert arr_squeezed.ndim == 0
+    assert isinstance(arr_squeezed, unyt_quantity)
