@@ -101,7 +101,6 @@ NOOP_FUNCTIONS = {
     np.rollaxis,  # works out of the box (tested)
     np.rot90,  # works out of the box (tested)
     np.expand_dims,  # works out of the box (tested)
-    np.squeeze,  # works out of the box (tested)
     np.flip,  # works out of the box (tested)
     np.fliplr,  # works out of the box (tested)
     np.flipud,  # works out of the box (tested)
@@ -2482,3 +2481,19 @@ def test_squeeze_scalar():
     arr_squeezed = np.squeeze(arr)
     assert arr_squeezed.ndim == 0
     assert isinstance(arr_squeezed, unyt_quantity)
+
+
+def test_squeeze_method_with_axis():
+    """Check that squeeze obeys axis kwarg."""
+    arr = np.ones((1, 1)) * cm
+    squeeze_axis = (1,)
+    arr_squeezed = arr.squeeze(axis=1)
+    assert arr_squeezed.ndim == arr.ndim - len(squeeze_axis)
+
+
+def test_squeeze_with_axis():
+    """Check that squeeze obeys axis kwarg."""
+    arr = np.ones((1, 1)) * cm
+    squeeze_axis = (1,)
+    arr_squeezed = np.squeeze(arr, axis=1)
+    assert arr_squeezed.ndim == arr.ndim - len(squeeze_axis)
