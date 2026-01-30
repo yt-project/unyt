@@ -2280,6 +2280,23 @@ class unyt_array(np.ndarray):
             # subclasses might not take name as a kwarg
             return type(self)(ret, copy.deepcopy(self.units), bypass_validation=True)
 
+    def squeeze(self, axis=None):
+        """method
+
+        Remove axes of length one from `a`.
+
+        Refer to :func:`numpy.squeeze` for full documentation.
+
+        See also
+        --------
+        numpy.squeeze : equivalent function
+        """
+        ret = super().squeeze(axis=axis)
+        if ret.shape == ():
+            return ret.view(type=unyt_quantity)
+        else:
+            return ret
+
 
 class unyt_quantity(unyt_array):
     """
