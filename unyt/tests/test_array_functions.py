@@ -101,7 +101,7 @@ NOOP_FUNCTIONS = {
     np.rollaxis,  # works out of the box (tested)
     np.rot90,  # works out of the box (tested)
     np.expand_dims,  # works out of the box (tested)
-    np.squeeze,  # works out of the box (tested)
+    np.squeeze,  # works because ndarray.squeeze is handled
     np.flip,  # works out of the box (tested)
     np.fliplr,  # works out of the box (tested)
     np.flipud,  # works out of the box (tested)
@@ -2446,3 +2446,27 @@ class TestFunctionHelpersSignatureCompatibility:
                 f"Default value mismatch for argument {name!r}. "
                 f"Helper has {ph.default!r}, target has {pt.default!r}"
             )
+
+
+def test_squeeze_array():
+    """Check that squeeze returns the correct type for the shape of the result."""
+    arr = np.ones((3, 1)) * cm
+    arr_squeezed = np.squeeze(arr)
+    assert arr_squeezed.ndim > 0
+    assert type(arr_squeezed) is unyt_array
+
+
+def test_squeeze_scalar():
+    """Check that squeeze returns the correct type for the shape of the result."""
+    arr = np.ones(1) * cm
+    arr_squeezed = np.squeeze(arr)
+    assert arr_squeezed.ndim == 0
+    assert type(arr_squeezed) is unyt_quantity
+
+
+def test_squeeze_with_axis():
+    """Check that squeeze obeys axis kwarg."""
+    arr = np.ones((1, 1)) * cm
+    squeeze_axis = (1,)
+    arr_squeezed = np.squeeze(arr, axis=1)
+    assert arr_squeezed.ndim == arr.ndim - len(squeeze_axis)
