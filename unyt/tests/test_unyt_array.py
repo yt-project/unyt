@@ -3032,9 +3032,7 @@ def test_squeeze_method_array():
     arr = np.ones((3, 1)) * cm
     arr_squeezed = arr.squeeze()
     assert arr_squeezed.ndim > 0
-    assert isinstance(arr_squeezed, unyt_array) and not isinstance(
-        arr_squeezed, unyt_quantity
-    )
+    assert type(arr_squeezed) is unyt_array
 
 
 def test_squeeze_method_scalar():
