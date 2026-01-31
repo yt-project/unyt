@@ -2292,7 +2292,7 @@ class unyt_array(np.ndarray):
         numpy.squeeze : equivalent function
         """
         ret = super().squeeze(axis=axis)
-        if ret.shape == ():
+        if ret.ndim == 0:
             return ret.view(type=unyt_quantity)
         else:
             return ret
