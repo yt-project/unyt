@@ -101,6 +101,7 @@ NOOP_FUNCTIONS = {
     np.rollaxis,  # works out of the box (tested)
     np.rot90,  # works out of the box (tested)
     np.expand_dims,  # works out of the box (tested)
+    np.squeeze,  # works because ndarray.squeeze is handled
     np.flip,  # works out of the box (tested)
     np.fliplr,  # works out of the box (tested)
     np.flipud,  # works out of the box (tested)
@@ -2447,24 +2448,6 @@ class TestFunctionHelpersSignatureCompatibility:
             )
 
 
-def test_squeeze_method_array():
-    """Check that squeeze returns the correct type for the shape of the result."""
-    arr = np.ones((3, 1)) * cm
-    arr_squeezed = arr.squeeze()
-    assert arr_squeezed.ndim > 0
-    assert isinstance(arr_squeezed, unyt_array) and not isinstance(
-        arr_squeezed, unyt_quantity
-    )
-
-
-def test_squeeze_method_scalar():
-    """Check that squeeze returns the correct type for the shape of the result."""
-    arr = np.ones(1) * cm
-    arr_squeezed = arr.squeeze()
-    assert arr_squeezed.ndim == 0
-    assert isinstance(arr_squeezed, unyt_quantity)
-
-
 def test_squeeze_array():
     """Check that squeeze returns the correct type for the shape of the result."""
     arr = np.ones((3, 1)) * cm
@@ -2481,14 +2464,6 @@ def test_squeeze_scalar():
     arr_squeezed = np.squeeze(arr)
     assert arr_squeezed.ndim == 0
     assert isinstance(arr_squeezed, unyt_quantity)
-
-
-def test_squeeze_method_with_axis():
-    """Check that squeeze obeys axis kwarg."""
-    arr = np.ones((1, 1)) * cm
-    squeeze_axis = (1,)
-    arr_squeezed = arr.squeeze(axis=1)
-    assert arr_squeezed.ndim == arr.ndim - len(squeeze_axis)
 
 
 def test_squeeze_with_axis():
