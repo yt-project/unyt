@@ -191,9 +191,9 @@ Then, using a fresh environment here, and from outside the repository,
 test the result::
 
   $ uv sync --only-group test
-  $ uv pip install unyt --reinstall --only-binary --index-url https://test.pypi.org/simple/
+  $ uv pip install unyt --reinstall --only-binary --index https://test.pypi.org/simple/ --index-strategy=unsafe-best-match
   $ uv run --no-sync python -c "import unyt; unyt.test()"
-  $ uv pip install unyt --reinstall --no-binary --index-url https://test.pypi.org/simple/
+  $ uv pip install unyt --reinstall --no-binary --index https://test.pypi.org/simple/ --index-strategy=unsafe-best-match
   $ uv run --no-sync python -c "import unyt; unyt.test()"
 
 Finally, if everything works well, push the tag to the upstream repository::
