@@ -102,8 +102,12 @@ standard_gravity_m_per_s2 = 9.80665  # CODATA 2022
 newton_mks = 6.67430e-11  # CODATA 2022
 planck_mks = 6.62607015e-34  # CODATA 2022
 elementary_charge_C = 1.602176634e-19  # CODATA 2022
-# permeability of Free Space: Used to be exactly 4pi x 1e-7, but is experimentally defined since the 2019 SI changeup
-mu_0 = 1.25663706127e-6  # CODATA 2022: it is consistent with error to leave as 4pi
+# permeability of Free Space: Used to be defined as exactly 4pi x 1e-7, but is experimentally measured since the 2019 SI changeup
+# mu_0 = 4pi*10-7 * [1 + (-1.3 +- 1.6)*10^-10] newtons per ampere^2
+# it is consistent with error to leave as 4pi, if we update it then need to update the tests (obviously) but also the conversion between gauss and tesla
+# 1G/1T = 10^4 / sqrt(1+delta), where historically delta = 0, but since 2019 delta = -1.3e-10 (as above)
+mu_0 = 1.25663706127e-6  # CODATA 2022
+mu_0 = 4 * np.pi * 1e-7  # Within one error bar of CODATA 2022
 # permittivity of Free Space
 eps_0 = 1.0 / (speed_of_light_m_per_s**2 * mu_0)
 avogadros_number = 6.02214076e23  # CODATA 2022
@@ -115,7 +119,7 @@ rydberg_constant_mks = (
 )
 
 # temperature / energy
-boltzmann_constant_J_per_K = 1.380649e-23  # CODATA 2022, we have lost a decimal place of precisions because the boltzmann constant has been set to exactly this.
+boltzmann_constant_J_per_K = 1.380649e-23  # CODATA 2022, we have lost a decimal place of precision because the boltzmann constant has been set to exactly this.
 erg_per_eV = 1.602176634e-12  # CODATA 2022
 J_per_eV = erg_per_eV * 1.0e-7
 erg_per_keV = erg_per_eV * 1.0e3
