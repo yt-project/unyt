@@ -1116,7 +1116,7 @@ class unyt_array(np.ndarray):
         >>> a = [10, 20, 30]*(1e7*K)
         >>> a.convert_to_equivalent("keV", "thermal")
         >>> a
-        unyt_array([ 8.6173324, 17.2346648, 25.8519972], 'keV')
+        unyt_array([ 8.61733326, 17.23466652, 25.85199979], 'keV')
         """
         conv_unit = Unit(unit, registry=self.units.registry)
         if self.units.same_dimensions_as(conv_unit):
@@ -1152,7 +1152,7 @@ class unyt_array(np.ndarray):
         >>> from unyt import K
         >>> a = 1.0e7*K
         >>> print(a.to_equivalent("keV", "thermal"))
-        0.8617332401096504 keV
+        0.8617333262145178 keV
         """
         conv_unit = Unit(unit, registry=self.units.registry)
         if self.units.same_dimensions_as(conv_unit):
@@ -1192,7 +1192,7 @@ class unyt_array(np.ndarray):
         >>> print((1*km).to_equivalent('MHz', equivalence='spectral'))
         0.299792458 MHz
         >>> print((1*keV).to_equivalent('angstrom', equivalence='spectral'))
-        12.39841931521966 Å
+        12.398419843320026 Å
         """
         return self.units.has_equivalent(equivalence)
 
