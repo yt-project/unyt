@@ -74,59 +74,36 @@ Get Started!
 
 Ready to contribute? Here's how to set up ``unyt`` for local development.
 
-The ``unyt`` test suite makes use of the ``tox`` test runner, which makes it
-easy to run tests on multiple python versions. However, this means that if all
-of the python versions needed by ``tox`` are not available, many of the ``tox``
-tests will fail with errors about missing python executables.
+The ``unyt`` test suite makes use of ``uv``, which makes it
+easy to run tests on multiple python versions.
 
-This guide makes use of ``pyenv`` to set up all of the Python versions used in
-the unyt test suite. You do not have to use ``pyenv`` if you have other ways of
-managing your python environment using your operating system's package manager or
-``conda``.
+This guide uses ``uv`` extensively, but note that you do not have to use
+``uv``-managed Python interpreters, see uv's documentation
+https://docs.astral.sh/uv/concepts/python-versions/#requiring-or-disabling-managed-python-versions
+
 
 1. Fork the ``unyt`` repo on GitHub.
 2. Clone your fork locally::
 
     $ git clone git@github.com:your_name_here/unyt.git
 
-3. Install ``pyenv``::
-
-    $ git clone https://github.com/pyenv/pyenv.git $HOME/.pyenv
-    $ export PYENV_ROOT="$HOME/.pyenv"
-    $ export PATH="$HOME/.pyenv/bin:$PATH
-    $ eval "$(pyenv init -)"
-    $ pyenv install -s 3.10
-    $ pyenv install -s 3.11
-    $ pyenv install -s 3.12
-    $ pyenv install -s 3.13
-    $ pip install tox
-
-4. Install your local copy into a virtualenv or conda environment. You can also
-   use one of the python interpreters we installed using ``pyenv``::
+4. Setup a development environment
 
     $ cd unyt/
-    $ pyenv local 3.10
-    $ python -m pip install -e
+    $ uv sync
 
 5. Create a branch for local development::
 
-    $ git checkout -b name-of-your-bugfix-or-feature
+    $ git switch -c name-of-your-bugfix-or-feature
 
 6. Edit files in the ``unyt`` repository, using your local python installation
    to test your edits.
 
 7. When you're done making changes, check that your changes pass linting,
-   and run the tests, including testing several Python versions with ``tox``::
+   and run the tests
 
     $ pre-commit run --all-files
-    $ pytest --doctest-modules --doctest-rst --doctest-plus
-    $ pyenv local 3.10 3.11 3.12 3.13
-    $ tox
-    $ pyenv local 3.10
-
-   To get ``pre-commit``, ``pytest``, ``pytest-doctestplus``, and
-   ``tox``, just ``pip`` or ``conda`` install them into your python environment,
-   as appropriate. For a ``pyenv`` environment you would use ``pip``.
+    $ uv run --group test pytest unyt --doctest-modules --doctest-rst --doctest-plus
 
 8. Commit your changes and push your branch to GitHub::
 
@@ -139,7 +116,7 @@ managing your python environment using your operating system's package manager o
 Testing unyt
 ------------
 
-We use the ``pytest`` test runner as well as the ``tox`` test wrapper to manage
+We use the ``pytest`` test runner as well as ``uv`` to manage
 running tests on various versions of python.
 
 To run the tests on your copy of the ``unyt`` repository using your current
@@ -147,30 +124,17 @@ python environment, run ``pytest`` in the root of the repository using the
 following arguments::
 
    $ cd unyt/
-   $ pytest --doctest-modules --doctest-rst --doctest-plus
+   $ uv run --group test pytest unyt --doctest-modules --doctest-rst --doctest-plus
 
 These enable testing the docstrings and doctest examples scattered throughout
 the unyt and its documentation.
 
-You will need to install ``pytest`` and ``pytest-doctestplus`` to run this
-command. Some tests depend on ``h5py``, ``Pint``, ``astropy``, ``matplotlib`` and ``dask``
-being installed.
+Integration tests require additional dependencies, which you can get by passing
+the following additional argument to ``uv run``: ``--group integration``
 
-If you would like to run the tests on multiple python versions, first ensure
-that you have multiple python versions visible on your ``$PATH``, then simply
-execute ``tox`` in the root of the ``unyt`` repository. For example, using the
-``pyenv`` environment we set up above::
+If you would like to run the tests on different Python versions, add
+``--python=<version>``, where ``<version>`` can be a version number or a path.
 
-   $ cd unyt
-   $ pyenv local 3.10 3.11 3.12 3.13
-   $ tox
-
-The ``tox`` package itself can be installed using the ``pip`` associated with
-one of the python installations. See the ``tox.ini`` file in the root of the
-repository for more details about our ``tox`` setup. Note that you do not need
-to install anything besides ``tox`` and the ``python`` versions needed by
-``tox`` for this to work, ``tox`` will handle setting up the test environment,
-including installing any necessary dependencies via ``pip``.
 
 Pull Request Guidelines
 -----------------------
@@ -179,17 +143,21 @@ Before you submit a pull request, check that it meets these guidelines:
 
 1. The pull request should include tests for functionality that is not already
    tested. We strive for 100% test coverage and pull requests should not add any
-   new untested code. You can generate coverage reports locally by running the
-   ``tox`` tests.
+   new untested code. You can generate coverage reports locally by first
+   generating coverage statistics with ``pytest`` through ``coverage`` as ``uv
+   run --group covcheck coverage run -m pytest``. To generate reports from the
+   coverage statistics, you can use ``uv run coverage report`` to print to
+   screen or ``uv run coverage html`` to generate an html that you can open in a
+   browser.
 2. If the pull request adds functionality the docs should be updated. If your
    new functionality adds new functions or classes to the public API, please add
    docstrings. If you modified an existing function or class in the public API,
    please update the existing docstrings. If you modify private implementation
    details, please use your judgment on documenting it with comments or
    docstrings.
-3. The pull request should work for Python 3.8, 3.9 and 3.10. Check in the
-   GitHub interface for your pull request and make sure that the tests pass for
-   all supported Python versions.
+3. The pull request should work for Python 3.10, 3.11, 3.12, 3.13, and 3.14.
+   Check in the GitHub interface for your pull request and make sure that the
+   tests pass for all supported Python versions.
 
 Deploying
 ---------
@@ -197,6 +165,10 @@ Deploying
 A reminder for the maintainers on how to deploy.  Make sure all your changes are
 committed (including an entry in HISTORY.rst and adding any new contributors to
 AUTHORS.rst).
+
+The version number must also be updated, preferably in its own PR.
+The preferred way to do it is through ``uv version --bump <major|minor|patch>``.
+
 
 If doing a bugfix release, you may need to create a - or checkout an existing -
 backport branch named ``vX.Y.x`` where ``X`` and ``Y`` represent the relevant
@@ -206,21 +178,23 @@ a tag:
 
   $ git tag vX.Y.Z            # where X, Y and Z should be meaningful major, minor and micro version numbers
 
+In any case, take care that the version number for the tag matches what was
+chosen for the version number.
+
 If the tests pass you can then subsequently manually do a test publication::
 
-  $ python -m pip install --upgrade pip
-  $ python -m pip install --upgrade build twine
-  $ twine check dist/*
-  $ twine upload dist/* --repository-url https://test.pypi.org/legacy/
+  $ uv build # builds a source distribution and a wheel under dist/
+  $ uvx twine check dist/*
+  $ uv publish --publish-url https://test.pypi.org/legacy/
 
 Then, using a fresh environment here, and from outside the repository,
 test the result::
 
-  $ python -m pip install pytest
-  $ python -m pip install --index-url https://test.pypi.org/simple/ unyt --extra-index-url https://pypi.org/simple --force-reinstall
-  $ python -c "import unyt; unyt.test()"
-  $ python -m pip install --index-url https://test.pypi.org/simple/ unyt --extra-index-url https://pypi.org/simple --no-binary unyt --force-reinstall
-  $ python -c "import unyt; unyt.test()"
+  $ uv sync --only-group test
+  $ uv pip install unyt --reinstall --only-binary --index-url https://test.pypi.org/simple/
+  $ uv run --no-sync python -c "import unyt; unyt.test()"
+  $ uv pip install unyt --reinstall --no-binary --index-url https://test.pypi.org/simple/
+  $ uv run --no-sync python -c "import unyt; unyt.test()"
 
 Finally, if everything works well, push the tag to the upstream repository::
 

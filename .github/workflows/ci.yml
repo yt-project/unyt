@@ -11,10 +11,37 @@ on:
 
 
 jobs:
-  test:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Setup Python
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
+        with:
+          python-version: '3.14'
+          enable-cache: false
+      - run: uv build
 
+  unyt-module-test-function:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Setup Python
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
+        with:
+          python-version: '3.14'
+          enable-cache: false
+      - run: uv run --group test python -c "import unyt ; unyt.test()"
+
+  test:
     runs-on: ${{ matrix.os }}
+    needs: [build]
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest]
         python-version:
@@ -22,27 +49,138 @@ jobs:
           - '3.11'
           - '3.12'
           - '3.13'
+          - '3.14'
+        sync-args: [null]
+        pytest-args: [null]
+        label: [null]
+
         # Test all on ubuntu, test ends on macos and windows
         include:
           - os: macos-latest
             python-version: '3.10'
+            sync-args: null
+            pytest-args: null
+            label: null
           - os: windows-latest
             python-version: '3.10'
+            sync-args: null
+            pytest-args: null
+            label: null
           - os: macos-latest
-            python-version: '3.13'
+            python-version: '3.14'
+            sync-args: null
+            pytest-args: null
           - os: windows-latest
-            python-version: '3.13'
+            python-version: '3.14'
+            sync-args: null
+            pytest-args: null
+            label: null
 
+          # with integration deps
+          - os: ubuntu-latest
+            python-version: '3.14'
+            sync-args: --group integration
+            pytest-args: null
+            label: integration
+
+          # with lowest dependencies
+          - os: ubuntu-22.04
+            python-version: '3.10.0'
+            sync-args: --resolution=lowest --group integration
+            pytest-args: null
+            label: oldestdeps
+
+          # with doctests
+          - os: ubuntu-latest
+            python-version: '3.10'
+            sync-args: --group doc
+            pytest-args: --doctest-modules --doctest-plus
+            label: doctests
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install Tox and any other packages
+          enable-cache: false
+      - name: Install test env
+        run: uv sync --group covcheck ${{ matrix.sync-args }}
+      - name: Run tests
+        shell: bash # for windows compat
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install tox tox-gh-actions
-      - name: Test
-        run: tox -vvv
+          uv run --no-sync coverage run --parallel-mode -m \
+            pytest --color=yes ${{ matrix.pytest-args }}
+
+      - name: Upload coverage data
+        # only using reports from ubuntu because
+        # combining reports from multiple platforms is tricky
+        if: startsWith( matrix.os , 'ubuntu' )
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: unyt_coverage_data-${{matrix.os}}-${{matrix.python-version}}-${{matrix.label}}
+          path: .coverage.*
+          if-no-files-found: ignore
+          include-hidden-files: true
+
+  coverage:
+    name: Combine & check coverage.
+    runs-on: ubuntu-latest
+    needs: [test]
+
+    steps:
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        fetch-depth: 0
+        persist-credentials: false
+    - uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
+      with:
+        python-version: '3.14'
+        enable-cache: false
+
+    - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      with:
+        pattern: unyt_coverage_data-*
+        merge-multiple: true
+
+    - name: Check coverage
+      run: |
+        uv tool install coverage
+        coverage combine
+        coverage html --skip-covered --skip-empty
+        coverage report --skip-covered --format=markdown >> "$GITHUB_STEP_SUMMARY"
+        coverage report --fail-under=99
+
+    - name: Upload HTML report
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: unyt_coverage_report
+        path: htmlcov
+
+  docs:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Setup Python
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
+        with:
+          python-version: '3.10'
+          enable-cache: false
+      - run: uv sync --group doc --group test
+      - name: Build docs
+        run: |
+          uv run --no-sync --directory=docs \
+            python -m sphinx -M html "." "_build" -W
+      - name: Upload build
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: unyt_docs
+          path: docs/_build/html
+          if-no-files-found: error

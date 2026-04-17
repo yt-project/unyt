@@ -13,6 +13,8 @@ from unyt import A, K, Msun, cm, degC, delta_degC, dimensionless, g, km, rad, s
 from unyt._array_functions import (
     _HANDLED_FUNCTIONS as HANDLED_FUNCTIONS,
     _UNSUPPORTED_FUNCTIONS as UNSUPPORTED_FUNCTIONS,
+    _sanitize_bins,
+    _sanitize_range,
 )
 from unyt.array import unyt_array, unyt_quantity
 from unyt.exceptions import (
@@ -54,7 +56,6 @@ NOOP_FUNCTIONS = {
     np.atleast_1d,  # works out of the box (tested)
     np.atleast_2d,  # works out of the box (tested)
     np.atleast_3d,  # works out of the box (tested)
-    np.average,  # works out of the box (tested)
     np.can_cast,  # works out of the box (tested)
     np.common_type,  # works out of the box (tested)
     np.result_type,  # works out of the box (tested)
@@ -100,7 +101,7 @@ NOOP_FUNCTIONS = {
     np.rollaxis,  # works out of the box (tested)
     np.rot90,  # works out of the box (tested)
     np.expand_dims,  # works out of the box (tested)
-    np.squeeze,  # works out of the box (tested)
+    np.squeeze,  # works because ndarray.squeeze is handled
     np.flip,  # works out of the box (tested)
     np.fliplr,  # works out of the box (tested)
     np.flipud,  # works out of the box (tested)
@@ -187,6 +188,9 @@ if NUMPY_VERSION >= Version("2.1.0dev0"):
         np.unstack,
         np.cumulative_sum,
     }
+
+if NUMPY_VERSION >= Version("2.4.1"):
+    NOOP_FUNCTIONS |= {np.average}
 
 # Functions for which behaviour is intentionally left to default
 IGNORED_FUNCTIONS = {
@@ -367,10 +371,8 @@ def test_dot_vectors():
     ],
 )
 def test_dot_matrices(out):
-    a = np.arange(9) * cm
-    a.shape = (3, 3)
-    b = np.arange(9) * s
-    b.shape = (3, 3)
+    a = np.reshape(np.arange(9), (3, 3)) * cm
+    b = np.reshape(np.arange(9), (3, 3)) * s
 
     res = np.dot(a, b, out=out)
 
@@ -422,10 +424,8 @@ def test_dot_mixed_ndarray_unyt_array():
 
 
 def test_invalid_dot_matrices():
-    a = np.arange(9) * cm
-    a.shape = (3, 3)
-    b = np.arange(9) * s
-    b.shape = (3, 3)
+    a = np.reshape(np.arange(9), (3, 3)) * cm
+    b = np.reshape(np.arange(9), (3, 3)) * s
 
     out = np.empty((3, 3), dtype=np.int_, order="C") * s**2
     res = np.dot(a, b, out=out)
@@ -466,21 +466,20 @@ def test_kron():
 
 
 def test_linalg_inv():
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(0)
     arr = rng.random((3, 3)) * cm
     iarr = np.linalg.inv(arr)
     assert 1 * iarr.units == 1 / cm
 
 
 def test_linalg_tensorinv():
-    a = np.eye(4 * 6) * cm
-    a.shape = (4, 6, 8, 3)
+    a = np.reshape(np.eye(4 * 6), (4, 6, 8, 3)) * cm
     ia = np.linalg.tensorinv(a)
     assert 1 * ia.units == 1 / cm
 
 
 def test_linalg_pinv():
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(0)
     a = rng.standard_normal(size=(9, 6)) * cm
     B = np.linalg.pinv(a)
     assert 1 * B.units == 1 / cm
@@ -604,7 +603,7 @@ def test_linalg_vector_norm():
 
 
 def test_linalg_svd():
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(0)
     a = (rng.standard_normal(size=(9, 6)) + 1j * rng.standard_normal(size=(9, 6))) * cm
     u, s, vh = np.linalg.svd(a)
     assert type(u) is np.ndarray
@@ -640,8 +639,48 @@ def test_linalg_tensordot():
 
 
 class TestHistograms:
+    def test_sanitize_range_on_None(self):
+        assert _sanitize_range(None, [cm]) is None
+
+    def test_sanitize_range_units_match(self):
+        input_range = (1 * cm, 2 * cm)
+        expected_range = (1 * cm, 2 * cm)
+        assert_array_equal_units(_sanitize_range(input_range, [cm]), expected_range)
+
+    def test_sanitize_range_units_mismatch(self):
+        input_range = (1 * cm, 2)
+        with pytest.raises(
+            TypeError, match="Elements of range must both have a 'units' attribute."
+        ):
+            _sanitize_range(input_range, [cm, g])
+
+    def test_sanitize_range_pure_scalars(self):
+        input_range = (1, 2)
+        expected_range = (1 * cm, 2 * cm)
+        assert_array_equal_units(_sanitize_range(input_range, [cm]), expected_range)
+
+    def test_sanitize_bins_integer(self):
+        a = np.arange(10) * cm
+        bins = 10
+        assert _sanitize_bins(a, bins) == bins
+
+    def test_sanitize_bins_convertible(self):
+        a = np.arange(10) * cm
+        bins = np.array([0, 1, 2]) * km
+        np.testing.assert_array_equal(_sanitize_bins(a, bins), bins.to_value(a.units))
+
+    def test_sanitize_bins_missing_units_but_dimensionless(self):
+        a = np.arange(10) * dimensionless
+        bins = np.array([0, 1, 2])
+        np.testing.assert_array_equal(_sanitize_bins(a, bins), bins)
+
+    def test_sanitize_bins_without_units(self):
+        a = np.arange(10)
+        bins = np.array([0, 1, 2])
+        np.testing.assert_array_equal(_sanitize_bins(a, bins), bins)
+
     def test_histogram(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         arr = rng.normal(size=1000) * cm
         counts, bins = np.histogram(arr, bins=10, range=(arr.min(), arr.max()))
         assert type(counts) is np.ndarray
@@ -649,7 +688,7 @@ class TestHistograms:
 
     def test_histogram_implicit_units(self):
         # see https://github.com/yt-project/unyt/issues/465
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         arr = rng.normal(size=1000) * cm
         counts, bins = np.histogram(
             arr, bins=10, range=(arr.min().value, arr.max().value)
@@ -658,7 +697,7 @@ class TestHistograms:
         assert bins.units == arr.units
 
     def test_histogram_with_density(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         arr = rng.normal(size=1000) * cm
         density, bins = np.histogram(
             arr, bins=10, range=(arr.min(), arr.max()), density=True
@@ -668,7 +707,7 @@ class TestHistograms:
         assert bins.units == arr.units
 
     def test_histogram_with_weights(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         arr = rng.normal(size=1000) * cm
         w = rng.uniform(size=1000) * g
         wcounts, wbins = np.histogram(
@@ -679,7 +718,7 @@ class TestHistograms:
         assert wbins.units == arr.units
 
     def test_histogram_with_weights_and_density(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         arr = rng.normal(size=1000) * cm
         w = rng.uniform(size=1000) * g
         wdensity, wdbins = np.histogram(
@@ -690,7 +729,7 @@ class TestHistograms:
         assert wdbins.units == arr.units
 
     def test_histogram_with_weights_and_dimless_arr(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         arr = rng.normal(size=1000) * cm
         w = rng.uniform(size=1000) * g
         wcounts2, wbins2 = np.histogram(arr.to_value(arr.units), weights=w)
@@ -699,7 +738,7 @@ class TestHistograms:
         assert not hasattr(wbins2, "units")
 
     def test_histogram2d(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         counts, xbins, ybins = np.histogram2d(x, y)
@@ -708,7 +747,7 @@ class TestHistograms:
         assert ybins.units == y.units
 
     def test_histogram2d_with_density(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         density, xbins, ybins = np.histogram2d(x, y, density=True)
@@ -719,7 +758,7 @@ class TestHistograms:
         assert ybins.units == y.units
 
     def test_histogram2d_with_weights(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         w = rng.uniform(size=100) * g
@@ -731,7 +770,7 @@ class TestHistograms:
         assert ywbins.units == y.units
 
     def test_histogram2d_with_weights_and_density(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         w = rng.uniform(size=100) * g
@@ -743,7 +782,7 @@ class TestHistograms:
         assert ywdbins.units == y.units
 
     def test_histogram2d_with_weights_and_dimless_arr(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         w = rng.uniform(size=100) * g
@@ -756,7 +795,7 @@ class TestHistograms:
         assert not hasattr(ywbins2, "units")
 
     def test_histogramdd(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(size=100) * s
         z = rng.normal(size=100) * g
@@ -767,7 +806,7 @@ class TestHistograms:
         assert zbins.units == z.units
 
     def test_histogramdd_with_density(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         z = rng.normal(size=100) * g
@@ -780,7 +819,7 @@ class TestHistograms:
         assert zbins.units == z.units
 
     def test_histogramdd_with_weights(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         z = rng.normal(size=100) * g
@@ -794,7 +833,7 @@ class TestHistograms:
         assert zwbins.units == z.units
 
     def test_histogramdd_with_weights_and_density(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         z = rng.normal(size=100) * g
@@ -810,7 +849,7 @@ class TestHistograms:
         assert zwdbins.units == z.units
 
     def test_histogramdd_with_weights_and_dimless_arr(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         x = rng.normal(size=100) * cm
         y = rng.normal(loc=10, size=100) * s
         z = rng.normal(size=100) * g
@@ -830,16 +869,40 @@ class TestHistograms:
         sample = [unyt_array(np.arange(3), Msun)]
         np.histogramdd(sample, density=True, weights=weights)
 
+    def test_histogramdd_with_density_and_non_unyt_samples(self):
+        rng = np.random.default_rng(0)
+        x = rng.normal(size=100) * cm
+        y = rng.normal(loc=10, size=100)
+        z = rng.normal(size=100) * g
+        counts, (xbins, ybins, zbins) = np.histogramdd((x, y, z), density=True)
+        assert counts.units == (x.units * z.units) ** -1
+
     def test_histogram_bin_edges(self):
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         arr = rng.normal(size=1000) * cm
         bins = np.histogram_bin_edges(arr)
         assert type(bins) is unyt_array
         assert bins.units == arr.units
 
+    def test_histogram_input_and_bin_units_mismatch(self):
+        # regression test for https://github.com/yt-project/unyt/issues/609
+        rng = np.random.default_rng(0)
+        arr = rng.uniform(size=10) * cm
+        bins = np.linspace(0, 1, 10) * km
+        hist, resulting_bins = np.histogram(arr, bins=bins)
+        assert np.all(bins == resulting_bins)
+
+    def test_histogram_input_and_bin_dimensions_mismatch(self):
+        # regression test for https://github.com/yt-project/unyt/issues/609
+        rng = np.random.default_rng(0)
+        arr = rng.uniform(size=10) * cm
+        bins = np.linspace(0, 1, 10) * s
+        with pytest.raises(UnitConversionError):
+            np.histogram(arr, bins=bins)
+
 
 def test_concatenate():
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(0)
     x1 = rng.normal(size=100) * cm
     x2 = rng.normal(size=100) * cm
     res = np.concatenate((x1, x2))
@@ -848,7 +911,7 @@ def test_concatenate():
 
 
 def test_concatenate_different_units():
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(0)
     x1 = rng.normal(size=100) * cm
     x2 = rng.normal(size=100) * s
     with pytest.raises(
@@ -966,6 +1029,15 @@ def test_average():
     res = np.average(x1)
     assert type(res) is unyt_quantity
     assert res == 1 * cm
+
+
+def test_average_with_returned():
+    # regression test for https://github.com/yt-project/unyt/issues/608
+    x = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]] * cm
+    w = [1.0, 2.0, 3.0] * g
+    avg, wsum = np.average(x, weights=w, axis=0, returned=True)
+    assert type(wsum) is unyt_array
+    assert wsum.units == g
 
 
 def test_trim_zeros():
@@ -1941,6 +2013,9 @@ def test_isin():
     assert np.isin(1 * cm, a)
 
 
+@pytest.mark.skipif(
+    NUMPY_VERSION >= Version("2.4.0.dev0"), reason="in1d is removed in numpy 2.4"
+)
 @pytest.mark.filterwarnings("ignore:`in1d` is deprecated. Use `np.isin` instead.")
 def test_in1d_mixed_units():
     a = [1, 2, 3] * cm
@@ -1948,6 +2023,9 @@ def test_in1d_mixed_units():
         np.in1d([1, 2], a)  # noqa: NPY201
 
 
+@pytest.mark.skipif(
+    NUMPY_VERSION >= Version("2.4.0.dev0"), reason="in1d is removed in numpy 2.4"
+)
 @pytest.mark.filterwarnings("ignore:`in1d` is deprecated. Use `np.isin` instead.")
 def test_in1d():
     a = [1, 2, 3] * cm
@@ -2283,7 +2361,7 @@ class TestFunctionHelpersSignatureCompatibility:
                 if (kh := ph.kind) is not VAR_POSITIONAL:
                     assert nh == nt, f"argument {nt!r} isn't re-exposed as positional"
                     assert kh is kt, (
-                        f"helper is not re-exposing argument {nt!r} properly:"
+                        f"helper is not re-exposing argument {nt!r} properly: "
                         f"expected {kt}, got {kh}"
                     )
                     pos_helper += 1
@@ -2368,3 +2446,27 @@ class TestFunctionHelpersSignatureCompatibility:
                 f"Default value mismatch for argument {name!r}. "
                 f"Helper has {ph.default!r}, target has {pt.default!r}"
             )
+
+
+def test_squeeze_array():
+    """Check that squeeze returns the correct type for the shape of the result."""
+    arr = np.ones((3, 1)) * cm
+    arr_squeezed = np.squeeze(arr)
+    assert arr_squeezed.ndim > 0
+    assert type(arr_squeezed) is unyt_array
+
+
+def test_squeeze_scalar():
+    """Check that squeeze returns the correct type for the shape of the result."""
+    arr = np.ones(1) * cm
+    arr_squeezed = np.squeeze(arr)
+    assert arr_squeezed.ndim == 0
+    assert type(arr_squeezed) is unyt_quantity
+
+
+def test_squeeze_with_axis():
+    """Check that squeeze obeys axis kwarg."""
+    arr = np.ones((1, 1)) * cm
+    squeeze_axis = (1,)
+    arr_squeezed = np.squeeze(arr, axis=1)
+    assert arr_squeezed.ndim == arr.ndim - len(squeeze_axis)

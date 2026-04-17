@@ -1,21 +1,20 @@
 [build-system]
-requires = [
-  "setuptools>=61.2",
-  "setuptools_scm[toml]>=7.0.1",
-]
-
-build-backend = "setuptools.build_meta"
+requires = ["flit_core >=3.11,<4"]
+build-backend = "flit_core.buildapi"
 
 [project]
 name = "unyt"
+version = "3.1.0.dev0"
 description = "A package for handling numpy arrays with units"
 authors = [
     { name = "The yt project", email = "yt-dev@python.org" },
 ]
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: BSD License",
+    "Intended Audience :: Science/Research",
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: Implementation :: CPython",
@@ -29,43 +28,75 @@ dependencies = [
     "sympy>=1.9.0",
     "packaging>=20.9",
 ]
-dynamic = [
-    "version",
-]
 
 [project.readme]
 file = "README.rst"
 content-type = "text/x-rst"
-
-[project.license]
-text = "BSD-3-Clause"
 
 [project.urls]
 Homepage = "https://github.com/yt-project/unyt"
 Documentation = "https://unyt.readthedocs.io/en/stable/index.html"
 Changelog = "https://unyt.readthedocs.io/en/stable/history.html"
 
-[tool.setuptools]
-include-package-data = true
-zip-safe = false
-license-files = [
-    "LICENSE",
+[dependency-groups]
+test = [
+    "pytest-doctestplus>=1.4.0",
+    "pytest>=8.0.1",
+]
+covcheck = [
+    {include-group = "test"},
+    "coverage[toml] ; python_version < '3.11'",
+    "coverage>=7.10.0",
+]
+doc = [
+    {include-group = "integration"},
+    "docutils>=0.21.2",
+    "sphinx>=7.4.7",
+]
+integration = [
+    "astropy>=4.0.4",
+    "dask[array,diagnostics]>=2021.4.1",
+    "h5py>=3.0.0",
+    "matplotlib>=3.3.3,!=3.5.0",
+    "pint>=0.9",
 ]
 
-[tool.setuptools.packages.find]
+[tool.uv]
+# never build the following packages from source. Prefer more recent versions
+# with binary distributions even with --resolution=lowest[-direct]
+no-build-package = [
+    "astropy",
+    "bokeh",
+    "coverage",
+    "h5py",
+    "numpy",
+    "matplotlib",
+    "pandas",
+    "toolz",
+    "pyyaml",
+    "kiwisolver",
+    "pillow",
+    "pyerfa",
+]
+constraint-dependencies = [
+    "mpmath>=1.2.1",
+]
+
+# ensure that uv resolves envs that are compatible with macOS arm64,
+# even in drastic conditions like --resolution=lowest[-direct],
+# taking into account tool.uv.no-build-package
+required-environments = [
+    "sys_platform == 'darwin' and platform_machine == 'arm64'",
+]
+
+
+[tool.flit.sdist]
 include = [
     "unyt",
     "unyt.tests",
     "unyt.tests.data",
     "unyt._mpl_array_converter",
 ]
-namespaces = false
-
-[tool.setuptools.package-data]
-unyt = [
-    "tests/data/old_json_registry.txt",
-]
-
 
 [tool.black]
 exclude = '''
@@ -98,7 +129,6 @@ exclude = [
 ignore = [
     "E501",
     "B904",
-    "UP038", # non-pep604-isinstance
     "B905", # zip-without-explicit-strict
 ]
 select = [
@@ -116,10 +146,6 @@ select = [
 [tool.ruff.lint.isort]
 combine-as-imports = true
 
-[tool.setuptools_scm]
-write_to = "unyt/_version.py"
-version_scheme = "post-release"
-
 [tool.pytest.ini_options]
 addopts = "-ra --ignore=benchmarks --ignore=paper --ignore=unyt/_mpl_array_converter --color=yes"
 filterwarnings = [
@@ -133,9 +159,16 @@ filterwarnings = [
 ]
 
 [tool.coverage.run]
+source = [
+    "unyt",
+]
 omit = [
     "docs/*",
     "unyt/_version.py",
     "unyt/_on_demand_imports.py",
     "unyt/tests/test_linters.py",
 ]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false

@@ -2827,3 +2827,229 @@ def test_setitem():
     a[1] = unyt_quantity(2)
     assert a[1].value == 2
     assert a[1].units == cm
+
+
+def test_division_by_float_recursion():
+    # regression test for https://github.com/yt-project/unyt/issues/588
+    # see also https://github.com/yt-project/unyt/issues/540
+
+    # this case previously caused infinite recursion:
+    out_in_place = unyt_array([2, 4, 6], 10 * m)
+    result_in_place = np.true_divide(out_in_place, 2.0, out=out_in_place)
+    assert_array_equal_units(
+        out_in_place,
+        unyt_array([1, 2, 3], 10 * m),
+    )
+    assert_array_equal_units(
+        result_in_place,
+        unyt_array([1, 2, 3], 10 * m),
+    )
+
+
+def test_division_by_ndarray_recursion():
+    # regression test for https://github.com/yt-project/unyt/issues/588
+    # see also https://github.com/yt-project/unyt/issues/540
+    a = unyt_array([2, 4, 6], 10 * m)
+
+    out_ndarray = np.zeros(3)
+    result_ndarray = np.true_divide(a, 2.0, out=out_ndarray)
+    assert_array_equal_units(
+        out_ndarray,
+        np.array([10, 20, 30]),
+    )
+    assert_array_equal_units(
+        result_ndarray,
+        unyt_array([10, 20, 30], m),
+    )
+
+
+def test_division_with_unyt_array_out_recursion():
+    # regression test for https://github.com/yt-project/unyt/issues/588
+    # see also https://github.com/yt-project/unyt/issues/540
+    a = unyt_array([2, 4, 6], 10 * m)
+
+    out_unyt_array_m = unyt_array([0, 0, 0], m)
+    result_unyt_array_m = np.true_divide(a, 2.0, out=out_unyt_array_m)
+    assert_array_equal_units(
+        out_unyt_array_m,
+        unyt_array([10, 20, 30], m),
+    )
+    assert_array_equal_units(
+        result_unyt_array_m,
+        unyt_array([10, 20, 30], m),
+    )
+
+
+def test_division_with_unyt_array_quantity_units_out_recursion():
+    # regression test for https://github.com/yt-project/unyt/issues/588
+    # see also https://github.com/yt-project/unyt/issues/540
+    a = unyt_array([2, 4, 6], 10 * m)
+
+    # this case previously caused infinite recursion:
+    out_unyt_array_10m = unyt_array([0, 0, 0], 10 * m)
+    result_unyt_array_10m = np.true_divide(a, 2.0, out=out_unyt_array_10m)
+    assert_array_equal_units(
+        out_unyt_array_10m,
+        unyt_array([1, 2, 3], 10 * m),
+    )
+    assert_array_equal_units(
+        result_unyt_array_10m,
+        unyt_array([1, 2, 3], 10 * m),  # QUERY: should this be [10, 20, 30], m?
+    )
+
+
+def test_division_with_unyt_array_different_units_out_recursion():
+    # regression test for https://github.com/yt-project/unyt/issues/588
+    # see also https://github.com/yt-project/unyt/issues/540
+    a = unyt_array([2, 4, 6], 10 * m)
+
+    out_unyt_array_cm = unyt_array([0, 0, 0], cm)
+    result_unyt_array_cm = np.true_divide(a, 2.0, out=out_unyt_array_cm)
+    assert_array_equal_units(
+        out_unyt_array_cm,
+        unyt_array([10, 20, 30], m),
+    )
+    assert_array_equal_units(
+        result_unyt_array_cm,
+        unyt_array([10, 20, 30], m),
+    )
+
+
+def test_division_by_ndarray_with_inplace_out_recursion():
+    # regression test for https://github.com/yt-project/unyt/issues/588
+    # see also https://github.com/yt-project/unyt/issues/540
+
+    #  this case previously caused infinite recursion:
+    out_div_ndarray = unyt_array([2, 4, 6], 10 * m)
+    result_div_ndarray = np.true_divide(
+        out_div_ndarray, np.array([2, 2, 2]), out=out_div_ndarray
+    )
+    assert_array_equal_units(
+        out_div_ndarray,
+        unyt_array([1, 2, 3], 10 * m),
+    )
+    assert_array_equal_units(
+        result_div_ndarray,
+        unyt_array([1, 2, 3], 10 * m),  # QUERY: should this be [10, 20, 30], m?
+    )
+
+
+def test_division_by_unyt_array_with_inplace_out_recursion():
+    # regression test for https://github.com/yt-project/unyt/issues/588
+    # see also https://github.com/yt-project/unyt/issues/540
+
+    # this case previously caused infinite recursion:
+    out_div_unyt_array = unyt_array([2, 4, 6], 10 * m)
+    result_div_unyt_array = np.true_divide(
+        out_div_unyt_array, unyt_array([2, 2, 2], 10 * m), out=out_div_unyt_array
+    )
+    assert_array_equal_units(
+        out_div_unyt_array,
+        unyt_array([1, 2, 3], "dimensionless"),
+    )
+    assert_array_equal_units(
+        result_div_unyt_array,
+        unyt_array([1, 2, 3], "dimensionless"),
+    )
+
+
+def test_division_by_unyt_array_unyt_quantity_units_with_inplace_out_recursion():
+    # regression test for https://github.com/yt-project/unyt/issues/588
+    # see also https://github.com/yt-project/unyt/issues/540
+
+    # this case previously caused infinite recursion:
+    out_div_unyt_quantity = unyt_array([2, 4, 6], 10 * m)
+    result_div_unyt_quantity = np.true_divide(
+        out_div_unyt_quantity, unyt_quantity(2, 10 * m), out=out_div_unyt_quantity
+    )
+    assert_array_equal_units(
+        out_div_unyt_quantity,
+        unyt_array([1, 2, 3], "dimensionless"),
+    )
+    assert_array_equal_units(
+        result_div_unyt_quantity,
+        unyt_array([1, 2, 3], "dimensionless"),
+    )
+
+
+def test_multiplication_by_one_recursion():
+    # regression test for https://github.com/yt-project/unyt/issues/588
+    # see also https://github.com/yt-project/unyt/issues/540
+
+    out_mul_one = unyt_array([1, 2, 3], 10 * m)
+    result_mul_one = np.multiply(out_mul_one, 1, out=out_mul_one)
+    assert_array_equal_units(
+        out_mul_one,
+        unyt_array([1, 2, 3], 10 * m),
+    )
+    assert_array_equal_units(
+        result_mul_one,
+        unyt_array([1, 2, 3], 10 * m),
+    )
+
+
+def test_mean_recursion():
+    # regression test for https://github.com/yt-project/unyt/issues/588
+    # see also https://github.com/yt-project/unyt/issues/540
+    a = unyt_array([2, 4, 6], 10 * m)
+
+    # previously caused infinite recursion:
+    assert_array_equal_units(
+        a.mean(),
+        unyt_quantity(4.0, 10 * m),
+    )
+
+
+def test_std_recursion():
+    # regression test for https://github.com/yt-project/unyt/issues/588
+    # see also https://github.com/yt-project/unyt/issues/540
+    a = unyt_array([1, 1, 5, 5], 10 * m)
+
+    if NUMPY_VERSION >= Version("2.4.0"):
+        # https://github.com/yt-project/unyt/issues/603
+        # https://github.com/numpy/numpy/pull/29951
+        expected = unyt_quantity(2.0, 10 * m)
+    else:
+        expected = unyt_quantity(20.0, m)
+
+    # previously caused infinite recursion:
+    assert_array_equal_units(a.std(), expected)
+
+
+def test_custom_unit_multiplication_with_out_kwarg():
+    # regression test for https://github.com/yt-project/unyt/issues/599
+    reg = UnitRegistry()
+    reg.add(
+        "code_length",
+        base_value=10.0,
+        dimensions=dimensions.length,
+    )
+    u = Unit("code_length", registry=reg)
+    data = 0 * u
+    # previously crashed with:
+    # UnitParseError: Could not find unit symbol 'code_length' in the provided symbols.
+    np.multiply(data, data, out=data)
+
+
+def test_squeeze_method_array():
+    """Check that squeeze returns the correct type for the shape of the result."""
+    arr = np.ones((3, 1)) * cm
+    arr_squeezed = arr.squeeze()
+    assert arr_squeezed.ndim > 0
+    assert type(arr_squeezed) is unyt_array
+
+
+def test_squeeze_method_scalar():
+    """Check that squeeze returns the correct type for the shape of the result."""
+    arr = np.ones(1) * cm
+    arr_squeezed = arr.squeeze()
+    assert arr_squeezed.ndim == 0
+    assert type(arr_squeezed) is unyt_quantity
+
+
+def test_squeeze_method_with_axis():
+    """Check that squeeze obeys axis kwarg."""
+    arr = np.ones((1, 1)) * cm
+    squeeze_axis = (1,)
+    arr_squeezed = arr.squeeze(axis=1)
+    assert arr_squeezed.ndim == arr.ndim - len(squeeze_axis)
