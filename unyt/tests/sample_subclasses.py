@@ -543,7 +543,7 @@ def _histogramdd(sample, bins=10, range=None, density=None, weights=None, normed
         bins = D * [bins]
     helper_results = [
         _prepare_array_func_args(s, bins=b, range=r)
-        for s, b, r in zip(sample, bins, ranges)
+        for s, b, r in zip(sample, bins, ranges, strict=True)
     ]
     if not density:
         helper_result_w = _prepare_array_func_args(weights=weights)
@@ -599,7 +599,7 @@ def _histogramdd(sample, bins=10, range=None, density=None, weights=None, normed
         counts,
         tuple(
             _return_helper(b, helper_result)
-            for b, helper_result in zip(bins, helper_results)
+            for b, helper_result in zip(bins, helper_results, strict=False)
         ),
     )
 
@@ -933,7 +933,9 @@ def meshgrid(*xi, **kwargs):
     # need to iterate over arguments.
     res = np.meshgrid._implementation(*xi, **kwargs)
     ret_type = tuple if NUMPY_VERSION >= Version("2.0.0dev0") else list
-    return ret_type(_copy_extra_attr_if_present(x, r) for (x, r) in zip(xi, res))
+    return ret_type(
+        _copy_extra_attr_if_present(x, r) for (x, r) in zip(xi, res, strict=False)
+    )
 
 
 class subclass_uarray(unyt_array):

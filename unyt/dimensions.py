@@ -277,7 +277,9 @@ def accepts(**arg_units):
                 If the units do not match.
 
             """
-            for arg_name, arg_value in chain(zip(names_of_args, args), kwargs.items()):
+            for arg_name, arg_value in chain(
+                zip(names_of_args, args, strict=False), kwargs.items()
+            ):
                 if arg_name in arg_units:  # function argument needs to be checked
                     dimension = arg_units[arg_name]
                     if not _has_dimensions(arg_value, dimension):
@@ -378,7 +380,7 @@ def returns(*r_units, r_unit=None):
             else:
                 result_tuple = (results,)
 
-            for result, dimension in zip(result_tuple, r_units):
+            for result, dimension in zip(result_tuple, r_units, strict=True):
                 if not _has_dimensions(result, dimension):
                     raise TypeError(f"result '{result}' does not match {dimension}")
             return results
