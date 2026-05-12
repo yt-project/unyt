@@ -20,6 +20,11 @@ repos:
           - id: check-yaml
           - id: check-toml
 
+    - repo: https://github.com/astral-sh/uv-pre-commit
+      rev: 0.9.22
+      hooks:
+      - id: uv-lock
+
     # TODO: replace this with ruff when it supports embedded python blocks
     # see https://github.com/astral-sh/ruff/issues/8237
     - repo: https://github.com/adamchainz/blacken-docs
