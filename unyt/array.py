@@ -339,7 +339,7 @@ def _apply_power_mapping(ufunc, in_unit, in_size, in_shape, input_kwarg_dict):
     return mul, unit
 
 
-def _subclass_ufunc_prepare_and_finalize(ufunc_handler):
+def _ufunc_prepare_and_finalize(ufunc_handler):
     """
     This wrapper function is intended to be applied to __array_ufunc__ on
     unyt_array.
@@ -348,6 +348,12 @@ def _subclass_ufunc_prepare_and_finalize(ufunc_handler):
     classmethods: __unyt_ufunc_prepare__ and __unyt_ufunc_finalize__.
     These are called if available to allow subclasses to prepare arguments
     for and modify return values from numpy ufuncs.
+
+    These methods can also be defined on classes that are not subclasses of
+    unyt_array allowing them to participate in resolving applying a binary
+    ufunc to a unyt_array and a second argument of their type. In this case
+    the result is a unyt_array (unless the other class modifies it in its
+    __unyt_ufunc_finalize__ method).
 
     The __unyt_ufunc_prepare__ method should be a classmethod accepting
     (ufunc, method, *inputs, **kwargs), i.e. the same inputs as
@@ -371,16 +377,33 @@ def _subclass_ufunc_prepare_and_finalize(ufunc_handler):
                 ret_class = _get_binary_op_return_class(
                     type(inputs[0]), type(inputs[1])
                 )
+                prepare = getattr(ret_class, "__unyt_ufunc_prepare__", None)
+                finalize = getattr(ret_class, "__unyt_ufunc_finalize__", None)
+
             except RuntimeError:
-                # we're sure none of the arguments want to modify the input
-                # or output, so bypass __unyt_ufunc_prepare__ and
-                # __unyt_ufunc_finalize__.
-                return ufunc_handler(self, ufunc, method, *inputs, **kwargs)
+                prepare = None
+                finalize = None
+                for inp in inputs:
+                    prepare = getattr(inp, "__unyt_ufunc_prepare__", prepare)
+                    finalize = getattr(inp, "__unyt_ufunc_finalize__", finalize)
+                if prepare is None and finalize is None:
+                    # we're sure none of the arguments want to modify the input
+                    # or output, so bypass __unyt_ufunc_prepare__ and
+                    # __unyt_ufunc_finalize__.
+                    return ufunc_handler(self, ufunc, method, *inputs, **kwargs)
+                else:
+                    # one of the arguments has __unyt_ufunc_prepare__ or
+                    # __unyt_ufunc_finalize__ but is not a subclass of unyt_array, we
+                    # trust that they know what they're doing and return a unyt_array
+                    # (or unyt_quantity).
+                    ret_class = type(self)
         else:
             ret_class = type(inputs[0])
-        if hasattr(ret_class, "__unyt_ufunc_prepare__"):
-            prepared_ufunc, prepared_method, prepared_inputs, prepared_kwargs = (
-                ret_class.__unyt_ufunc_prepare__(ufunc, method, *inputs, **kwargs)
+            prepare = getattr(ret_class, "__unyt_ufunc_prepare__", None)
+            finalize = getattr(ret_class, "__unyt_ufunc_finalize__", None)
+        if prepare is not None:
+            prepared_ufunc, prepared_method, prepared_inputs, prepared_kwargs = prepare(
+                ufunc, method, *inputs, **kwargs
             )
         else:
             prepared_ufunc, prepared_method, prepared_inputs, prepared_kwargs = (
@@ -396,10 +419,8 @@ def _subclass_ufunc_prepare_and_finalize(ufunc_handler):
             *prepared_inputs,
             **prepared_kwargs,
         )
-        if hasattr(ret_class, "__unyt_ufunc_finalize__"):
-            return ret_class.__unyt_ufunc_finalize__(
-                result, ufunc, method, *inputs, **kwargs
-            )
+        if finalize is not None:
+            return finalize(result, ufunc, method, *inputs, **kwargs)
         else:
             return result
 
@@ -1874,7 +1895,7 @@ class unyt_array(np.ndarray):
     # Start operation methods
     #
 
-    @_subclass_ufunc_prepare_and_finalize
+    @_ufunc_prepare_and_finalize
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
         func = getattr(ufunc, method)
         if "out" not in kwargs:

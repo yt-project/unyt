@@ -3049,3 +3049,58 @@ def test_squeeze_method_with_axis():
     squeeze_axis = (1,)
     arr_squeezed = arr.squeeze(axis=1)
     assert arr_squeezed.ndim == arr.ndim - len(squeeze_axis)
+
+
+def test_other_argument_can_handle_binary_ufunc():
+    class MyClass:
+        def __init__(self, x: int):
+            self.x = x
+
+        @classmethod
+        def __unyt_ufunc_prepare__(cls, ufunc, method, *inputs, **kwargs):
+            return (
+                ufunc,
+                method,
+                tuple(i.x if isinstance(i, MyClass) else i for i in inputs),
+                kwargs,
+            )
+
+        @classmethod
+        def __unyt_ufunc_finalize__(cls, result, ufunc, method, *inputs, **kwargs):
+            return result
+
+    x = 5
+    mc = MyClass(x=x)
+    uq = unyt_quantity(2, "m")
+    ua = unyt_array([2], "m")
+
+    for u in ua, uq:
+        assert_almost_equal(x * u, mc * u)
+        assert_almost_equal(x * u, u * mc)
+        assert_almost_equal(x / u, mc / u)
+        assert_almost_equal(u / x, u / mc)
+
+
+def test_other_argument_cannot_handle_binary_ufunc():
+    class MyClass:
+        def __init__(self, x: int):
+            self.x = x
+
+    x = 5
+    mc = MyClass(x=x)
+    uq = unyt_quantity(2, "m")
+    ua = unyt_array([2], "m")
+
+    msg = (
+        "Received an input or operand that cannot be converted to a "
+        "unyt_array with uniform units"
+    )
+    for u in ua, uq:
+        with pytest.raises(IterableUnitCoercionError, match=msg):
+            mc * u
+        with pytest.raises(IterableUnitCoercionError, match=msg):
+            u * mc
+        with pytest.raises(IterableUnitCoercionError, match=msg):
+            mc / u
+        with pytest.raises(IterableUnitCoercionError, match=msg):
+            u / mc
