@@ -339,7 +339,7 @@ def _apply_power_mapping(ufunc, in_unit, in_size, in_shape, input_kwarg_dict):
     return mul, unit
 
 
-def _subclass_ufunc_prepare_and_finalize(ufunc_handler):
+def _ufunc_prepare_and_finalize(ufunc_handler):
     """
     This wrapper function is intended to be applied to __array_ufunc__ on
     unyt_array.
@@ -348,6 +348,12 @@ def _subclass_ufunc_prepare_and_finalize(ufunc_handler):
     classmethods: __unyt_ufunc_prepare__ and __unyt_ufunc_finalize__.
     These are called if available to allow subclasses to prepare arguments
     for and modify return values from numpy ufuncs.
+
+    These methods can also be defined on classes that are not subclasses of
+    unyt_array allowing them to participate in resolving applying a binary
+    ufunc to a unyt_array and a second argument of their type. In this case
+    the result is a unyt_array (unless the other class modifies it in its
+    __unyt_ufunc_finalize__ method).
 
     The __unyt_ufunc_prepare__ method should be a classmethod accepting
     (ufunc, method, *inputs, **kwargs), i.e. the same inputs as
@@ -1887,7 +1893,7 @@ class unyt_array(np.ndarray):
     # Start operation methods
     #
 
-    @_subclass_ufunc_prepare_and_finalize
+    @_ufunc_prepare_and_finalize
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
         func = getattr(ufunc, method)
         if "out" not in kwargs:
