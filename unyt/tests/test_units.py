@@ -899,3 +899,102 @@ def test_mixed_registry_operations():
     assert_almost_equal(a * b, b * a)
     assert_almost_equal(b / a, b / a.in_units("km"))
     assert_almost_equal(a / b, a / b.in_units("km"))
+
+
+def test_other_argument_can_handle_multiplication_and_division():
+
+    class MyClass:
+        def __init__(self, x):
+            self.x = x
+
+        def __mul__(self, other):
+            return self.x * other
+
+        def __truediv__(self, other):
+            return self.x / other
+
+        def __rtruediv__(self, other):
+            return other / self.x
+
+    u = Unit("m")
+    x = 5
+    mc = MyClass(x=x)
+
+    assert_almost_equal(x * u, mc * u)  # handled by MyClass.__mul__
+    assert_almost_equal(x * u, u * mc)  # handled by MyClass.__mul__
+    assert_almost_equal(x / u, mc / u)  # handled by MyClass.__truediv__
+    assert_almost_equal(u / x, u / mc)  # handled by MyClass.__rtruediv__
+
+
+def test_other_argument_typeerror_on_multiplication_or_division():
+
+    class MyClass:
+        def __init__(self):
+            return
+
+        def __mul__(self, other):
+            return other * None  # always raises TypeError
+
+        def __rtruediv__(self, other):
+            return other / None  # always raises TypeError
+
+    u = Unit("m")
+    mc = MyClass()
+    mul_msg = "Tried to multiply a Unit object with"
+    div_msg = "Tried to divide a Unit object by"
+
+    # only test for case when MyClass is right argument, when left it's its own problem
+    with pytest.raises(InvalidUnitOperation, match=mul_msg):
+        u * mc
+    with pytest.raises(InvalidUnitOperation, match=div_msg):
+        u / mc
+
+
+def test_other_argument_cannot_handle_multiplication_and_division():
+
+    class MyClass:
+        def __init__(self, x):
+            self.x = x
+
+    u = Unit("m")
+    x = 5
+    mc = MyClass(x=x)
+    mul_msg = "Tried to multiply a Unit object with"
+    div_msg = "Tried to divide a Unit object by"
+
+    with pytest.raises(InvalidUnitOperation, match=mul_msg):
+        mc * u
+    with pytest.raises(InvalidUnitOperation, match=mul_msg):
+        u * mc
+    with pytest.raises(InvalidUnitOperation, match=mul_msg):
+        mc / u  # handled as multiplication by inverse so expect mul_msg
+    with pytest.raises(InvalidUnitOperation, match=div_msg):
+        u / mc
+
+
+def test_other_argument_explicitly_cannot_handle_multiplication_and_division():
+
+    class MyClass:
+        def __init__(self, x):
+            self.x = x
+
+        def __mul__(self, x):
+            return NotImplemented
+
+        def __rtruediv__(self, x):
+            return NotImplemented
+
+    u = Unit("m")
+    x = 5
+    mc = MyClass(x=x)
+    mul_msg = "Tried to multiply a Unit object with"
+    div_msg = "Tried to divide a Unit object by"
+
+    with pytest.raises(InvalidUnitOperation, match=mul_msg):
+        mc * u
+    with pytest.raises(InvalidUnitOperation, match=mul_msg):
+        u * mc
+    with pytest.raises(InvalidUnitOperation, match=mul_msg):
+        mc / u  # handled as multiplication by inverse so expect mul_msg
+    with pytest.raises(InvalidUnitOperation, match=div_msg):
+        u / mc

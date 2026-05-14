@@ -402,10 +402,21 @@ class Unit:
             else:
                 units = self
             if data.dtype.kind not in ("f", "u", "i", "c"):
+                # ---------------- OPTION A ---------------
+                if hasattr(u, "__mul__"):
+                    try:
+                        ret = u.__mul__(self)
+                        if ret is not NotImplemented:
+                            return ret
+                    except TypeError:
+                        pass
                 raise InvalidUnitOperation(
                     f"Tried to multiply a Unit object with '{u}' (type {type(u)}). "
                     "This behavior is undefined."
                 )
+                # ---------------- OPTION B ---------------
+                # return NotImplemented
+                # -----------------------------------------
             if data.shape == ():
                 return _import_cache_singleton.uq(data, units, bypass_validation=True)
             return _import_cache_singleton.ua(data, units, bypass_validation=True)
@@ -442,10 +453,21 @@ class Unit:
 
                 return unyt_quantity(1.0, self) / u
             else:
+                # ---------------- OPTION A ---------------
+                if hasattr(u, "__rtruediv__"):
+                    try:
+                        ret = u.__rtruediv__(self)
+                        if ret is not NotImplemented:
+                            return ret
+                    except TypeError:
+                        pass
                 raise InvalidUnitOperation(
                     f"Tried to divide a Unit object by '{u}' (type {type(u)}). "
                     "This behavior is undefined."
                 )
+                # ---------------- OPTION B ---------------
+                # return NotImplemented
+                # -----------------------------------------
         elif self.dimensions is logarithmic and not u.is_dimensionless:
             raise InvalidUnitOperation(f"Tried to divide '{self}' and '{u}'.")
         elif u.dimensions is logarithmic and not self.is_dimensionless:
