@@ -371,16 +371,31 @@ def _subclass_ufunc_prepare_and_finalize(ufunc_handler):
                 ret_class = _get_binary_op_return_class(
                     type(inputs[0]), type(inputs[1])
                 )
+                prepare = getattr(ret_class, "__unyt_ufunc_prepare__", None)
+                finalize = getattr(ret_class, "__unyt_ufunc_finalize__", None)
+
             except RuntimeError:
-                # we're sure none of the arguments want to modify the input
-                # or output, so bypass __unyt_ufunc_prepare__ and
-                # __unyt_ufunc_finalize__.
-                return ufunc_handler(self, ufunc, method, *inputs, **kwargs)
+                for inp in inputs:
+                    prepare = getattr(inp, "__unyt_ufunc_prepare__", None)
+                    finalize = getattr(inp, "__unyt_ufunc_finalize__", None)
+                if prepare is None and finalize is None:
+                    # we're sure none of the arguments want to modify the input
+                    # or output, so bypass __unyt_ufunc_prepare__ and
+                    # __unyt_ufunc_finalize__.
+                    return ufunc_handler(self, ufunc, method, *inputs, **kwargs)
+                else:
+                    # one of the arguments has __unyt_ufunc_prepare__ or
+                    # __unyt_ufunc_finalize__ but is not a subclass of unyt_array, we
+                    # trust that they know what they're doing and return a unyt_array
+                    # (or unyt_quantity).
+                    ret_class = type(self)
         else:
             ret_class = type(inputs[0])
-        if hasattr(ret_class, "__unyt_ufunc_prepare__"):
-            prepared_ufunc, prepared_method, prepared_inputs, prepared_kwargs = (
-                ret_class.__unyt_ufunc_prepare__(ufunc, method, *inputs, **kwargs)
+            prepare = getattr(ret_class, "__unyt_ufunc_prepare__", None)
+            finalize = getattr(ret_class, "__unyt_ufunc_finalize__", None)
+        if prepare is not None:
+            prepared_ufunc, prepared_method, prepared_inputs, prepared_kwargs = prepare(
+                ufunc, method, *inputs, **kwargs
             )
         else:
             prepared_ufunc, prepared_method, prepared_inputs, prepared_kwargs = (
@@ -396,10 +411,8 @@ def _subclass_ufunc_prepare_and_finalize(ufunc_handler):
             *prepared_inputs,
             **prepared_kwargs,
         )
-        if hasattr(ret_class, "__unyt_ufunc_finalize__"):
-            return ret_class.__unyt_ufunc_finalize__(
-                result, ufunc, method, *inputs, **kwargs
-            )
+        if finalize is not None:
+            return finalize(result, ufunc, method, *inputs, **kwargs)
         else:
             return result
 
