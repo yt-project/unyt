@@ -381,9 +381,11 @@ def _ufunc_prepare_and_finalize(ufunc_handler):
                 finalize = getattr(ret_class, "__unyt_ufunc_finalize__", None)
 
             except RuntimeError:
+                prepare = None
+                finalize = None
                 for inp in inputs:
-                    prepare = getattr(inp, "__unyt_ufunc_prepare__", None)
-                    finalize = getattr(inp, "__unyt_ufunc_finalize__", None)
+                    prepare = getattr(inp, "__unyt_ufunc_prepare__", prepare)
+                    finalize = getattr(inp, "__unyt_ufunc_finalize__", finalize)
                 if prepare is None and finalize is None:
                     # we're sure none of the arguments want to modify the input
                     # or output, so bypass __unyt_ufunc_prepare__ and
