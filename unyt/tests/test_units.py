@@ -926,6 +926,30 @@ def test_other_argument_can_handle_multiplication_and_division():
     assert_almost_equal(u / x, u / mc)  # handled by MyClass.__rtruediv__
 
 
+def test_other_argument_typeerror_on_multiplication_or_division():
+
+    class MyClass:
+        def __init__(self):
+            return
+
+        def __mul__(self, other):
+            return other * None  # always raises TypeError
+
+        def __rtruediv__(self, other):
+            return other / None  # always raises TypeError
+
+    u = Unit("m")
+    mc = MyClass()
+    mul_msg = "Tried to multiply a Unit object with"
+    div_msg = "Tried to divide a Unit object by"
+
+    # only test for case when MyClass is right argument, when left it's its own problem
+    with pytest.raises(InvalidUnitOperation, match=mul_msg):
+        u * mc
+    with pytest.raises(InvalidUnitOperation, match=div_msg):
+        u / mc
+
+
 def test_other_argument_cannot_handle_multiplication_and_division():
 
     class MyClass:
@@ -955,6 +979,9 @@ def test_other_argument_explicitly_cannot_handle_multiplication_and_division():
             self.x = x
 
         def __mul__(self, x):
+            return NotImplemented
+
+        def __rtruediv__(self, x):
             return NotImplemented
 
     u = Unit("m")
