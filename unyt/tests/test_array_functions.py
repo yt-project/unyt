@@ -148,7 +148,6 @@ NOOP_FUNCTIONS = {
     np.extract,  # works out of the box (tested)
     np.setxor1d,  # we get it for free with previously implemented functions (tested)
     np.lexsort,  # returns pure numbers
-    np.digitize,  # returns pure numbers
     np.tril_indices_from,  # returns pure numbers
     np.triu_indices_from,  # returns pure numbers
     np.imag,  # works out of the box (tested)
@@ -2095,6 +2094,30 @@ def test_searchsorted_mixed_units():
 def test_searchsorted(val):
     res = np.searchsorted([1, 2, 3, 4, 5] * cm, val)
     assert res == 2
+
+
+def test_digitize_converts_bins():
+    # bins in different (but compatible) units must be converted to the data's
+    # units before binning: 1, 2, 3 cm are all far below 1 km, so they all land
+    # in the first bin (see #633)
+    res = np.digitize([1, 2, 3] * cm, [0, 1, 2, 3] * km)
+    assert_array_equal_units(res, np.array([1, 1, 1]))
+
+
+def test_digitize_right():
+    res = np.digitize([1, 2, 3] * cm, [0, 1, 2, 3] * km, right=True)
+    assert_array_equal_units(res, np.array([1, 1, 1]))
+
+
+def test_digitize_dimensionless_plain_bins():
+    # a dimensionless array with plain (unit-less) bins must still work
+    res = np.digitize([1, 2, 3] * dimensionless, [0, 1, 2, 3])
+    assert_array_equal_units(res, np.array([2, 3, 4]))
+
+
+def test_digitize_mixed_units():
+    with pytest.raises(UnitConversionError):
+        np.digitize([1, 2, 3] * g, [0, 1, 2, 3] * s)
 
 
 @pytest.mark.parametrize(
