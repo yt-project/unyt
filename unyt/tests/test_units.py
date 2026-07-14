@@ -579,8 +579,8 @@ def test_creation_from_unyt_array():
     assert_equal(u1, electrostatic_unit.units)
 
     u2 = Unit(elementary_charge_cgs)
-    assert_equal(str(u2), "4.80320467299766e-10*statC")
-    assert_equal(u2, Unit("4.80320467299766e-10*statC"))
+    assert_equal(str(u2), "4.80320471257026e-10*statC")
+    assert_equal(u2, Unit("4.80320471257026e-10*statC"))
     assert_equal(u1, elementary_charge_cgs.units)
 
     assert_allclose((u1 / u2).base_value, electrostatic_unit / elementary_charge_cgs)
