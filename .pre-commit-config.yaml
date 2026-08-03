@@ -21,7 +21,7 @@ repos:
           - id: check-toml
 
     - repo: https://github.com/astral-sh/uv-pre-commit
-      rev: 0.11.26
+      rev: 0.12.1
       hooks:
       - id: uv-lock
 
@@ -34,7 +34,7 @@ repos:
             additional_dependencies: [black==24.10.0]
 
     - repo: https://github.com/astral-sh/ruff-pre-commit
-      rev: v0.15.20
+      rev: v0.16.1
       hooks:
           - id: ruff-format
           - id: ruff-check
@@ -46,7 +46,7 @@ repos:
           - id: rst-backticks
 
     - repo: https://github.com/codespell-project/codespell
-      rev: v2.4.2
+      rev: v2.4.3
       hooks:
           - id: codespell
             args: [--skip="*.pdf", -L, 'smoot,copin,celcius,ue,bu,dne,ond']
