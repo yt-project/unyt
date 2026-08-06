@@ -590,15 +590,15 @@ def test_comparisons():
         [True, True, False],
     )
 
-    for op, answer in zip(ops, answers):
+    for op, answer in zip(ops, answers, strict=True):
         operate_and_compare(a1, a2, op, answer)
-    for op, answer in zip(ops, answers):
+    for op, answer in zip(ops, answers, strict=True):
         operate_and_compare(a1, dimless, op, answer)
 
-    for op, answer in zip(ops, answers):
+    for op, answer in zip(ops, answers, strict=True):
         operate_and_compare(a1, a3, op, answer)
 
-    for op, answer in zip(ops, answers):
+    for op, answer in zip(ops, answers, strict=True):
         operate_and_compare(a1, a3.in_units("cm"), op, answer)
 
     # Check that comparisons with dimensionless quantities work in both
@@ -862,7 +862,7 @@ def test_iteration():
     """
     a = np.arange(3)
     b = unyt_array(np.arange(3), "cm")
-    for ia, ib in zip(a, b):
+    for ia, ib in zip(a, b, strict=True):
         assert_equal(ia, ib.value)
         assert_equal(ib.units, b.units)
 
@@ -1153,7 +1153,7 @@ def binary_ufunc_comparison(ufunc, a, b):
     if isinstance(ret, tuple):
         assert isinstance(out, tuple)
         assert len(out) == len(ret)
-        for o, r in zip(out, ret):
+        for o, r in zip(out, ret, strict=True):
             assert_array_equal(r, o)
     else:
         assert_array_equal(ret, out)

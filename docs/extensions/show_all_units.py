@@ -149,7 +149,13 @@ def as_rest_table(data, full=False):
     data = data if data else [["No Data"]]
     table = []
     # max size of each column
-    sizes = list(map(max, zip(*[[len(str(elt)) for elt in member] for member in data])))
+    sizes = [
+        max(*args)
+        for args in zip(
+            *[[len(str(elt)) for elt in member] for member in data],
+            strict=True,
+        )
+    ]
     num_elts = len(sizes)
 
     if full:
