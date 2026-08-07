@@ -2404,13 +2404,14 @@ class TestFunctionHelpersSignatureCompatibility:
             args_target = self.get_param_group(params_helper, [kind])
             args_helper = self.get_param_group(params_helper, [kind])
 
-            if (nhelper := len(args_helper)) > (ntarget := len(args_target)):
-                unknown: list[str] = args_helper[ntarget:]
-                raise AssertionError(
-                    f"Found unknown {kind} parameter(s) "
-                    "in helper's signature: "
-                    f"{unknown}, at position(s) {list(range(ntarget, nhelper))}"
-                )
+            nhelper = len(args_helper)
+            ntarget = len(args_target)
+            unknown: list[str] = args_helper[ntarget:]
+            assert not unknown, (
+                f"Found unknown {kind} parameter(s) "
+                "in helper's signature: "
+                f"{unknown}, at position(s) {list(range(ntarget, nhelper))}"
+            )
 
         # keyword-allowed
         keyword_allowed_target = set(
