@@ -79,6 +79,14 @@ def assert_array_equal_units(x, y, **kwargs):
     ):
         raise AssertionError(f"Arguments' units do not match (got {xu} and {yu})")
 
+def assert_lists_allclose(actual, desired, rtol=1e-7, atol=0, **kwargs):
+    if not isinstance(actual, list):
+        raise AssertionError
+    if len(actual) != len(desired):
+        raise AssertionError
+    for a, d in zip(actual, desired):
+        if not allclose_units(a, d):
+            raise AssertionError
 
 def _process_warning(op, message, warning_class, args=(), kwargs=None):
     if kwargs is None:
