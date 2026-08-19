@@ -603,6 +603,41 @@ def test_decagram():
     assert dag.get_conversion_factor(g) == (10.0, None)
 
 
+def test_conversion_factor_dtype():
+    # the documented dtype argument should control the precision of the
+    # returned conversion factor (and offset), see GH issue #579
+    km = Unit("km")
+    m = Unit("m")
+
+    factor, offset = km.get_conversion_factor(m, dtype=np.dtype("float32"))
+    assert isinstance(factor, np.float32)
+    assert factor == np.float32(1000.0)
+    assert offset is None
+
+    # offset case: a conversion with a non-zero offset should return both the
+    # factor and the offset with the requested precision
+    degC = Unit("degC")
+    degF = Unit("degF")
+
+    factor, offset = degC.get_conversion_factor(degF, dtype=np.float32)
+    assert isinstance(factor, np.float32)
+    assert isinstance(offset, np.float32)
+
+    # a narrower request is widened to a minimum of 2 bytes, mirroring the
+    # behaviour used internally in unyt.array
+    factor, _ = km.get_conversion_factor(m, dtype=np.int8)
+    assert isinstance(factor, np.float16)
+
+    # regression: without a dtype the result is unchanged (plain Python floats)
+    factor, offset = km.get_conversion_factor(m)
+    assert type(factor) is float
+    assert offset is None
+
+    factor, offset = degC.get_conversion_factor(degF)
+    assert type(factor) is float
+    assert type(offset) is float
+
+
 def test_pickle():
     cm = Unit("cm")
     assert cm == pickle.loads(pickle.dumps(cm))
