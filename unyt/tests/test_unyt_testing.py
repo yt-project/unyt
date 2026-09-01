@@ -106,7 +106,7 @@ def test_returns():
     with pytest.raises(ValueError):
 
         @returns(length, r_unit=time)
-        def _(a, v):
+        def _(a, v):  # pragma: no cover
             return a, v
 
 
