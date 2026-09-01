@@ -48,6 +48,7 @@ jobs:
           - '3.12'
           - '3.13'
           - '3.14'
+          - '3.15'
         sync-args: [null]
         pytest-args: [null]
         label: [null]
@@ -65,11 +66,11 @@ jobs:
             pytest-args: null
             label: null
           - os: macos-latest
-            python-version: '3.14'
+            python-version: '3.15'
             sync-args: null
             pytest-args: null
           - os: windows-latest
-            python-version: '3.14'
+            python-version: '3.15'
             sync-args: null
             pytest-args: null
             label: null
