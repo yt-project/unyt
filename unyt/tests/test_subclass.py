@@ -596,6 +596,12 @@ class TestNumpyFunctions:
                             category=UserWarning,
                             message="numpy.savetxt does not preserve units",
                         )
+                    if fname == "fix":
+                        warnings.filterwarnings(
+                            action="ignore",
+                            category=DeprecationWarning,
+                            message="numpy.fix is deprecated",
+                        )
                     try:
                         ua_result = func(*ua_args)
                     except:
@@ -622,6 +628,12 @@ class TestNumpyFunctions:
                         action="ignore",
                         category=UserWarning,
                         message="numpy.savetxt does not preserve units or extra_attr",
+                    )
+                if fname == "fix":
+                    warnings.filterwarnings(
+                        action="ignore",
+                        category=DeprecationWarning,
+                        message="numpy.fix is deprecated",
                     )
                 try:
                     result = func(*args)
