@@ -1585,6 +1585,7 @@ def test_diagx(func):
     assert y.units == cm
 
 
+@pytest.mark.filterwarnings("ignore:numpy.fix is deprecated:DeprecationWarning")
 def test_fix():
     y = np.fix(1.2 * cm)
     assert y == 1.0 * cm
