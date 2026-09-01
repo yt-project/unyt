@@ -2404,7 +2404,9 @@ class TestFunctionHelpersSignatureCompatibility:
             args_target = self.get_param_group(params_helper, [kind])
             args_helper = self.get_param_group(params_helper, [kind])
 
-            if (nhelper := len(args_helper)) > (ntarget := len(args_target)):
+            if (nhelper := len(args_helper)) > (
+                ntarget := len(args_target)
+            ):  # pragma: no cover
                 unknown: list[str] = args_helper[ntarget:]
                 raise AssertionError(
                     f"Found unknown {kind} parameter(s) "
