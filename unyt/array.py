@@ -505,25 +505,6 @@ multiple_output_operators = {modf: 2, frexp: 2, divmod_: 2}
 LARGE_INPUT = {4: 16777217, 8: 9007199254740993}
 
 
-def _update_array_dtype_inplace(array, *, dtype) -> None:
-    # change the dtypes in-place, this does not change the
-    # underlying memory buffer
-    dt = np.dtype(dtype)
-    assert dt.kind == "f"
-    if NUMPY_VERSION >= Version("2.5.0dev0"):
-        array._set_dtype(dt)
-    else:
-        array.dtype = dt
-
-
-def _update_array_values_inplace(array, *, dtype) -> None:
-    new_values = array.astype(dtype)
-    _update_array_dtype_inplace(array, dtype=dtype)
-    # actually fill in the new float values now that our
-    # dtype is correct
-    np.copyto(array, new_values)
-
-
 class unyt_array(np.ndarray):
     """
     An ndarray subclass that attaches a symbolic unit object to the array data.
@@ -778,7 +759,7 @@ class unyt_array(np.ndarray):
         --------
 
         >>> from unyt import cm, km
-        >>> length = [3000, 2000, 1000]*cm
+        >>> length = [3000.0, 2000.0, 1000.0] * cm
         >>> length.convert_to_units('m')
         >>> print(length)
         [30. 20. 10.] m
@@ -800,29 +781,11 @@ class unyt_array(np.ndarray):
 
             self.units = new_units
             values = self.d
-            # if our dtype is an integer do the following somewhat awkward
-            # dance to change the dtype in-place. We can't use astype
-            # directly because that will create a copy and not update self
             if self.dtype.kind in ("u", "i"):
-                # create a copy of the original data in floating point
-                # form, it's possible this may lose precision for very
-                # large integers
-                dsize = values.dtype.itemsize
-                if dsize == 1:
-                    raise ValueError(
-                        "Can't convert memory buffer in place. "
-                        f"Input dtype ({self.dtype}) has a smaller itemsize than the "
-                        "smallest floating point representation possible."
-                    )
-                large = LARGE_INPUT.get(dsize, 0)
-                if large and np.any(np.abs(values) > large):
-                    warnings.warn(
-                        f"Overflow encountered while converting to units '{new_units}'",
-                        RuntimeWarning,
-                        stacklevel=2,
-                    )
-                _update_array_values_inplace(values, dtype=f"f{dsize}")
-                _update_array_dtype_inplace(self, dtype=values.dtype)
+                raise TypeError(
+                    "Unit conversion is ill defined for integral "
+                    f"data types (this array has {self.dtype}) and is not supported."
+                )
             values *= conv_factor
 
             if offset:
@@ -1896,7 +1859,10 @@ class unyt_array(np.ndarray):
             else:
                 out = out[0]
                 if out.dtype.kind in ("u", "i"):
-                    _update_array_values_inplace(out, dtype=f"f{out.dtype.itemsize}")
+                    raise TypeError(
+                        f"{ufunc} is not supported for integral "
+                        f"data types (out has {out.dtype})."
+                    )
                 out_func = out.view(np.ndarray)
         if len(inputs) == 1:
             # Unary ufuncs
