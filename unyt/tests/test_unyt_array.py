@@ -1519,11 +1519,11 @@ def test_subclass():
 
 def test_string_operations_raise_errors():
     a = unyt_array([1, 2, 3], "g")
-    with pytest.raises(IterableUnitCoercionError):
+    with pytest.raises(TypeError):
         a + "hello"
-    with pytest.raises(IterableUnitCoercionError):
+    with pytest.raises(TypeError):
         a * "hello"
-    with pytest.raises(IterableUnitCoercionError):
+    with pytest.raises(TypeError):
         a ** "hello"
 
 
@@ -1539,11 +1539,11 @@ def test_string_ne():
 
 def test_string_operations_raise_errors_quantity():
     q = 2 * g
-    with pytest.raises(IterableUnitCoercionError):
+    with pytest.raises(TypeError):
         q + "hello"
-    with pytest.raises(IterableUnitCoercionError):
+    with pytest.raises(TypeError):
         q * "hello"
-    with pytest.raises(IterableUnitCoercionError):
+    with pytest.raises(TypeError):
         q ** "hello"
     assert q != "hello"
 
@@ -2303,9 +2303,9 @@ def test_coerce_iterable():
 
     assert_equal(a + b, unyt_array([2, 202, 6], "cm"))
     assert_equal(b + a, unyt_array([2, 202, 6], "cm"))
-    with pytest.raises(IterableUnitCoercionError):
+    with pytest.raises(TypeError):
         a + c
-    with pytest.raises(IterableUnitCoercionError):
+    with pytest.raises(TypeError):
         c + a
     assert_equal(unyt_array(b), unyt_array([1, 200, 3], "cm"))
     with pytest.raises(IterableUnitCoercionError):
@@ -3049,3 +3049,55 @@ def test_squeeze_method_with_axis():
     squeeze_axis = (1,)
     arr_squeezed = arr.squeeze(axis=1)
     assert arr_squeezed.ndim == arr.ndim - len(squeeze_axis)
+
+
+def test_other_argument_can_handle_binary_ufunc():
+    class MyClass:
+        __array_ufunc__ = None
+
+        def __init__(self, x: int):
+            self.x = x
+
+        def __mul__(self, b):
+            return self.x * b
+
+        def __rmul__(self, b):
+            return self.x * b
+
+        def __truediv__(self, b):
+            return self.x / b
+
+        def __rtruediv__(self, b):
+            return b / self.x
+
+    x = 5
+    mc = MyClass(x=x)
+    uq = unyt_quantity(2, "m")
+    ua = unyt_array([2], "m")
+
+    for u in ua, uq:
+        assert_almost_equal(x * u, mc * u)
+        assert_almost_equal(x * u, u * mc)
+        assert_almost_equal(x / u, mc / u)
+        assert_almost_equal(u / x, u / mc)
+
+
+def test_other_argument_cannot_handle_binary_ufunc():
+    class MyClass:
+        def __init__(self, x: int):
+            self.x = x
+
+    x = 5
+    mc = MyClass(x=x)
+    uq = unyt_quantity(2, "m")
+    ua = unyt_array([2], "m")
+
+    for u in ua, uq:
+        with pytest.raises(TypeError):
+            mc * u
+        with pytest.raises(TypeError):
+            u * mc
+        with pytest.raises(TypeError):
+            mc / u
+        with pytest.raises(TypeError):
+            u / mc

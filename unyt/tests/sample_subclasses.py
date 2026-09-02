@@ -1056,41 +1056,6 @@ class subclass_uarray(unyt_array):
     ua = property(_propagate_extra_attr_to_result(np.ones_like))
     unit_array = property(_propagate_extra_attr_to_result(np.ones_like))
 
-    @classmethod
-    def __unyt_ufunc_prepare__(cls, ufunc: np.ufunc, method: str, *inputs, **kwargs):
-        helper_result = _prepare_array_func_args(*inputs, **kwargs)
-        return ufunc, method, helper_result["args"], helper_result["kwargs"]
-
-    @classmethod
-    def __unyt_ufunc_finalize__(
-        cls, result, ufunc: np.ufunc, method: str, *inputs, **kwargs
-    ):
-        helper_result = _prepare_array_func_args(*inputs, **kwargs)
-        # if we get a tuple we have multiple return values to deal with
-        assert not isinstance(result, tuple)
-        if isinstance(result, unyt_array):  # also recognizes subclass_uquantity
-            if not isinstance(result, subclass_uarray):
-                result = (
-                    result.view(subclass_uquantity)
-                    if result.shape == ()
-                    else result.view(subclass_uarray)
-                )
-            result.extra_attr = helper_result["extra_attr"]
-        if "out" in kwargs:
-            out = kwargs.pop("out")
-            assert ufunc not in multiple_output_operators
-            out = out[0]
-            if isinstance(out, unyt_array) and not isinstance(out, subclass_uarray):
-                out = (
-                    out.view(subclass_uquantity)
-                    if out.shape == ()
-                    else out.view(subclass_uarray)
-                )
-            if isinstance(out, subclass_uarray):
-                # also recognizes subclass_uquantity
-                out.extra_attr = helper_result["extra_attr"]
-        return result
-
     def __array_ufunc__(
         self, ufunc: np.ufunc, method: str, *inputs, **kwargs
     ) -> object:
@@ -1202,6 +1167,27 @@ class subclass_uarray(unyt_array):
             return self.__mul__(b)
         else:
             return super().__rmul__(b)
+
+    def __truediv__(
+        self, b: int | float | np.ndarray | unyt.unit_object.Unit
+    ) -> "subclass_uarray":
+        """
+        Divide this ``subclass_uarray``.
+
+        We delegate most cases to ``unyt_array``, but we need to handle
+        the case where the second argument is a ``Unit``.
+        """
+        if getattr(b, "is_Unit", False):
+            return _copy_extra_attr_if_present(
+                self,
+                _ensure_result_is_subclass_uarray_or_uquantity((1 / b).__mul__)(
+                    self.view(unyt_quantity)
+                    if self.shape == ()
+                    else self.view(unyt_array)
+                ),
+            )
+        else:
+            return super().__truediv__(b)
 
 
 class subclass_uquantity(subclass_uarray, unyt_quantity):
