@@ -339,73 +339,6 @@ def _apply_power_mapping(ufunc, in_unit, in_size, in_shape, input_kwarg_dict):
     return mul, unit
 
 
-def _subclass_ufunc_prepare_and_finalize(ufunc_handler):
-    """
-    This wrapper function is intended to be applied to __array_ufunc__ on
-    unyt_array.
-
-    It enables subclasses of unyt_array and unyt_quantity to define two
-    classmethods: __unyt_ufunc_prepare__ and __unyt_ufunc_finalize__.
-    These are called if available to allow subclasses to prepare arguments
-    for and modify return values from numpy ufuncs.
-
-    The __unyt_ufunc_prepare__ method should be a classmethod accepting
-    (ufunc, method, *inputs, **kwargs), i.e. the same inputs as
-    __array_ufunc__. It should return
-    (prepared_ufunc, prepared_method, prepared_inputs, prepared_kwargs)
-    which correspond logically to its inputs with any modifications needed
-    by the subclass.
-
-    The __unyt_ufunc_finalize__ method should be a classmethod accepting
-    (result, ufunc, method, *inputs, **kwargs), similarly to above but with
-    the addition of result, the return value from unyt_array.__array_ufunc__.
-    It should return the result with any modifications needed by the subclass.
-    """
-
-    def wrapper(self, ufunc, method, *inputs, **kwargs):
-        if len(inputs) > 1:
-            try:
-                # check if we're dealing with types that we understand and get
-                # the return type, otherwise _get_binary_op_return_class will
-                # raise RuntimeError.
-                ret_class = _get_binary_op_return_class(
-                    type(inputs[0]), type(inputs[1])
-                )
-            except RuntimeError:
-                # we're sure none of the arguments want to modify the input
-                # or output, so bypass __unyt_ufunc_prepare__ and
-                # __unyt_ufunc_finalize__.
-                return ufunc_handler(self, ufunc, method, *inputs, **kwargs)
-        else:
-            ret_class = type(inputs[0])
-        if hasattr(ret_class, "__unyt_ufunc_prepare__"):
-            prepared_ufunc, prepared_method, prepared_inputs, prepared_kwargs = (
-                ret_class.__unyt_ufunc_prepare__(ufunc, method, *inputs, **kwargs)
-            )
-        else:
-            prepared_ufunc, prepared_method, prepared_inputs, prepared_kwargs = (
-                ufunc,
-                method,
-                inputs,
-                kwargs,
-            )
-        result = ufunc_handler(
-            self,
-            prepared_ufunc,
-            prepared_method,
-            *prepared_inputs,
-            **prepared_kwargs,
-        )
-        if hasattr(ret_class, "__unyt_ufunc_finalize__"):
-            return ret_class.__unyt_ufunc_finalize__(
-                result, ufunc, method, *inputs, **kwargs
-            )
-        else:
-            return result
-
-    return wrapper
-
-
 unary_operators = (
     negative,
     absolute,
@@ -1874,8 +1807,14 @@ class unyt_array(np.ndarray):
     # Start operation methods
     #
 
-    @_subclass_ufunc_prepare_and_finalize
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
+        if type(self) in (unyt_array, unyt_quantity):
+            for x in inputs:
+                if isinstance(x, unyt_array) and type(x) not in (
+                    unyt_array,
+                    unyt_quantity,
+                ):
+                    return NotImplemented
         func = getattr(ufunc, method)
         if "out" not in kwargs:
             if ufunc in multiple_output_operators:
