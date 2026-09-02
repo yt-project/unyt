@@ -1530,7 +1530,7 @@ def test_string_operations_raise_errors():
 def test_string_ne():
     a = unyt_array([1, 2, 3], "g")
     if NUMPY_VERSION >= Version("1.25.0.dev0"):
-        ctx = pytest.raises(TypeError)
+        ctx = pytest.raises(ValueError)
     else:
         ctx = pytest.warns(FutureWarning)
     with ctx:

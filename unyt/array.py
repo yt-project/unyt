@@ -1794,13 +1794,13 @@ class unyt_array(np.ndarray):
     def __eq__(self, other):
         try:
             return super().__eq__(other)
-        except (IterableUnitCoercionError, UnitOperationError):
+        except (IterableUnitCoercionError, UnitOperationError, TypeError):
             return np.zeros(self.shape, dtype="bool")
 
     def __ne__(self, other):
         try:
             return super().__ne__(other)
-        except (IterableUnitCoercionError, UnitOperationError):
+        except (IterableUnitCoercionError, UnitOperationError, TypeError):
             return np.ones(self.shape, dtype="bool")
 
     #
