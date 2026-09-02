@@ -941,8 +941,6 @@ class subclass_uarray(unyt_array):
     Minimalist subclass of unyt_array.
     """
 
-    __array_priority__ = unyt_array.__array_priority__ + 10.0
-
     def __new__(
         cls,
         input_array: Iterable,
