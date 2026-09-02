@@ -1170,6 +1170,27 @@ class subclass_uarray(unyt_array):
         else:
             return super().__rmul__(b)
 
+    def __truediv__(
+        self, b: int | float | np.ndarray | unyt.unit_object.Unit
+    ) -> "subclass_uarray":
+        """
+        Divide this ``subclass_uarray``.
+
+        We delegate most cases to ``unyt_array``, but we need to handle
+        the case where the second argument is a ``Unit``.
+        """
+        if getattr(b, "is_Unit", False):
+            return _copy_extra_attr_if_present(
+                self,
+                _ensure_result_is_subclass_uarray_or_uquantity((1 / b).__mul__)(
+                    self.view(unyt_quantity)
+                    if self.shape == ()
+                    else self.view(unyt_array)
+                ),
+            )
+        else:
+            return super().__truediv__(b)
+
 
 class subclass_uquantity(subclass_uarray, unyt_quantity):
     """
