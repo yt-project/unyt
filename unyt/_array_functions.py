@@ -385,6 +385,22 @@ def histogram_bin_edges(a, *args, **kwargs):
     )
 
 
+@implements(np.digitize)
+def digitize(x, bins, right=False):
+    # convert bins to x's units before binning, reusing the same helper as the
+    # histogram functions. This both makes the comparison unit-aware (so e.g.
+    # grams and kilograms give consistent indices) and raises on dimensionally
+    # incompatible bins instead of silently comparing raw values (see #633).
+    if not hasattr(bins, "units"):
+        # let _sanitize_bins operate on an array (it divides bins by a
+        # conversion factor, which a plain list does not support)
+        bins = np.asarray(bins)
+    sanitized_bins = _sanitize_bins(x, bins)
+    return np.digitize._implementation(
+        np.asarray(x), np.asarray(sanitized_bins), right=right
+    )
+
+
 def get_units(objs):
     units = []
     for sub in objs:
