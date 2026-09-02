@@ -1519,18 +1519,18 @@ def test_subclass():
 
 def test_string_operations_raise_errors():
     a = unyt_array([1, 2, 3], "g")
-    with pytest.raises(IterableUnitCoercionError):
+    with pytest.raises(TypeError):
         a + "hello"
-    with pytest.raises(IterableUnitCoercionError):
+    with pytest.raises(TypeError):
         a * "hello"
-    with pytest.raises(IterableUnitCoercionError):
+    with pytest.raises(TypeError):
         a ** "hello"
 
 
 def test_string_ne():
     a = unyt_array([1, 2, 3], "g")
     if NUMPY_VERSION >= Version("1.25.0.dev0"):
-        ctx = pytest.raises(ValueError)
+        ctx = pytest.raises(TypeError)
     else:
         ctx = pytest.warns(FutureWarning)
     with ctx:
@@ -1539,11 +1539,11 @@ def test_string_ne():
 
 def test_string_operations_raise_errors_quantity():
     q = 2 * g
-    with pytest.raises(IterableUnitCoercionError):
+    with pytest.raises(TypeError):
         q + "hello"
-    with pytest.raises(IterableUnitCoercionError):
+    with pytest.raises(TypeError):
         q * "hello"
-    with pytest.raises(IterableUnitCoercionError):
+    with pytest.raises(TypeError):
         q ** "hello"
     assert q != "hello"
 
@@ -2303,9 +2303,9 @@ def test_coerce_iterable():
 
     assert_equal(a + b, unyt_array([2, 202, 6], "cm"))
     assert_equal(b + a, unyt_array([2, 202, 6], "cm"))
-    with pytest.raises(IterableUnitCoercionError):
+    with pytest.raises(TypeError):
         a + c
-    with pytest.raises(IterableUnitCoercionError):
+    with pytest.raises(TypeError):
         c + a
     assert_equal(unyt_array(b), unyt_array([1, 200, 3], "cm"))
     with pytest.raises(IterableUnitCoercionError):
@@ -3092,16 +3092,12 @@ def test_other_argument_cannot_handle_binary_ufunc():
     uq = unyt_quantity(2, "m")
     ua = unyt_array([2], "m")
 
-    msg = (
-        "Received an input or operand that cannot be converted to a "
-        "unyt_array with uniform units"
-    )
     for u in ua, uq:
-        with pytest.raises(IterableUnitCoercionError, match=msg):
+        with pytest.raises(TypeError):
             mc * u
-        with pytest.raises(IterableUnitCoercionError, match=msg):
+        with pytest.raises(TypeError):
             u * mc
-        with pytest.raises(IterableUnitCoercionError, match=msg):
+        with pytest.raises(TypeError):
             mc / u
-        with pytest.raises(IterableUnitCoercionError, match=msg):
+        with pytest.raises(TypeError):
             u / mc
