@@ -434,11 +434,11 @@ def test_invalid_operations():
         u1 - 1
     with pytest.raises(InvalidUnitOperation):
         u1 *= u2
-    with pytest.raises(InvalidUnitOperation):
+    with pytest.raises(TypeError):
         u1 * "hello!"
     with pytest.raises(InvalidUnitOperation):
         u1 /= u2
-    with pytest.raises(InvalidUnitOperation):
+    with pytest.raises(TypeError):
         u1 / "hello!"
     with pytest.raises(InvalidUnitOperation):
         Unit("B") * Unit("V")
@@ -910,6 +910,9 @@ def test_other_argument_can_handle_multiplication_and_division():
         def __mul__(self, other):
             return self.x * other
 
+        def __rmul__(self, other):
+            return self.__mul__(other)
+
         def __truediv__(self, other):
             return self.x / other
 
@@ -940,13 +943,13 @@ def test_other_argument_typeerror_on_multiplication_or_division():
 
     u = Unit("m")
     mc = MyClass()
-    mul_msg = "Tried to multiply a Unit object with"
-    div_msg = "Tried to divide a Unit object by"
+    mul_msg = r"unsupported operand type\(s\) for \*"
+    div_msg = r"unsupported operand type\(s\) for \/"
 
     # only test for case when MyClass is right argument, when left it's its own problem
-    with pytest.raises(InvalidUnitOperation, match=mul_msg):
+    with pytest.raises(TypeError, match=mul_msg):
         u * mc
-    with pytest.raises(InvalidUnitOperation, match=div_msg):
+    with pytest.raises(TypeError, match=div_msg):
         u / mc
 
 
@@ -959,16 +962,16 @@ def test_other_argument_cannot_handle_multiplication_and_division():
     u = Unit("m")
     x = 5
     mc = MyClass(x=x)
-    mul_msg = "Tried to multiply a Unit object with"
-    div_msg = "Tried to divide a Unit object by"
+    mul_msg = r"unsupported operand type\(s\) for \*"
+    div_msg = r"unsupported operand type\(s\) for \/"
 
-    with pytest.raises(InvalidUnitOperation, match=mul_msg):
+    with pytest.raises(TypeError, match=mul_msg):
         mc * u
-    with pytest.raises(InvalidUnitOperation, match=mul_msg):
+    with pytest.raises(TypeError, match=mul_msg):
         u * mc
-    with pytest.raises(InvalidUnitOperation, match=mul_msg):
+    with pytest.raises(TypeError, match=mul_msg):
         mc / u  # handled as multiplication by inverse so expect mul_msg
-    with pytest.raises(InvalidUnitOperation, match=div_msg):
+    with pytest.raises(TypeError, match=div_msg):
         u / mc
 
 
@@ -987,14 +990,14 @@ def test_other_argument_explicitly_cannot_handle_multiplication_and_division():
     u = Unit("m")
     x = 5
     mc = MyClass(x=x)
-    mul_msg = "Tried to multiply a Unit object with"
-    div_msg = "Tried to divide a Unit object by"
+    mul_msg = r"unsupported operand type\(s\) for \*"
+    div_msg = r"unsupported operand type\(s\) for \/"
 
-    with pytest.raises(InvalidUnitOperation, match=mul_msg):
+    with pytest.raises(TypeError, match=mul_msg):
         mc * u
-    with pytest.raises(InvalidUnitOperation, match=mul_msg):
+    with pytest.raises(TypeError, match=mul_msg):
         u * mc
-    with pytest.raises(InvalidUnitOperation, match=mul_msg):
+    with pytest.raises(TypeError, match=mul_msg):
         mc / u  # handled as multiplication by inverse so expect mul_msg
-    with pytest.raises(InvalidUnitOperation, match=div_msg):
+    with pytest.raises(TypeError, match=div_msg):
         u / mc
