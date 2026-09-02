@@ -3051,6 +3051,37 @@ def test_squeeze_method_with_axis():
     assert arr_squeezed.ndim == arr.ndim - len(squeeze_axis)
 
 
+def test_other_argument_can_handle_binary_ufunc():
+    class MyClass:
+        __array_ufunc__ = None
+
+        def __init__(self, x: int):
+            self.x = x
+
+        def __mul__(self, b):
+            return self.x * b
+
+        def __rmul__(self, b):
+            return self.x * b
+
+        def __truediv__(self, b):
+            return self.x / b
+
+        def __rtruediv__(self, b):
+            return b / self.x
+
+    x = 5
+    mc = MyClass(x=x)
+    uq = unyt_quantity(2, "m")
+    ua = unyt_array([2], "m")
+
+    for u in ua, uq:
+        assert_almost_equal(x * u, mc * u)
+        assert_almost_equal(x * u, u * mc)
+        assert_almost_equal(x / u, mc / u)
+        assert_almost_equal(u / x, u / mc)
+
+
 def test_other_argument_cannot_handle_binary_ufunc():
     class MyClass:
         def __init__(self, x: int):

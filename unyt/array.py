@@ -1867,11 +1867,16 @@ class unyt_array(np.ndarray):
                 return i1.__array_ufunc__(ufunc, method, *inputs, **kwargs)
 
             # coerce inputs to be ndarrays if they aren't already
-            inp0 = _coerce_iterable_units(i0)
-            inp1 = _coerce_iterable_units(i1)
+            try:
+                inp0 = _coerce_iterable_units(i0)
+                inp1 = _coerce_iterable_units(i1)
+            except IterableUnitCoercionError:
+                return NotImplemented
             u0 = getattr(i0, "units", None) or getattr(inp0, "units", None)
             u1 = getattr(i1, "units", None) or getattr(inp1, "units", None)
             ret_class = _get_binary_op_return_class(type(i0), type(i1))
+            if ret_class is NotImplemented:
+                return NotImplemented
             if u0 is None:
                 u0 = Unit(registry=getattr(u1, "registry", None))
             if u1 is None and ufunc is not power:
@@ -2604,10 +2609,7 @@ def _get_binary_op_return_class(cls1, cls2):
     if issubclass(cls2, cls1):
         return cls2
     else:
-        raise RuntimeError(
-            "Undefined operation for a unyt_array subclass. "
-            f"Received operand types ({cls1}) and ({cls2})"
-        )
+        return NotImplemented
 
 
 def loadtxt(fname, dtype="float", delimiter="\t", usecols=None, comments="#"):
