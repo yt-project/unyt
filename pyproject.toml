@@ -22,9 +22,9 @@ classifiers = [
 keywords = [
     "unyt",
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
-    "numpy>=1.21.3, <3.0",
+    "numpy>=1.23.2, <3.0",
     "sympy>=1.9.0",
     "packaging>=22.0",
 ]
@@ -41,7 +41,7 @@ Changelog = "https://unyt.readthedocs.io/en/stable/history.html"
 [dependency-groups]
 test = [
     "pytest-doctestplus>=1.4.0",
-    "pytest>=8.0.1",
+    "pytest>=9.0.2",
 ]
 covcheck = [
     {include-group = "test"},
@@ -54,11 +54,11 @@ doc = [
     "sphinx>=7.4.7",
 ]
 integration = [
-    "astropy>=4.0.4",
-    "dask[array,diagnostics]>=2021.4.1",
-    "h5py>=3.0.0",
-    "matplotlib>=3.3.3,!=3.5.0",
-    "pint>=0.9",
+    "astropy>=5.0.5",
+    "dask[array,diagnostics]>=2024.1.0",
+    "h5py>=3.8.0",
+    "matplotlib>=3.6.0",
+    "pint>=0.20",
 ]
 
 [tool.uv]
@@ -67,19 +67,25 @@ integration = [
 no-build-package = [
     "astropy",
     "bokeh",
+    "contourpy",
     "coverage",
     "h5py",
+    "locket",
     "numpy",
+    "markupsafe",
     "matplotlib",
     "pandas",
     "toolz",
+    "tornado",
     "pyyaml",
     "kiwisolver",
     "pillow",
     "pyerfa",
 ]
 constraint-dependencies = [
-    "mpmath>=1.2.1",
+    "mpmath>=1.2.1", # via sympy
+    "toolz>=1.0.0", # via dask
+    "pyparsing>=3.1.0", # via matplotlib
 ]
 
 # ensure that uv resolves envs that are compatible with macOS arm64,

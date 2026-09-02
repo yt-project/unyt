@@ -155,7 +155,7 @@ Before you submit a pull request, check that it meets these guidelines:
    please update the existing docstrings. If you modify private implementation
    details, please use your judgment on documenting it with comments or
    docstrings.
-3. The pull request should work for Python 3.10, 3.11, 3.12, 3.13, and 3.14.
+3. The pull request should work for Python 3.11, 3.12, 3.13, 3.14 and 3.15
    Check in the GitHub interface for your pull request and make sure that the
    tests pass for all supported Python versions.
 

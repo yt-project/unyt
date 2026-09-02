@@ -43,7 +43,6 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         python-version:
-          - '3.10'
           - '3.11'
           - '3.12'
           - '3.13'
@@ -56,12 +55,12 @@ jobs:
         # Test all on ubuntu, test ends on macos and windows
         include:
           - os: macos-latest
-            python-version: '3.10'
+            python-version: '3.11'
             sync-args: null
             pytest-args: null
             label: null
           - os: windows-latest
-            python-version: '3.10'
+            python-version: '3.11'
             sync-args: null
             pytest-args: null
             label: null
@@ -84,14 +83,14 @@ jobs:
 
           # with lowest dependencies
           - os: ubuntu-22.04
-            python-version: '3.10.0'
+            python-version: '3.11'
             sync-args: --resolution=lowest --group integration
             pytest-args: null
             label: oldestdeps
 
           # with doctests
           - os: ubuntu-latest
-            python-version: '3.10'
+            python-version: '3.11'
             sync-args: --group doc
             pytest-args: --doctest-modules --doctest-plus
             label: doctests
@@ -167,7 +166,7 @@ jobs:
       - name: Setup Python
         uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
-          python-version: '3.10'
+          python-version: '3.11'
       - run: uv sync --group doc --group test
       - name: Build docs
         run: |
