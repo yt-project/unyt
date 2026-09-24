@@ -2103,6 +2103,15 @@ def test_unyt_array_coercion():
     assert_isinstance(q * np.array(3), unyt_quantity)
 
 
+def test_unyt_array_dtype_coercion():
+    a = unyt_array([1, 2, 3], "cm", dtype=np.float32)
+    b = unyt_array(a, dtype=np.float64)
+
+    assert b.dtype == np.float64
+    assert_array_equal(b, a)
+    assert b.units == a.units
+
+
 def test_numpy_wrappers():
     a1 = unyt_array([1, 2, 3], "cm")
     a2 = unyt_array([2, 3, 4, 5, 6], "cm")
