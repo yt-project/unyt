@@ -396,17 +396,41 @@ def test_multiplication():
 
 
 def test_multiplication_by_msun_preserves_precision():
-    for values in (np.float32(1), np.array([1, 2], dtype=np.float32)):
+    values_to_test = (
+        np.float32(1),
+        np.array([1, 2], dtype=np.float32),
+        unyt_array([1, 2], "m", dtype=np.float32),
+    )
+    for values in values_to_test:
         assert (values * Msun).dtype == values.dtype
         assert (Msun * values).dtype == values.dtype
+
+    value = unyt_quantity(np.float32(1), "m")
+    left = value * Msun
+    right = Msun * value
+    assert_equal(left, right)
+    # With two quantities, neither operand is unit metadata, so normal NumPy
+    # promotion applies.
+    assert left.dtype == right.dtype == np.result_type(value.dtype, Msun.dtype)
 
 
 def test_multiplication_by_galactic_msun_preserves_precision():
     mass = Msun.in_base("galactic")
 
-    for values in (np.float32(1), np.array([1, 2], dtype=np.float32)):
+    values_to_test = (
+        np.float32(1),
+        np.array([1, 2], dtype=np.float32),
+        unyt_array([1, 2], "m", dtype=np.float32),
+    )
+    for values in values_to_test:
         assert (values * mass).dtype == values.dtype
         assert (mass * values).dtype == values.dtype
+
+    value = unyt_quantity(np.float32(1), "m")
+    left = value * mass
+    right = mass * value
+    assert_equal(left, right)
+    assert left.dtype == right.dtype == np.result_type(value.dtype, mass.dtype)
 
 
 def test_division():
