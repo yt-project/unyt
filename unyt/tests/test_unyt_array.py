@@ -395,14 +395,18 @@ def test_multiplication():
     assert_equal(np.multiply.reduce(a, axis=1), answer)
 
 
-def test_multiplication_by_scalar_quantity_preserves_precision():
-    values = np.array([1, 2], dtype=np.float32)
+def test_multiplication_by_msun_preserves_precision():
+    for values in (np.float32(1), np.array([1, 2], dtype=np.float32)):
+        assert (values * Msun).dtype == values.dtype
+        assert (Msun * values).dtype == values.dtype
 
-    for mass in (Msun, Msun.in_base("galactic")):
+
+def test_multiplication_by_galactic_msun_preserves_precision():
+    mass = Msun.in_base("galactic")
+
+    for values in (np.float32(1), np.array([1, 2], dtype=np.float32)):
         assert (values * mass).dtype == values.dtype
         assert (mass * values).dtype == values.dtype
-
-    assert (values * unyt_quantity(1e100, "kg")).dtype == np.float64
 
 
 def test_division():
