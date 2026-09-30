@@ -28,7 +28,7 @@ from numpy.testing import (
 )
 from packaging.version import Version
 
-from unyt import K, R, Unit, degC, degF, delta_degC, delta_degF, dimensions
+from unyt import K, Msun, R, Unit, degC, degF, delta_degC, delta_degF, dimensions
 from unyt._on_demand_imports import _astropy, _h5py, _pint
 from unyt._physical_ratios import metallicity_sun, speed_of_light_cm_per_s
 from unyt.array import (
@@ -393,6 +393,16 @@ def test_multiplication():
     a = unyt_array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], "cm")
     answer = unyt_array([6.0, 120.0], "cm**3")
     assert_equal(np.multiply.reduce(a, axis=1), answer)
+
+
+def test_multiplication_by_scalar_quantity_preserves_precision():
+    values = np.array([1, 2], dtype=np.float32)
+
+    for mass in (Msun, Msun.in_base("galactic")):
+        assert (values * mass).dtype == values.dtype
+        assert (mass * values).dtype == values.dtype
+
+    assert (values * unyt_quantity(1e100, "kg")).dtype == np.float64
 
 
 def test_division():

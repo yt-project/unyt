@@ -1992,6 +1992,27 @@ class unyt_array(np.ndarray):
                     inp1 = np.asarray(inp1, dtype=new_dtype) * conv
             # get the unit of the result
             mul, unit = unit_operator(u0, u1)
+            if unit_operator is _multiply_units:
+                if isinstance(i0, unyt_quantity) and inp1.shape != ():
+                    scalar, array = inp0, inp1
+                elif isinstance(i1, unyt_quantity) and inp0.shape != ():
+                    scalar, array = inp1, inp0
+                else:
+                    scalar = None
+                if (
+                    scalar is not None
+                    and array.dtype.kind in ("f", "c")
+                    and np.can_cast(scalar.dtype, array.dtype, casting="same_kind")
+                ):
+                    with np.errstate(over="ignore", under="ignore"):
+                        narrowed = scalar.astype(array.dtype)
+                    if np.isfinite(narrowed) == np.isfinite(scalar) and (
+                        narrowed != 0 or scalar == 0
+                    ):
+                        if scalar is inp0:
+                            inp0 = narrowed
+                        else:
+                            inp1 = narrowed
             # actually evaluate the ufunc
             out_arr = func(
                 inp0.view(np.ndarray), inp1.view(np.ndarray), out=out_func, **kwargs
