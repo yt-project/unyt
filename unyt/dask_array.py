@@ -279,6 +279,8 @@ class unyt_dask_array(DaskArray):
         return _post_ufunc(super()._elemwise, unyt_result)(ufunc, *args, **kwargs)
 
     def __array_ufunc__(self, numpy_ufunc, method, *inputs, **kwargs):
+        if numpy_ufunc not in ua.unyt_array._ufunc_registry:
+            return NotImplemented
         inputs, unyt_result = _prep_ufunc(
             numpy_ufunc, *inputs, extract_dask=True, **kwargs
         )
@@ -286,6 +288,10 @@ class unyt_dask_array(DaskArray):
         return wrapped_func(numpy_ufunc, method, *inputs, **kwargs)
 
     def __array_function__(self, func, types, args, kwargs):
+        from unyt._array_functions import _UNSUPPORTED_FUNCTIONS
+
+        if func in _UNSUPPORTED_FUNCTIONS:
+            return NotImplemented
         args, unyt_result = _prep_ufunc(func, *args, extract_dask=True, **kwargs)
         types = [type(i) for i in args]
         wrapped_func = _post_ufunc(super().__array_function__, unyt_result)

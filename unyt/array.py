@@ -1818,6 +1818,8 @@ class unyt_array(np.ndarray):
                     # inputs is a subclass. We return NotImplemented to give subclasses
                     # a chance to define the result.
                     return NotImplemented
+        if ufunc not in self._ufunc_registry:
+            return NotImplemented
         func = getattr(ufunc, method)
         if "out" not in kwargs:
             if ufunc in multiple_output_operators:
