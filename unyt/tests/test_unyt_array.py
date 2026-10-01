@@ -12,7 +12,6 @@ import math
 import operator
 import os
 import pickle
-import re
 import shutil
 import tempfile
 from importlib.metadata import version
@@ -56,11 +55,7 @@ from unyt.exceptions import (
     UnitParseError,
     UnitsNotReducible,
 )
-from unyt.testing import (
-    _process_warning,
-    assert_allclose_units,
-    assert_array_equal_units,
-)
+from unyt.testing import assert_allclose_units, assert_array_equal_units
 from unyt.unit_registry import UnitRegistry
 from unyt.unit_symbols import cm, degree, g, m
 
@@ -129,10 +124,10 @@ def test_addition():
     operate_and_compare(a3, a1, np.add, answer)
 
     # Catch the different dimensions error
-    a1 = unyt_array([1, 2, 3], "m")
-    a2 = unyt_array([4, 5, 6], "kg")
-    a3 = [7, 8, 9]
-    a4 = unyt_array([10, 11, 12], "")
+    a1 = unyt_array([1.0, 2.0, 3.0], "m")
+    a2 = unyt_array([4.0, 5.0, 6.0], "kg")
+    a3 = [7.0, 8.0, 9.0]
+    a4 = unyt_array([10.0, 11.0, 12.0], "")
 
     with pytest.raises(UnitOperationError):
         operator.add(a1, a2)
@@ -244,10 +239,10 @@ def test_subtraction():
     operate_and_compare(a3, a1, np.subtract, answer2)
 
     # Catch the different dimensions error
-    a1 = unyt_array([1, 2, 3], "m")
-    a2 = unyt_array([4, 5, 6], "kg")
-    a3 = [7, 8, 9]
-    a4 = unyt_array([10, 11, 12], "")
+    a1 = unyt_array([1.0, 2.0, 3.0], "m")
+    a2 = unyt_array([4.0, 5.0, 6.0], "kg")
+    a3 = [7.0, 8.0, 9.0]
+    a4 = unyt_array([10.0, 11.0, 12.0], "")
 
     with pytest.raises(UnitOperationError):
         operator.sub(a1, a2)
@@ -1701,7 +1696,7 @@ def test_equivalencies():
 
     # wavelength to frequency
 
-    lam = 4000 * u.angstrom
+    lam = 4000.0 * u.angstrom
     nu = lam.in_units("Hz", "spectral")
     assert_allclose_units(nu, u.clight / lam)
     lam.convert_to_units("MHz", "spectral")
@@ -1711,7 +1706,7 @@ def test_equivalencies():
 
     # wavelength to photon energy
 
-    lam = 4000 * u.angstrom
+    lam = 4000.0 * u.angstrom
     hnu = lam.in_units("erg", "spectral")
     assert_allclose_units(hnu, u.h_mks * u.clight / lam)
     lam.convert_to_units("eV", "spectral")
@@ -1721,7 +1716,7 @@ def test_equivalencies():
 
     # wavelength to spatial frequency
 
-    lam = 4000 * u.angstrom
+    lam = 4000.0 * u.angstrom
     nubar = lam.in_units("1/angstrom", "spectral")
     assert_allclose_units(nubar, 1 / lam)
     lam.convert_to_units("1/cm", "spectral")
@@ -1862,7 +1857,7 @@ def test_equivalencies():
 
     # velocity <-> energy
 
-    c_s = 300 * u.m / u.s
+    c_s = 300.0 * u.m / u.s
     kT = c_s.in_units("erg", "sound_speed", mu=mu, gamma=gg)
     assert_allclose_units(kT, c_s**2 * mu * u.mh / gg)
     c_s.convert_to_units("J", "sound_speed", mu=mu, gamma=gg)
@@ -2171,7 +2166,7 @@ def test_numpy_wrappers():
 
 
 def test_dimensionless_conversion():
-    a = unyt_quantity(1, "Zsun")
+    a = unyt_quantity(1.0, "Zsun")
     b = a.in_units("Zsun")
     a.convert_to_units("Zsun")
     assert a.units.base_value == metallicity_sun
@@ -2378,21 +2373,17 @@ def test_conversion_from_int_types(itemsize):
 
     # check copy conversion
     a.in_units("m")
+    a.to("m")
 
     # check in place conversion
-    if itemsize == 8:
-        with pytest.raises(
-            ValueError,
-            match=re.escape(
-                "Can't convert memory buffer in place. "
-                "Input dtype (int8) has a smaller itemsize than the "
-                "smallest floating point representation possible."
-            ),
-        ):
-            a.convert_to_units("m")
-    else:
+    with pytest.raises(
+        TypeError,
+        match=(
+            r"^Unit conversion is ill defined for integral data types "
+            rf"\(this array has int{itemsize}\) and is not supported\.$"
+        ),
+    ):
         a.convert_to_units("m")
-        assert a.dtype == f"float{itemsize}"
 
 
 def test_integer_arrays():
@@ -2412,16 +2403,16 @@ def test_integer_arrays():
         assert_array_equal(ret, answer)
         assert ret.dtype.name == "float32"
 
-        ret = arr.in_units("m")
-        assert arr.dtype != ret.dtype
-        assert ret.dtype.name == "float32"
+        arr.in_units("m")
+        assert arr.dtype.name == "int32"
 
-        arr.convert_to_units("m")
-        assert arr.dtype.name == "float32"
+        with pytest.raises(TypeError):
+            arr.convert_to_units("m")
+        assert arr.dtype.name == "int32"
 
-        arr = inp * km
-        arr.convert_to_units("mile")
-        assert arr.dtype.name == "float" + str(np.int_().dtype.itemsize * 8)
+        with pytest.raises(TypeError):
+            arr.convert_to_units("mile")
+        assert arr.dtype.name == "int32"
 
     for foo in [[1, 2, 3], 12, -8, 0, [1, -2, 3]]:
         integer_semantics(foo)
@@ -2447,17 +2438,6 @@ def test_integer_arrays():
     # see issue #118 for details
     assert 1000 * ms == 1 * s
     assert 1 * s == 1000 * ms
-
-
-def test_overflow_warnings():
-    from unyt import km
-
-    data = [2**53, 2**54] * km
-
-    message = "Overflow encountered while converting to units 'mile'"
-    _process_warning(data.to, message, RuntimeWarning, ("mile",))
-    _process_warning(data.in_units, message, RuntimeWarning, ("mile",))
-    _process_warning(data.convert_to_units, message, RuntimeWarning, ("mile",))
 
 
 def test_clip():
@@ -2486,7 +2466,7 @@ def test_clip():
 
 
 def test_name_attribute():
-    a = unyt_array([0, 1, 2], "s")
+    a = unyt_array([0.0, 1.0, 2.0], "s")
     assert a.name is None
     a.name = "time"
     assert a.name == "time"
@@ -2503,7 +2483,7 @@ def test_name_attribute():
     assert d.name == "distance"
     e = b.to("mm")
     assert e.name == "distance"
-    f = unyt_array([3, 4, 5], "K", name="temperature")
+    f = unyt_array([3.0, 4.0, 5.0], "K", name="temperature")
     g = f.in_units("J", equivalence="thermal")
     assert g.name is None
     g_1 = f.to_equivalent("J", equivalence="thermal")
@@ -2830,7 +2810,7 @@ def test_division_by_float_recursion():
     # see also https://github.com/yt-project/unyt/issues/540
 
     # this case previously caused infinite recursion:
-    out_in_place = unyt_array([2, 4, 6], 10 * m)
+    out_in_place = unyt_array([2.0, 4.0, 6.0], 10 * m)
     result_in_place = np.true_divide(out_in_place, 2.0, out=out_in_place)
     assert_array_equal_units(
         out_in_place,
@@ -2864,7 +2844,7 @@ def test_division_with_unyt_array_out_recursion():
     # see also https://github.com/yt-project/unyt/issues/540
     a = unyt_array([2, 4, 6], 10 * m)
 
-    out_unyt_array_m = unyt_array([0, 0, 0], m)
+    out_unyt_array_m = unyt_array([0.0, 0.0, 0.0], m)
     result_unyt_array_m = np.true_divide(a, 2.0, out=out_unyt_array_m)
     assert_array_equal_units(
         out_unyt_array_m,
@@ -2882,7 +2862,7 @@ def test_division_with_unyt_array_quantity_units_out_recursion():
     a = unyt_array([2, 4, 6], 10 * m)
 
     # this case previously caused infinite recursion:
-    out_unyt_array_10m = unyt_array([0, 0, 0], 10 * m)
+    out_unyt_array_10m = unyt_array([0.0, 0.0, 0.0], 10 * m)
     result_unyt_array_10m = np.true_divide(a, 2.0, out=out_unyt_array_10m)
     assert_array_equal_units(
         out_unyt_array_10m,
@@ -2899,7 +2879,7 @@ def test_division_with_unyt_array_different_units_out_recursion():
     # see also https://github.com/yt-project/unyt/issues/540
     a = unyt_array([2, 4, 6], 10 * m)
 
-    out_unyt_array_cm = unyt_array([0, 0, 0], cm)
+    out_unyt_array_cm = unyt_array([0.0, 0.0, 0.0], cm)
     result_unyt_array_cm = np.true_divide(a, 2.0, out=out_unyt_array_cm)
     assert_array_equal_units(
         out_unyt_array_cm,
@@ -2916,7 +2896,7 @@ def test_division_by_ndarray_with_inplace_out_recursion():
     # see also https://github.com/yt-project/unyt/issues/540
 
     #  this case previously caused infinite recursion:
-    out_div_ndarray = unyt_array([2, 4, 6], 10 * m)
+    out_div_ndarray = unyt_array([2.0, 4.0, 6.0], 10 * m)
     result_div_ndarray = np.true_divide(
         out_div_ndarray, np.array([2, 2, 2]), out=out_div_ndarray
     )
@@ -2935,7 +2915,7 @@ def test_division_by_unyt_array_with_inplace_out_recursion():
     # see also https://github.com/yt-project/unyt/issues/540
 
     # this case previously caused infinite recursion:
-    out_div_unyt_array = unyt_array([2, 4, 6], 10 * m)
+    out_div_unyt_array = unyt_array([2.0, 4.0, 6.0], 10 * m)
     result_div_unyt_array = np.true_divide(
         out_div_unyt_array, unyt_array([2, 2, 2], 10 * m), out=out_div_unyt_array
     )
@@ -2954,7 +2934,7 @@ def test_division_by_unyt_array_unyt_quantity_units_with_inplace_out_recursion()
     # see also https://github.com/yt-project/unyt/issues/540
 
     # this case previously caused infinite recursion:
-    out_div_unyt_quantity = unyt_array([2, 4, 6], 10 * m)
+    out_div_unyt_quantity = unyt_array([2.0, 4.0, 6.0], 10 * m)
     result_div_unyt_quantity = np.true_divide(
         out_div_unyt_quantity, unyt_quantity(2, 10 * m), out=out_div_unyt_quantity
     )
@@ -2972,7 +2952,7 @@ def test_multiplication_by_one_recursion():
     # regression test for https://github.com/yt-project/unyt/issues/588
     # see also https://github.com/yt-project/unyt/issues/540
 
-    out_mul_one = unyt_array([1, 2, 3], 10 * m)
+    out_mul_one = unyt_array([1.0, 2.0, 3.0], 10 * m)
     result_mul_one = np.multiply(out_mul_one, 1, out=out_mul_one)
     assert_array_equal_units(
         out_mul_one,
@@ -3021,7 +3001,7 @@ def test_custom_unit_multiplication_with_out_kwarg():
         dimensions=dimensions.length,
     )
     u = Unit("code_length", registry=reg)
-    data = 0 * u
+    data = 0.0 * u
     # previously crashed with:
     # UnitParseError: Could not find unit symbol 'code_length' in the provided symbols.
     np.multiply(data, data, out=data)
