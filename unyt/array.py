@@ -730,6 +730,14 @@ class unyt_array(np.ndarray):
                 (conv_factor, offset) = self.units.get_conversion_factor(
                     new_units, self.dtype
                 )
+                if offset and (
+                    str(self.units.expr).startswith("delta_")
+                    or str(new_units.expr).startswith("delta_")
+                ):
+                    raise InvalidUnitOperation(
+                        "Interval temperature units cannot be converted to or "
+                        "from offset temperature units without a reference point."
+                    )
 
             self.units = new_units
             values = self.d
@@ -919,6 +927,14 @@ class unyt_array(np.ndarray):
                 (conversion_factor, offset) = self.units.get_conversion_factor(
                     new_units, self.dtype
                 )
+                if offset and (
+                    str(self.units.expr).startswith("delta_")
+                    or str(new_units.expr).startswith("delta_")
+                ):
+                    raise InvalidUnitOperation(
+                        "Interval temperature units cannot be converted to or "
+                        "from offset temperature units without a reference point."
+                    )
             dsize = max(2, self.dtype.itemsize)
             if self.dtype.kind in ("u", "i"):
                 large = LARGE_INPUT.get(dsize, 0)
