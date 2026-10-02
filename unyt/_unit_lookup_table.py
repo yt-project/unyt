@@ -33,6 +33,7 @@ from unyt._physical_ratios import (
     m_per_inch,
     m_per_ly,
     m_per_mile,
+    m_per_nautical_mile,
     m_per_pc,
     m_per_rearth,
     m_per_rjup,
@@ -144,7 +145,7 @@ default_unit_symbol_lut = OrderedDict(
         ("ft", (m_per_ft, dimensions.length, 0.0, r"\rm{ft}", False)),
         ("yd", (0.9144, dimensions.length, 0.0, r"\rm{yd}", False)),
         ("mile", (m_per_mile, dimensions.length, 0.0, r"\rm{mile}", False)),
-        ("nmi", (m_per_mile * 1.1508, dimensions.length, 0.0, r"\rm{nmi}", False)),
+        ("nmi", (m_per_nautical_mile, dimensions.length, 0.0, r"\rm{nmi}", False)),
         (
             "mph",
             (m_per_mile / sec_per_hr, dimensions.velocity, 0.0, r"\rm{mph}", False),
@@ -152,7 +153,7 @@ default_unit_symbol_lut = OrderedDict(
         (
             "kt",
             (
-                m_per_mile * 1.1508 / sec_per_hr,
+                m_per_nautical_mile / sec_per_hr,
                 dimensions.velocity,
                 0.0,
                 r"\rm{kt}",
