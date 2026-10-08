@@ -3110,3 +3110,17 @@ def test_other_argument_cannot_handle_binary_ufunc():
             mc / u
         with pytest.raises(TypeError):
             u / mc
+
+
+@pytest.mark.parametrize("n_inputs", [1, 2])
+def test_unsupported_ufunc_returns_notimplemented(n_inputs):
+    # a user-defined ufunc is guaranteed not to be in unyt_array._ufunc_registry
+    ufunc = np.frompyfunc(lambda *args: args[0], n_inputs, 1)
+    ua = unyt_array([1, 2, 3], "cm")
+    uq = unyt_quantity(1, "cm")
+
+    for u in ua, uq:
+        inputs = (u,) * n_inputs
+        assert u.__array_ufunc__(ufunc, "__call__", *inputs) is NotImplemented
+        with pytest.raises(TypeError, match="all returned NotImplemented"):
+            ufunc(*inputs)
