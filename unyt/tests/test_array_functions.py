@@ -313,6 +313,15 @@ def test_wrapping_completeness():
         assert function in all_funcs
 
 
+def test_unsupported_array_function_returns_notimplemented():
+    x = unyt_array([1, 2, 3], "cm")
+
+    for func in UNSUPPORTED_FUNCTIONS:
+        assert x.__array_function__(func, (unyt_array,), (x,), {}) is NotImplemented
+    with pytest.raises(TypeError, match="no implementation found"):
+        np.packbits(x)
+
+
 @pytest.mark.parametrize(
     "arrays",
     [

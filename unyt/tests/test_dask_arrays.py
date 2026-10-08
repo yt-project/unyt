@@ -6,6 +6,7 @@ import pytest
 from numpy.testing import assert_array_equal
 
 from unyt import unyt_array, unyt_quantity
+from unyt._array_functions import _UNSUPPORTED_FUNCTIONS
 from unyt._on_demand_imports import _dask as dask
 
 if not dask.__is_available__:
@@ -376,3 +377,23 @@ def test_np_array_funcs():
     actual = np.max(np.power(x_da, 2)).compute()
     expected = unyt_quantity(np.max(np.power(plain_dask, 2)).compute(), m * m)
     assert actual == expected
+
+
+def test_unsupported_ufunc_returns_notimplemented():
+    # a user-defined ufunc is guaranteed not to be in unyt_array._ufunc_registry
+    ufunc = np.frompyfunc(lambda x: x, 1, 1)
+    x_da = unyt_from_dask(dask.array.ones((10, 10), chunks=(2, 2)), m)
+
+    assert x_da.__array_ufunc__(ufunc, "__call__", x_da) is NotImplemented
+    with pytest.raises(TypeError, match="all returned NotImplemented"):
+        ufunc(x_da)
+
+
+def test_unsupported_array_function_returns_notimplemented():
+    x_da = unyt_from_dask(dask.array.ones((10, 10), chunks=(2, 2)), m)
+
+    types = (unyt_dask_array,)
+    for func in _UNSUPPORTED_FUNCTIONS:
+        assert x_da.__array_function__(func, types, (x_da,), {}) is NotImplemented
+    with pytest.raises(TypeError, match="no implementation found"):
+        np.packbits(x_da)
