@@ -51,6 +51,21 @@ from unyt.unit_registry import UnitRegistry
 from unyt.unit_systems import UnitSystem, cgs_unit_system
 
 
+@pytest.mark.parametrize("symbol", ["nmi", "nautical_mile"])
+def test_nautical_mile_conversion(symbol):
+    assert_equal(unyt_quantity(1, symbol).to_value("m"), 1852.0)
+
+
+@pytest.mark.parametrize("symbol", ["kt", "knot"])
+def test_knot_conversion(symbol):
+    assert_allclose(
+        unyt_quantity(1, symbol).to_value("m/s"),
+        1852.0 / 3600.0,
+        rtol=1e-14,
+    )
+    assert_allclose(unyt_quantity(1, symbol).to_value("nmi/hr"), 1.0)
+
+
 def test_no_conflicting_symbols():
     """
     Check unit symbol definitions for conflicts.
