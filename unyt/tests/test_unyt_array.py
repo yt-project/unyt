@@ -28,7 +28,7 @@ from numpy.testing import (
 )
 from packaging.version import Version
 
-from unyt import K, R, Unit, degC, degF, delta_degC, delta_degF, dimensions
+from unyt import K, Msun, R, Unit, degC, degF, delta_degC, delta_degF, dimensions
 from unyt._on_demand_imports import _astropy, _h5py, _pint
 from unyt._physical_ratios import metallicity_sun, speed_of_light_cm_per_s
 from unyt.array import (
@@ -393,6 +393,26 @@ def test_multiplication():
     a = unyt_array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], "cm")
     answer = unyt_array([6.0, 120.0], "cm**3")
     assert_equal(np.multiply.reduce(a, axis=1), answer)
+
+
+def test_multiplication_by_msun_preserves_precision():
+    values_to_test = (
+        np.float32(1),
+        np.array([1, 2], dtype=np.float32),
+        unyt_array([1, 2], "m", dtype=np.float32),
+    )
+    value = unyt_quantity(np.float32(1), "m")
+    for mass in (Msun, Msun.in_base("galactic")):
+        for values in values_to_test:
+            assert (values * mass).dtype == values.dtype
+            assert (mass * values).dtype == values.dtype
+
+        left = value * mass
+        right = mass * value
+        assert_equal(left, right)
+        # With two quantities, neither operand is unit metadata, so normal NumPy
+        # promotion applies.
+        assert left.dtype == right.dtype == np.result_type(value.dtype, mass.dtype)
 
 
 def test_division():

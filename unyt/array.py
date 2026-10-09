@@ -2011,6 +2011,21 @@ class unyt_array(np.ndarray):
                     inp1 = np.asarray(inp1, dtype=new_dtype) * conv
             # get the unit of the result
             mul, unit = unit_operator(u0, u1)
+            # A scalar quantity acts as a unit scale factor here, so it should
+            # not change the precision chosen by the non-quantity operand.
+            if unit_operator is _multiply_units:
+                if (
+                    isinstance(i0, unyt_quantity)
+                    and not isinstance(i1, unyt_quantity)
+                    and inp1.dtype.kind in ("f", "c")
+                ):
+                    inp0 = inp0.astype(inp1.dtype)
+                elif (
+                    isinstance(i1, unyt_quantity)
+                    and not isinstance(i0, unyt_quantity)
+                    and inp0.dtype.kind in ("f", "c")
+                ):
+                    inp1 = inp1.astype(inp0.dtype)
             # actually evaluate the ufunc
             out_arr = func(
                 inp0.view(np.ndarray), inp1.view(np.ndarray), out=out_func, **kwargs
