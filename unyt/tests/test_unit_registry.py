@@ -176,3 +176,40 @@ def test_old_registry_json():
         val = default_reg[k]
         assert_allclose(loaded_val[0], val[0])
         assert loaded_val[1:] == val[1:]
+
+
+def test_unit_system_id_under_fips(monkeypatch):
+    # On FIPS-enabled systems, hashlib.md5() raises unless it is told the
+    # digest is not used for security. unit_system_id only uses MD5 as a
+    # fingerprint, so it must pass usedforsecurity=False; otherwise simply
+    # importing unyt crashes on such systems (#580).
+    import hashlib
+
+    import unyt.unit_registry as unit_registry
+
+    real_md5 = hashlib.md5
+
+    def fips_md5(*args, **kwargs):
+        # Mimic a FIPS build: refuse to construct an MD5 hasher that is
+        # flagged as being used for security.
+        if kwargs.get("usedforsecurity", True):
+            raise ValueError("[digital envelope routines] unsupported")
+        return real_md5(*args, **kwargs)
+
+    monkeypatch.setattr(unit_registry, "md5", fips_md5)
+
+    reg = UnitRegistry()
+    reg._unit_system_id = None  # force recomputation through the patched md5
+
+    unit_system_id = reg.unit_system_id
+    assert isinstance(unit_system_id, str)
+    # The fingerprint must match the value computed with a regular md5.
+    assert unit_system_id == real_md5(_hash_data_for(reg)).hexdigest()
+
+
+def _hash_data_for(reg):
+    hash_data = bytearray()
+    for k, v in sorted(reg.lut.items()):
+        hash_data.extend(k.encode("utf8"))
+        hash_data.extend(repr(v).encode("utf8"))
+    return bytes(hash_data)

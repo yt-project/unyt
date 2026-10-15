@@ -93,7 +93,11 @@ class UnitRegistry:
             for k, v in sorted(self.lut.items()):
                 hash_data.extend(k.encode("utf8"))
                 hash_data.extend(repr(v).encode("utf8"))
-            m = md5()
+            # This hash is only a fingerprint used to identify a unit
+            # registry, never for security, so flag it accordingly. Without
+            # usedforsecurity=False, importing unyt crashes on FIPS-enabled
+            # systems where MD5 is disabled for security purposes (#580).
+            m = md5(usedforsecurity=False)
             m.update(hash_data)
             self._unit_system_id = str(m.hexdigest())
         return self._unit_system_id
