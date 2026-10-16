@@ -2,6 +2,63 @@
 History
 =======
 
+3.2.0 (2026-10-16)
+------------------
+
+This new release of ``unyt`` fixes bugs discovered since the v3.1.0 release, as well
+as including new features.
+
+* The instructions for how to test release artifacts before publication have been amended
+  (`PR #623 <https://github.com/yt-project/unyt/pull/623>`_). Thanks to Clément Robert
+  (@neutrinoceros on GitHub) for the contribution.
+
+* Make ``np.squeeze`` return the correct type for the shape of the result
+  (`PR #628 <https://github.com/yt-project/unyt/pull/628>`_). Thanks to Kyle Oman (@kyleaoman
+  on GitHub) for the contribution.
+
+* The computation of the MD5 digest of ``UnitRegistry`` no longer raises a ``ValueError``
+  on FIPS-enabled systems (such as certain HPC systems, `PR #643 <https://github.com/yt-project/unyt/pull/643>`_).
+  Thank you to Bing Gao (@binggao1230 on GitHub) for the contribution.
+
+* It is now possible to develop other classes that can handle multiplication and division operations
+  with the ``Unit`` class (`PR #640 <https://github.com/yt-project/unyt/pull/640>`_). Thanks to Kyle
+  Oman (@kyleaoman on GitHub) for the contribution.
+
+* ``np.digitize`` is now unit-aware (`PR #644 <https://github.com/yt-project/unyt/pull/644>`_).
+  Thank you to Bing Gao (@binggao1230 on GitHub) for the contribution.
+
+* The documented ``dtype`` argument in ``Unit.get_conversion_factor`` is now honored
+  (`PR #661 <https://github.com/yt-project/unyt/pull/661>`_). Thank you to @youdie006 on
+  GitHub for the contribution.
+
+* Python 3.15 is now supported (`PR #671 <https://github.com/yt-project/unyt/pull/671>`_).
+  Support for Python 3.10 has been dropped (`PR #673 <https://github.com/yt-project/unyt/pull/673>`_).
+  Thank you to Clément Robert (@neutrinoceros on GitHub) for the contributions.
+
+* Binary ``ufunc`` operations between ``unyt_array`` objects and other array-like objects are now
+  properly handled (`PR #674 <https://github.com/yt-project/unyt/pull/674>`_). Thank you to Kyle
+  Oman (@kyleaoman on GitHub) for the contribution.
+
+* Conversions between temperature interval units and temperature units are no longer allowed, as they
+  have no physical meaning (`PR #676 <https://github.com/yt-project/unyt/pull/676>`_). Thank you to
+  @shaneraphel on GitHub for the contribution.
+
+* ``unyt_array`` objects now properly return ``NotImplemented`` in array interoperability methods
+  (`PR #677 <https://github.com/yt-project/unyt/pull/677>`_). Thank you to Iason Krommydas (@ikrommyd
+  on GitHub) for the contribution.
+
+* If a ``unyt_array`` is created from another ``unyt_array`` and a new ``dtype`` is specified, the
+  new requested ``dtype`` is now used (`PR #679 <https://github.com/yt-project/unyt/pull/679>`_).
+  Thanks to Will Roper (@WillJRoper on GitHub) for the contribution.
+
+* The conversion factors for the nautical mile and knot units were slightly inaccurate and have been
+  fixed (`PR #680 <https://github.com/yt-project/unyt/pull/680>`_). Thank you to Shubham Padkonde
+  (@Shubham-Padkonde on GitHub) for the contribution.
+
+* Multiplying a ``float32`` array by the ``Msun`` unit no longer promotes the array to ``float64``
+  (`PR #681 <https://github.com/yt-project/unyt/pull/681>`_). Thank you to Will Roper (@WillJRoper
+  on GitHub) for the contribution.
+
 3.1.0 (2026-01-12)
 ------------------
 
