@@ -3,8 +3,6 @@ Utilities for writing tests
 
 """
 
-import warnings
-
 from unyt.array import NULL_UNIT, allclose_units
 
 
@@ -78,16 +76,3 @@ def assert_array_equal_units(x, y, **kwargs):
         yu := getattr(y, "units", NULL_UNIT)
     ):
         raise AssertionError(f"Arguments' units do not match (got {xu} and {yu})")
-
-
-def _process_warning(op, message, warning_class, args=(), kwargs=None):
-    if kwargs is None:
-        kwargs = {}
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-
-        op(*args, **kwargs)
-
-        assert len(w) == 1
-        assert issubclass(w[0].category, warning_class)
-        assert str(w[0].message) == message
