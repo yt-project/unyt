@@ -12,6 +12,7 @@ Contributors
 * Yi-Hao Chen <ychen@astro.wisc.edu>
 * Bili Dong <qobilidop@gmail.com>
 * Sam Dotson
+* Bing Gao
 * Nathan Goldbaum <nathan12343@gmail.com>
 * David Hannasch <David.A.Hannasch@gmail.com>
 * Chris Havlin
@@ -23,11 +24,13 @@ Contributors
 * Lee Johnston <lee.johnston.100@gmail.com>
 * Ben Kimock <kimockb@gmail.com>
 * Kacper Kowalik <xarthisius.kk@gmail.com>
+* Iason Krommydas
 * Nathan Musoke <nathan.musoke@gmail.com>
 * Andrew Myers <atmyers2@gmail.com>
 * Kyle Oman
 * Osnippet
 * Clément Robert
+* Will Roper
 * Simon Schopferer <simon.schopferer@dlr.de>
 * Sam Skillman <samskillman@gmail.com>
 * Britton Smith <brittonsmith@gmail.com>
