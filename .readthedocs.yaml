@@ -15,11 +15,7 @@ build:
     - asdf install uv latest
     - asdf global uv latest
     - uv sync --frozen --group doc
-    - uv run --no-sync python -m sphinx -M html "." "_build" -W
-
-# Build documentation in the docs/ directory with Sphinx
-sphinx:
-    configuration: docs/conf.py
+    - uv run --no-sync python -m sphinx -M html "docs" "$READTHEDOCS_OUTPUT" -W
 
 # If using Sphinx, optionally build your docs in additional formats such as PDF
 # formats:
