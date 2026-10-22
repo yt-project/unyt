@@ -16,7 +16,7 @@ python:
     - method: uv
       command: sync
       groups:
-        - docs
+        - doc
 
 sphinx:
   configuration: docs/conf.py
