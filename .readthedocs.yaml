@@ -17,3 +17,6 @@ python:
       command: sync
       groups:
         - docs
+
+sphinx:
+  configuration: docs/conf.py
