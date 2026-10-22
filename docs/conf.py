@@ -14,6 +14,7 @@
 
 import os
 import sys
+from pathlib import Path
 
 import unyt
 
@@ -22,7 +23,7 @@ import unyt
 # relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
 #
-sys.path.insert(0, os.curdir + os.sep + "extensions")
+sys.path.insert(0, str(Path(__file__).parent.absolute().joinpath("extensions")))
 
 # -- General configuration ---------------------------------------------
 

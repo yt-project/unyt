@@ -7,20 +7,13 @@ version: 2
 
 # Set the version of Python and other tools you might need
 build:
-    os: ubuntu-22.04
-    tools:
-        python: "3.12"
-    commands:
-    - asdf plugin add uv
-    - asdf install uv latest
-    - asdf global uv latest
-    - uv sync --frozen --group doc
-    - uv run --no-sync python -m sphinx -M html "." "_build" -W
+  os: ubuntu-24.04
+  tools:
+    python: "3.14"
 
-# Build documentation in the docs/ directory with Sphinx
-sphinx:
-    configuration: docs/conf.py
-
-# If using Sphinx, optionally build your docs in additional formats such as PDF
-# formats:
-#    - pdf
+python:
+  install:
+    - method: uv
+      command: sync
+      groups:
+        - docs
