@@ -2923,6 +2923,20 @@ def test_division_with_unyt_array_quantity_units_out_recursion():
     )
 
 
+def test_out_dimensionless_base_value_recursion():
+    # mol is dimensionless with a base value of N_A, so mol*mol simplifies to
+    # (N_A**2, dimensionless) while the mol**2 out array keeps a coefficient
+    # of 1. Rescaling out used to recurse through __array_ufunc__ forever.
+    a = unyt_array([1.0, 2.0, 3.0], "mol")
+    out = unyt_array(np.zeros(3), "mol**2")
+    result = np.multiply(a, a, out=out)
+    assert_array_equal_units(out, a * a)
+    assert_array_equal_units(result, a * a)
+
+    b = unyt_array([1.0, 4.0, 9.0], "mol")
+    assert_allclose_units(np.std(b), np.sqrt(np.var(b)))
+
+
 def test_division_with_unyt_array_different_units_out_recursion():
     # regression test for https://github.com/yt-project/unyt/issues/588
     # see also https://github.com/yt-project/unyt/issues/540

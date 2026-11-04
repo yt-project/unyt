@@ -2094,7 +2094,13 @@ class unyt_array(np.ndarray):
             ):
                 return out
             if mul != 1:
-                multiply(out, mul, out=out)
+                # scale the raw buffer: going through unyt_array.__array_ufunc__
+                # again can fold a dimensionless unit with a non-unit base value
+                # (e.g. mol**2) back into another factor and recurse forever
+                if isinstance(out, tuple):
+                    multiply(out, mul, out=out)
+                else:
+                    multiply(out_func, mul, out=out_func)
                 if np.shares_memory(out_arr, out):
                     mul = 1
             if isinstance(out, unyt_array):
