@@ -77,7 +77,7 @@ class NumberDensityEquivalence(Equivalence):
     >>> from unyt import Msun, pc
     >>> rho = 3*Msun/pc**3
     >>> rho.to_equivalent('cm**-3', 'number_density', mu=1.4)
-    unyt_quantity(86.64869896, 'cm**(-3)')
+    unyt_quantity(86.64869124, 'cm**(-3)')
     """
 
     type_name = "number_density"
@@ -121,7 +121,7 @@ class ThermalEquivalence(Equivalence):
     >>> from unyt import Kelvin
     >>> temp = 1e6*Kelvin
     >>> temp.to_equivalent('keV', 'thermal')
-    unyt_quantity(0.08617332, 'keV')
+    unyt_quantity(0.08617333, 'keV')
     """
 
     type_name = "thermal"
@@ -195,7 +195,7 @@ class SpectralEquivalence(Equivalence):
     spectral: length <-> spatial_frequency <-> frequency <-> energy
     >>> from unyt import angstrom, km
     >>> (3*angstrom).to_equivalent('keV', 'spectral')
-    unyt_quantity(4.13280644, 'keV')
+    unyt_quantity(4.13280661, 'keV')
     >>> (1*km).to_equivalent('MHz', 'spectral')
     unyt_quantity(0.29979246, 'MHz')
     """
@@ -276,12 +276,12 @@ class SoundSpeedEquivalence(Equivalence):
     >>> from unyt import Kelvin, km, s
     >>> hot = 1e6*Kelvin
     >>> hot.to_equivalent('km/s', 'sound_speed')
-    unyt_quantity(151.37249927, 'km/s')
+    unyt_quantity(151.3725035, 'km/s')
     >>> hot.to_equivalent('keV', 'sound_speed')
-    unyt_quantity(0.08617332, 'keV')
+    unyt_quantity(0.08617333, 'keV')
     >>> cs = 100*km/s
     >>> cs.to_equivalent('K', 'sound_speed')
-    unyt_quantity(436421.39881617, 'K')
+    unyt_quantity(436421.37447262, 'K')
     >>> cs.to_equivalent('keV', 'sound_speed')
     unyt_quantity(0.03760788, 'keV')
     """
@@ -399,9 +399,9 @@ class SchwarzschildEquivalence(Equivalence):
     schwarzschild: mass <-> length
     >>> from unyt import Msun, AU
     >>> (10*Msun).to_equivalent('km', 'schwarzschild')
-    unyt_quantity(29.53161626, 'km')
+    unyt_quantity(29.53258972, 'km')
     >>> (1*AU).to_equivalent('Msun', 'schwarzschild')
-    unyt_quantity(50656851.7815179, 'Msun')
+    unyt_quantity(50655182.01728917, 'Msun')
     """
 
     type_name = "schwarzschild"
@@ -439,7 +439,7 @@ class ComptonEquivalence(Equivalence):
     >>> me.to_equivalent('angstrom', 'compton')
     unyt_quantity(0.0242631, 'Å')
     >>> (10*fm).to_equivalent('me', 'compton')
-    unyt_quantity(242.63102371, 'me')
+    unyt_quantity(242.63102354, 'me')
     """
 
     type_name = "compton"
@@ -473,9 +473,9 @@ class EffectiveTemperatureEquivalence(Equivalence):
     effective_temperature: flux <-> temperature
     >>> from unyt import K, W, m
     >>> (5000.*K).to_equivalent('W/m**2', 'effective_temperature')
-    unyt_quantity(35439828.89119583, 'W/m**2')
+    unyt_quantity(35439840.11990269, 'W/m**2')
     >>> (100.*W/m**2).to_equivalent('K', 'effective_temperature')
-    unyt_quantity(204.92601755, 'K')
+    unyt_quantity(204.92600132, 'K')
     """
 
     type_name = "effective_temperature"
