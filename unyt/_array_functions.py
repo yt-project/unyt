@@ -855,7 +855,7 @@ def linalg_lstsq(a, b, *args, **kwargs):
     )
     au = getattr(a, "units", NULL_UNIT)
     bu = getattr(b, "units", NULL_UNIT)
-    return (x * bu / au, residuals * bu / au, rank, s * au)
+    return (x * bu / au, residuals * bu**2, rank, s * au)
 
 
 @implements(np.linalg.solve)
