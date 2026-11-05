@@ -6,6 +6,8 @@ from importlib.metadata import version
 
 import numpy as np
 import pytest
+from numpy import char
+from numpy.lib import recfunctions, scimath, stride_tricks
 from numpy.testing import assert_allclose
 from packaging.version import Version
 
@@ -293,23 +295,72 @@ def get_wrapped_functions(*modules):
     return dict(sorted(wrapped_functions.items()))
 
 
-def test_wrapping_completeness():
-    """Ensure we wrap all numpy functions that support __array_function__"""
-    handled_numpy_functions = set(HANDLED_FUNCTIONS.keys())
-    # ensure no functions appear in both NOT_HANDLED_FUNCTIONS and HANDLED_FUNCTIONS
-    assert NOT_HANDLED_FUNCTIONS.isdisjoint(handled_numpy_functions), (
-        NOT_HANDLED_FUNCTIONS.intersection(handled_numpy_functions)
+# Array creation via like= is tracked in #518. Keep explicit function identities:
+# some NumPy versions also register dispatchers wrapping these public functions.
+NEP35_FUNCTIONS = {
+    getattr(np, name)
+    for name in (
+        "arange array asanyarray asarray ascontiguousarray asfortranarray empty eye "
+        "frombuffer fromfile fromfunction fromiter fromstring full genfromtxt "
+        "identity loadtxt ones require tri zeros"
+    ).split()
+}
+
+# The public catalog also covers these library functions, outside the namespaces
+# scanned by the older helper. New functions still require explicit classification.
+NOT_HANDLED_LIB_FUNCTIONS = {
+    getattr(module, name)
+    for module, names in (
+        (
+            recfunctions,
+            "append_fields apply_along_fields assign_fields_by_name drop_fields "
+            "find_duplicates join_by merge_arrays rec_append_fields rec_drop_fields "
+            "rec_join recursive_fill_fields rename_fields repack_fields require_fields "
+            "stack_arrays structured_to_unstructured unstructured_to_structured",
+        ),
+        (scimath, "arccos arcsin arctanh log log10 log2 logn power sqrt"),
+        (stride_tricks, "sliding_window_view"),
+        # Non-numeric string operations; importing char registers these lazily.
+        (
+            char,
+            "capitalize center decode encode equal expandtabs greater greater_equal "
+            "join less less_equal ljust lower mod multiply not_equal partition "
+            "replace rjust rpartition rsplit split splitlines swapcase title "
+            "translate upper zfill",
+        ),
     )
-    # get list of functions that support wrapping by introspection on numpy module
-    wrappable_functions = get_wrapped_functions(np, np.fft, np.linalg)
-    for function in HANDLED_FUNCTIONS:
-        # ensure we only have wrappers for functions that support wrapping
-        assert function in wrappable_functions.values()
-    all_funcs = NOT_HANDLED_FUNCTIONS.union(handled_numpy_functions)
-    # ensure all functions in numpy that support wrapping either have wrappers
-    # or are explicitly whitelisted
-    for function in wrappable_functions.values():
-        assert function in all_funcs
+    for name in names.split()
+}
+
+if NUMPY_VERSION >= Version("2.0.0dev0"):
+    # These dispatchers are distinct from their legacy char wrappers.
+    NOT_HANDLED_LIB_FUNCTIONS |= {
+        getattr(np.strings, name)
+        for name in ("multiply", "partition", "rpartition")
+        if hasattr(np.strings, name)
+    }
+
+
+def test_wrapping_completeness():
+    """Ensure we account for all NumPy functions that support __array_function__."""
+    try:
+        from numpy.testing.overrides import get_overridable_numpy_array_functions
+    except ImportError:  # Older supported NumPy releases have no public catalog.
+        wrappable = set(get_wrapped_functions(np, np.fft, np.linalg).values())
+    else:
+        wrappable = get_overridable_numpy_array_functions()
+
+    handled = set(HANDLED_FUNCTIONS)
+    unhandled = NOT_HANDLED_FUNCTIONS | NEP35_FUNCTIONS | NOT_HANDLED_LIB_FUNCTIONS
+    assert not (handled & unhandled), handled & unhandled
+    assert handled <= wrappable, handled - wrappable
+
+    missing = {
+        f
+        for f in wrappable - handled - unhandled
+        if getattr(f, "__wrapped__", None) not in NEP35_FUNCTIONS
+    }
+    assert not missing, missing
 
 
 def test_unsupported_array_function_returns_notimplemented():
