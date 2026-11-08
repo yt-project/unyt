@@ -2840,6 +2840,7 @@ def test_reshape_quantity_copy():
     d_view[...] = 42
     assert a == 99 * a.units
 
+
 def test_string_comparison():
     # exercise comparison between a unyt_quantity object and a string
     # see regression https://github.com/numpy/numpy/issues/22744
