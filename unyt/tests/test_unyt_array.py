@@ -2821,6 +2821,25 @@ def test_reshape_quantity_via_shape_tuple():
     assert type(b) is unyt_array
 
 
+def test_reshape_quantity_copy():
+    a = unyt_quantity(1, "m")
+    b = a.reshape(1, copy=True)
+    assert b.shape == (1,)
+    assert type(b) is unyt_array
+    b[0] = 99 * a.units
+    assert a == 1 * a.units
+
+    c = a.reshape(1, copy=False)
+    assert type(c) is unyt_array
+    c[0] = 99 * a.units
+    assert a == 99 * a.units
+
+    d = a.reshape((), copy=True)
+    assert type(d) is unyt_quantity
+    d_view = d.view(np.ndarray)
+    d_view[...] = 42
+    assert a == 99 * a.units
+
 def test_string_comparison():
     # exercise comparison between a unyt_quantity object and a string
     # see regression https://github.com/numpy/numpy/issues/22744
