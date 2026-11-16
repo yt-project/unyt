@@ -888,7 +888,10 @@ def test_iteration():
 
 
 def test_unyt_array_pickle():
-    test_data = [unyt_quantity(12.0, "cm"), unyt_array([1, 2, 3], "km")]
+    test_data = [
+        unyt_quantity(12.0, "cm", name="distance"),
+        unyt_array([1, 2, 3], "km", name="distance"),
+    ]
 
     for data in test_data:
         tempf = tempfile.NamedTemporaryFile(delete=False)
@@ -901,8 +904,14 @@ def test_unyt_array_pickle():
 
         assert_array_equal(data, loaded_data)
         assert_equal(data.units, loaded_data.units)
+        assert_equal(loaded_data.name, "distance")
         assert_array_equal(array(data.in_cgs()), array(loaded_data.in_cgs()))
         assert_equal(float(data.units.base_value), float(loaded_data.units.base_value))
+
+        state = tuple(data.__reduce__()[2])
+        legacy_state = (state[0][:2],) + state[1:]
+        loaded_data.__setstate__(legacy_state)
+        assert loaded_data.name is None
 
 
 SYMPY_VERSION = Version(version("sympy"))

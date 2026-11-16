@@ -2240,7 +2240,8 @@ class unyt_array(np.ndarray):
         """
         np_ret = super().__reduce__()
         obj_state = np_ret[2]
-        unit_state = (((str(self.units), self.units.registry.lut),) + obj_state[:],)
+        metadata = (str(self.units), self.units.registry.lut, self.name)
+        unit_state = ((metadata,) + obj_state[:],)
         new_ret = np_ret[:2] + unit_state + np_ret[3:]
         return new_ret
 
@@ -2251,7 +2252,12 @@ class unyt_array(np.ndarray):
         metadata extracted in __reduce__ and then serialized by pickle.
         """
         super().__setstate__(state[1:])
-        unit, lut = state[0]
+        if len(state[0]) == 2:
+            # Pickles written before names were included in the metadata.
+            unit, lut = state[0]
+            self.name = None
+        else:
+            unit, lut, self.name = state[0]
         lut = _correct_old_unit_registry(lut)
         registry = UnitRegistry(lut=lut, add_default_symbols=False)
         self.units = Unit(unit, registry=registry)
