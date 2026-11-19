@@ -1628,19 +1628,34 @@ def test_linalg_cholesky():
     assert y.units == cm
 
 
-def test_linalg_lstsq():
-    a = np.eye(3) * cm
-    b = np.ones(3).T * g
+@pytest.mark.parametrize("a_units,b_units", [(cm, g), (cm, None), (None, g)])
+@pytest.mark.parametrize("multiple_rhs", [False, True])
+def test_linalg_lstsq(a_units, b_units, multiple_rhs):
+    a = np.array([[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]])
+    b = np.array([1.0, 2.0, 4.0])
+    if multiple_rhs:
+        b = np.column_stack((b, 2 * b))
+    if a_units is not None:
+        a = a * a_units
+    if b_units is not None:
+        b = b * b_units
     # setting rcond explicitly to avoid a FutureWarning
     # see https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html
     x, residuals, rank, s = np.linalg.lstsq(a, b, rcond=-1)
 
+    au = a_units or dimensionless
+    bu = b_units or dimensionless
     assert type(x) is unyt_array
-    assert x.units == g / cm
+    assert x.units == bu / au
     assert type(residuals) is unyt_array
-    assert residuals.units == g / cm
+    assert residuals.units == bu**2
+    # The least-squares residual is [-1/3, -1/3, 1/3] in b's units.
+    expected_residuals = [1 / 3, 4 / 3] if multiple_rhs else [1 / 3]
+    assert_allclose(residuals.value, expected_residuals)
+    assert_allclose(residuals.value, np.asarray(np.sum(np.abs(b - a @ x) ** 2, axis=0)))
+    assert rank == 2
     assert type(s) is unyt_array
-    assert s.units == cm
+    assert s.units == au
 
 
 def test_linalg_multi_dot():
