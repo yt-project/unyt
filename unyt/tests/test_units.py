@@ -66,6 +66,25 @@ def test_knot_conversion(symbol):
     assert_allclose(unyt_quantity(1, symbol).to_value("nmi/hr"), 1.0)
 
 
+@pytest.mark.parametrize("symbol", ["ly", "light_year"])
+def test_light_year_is_light_travel_in_a_julian_year(symbol):
+    # IAU: 1 ly = c * 365.25 days = 9460730472580800 m
+    assert_allclose(
+        unyt_quantity(1, symbol).to_value("m"), 9460730472580800.0, rtol=1e-15
+    )
+    assert_allclose(
+        unyt_quantity(1, symbol).to_value("m"),
+        (unyt_quantity(1, "c") * unyt_quantity(1, "yr")).to_value("m"),
+        rtol=1e-15,
+    )
+
+
+@pytest.mark.parametrize("symbol", ["AU", "au", "astronomical_unit"])
+def test_astronomical_unit_is_exact(symbol):
+    # IAU 2012 Resolution B2
+    assert_allclose(unyt_quantity(1, symbol).to_value("m"), 149597870700.0, rtol=1e-15)
+
+
 def test_no_conflicting_symbols():
     """
     Check unit symbol definitions for conflicts.

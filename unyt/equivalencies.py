@@ -401,7 +401,7 @@ class SchwarzschildEquivalence(Equivalence):
     >>> (10*Msun).to_equivalent('km', 'schwarzschild')
     unyt_quantity(29.53161626, 'km')
     >>> (1*AU).to_equivalent('Msun', 'schwarzschild')
-    unyt_quantity(50656851.7815179, 'Msun')
+    unyt_quantity(50656851.76432727, 'Msun')
     """
 
     type_name = "schwarzschild"
