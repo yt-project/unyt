@@ -174,7 +174,12 @@ def test_old_registry_json():
         assert k in loaded_keys
         loaded_val = reg[k]
         val = default_reg[k]
-        assert_allclose(loaded_val[0], val[0])
+        if k == "ly":
+            # the old registry used the light-year of a tropical year; it is
+            # now the IAU light-year of a Julian year (2.1e-5 longer)
+            assert_allclose(loaded_val[0], val[0], rtol=3e-5)
+        else:
+            assert_allclose(loaded_val[0], val[0])
         assert loaded_val[1:] == val[1:]
 
 

@@ -50,11 +50,13 @@ cm_per_mpc = 3.08567758e21
 km_per_m = 1e-3
 km_per_cm = 1e-5
 m_per_cm = 1e-2
-ly_per_m = 1.05702341e-16
+# light-year: the distance light travels in a Julian year of 365.25 days (IAU)
+m_per_ly = 9460730472580800.0
 rsun_per_m = 1.4378145e-9
 rearth_per_m = 1.56961033e-7  # Mean (volumetric) radius
 rjup_per_m = 1.43039006737e-8  # Mean (volumetric) radius
-au_per_m = 6.68458712e-12
+# astronomical unit: exact by IAU 2012 Resolution B2
+m_per_au = 149597870700.0
 ang_per_m = 1.0e10
 
 m_per_fpc = 0.0324077929
@@ -74,11 +76,11 @@ cm_per_km = 1.0 / km_per_cm
 cm_per_m = 1.0 / m_per_cm
 pc_per_km = 1.0 / km_per_pc
 m_per_pc = 1.0 / pc_per_m
-m_per_ly = 1.0 / ly_per_m
+ly_per_m = 1.0 / m_per_ly
 m_per_rsun = 1.0 / rsun_per_m
 m_per_rearth = 1.0 / rearth_per_m
 m_per_rjup = 1.0 / rjup_per_m
-m_per_au = 1.0 / au_per_m
+au_per_m = 1.0 / m_per_au
 m_per_ang = 1.0 / ang_per_m
 
 # time
